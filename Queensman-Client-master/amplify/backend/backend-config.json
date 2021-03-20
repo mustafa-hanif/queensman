@@ -1,0 +1,8 @@
+{
+	"auth": {
+		"queensmancliente13ddcad": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation"
+		}
+	}
+}

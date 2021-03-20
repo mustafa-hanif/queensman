@@ -1,0 +1,47 @@
+
+.modal-title
+{
+    color:#052244;
+    font-weight: bold;
+    text-align: center;
+    font-size:0.6cm;
+ 
+}
+.modal-time
+{
+    text-align: left;
+    font-size: 0.4cm;
+    font-weight: bold;
+}
+.modal-type
+{
+    text-align: left;
+    font-size: 0.3cm;
+    font-weight: bold;
+}
+.modal-body
+{
+    display: inline-block;
+}
+.modal-client
+{
+    text-align: left;
+    font-size: 0.4cm;
+    font-weight: bold;
+    color:#EEC95E;
+
+}
+.details
+{
+    text-align: left;
+    font-size: 0.3cm;
+    font-weight: bold;
+    color:black;
+    margin-left: 2%;
+}
+.details1
+{
+    font-weight: bold;
+    color:darkgrey;
+    margin-left: 5%;
+}

@@ -1,0 +1,8 @@
+Modify Service / Modify Client / Modify Worker / Modify Property
+-> Active Status Field is added (dropdown) having id="active_status"
+
+Modify Service 
+-> ACTION field is added at bottom of right most section having id="inputACTION"
+
+Pre / Post / Callout Images in Services.html Pop up 
+-> Delete and Add more images UI added dynamically

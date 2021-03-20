@@ -1,0 +1,16 @@
+postgresql://postgres:f36183bcd03feda3f586f78f9e7555b6@backend-1da3b213.nhost.app:5752/postgres?sslmode=require
+
+user
+postgres
+
+password
+f36183bcd03feda3f586f78f9e7555b6
+
+host
+backend-1da3b213.nhost.app
+
+port
+5752
+
+db
+postgres

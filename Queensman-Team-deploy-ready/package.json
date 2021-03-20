@@ -1,0 +1,48 @@
+{
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "eject": "expo eject"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^12.0.0",
+    "@react-native-async-storage/async-storage": "^1.14.1",
+    "@react-native-community/datetimepicker": "3.0.4",
+    "@react-native-community/masked-view": "0.1.10",
+    "@react-native-community/netinfo": "5.9.7",
+    "axios": "^0.19.0",
+    "expo": "^40.0.0",
+    "expo-font": "~8.4.0",
+    "expo-gl": "~9.2.0",
+    "expo-image-picker": "~9.2.0",
+    "expo-linear-gradient": "~8.4.0",
+    "expo-pixi": "^1.1.0",
+    "hoist-non-react-statics": "*",
+    "lodash": "^4.0.0",
+    "native-base": "^2.13.12",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-40.0.1.tar.gz",
+    "react-native-calendars": "^1.265.0",
+    "react-native-gesture-handler": "~1.8.0",
+    "react-native-modal": "^11.1.0",
+    "react-native-modal-datetime-picker": "^8.5.4",
+    "react-native-progress-steps": "^1.2.7",
+    "react-native-reanimated": "~1.13.0",
+    "react-native-safe-area-context": "3.1.9",
+    "react-native-screens": "~2.15.2",
+    "react-native-signature-canvas": "^1.4.2",
+    "react-native-star-rating": "^1.1.0",
+    "react-native-view-shot": "3.1.2",
+    "react-native-web": "~0.13.12",
+    "react-native-whc-toast": "^1.0.0",
+    "react-navigation": "^3.11.0"
+  },
+  "devDependencies": {
+    "babel-preset-expo": "8.3.0"
+  },
+  "private": true
+}

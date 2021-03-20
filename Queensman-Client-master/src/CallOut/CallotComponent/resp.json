@@ -1,0 +1,28 @@
+{
+    "server_response": [
+        {
+            "job_history": {
+                "callout_id": "16",
+                "status_update": "Job Assigned",
+                "updated_by": "Admin",
+                "time": "2019-10-24 14:38:24"
+            }
+        },
+        {
+            "job_history": {
+                "callout_id": "16",
+                "status_update": "In Progress",
+                "updated_by": "Ops Team",
+                "time": "2019-10-24 14:39:08"
+            }
+        },
+        {
+            "job_history": {
+                "callout_id": "16",
+                "status_update": "Closed",
+                "updated_by": "Ops Team",
+                "time": "2019-10-24 14:41:11"
+            }
+        }
+    ]
+}

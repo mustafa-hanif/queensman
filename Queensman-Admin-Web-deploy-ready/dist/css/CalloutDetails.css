@@ -1,0 +1,346 @@
+/* Call out*/
+.content-header
+{
+    color:#EEC95E;
+    text-align: left;
+    margin-left: 3%;
+    font-weight: bold;
+}
+.menu
+{
+    list-style-type: none;
+    margin-left: 70%;
+    margin-right:0%;
+}
+
+.btn-content_bar
+{
+    text-align: center;
+    color: black;
+    background-color: #EEC95E;
+    border-color: #EEC95E;
+    border-radius: 0px;
+    width:10%;
+}
+.btn-content_bar:hover
+{
+    color: black;
+    background-color:#052244;
+    border-color:whitesmoke;
+    border-radius: 0px;
+    width:10%;
+    color:white;
+}
+
+.menu2
+{
+    list-style-type: none;
+    margin-left: 5%;
+    margin-right:5%;
+}
+.content_bar_items2
+{
+    display:inline;
+    margin-left: 20%;
+    margin-right:15%;
+    font-weight: bold;
+    color:#001E29;
+    font-size: 0.5cm
+}
+/* callout details*/
+.col-md-8
+{
+    background-color:white;
+}
+.Date
+{
+    font-weight:bold;
+    font-size:0.5cm;
+    margin-left:3%;
+}
+.jobtype
+{
+    font-weight:bold;
+    margin-left:3%;
+}
+.List1
+{
+    list-style-type: none;
+    display: 
+}
+.modal-client
+{
+    margin-left:0%;
+    margin-top:2%;
+    margin-bottom:2%;
+}
+.modal-property
+{
+    color:#EEC95E;
+    text-align:left;
+    margin-left:0%;
+    margin-top:2%;
+    margin-bottom:2%;
+    font-weight:bold;
+    font-size: 0.4cm
+}
+.Job-desc
+{
+    font-weight:bold;
+    margin-left:1%;
+}
+.Job-desc-text
+{
+    margin-left:3%;
+}
+
+
+
+.content-wrapper
+{
+    background-color:#EEEEEE;
+    background-size: 100%;
+}
+
+/* clients tab*/
+.modal-title
+{
+    color:#001E29;
+    font-weight: bold;
+    text-align: center;
+    font-size:0.5cm;
+}
+.modal-time
+{
+    text-align: left;
+    font-size: 0.4cm;
+    font-weight: bold;
+}
+.modal-type
+{
+    text-align: left;
+    font-size: 0.3cm;
+    font-weight: bold;
+}
+.modal-client
+{
+    text-align: left;
+    font-size: 0.4cm;
+    font-weight: bold;
+    color:#EEC95E;
+}
+.details
+{
+    text-align: left;
+    font-size: 0.3cm;
+    font-weight: bold;
+    color:black;
+    margin-left: 2%;
+}
+
+.SearchBarClient
+{
+    margin-left:0%;
+    width:85%;
+    height: 30px;
+    margin-left: 0px;
+    margin-right:0px;
+    border: 0px;
+    border-color:#052244;
+    box-shadow: 2px 2px 2px 2px  #EEEEEE;
+}
+.SearchButton
+{
+    margin-left:1%;
+    margin-right:0%;
+    height: 30px;
+    background-color: #fff;
+    color: #fff;
+    border: 2px;
+    border-block-color: white;
+}
+.list-group-item
+{
+    display: inline-flex;
+    width:100%
+}
+
+
+.list-group
+{
+    list-style-type: none;
+    margin-top:0px;
+    margin-bottom: 0px;
+}
+.image-parent 
+{
+    max-width: 40px;
+    margin-right: none;
+}
+.img-circle
+{
+    height:40px;
+    margin-right: none;
+    margin-right: 10%;
+    margin-left: 5%;
+    
+}
+.client-name
+{
+text-align: center;
+width:100%;
+color:#052244;
+}
+.checkbox-warning
+{
+height:28px;
+width:28px;
+margin-left:10%;
+}
+/* change password */
+
+.open-button {
+    background-color: #DAA207;
+    color: white;
+    border: none;
+    cursor: pointer;
+    opacity: 1;
+    width: 150px;
+    height: 40px;
+}
+input[type=password]
+{
+    width:95%;
+}
+@media (max-width: 1920px)
+{
+    .main-sidebar
+    {
+        height:100%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 12.1%;
+    }
+}
+@media (max-width: 1680px)
+{
+    .main-sidebar
+    {
+        height:95%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 13.9%;
+    }
+}
+@media (max-width: 1600px)
+{
+    .main-sidebar
+    {
+        height:80%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 14.5%;
+    }
+}
+@media (max-width: 1440px)
+{
+    .main-sidebar
+    {
+        height:115%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 16.2%;
+    }
+}
+@media (max-width: 1366px)
+{
+    .main-sidebar
+    {
+        height:145%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 17.0%;
+    }
+}
+@media (max-width: 1280px)
+{
+    .main-sidebar
+    {
+        height:115%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 18.2%;
+    }
+}
+       /* mobile  */
+       @media (max-width:768px)
+       {
+        /*  Callout Details*/
+        .content_bar_items2
+        {
+       
+            display:inline;
+            font-weight: bold;
+            color:#052244;
+            font-size: 0.5cm;
+            margin-right: 60%;
+            margin-left: 0%; 
+        }
+       /* cancel assign callout */
+       .btn-content_bar
+       {
+           color: black;
+           background-color: #EEC95E;
+           border-color: #EEC95E;
+           border-radius: 0px;
+           width:40%;
+           margin-top:2%;
+       }
+       .btn-content_bar:hover
+       {
+           color: black;
+           background-color:#052244;
+           border-color:whitesmoke;
+           border-radius: 0px;
+           width:40%;
+           color:white;
+           margin-top:2%;
+       }
+       .modal-body
+       {
+           margin-bottom:15%;
+           margin-top: 5%;
+       }
+       }
+       
+       

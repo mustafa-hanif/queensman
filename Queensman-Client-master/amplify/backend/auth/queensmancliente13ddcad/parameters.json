@@ -1,0 +1,68 @@
+{
+    "identityPoolName": "queensmancliente13ddcad_identitypool_e13ddcad",
+    "allowUnauthenticatedIdentities": false,
+    "lambdaLogPolicy": "queens_e13ddcad_lambda_log_policy",
+    "openIdLambdaRoleName": "queens_e13ddcad_openid_lambda_role",
+    "openIdRolePolicy": "queens_e13ddcad_openid_pass_role_policy",
+    "openIdLambdaIAMPolicy": "queens_e13ddcad_openid_lambda_iam_policy",
+    "openIdLogPolicy": "queens_e13ddcad_openid_lambda_log_policy",
+    "userPoolName": "queensmancliente13ddcad_userpool_e13ddcad",
+    "autoVerifiedAttributes": [
+        "email"
+    ],
+    "mfaConfiguration": "OFF",
+    "mfaTypes": [
+        "SMS Text Message"
+    ],
+    "roleName": "queense13ddcad_sns-role",
+    "roleExternalId": "queense13ddcad_role_external_id",
+    "policyName": "queense13ddcad-sns-policy",
+    "smsAuthenticationMessage": "Your authentication code is {####}",
+    "smsVerificationMessage": "Your verification code is {####}",
+    "emailVerificationSubject": "Your verification code",
+    "emailVerificationMessage": "Your verification code is {####}",
+    "defaultPasswordPolicy": false,
+    "passwordPolicyMinLength": 8,
+    "passwordPolicyCharacters": [],
+    "requiredAttributes": [
+        "email"
+    ],
+    "userpoolClientName": "queense13ddcad_app_client",
+    "userpoolClientGenerateSecret": true,
+    "userpoolClientRefreshTokenValidity": 30,
+    "userpoolClientWriteAttributes": [
+        "email"
+    ],
+    "userpoolClientReadAttributes": [
+        "email"
+    ],
+    "mfaLambdaRole": "queense13ddcad_totp_lambda_role",
+    "mfaLambdaLogPolicy": "queense13ddcad_totp_lambda_log_policy",
+    "mfaPassRolePolicy": "queense13ddcad_totp_pass_role_policy",
+    "mfaLambdaIAMPolicy": "queense13ddcad_totp_lambda_iam_policy",
+    "userpoolClientLambdaRole": "queense13ddcad_userpoolclient_lambda_role",
+    "userpoolClientLogPolicy": "queense13ddcad_userpoolclient_lambda_log_policy",
+    "userpoolClientLambdaPolicy": "queense13ddcad_userpoolclient_lambda_iam_policy",
+    "userpoolClientSetAttributes": false,
+    "resourceName": "queensmancliente13ddcad",
+    "authSelections": "identityPoolAndUserPool",
+    "authRoleName": {
+        "Ref": "AuthRoleName"
+    },
+    "unauthRoleName": {
+        "Ref": "UnauthRoleName"
+    },
+    "authRoleArn": {
+        "Fn::GetAtt": [
+            "AuthRole",
+            "Arn"
+        ]
+    },
+    "unauthRoleArn": {
+        "Fn::GetAtt": [
+            "UnauthRole",
+            "Arn"
+        ]
+    },
+    "useDefault": "default"
+}
