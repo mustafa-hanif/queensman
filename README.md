@@ -19,6 +19,10 @@ https://www.admin.queensman.com/
 aalvi@queensman.com
 QsG4WHrfzDwEp8wN
 
+### Wordpress Admin panel
+kingsman_lead_179
+i!3nuwFYqsrCXwwbIzG&v0LE
+
 PhpMyAdmin
 root
 v8mw7DOVnoHY
