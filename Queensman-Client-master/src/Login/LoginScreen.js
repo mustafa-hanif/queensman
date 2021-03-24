@@ -24,6 +24,7 @@ import * as LocalAuthentication from "expo-local-authentication";
 import Constants from "expo-constants";
 
 import Toast from "react-native-whc-toast";
+import { endpoint } from "../constants/Endpoint";
 
 let deviceWidth = Dimensions.get("window").width;
 let deviceHeight = Dimensions.get("window").height;
@@ -85,7 +86,8 @@ export default class LoginScreen extends React.Component {
     // console.log('Scan Result:', result.success)
     if (result.success) {
       let link =
-        "http://13.250.20.151/queens_client_Apis/fetchDeviceID.php?email=" +
+        endpoint +
+        "queens_client_Apis/fetchDeviceID.php?email=" +
         this.state.email;
       console.log(link);
       axios.get(link).then((result) => {
@@ -134,7 +136,8 @@ export default class LoginScreen extends React.Component {
       // alert("Proceed");
 
       let link =
-        "http://13.250.20.151/queens_client_Apis/checkPassword.php?email=" +
+        endpoint +
+        "queens_client_Apis/checkPassword.php?email=" +
         this.state.email;
       console.log(link);
       axios.get(link).then((result) => {
@@ -150,7 +153,8 @@ export default class LoginScreen extends React.Component {
           this.setState({ loading: false });
         } else {
           link =
-            "http://13.250.20.151/queens_client_Apis/fetchClientID.php?email=" +
+            endpoint +
+            "queens_client_Apis/fetchClientID.php?email=" +
             this.state.email;
           console.log(link);
           axios.get(link).then((result) => {
@@ -216,7 +220,8 @@ export default class LoginScreen extends React.Component {
       } else {
         var active = "";
         let link =
-          "http://13.250.20.151/queens_client_Apis/fetchClientActive.php?email=" +
+          endpoint +
+          "queens_client_Apis/fetchClientActive.php?email=" +
           this.state.email;
         console.log(link);
         axios.get(link).then((result) => {
