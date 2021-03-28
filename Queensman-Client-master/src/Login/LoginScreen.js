@@ -26,14 +26,15 @@ import Constants from "expo-constants";
 import Toast from "react-native-whc-toast";
 import { endpoint } from "../constants/Endpoint";
 
-let deviceWidth = Dimensions.get("window").width;
-let deviceHeight = Dimensions.get("window").height;
+const deviceWidth = Dimensions.get("window").width;
+const deviceHeight = Dimensions.get("window").height;
 
-let TextBoxH = deviceHeight / 15.6;
+const TextBoxH = deviceHeight / 15.6;
 
 export default class LoginScreen extends React.Component {
-  //animation ref
+  // animation ref
   handleViewRef = (ref) => (this.view = ref);
+
   handleViewRefs = (ref) => (this.view = ref);
 
   constructor(props) {
@@ -46,7 +47,7 @@ export default class LoginScreen extends React.Component {
       phoneno: "97148721301",
       passwordcheck: "",
       newpassword: "check",
-      loading: false, //put true to start loading  false to end loading
+      loading: false, // put true to start loading  false to end loading
       user: {},
       length: 8,
       subject: "Account details for Queensman Spades Portal.",
@@ -70,33 +71,30 @@ export default class LoginScreen extends React.Component {
   };
 
   checkDeviceForHardware = async () => {
-    let compatible = await LocalAuthentication.hasHardwareAsync();
+    const compatible = await LocalAuthentication.hasHardwareAsync();
     this.setState({ compatible });
   };
 
   checkForFingerprints = async () => {
-    let fingerprints = await LocalAuthentication.isEnrolledAsync();
+    const fingerprints = await LocalAuthentication.isEnrolledAsync();
     this.setState({ fingerprints });
   };
 
   scanFingerprint = async () => {
-    let result = await LocalAuthentication.authenticateAsync(
+    const result = await LocalAuthentication.authenticateAsync(
       "Scan your finger."
     );
     // console.log('Scan Result:', result.success)
     if (result.success) {
-      let link =
-        endpoint +
-        "queens_client_Apis/fetchDeviceID.php?email=" +
-        this.state.email;
+      const link = `${endpoint}queens_client_Apis/fetchDeviceID.php?email=${this.state.email}`;
       console.log(link);
       axios.get(link).then((result) => {
-        console.log("result" + result.data.server_responce.stored_device_id);
+        console.log(`result${result.data.server_responce.stored_device_id}`);
         if (
           result.data.server_responce.stored_device_id ==
           Constants.installationId
         ) {
-          const email = this.state.email;
+          const { email } = this.state;
           const password = this.state.passwordcheck;
           Auth.signIn(email, password)
             .then((user) => {
@@ -126,7 +124,7 @@ export default class LoginScreen extends React.Component {
 
   proceedFunctionEmail = () => {
     NetInfo.fetch().then((isConnected) => {
-      this.setState({ connections: isConnected ? true : false });
+      this.setState({ connections: !!isConnected });
     });
 
     if (this.state.connections) {
@@ -135,10 +133,7 @@ export default class LoginScreen extends React.Component {
       });
       // alert("Proceed");
 
-      let link =
-        endpoint +
-        "queens_client_Apis/checkPassword.php?email=" +
-        this.state.email;
+      let link = `${endpoint}queens_client_Apis/checkPassword.php?email=${this.state.email}`;
       console.log(link);
       axios.get(link).then((result) => {
         console.log(result.data);
@@ -152,10 +147,7 @@ export default class LoginScreen extends React.Component {
           );
           this.setState({ loading: false });
         } else {
-          link =
-            endpoint +
-            "queens_client_Apis/fetchClientID.php?email=" +
-            this.state.email;
+          link = `${endpoint}queens_client_Apis/fetchClientID.php?email=${this.state.email}`;
           console.log(link);
           axios.get(link).then((result) => {
             console.log(result.data.server_responce_ID);
@@ -189,7 +181,7 @@ export default class LoginScreen extends React.Component {
           attributes: {
             email,
           },
-          validationData: [], //optional
+          validationData: [], // optional
         })
           .then((data) => {
             this.storePass(this.state.newpassword);
@@ -218,17 +210,14 @@ export default class LoginScreen extends React.Component {
         //     this.setState({ loading: false })
         // })
       } else {
-        var active = "";
-        let link =
-          endpoint +
-          "queens_client_Apis/fetchClientActive.php?email=" +
-          this.state.email;
+        let active = "";
+        const link = `${endpoint}queens_client_Apis/fetchClientActive.php?email=${this.state.email}`;
         console.log(link);
         axios.get(link).then((result) => {
           console.log(result.data.server_responce_ID);
           active = result.data.server_responce_ID;
           if (active == "1") {
-            this.fadeOutLeft(); //animation
+            this.fadeOutLeft(); // animation
             //  change from email to password
             setTimeout(() => {
               this.setState({ emailpage: false, loading: false });
@@ -245,6 +234,7 @@ export default class LoginScreen extends React.Component {
       this.setState({ loading: false });
     }
   };
+
   async storePass(pass) {
     try {
       await AsyncStorage.setItem("QueensPass", pass);
@@ -254,18 +244,19 @@ export default class LoginScreen extends React.Component {
   }
 
   makeid = () => {
-    var result = "";
-    var characters =
+    let result = "";
+    const characters =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    var charactersLength = characters.length;
-    for (var i = 0; i < this.state.length; i++) {
+    const charactersLength = characters.length;
+    for (let i = 0; i < this.state.length; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     this.setState({ newpassword: result });
   };
+
   proceedFunctionPassword = () => {
     NetInfo.fetch().then((isConnected) => {
-      this.setState({ connections: isConnected ? true : false });
+      this.setState({ connections: !!isConnected });
     });
     if (this.state.connections) {
       this.setState({ loading: true });
@@ -281,7 +272,7 @@ export default class LoginScreen extends React.Component {
             this.props.navigation.navigate("AppDrawer");
           }, 800);
 
-          //Idher Successful hochuka hay sign-in, Yahan se aagay navigate kardena main screen pe!
+          // Idher Successful hochuka hay sign-in, Yahan se aagay navigate kardena main screen pe!
         })
         .catch((err) => {
           alert(
@@ -297,20 +288,22 @@ export default class LoginScreen extends React.Component {
   };
 
   CallUsFunction = () => {
-    const url = "tel://+" + this.state.phoneno;
+    const url = `tel://+${this.state.phoneno}`;
     Linking.openURL(url);
   };
+
   ContectUsFuntion = () => {
     this.props.navigation.navigate("SignUpContectUs");
   };
 
-  //animation function
+  // animation function
   fadeOutLeft = () =>
     this.view
       .fadeOutLeftBig(400)
       .then((endState) =>
         console.log(endState.finished ? "bounce finished" : "bounce cancelled")
       );
+
   fadeOutRight = () =>
     this.view
       .fadeOutRightBig(400)
@@ -319,16 +312,17 @@ export default class LoginScreen extends React.Component {
       );
 
   backtoEmail = () => {
-    this.fadeOutRight(); //animation
+    this.fadeOutRight(); // animation
 
-    //change from password to email
+    // change from password to email
     setTimeout(() => {
       this.setState({ emailpage: true });
     }, 400);
   };
+
   ForgotPassword = () => {
     this.setState({ loading: true });
-    const email = this.state.email;
+    const { email } = this.state;
     Auth.forgotPassword(email)
       .then((data) => {
         console.log(data);
@@ -352,7 +346,7 @@ export default class LoginScreen extends React.Component {
 
   render() {
     return (
-      //content as view type  and touch exit
+      // content as view type  and touch exit
       // <Content scrollEnabled={false} style={{ flex:1}}>
       <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
         <Toast
@@ -369,13 +363,13 @@ export default class LoginScreen extends React.Component {
         <LinearGradient
           colors={["#000E1E", "#001E2B", "#000E1E"]}
           style={styles.gradiantStyle}
-        ></LinearGradient>
+        />
 
         <Image
           style={styles.LogoStyle}
           source={require("../../assets/Login/Queensman_logo3.png")}
         />
-        <View style={{ paddingTop: "11%" }}></View>
+        <View style={{ paddingTop: "11%" }} />
 
         {/* checking if to change email and password Component */}
 
@@ -400,12 +394,12 @@ export default class LoginScreen extends React.Component {
                   underlineColorAndroid="transparent"
                   onChangeText={(email) => {
                     this.setState({ email });
-                  }} //email set
+                  }} // email set
                 />
               </View>
             </ImageBackground>
 
-            <View style={{ paddingVertical: "3%", width: 280 }}></View>
+            <View style={{ paddingVertical: "3%", width: 280 }} />
             <TouchableOpacity
               style={{ height: 38, width: 200, alignSelf: "center" }}
               onPress={this.proceedFunctionEmail}
@@ -413,7 +407,7 @@ export default class LoginScreen extends React.Component {
               <ImageBackground
                 style={{ height: 38, width: 200 }}
                 source={require("../../assets/Login/Proceed2.png")}
-              ></ImageBackground>
+              />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -459,7 +453,7 @@ export default class LoginScreen extends React.Component {
                   underlineColorAndroid="transparent"
                   onChangeText={(password) => {
                     this.setState({ password });
-                  }} //password set
+                  }} // password set
                 />
                 {this.state.showPassword ? (
                   <Icon
@@ -471,7 +465,7 @@ export default class LoginScreen extends React.Component {
                       color: "#000E1E",
                       paddingRight: "4%",
                     }}
-                  ></Icon>
+                  />
                 ) : (
                   <Icon
                     onPress={this.toggleSwitch}
@@ -482,12 +476,12 @@ export default class LoginScreen extends React.Component {
                       color: "#000E1E",
                       paddingRight: "4%",
                     }}
-                  ></Icon>
+                  />
                 )}
               </View>
             </ImageBackground>
 
-            <View style={{ paddingVertical: "3%" }}></View>
+            <View style={{ paddingVertical: "3%" }} />
             <TouchableOpacity
               style={{ width: 200, height: 38 }}
               onPress={this.proceedFunctionPassword}
@@ -495,7 +489,7 @@ export default class LoginScreen extends React.Component {
               <ImageBackground
                 style={{ width: 200, height: 38 }}
                 source={require("../../assets/Login/Proceed2.png")}
-              ></ImageBackground>
+              />
             </TouchableOpacity>
 
             <Text
@@ -530,7 +524,7 @@ export default class LoginScreen extends React.Component {
             style={{ paddingTop: "5%" }}
           />
         ) : (
-          <View></View>
+          <View />
         )}
 
         {/* call us */}
@@ -543,7 +537,7 @@ export default class LoginScreen extends React.Component {
             paddingTop: "17%",
             alignSelf: "center",
           }}
-        ></View>
+        />
         {this.state.emailpage ? (
           <TouchableOpacity onPress={this.ContectUsFuntion}>
             <View style={{ flexDirection: "column", paddingTop: "5%" }}>
@@ -597,7 +591,7 @@ export default class LoginScreen extends React.Component {
             </View>
           </TouchableOpacity>
         )}
-        <View style={{ height: "3%" }}></View>
+        <View style={{ height: "3%" }} />
         <TouchableOpacity onPress={this.contactEmailHandler}>
           <View
             style={{
