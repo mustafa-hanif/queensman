@@ -14,7 +14,12 @@ import { Icon } from "native-base";
 import AppLoading from "expo-app-loading";
 import * as Font from "expo-font";
 import { Asset } from "expo-asset";
-//Classes import
+
+import { NhostApolloProvider } from "@nhost/react-apollo";
+import { NhostAuthProvider } from "@nhost/react-auth";
+import { auth } from "./src/utils/nhost";
+
+// Classes import
 import LoginScreen from "./src/Login/LoginScreen";
 import AuthLoginCheck from "./src/Auth/AuthLoginCheck";
 import HomeScreen from "./src/Home/HomeScreen";
@@ -36,26 +41,10 @@ import SignupContectUs from "./src/Login/SignupContectUs";
 import SettingPasswordChange from "./src/Component/SettingPasswordChange";
 import ForgotPassword from "./src/Login/ForgotPassword";
 
-import Amplify from "aws-amplify";
-import config from "./aws-exports";
-
-Amplify.configure(config);
-
 /** App main loading */
-
-function cacheImages(images) {
-  return images.map((image) => {
-    if (typeof image === "string") {
-      return Image.prefetch(image);
-    } else {
-      return Asset.fromModule(image).downloadAsync();
-    }
-  });
-}
 
 export default class App extends PureComponent {
   state = {
-    fontsAreLoaded: false,
     isReady: false,
   };
 
@@ -73,48 +62,57 @@ export default class App extends PureComponent {
       );
     }
 
-    return <AppContainer></AppContainer>;
+    return (
+      <NhostAuthProvider auth={auth}>
+        <NhostApolloProvider
+          auth={auth}
+          gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql"
+        >
+          <AppContainer />
+        </NhostApolloProvider>
+      </NhostAuthProvider>
+    );
   }
-  async _cacheResourcesAsync() {
-    const images = [
-      require("./assets/PartnerswithSkynners2.png"),
-      require("./assets/Login/Queensman_logo3.png"),
-      require("./assets/Login/Queensman_logo2.png"),
-      require("./assets/Login/Username_field3.png"),
-      require("./assets/Login/Password_field4.png"),
-      require("./assets/Login/Proceed2.png"),
-      require("./assets/Login/Phone.png"),
-      require("./assets/Home/calloutHome.png"),
-      require("./assets/Home/historyHome.png"),
-      require("./assets/Home/linehis.png"),
-      require("./assets/Home/mens.png"),
-      require("./assets/Home/menu.png"),
-      require("./assets/Home/pendingHome.png"),
-      require("./assets/Home/reportHome.png"),
-    ];
-    //this.FontLoad();
-    await Font.loadAsync({
-      "Helvetica-Bold": require("./assets/Fonts/Helvetica-Bold.ttf"),
-      Helvetica: require("./assets/Fonts/Helvetica.ttf"),
-      "helvetica-rounded-bold": require("./assets/Fonts/helvetica-rounded-bold-5871d05ead8de.otf"),
-      "Helvetica-Oblique": require("./assets/Fonts/Helvetica-Oblique.ttf"),
-    });
+}
 
-    const cacheImages = images.map((image) => {
-      return Asset.fromModule(image).downloadAsync();
-    });
-    return Promise.all(cacheImages);
-  }
-  async FontLoad() {
-    await Font.loadAsync({
-      "Helvetica-Bold": require("./assets/Fonts/Helvetica-Bold.ttf"),
-      Helvetica: require("./assets/Fonts/Helvetica.ttf"),
-      "helvetica-rounded-bold": require("./assets/Fonts/helvetica-rounded-bold-5871d05ead8de.otf"),
-      "Helvetica-Oblique": require("./assets/Fonts/Helvetica-Oblique.ttf"),
-    });
+async function FontLoad() {
+  await Font.loadAsync({
+    "Helvetica-Bold": require("./assets/Fonts/Helvetica-Bold.ttf"),
+    Helvetica: require("./assets/Fonts/Helvetica.ttf"),
+    "helvetica-rounded-bold": require("./assets/Fonts/helvetica-rounded-bold-5871d05ead8de.otf"),
+    "Helvetica-Oblique": require("./assets/Fonts/Helvetica-Oblique.ttf"),
+  });
+}
 
-    this.setState({ fontsAreLoaded: true });
-  }
+async function _cacheResourcesAsync() {
+  const images = [
+    require("./assets/PartnerswithSkynners2.png"),
+    require("./assets/Login/Queensman_logo3.png"),
+    require("./assets/Login/Queensman_logo2.png"),
+    require("./assets/Login/Username_field3.png"),
+    require("./assets/Login/Password_field4.png"),
+    require("./assets/Login/Proceed2.png"),
+    require("./assets/Login/Phone.png"),
+    require("./assets/Home/calloutHome.png"),
+    require("./assets/Home/historyHome.png"),
+    require("./assets/Home/linehis.png"),
+    require("./assets/Home/mens.png"),
+    require("./assets/Home/menu.png"),
+    require("./assets/Home/pendingHome.png"),
+    require("./assets/Home/reportHome.png"),
+  ];
+  // this.FontLoad();
+  await Font.loadAsync({
+    "Helvetica-Bold": require("./assets/Fonts/Helvetica-Bold.ttf"),
+    Helvetica: require("./assets/Fonts/Helvetica.ttf"),
+    "helvetica-rounded-bold": require("./assets/Fonts/helvetica-rounded-bold-5871d05ead8de.otf"),
+    "Helvetica-Oblique": require("./assets/Fonts/Helvetica-Oblique.ttf"),
+  });
+
+  const cacheImages = images.map((image) => {
+    return Asset.fromModule(image).downloadAsync();
+  });
+  return Promise.all(cacheImages);
 }
 
 /** Login Screen */
@@ -164,7 +162,7 @@ const LoginStackNavigator = createStackNavigator(
   },
   {
     initialRouteName: "Login",
-    //transitionConfig: () => fromTop(500),
+    // transitionConfig: () => fromTop(500),
   }
 );
 createAppContainer(LoginStackNavigator);
@@ -184,10 +182,7 @@ const SettingStackNavigator = createStackNavigator(
           <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
             <View style={{ flexDirection: "row" }}>
               <Text> </Text>
-              <Icon
-                name="arrow-back"
-                style={{ fontSize: 24, color: "#000" }}
-              ></Icon>
+              <Icon name="arrow-back" style={{ fontSize: 24, color: "#000" }} />
             </View>
           </TouchableOpacity>
         ),
@@ -203,7 +198,7 @@ const SettingStackNavigator = createStackNavigator(
   },
   {
     initialRouteName: "Settings",
-    //transitionConfig: () => fromTop(500),
+    // transitionConfig: () => fromTop(500),
   }
 );
 createAppContainer(SettingStackNavigator);
@@ -233,7 +228,7 @@ const HomeScreenStackNavigator = createStackNavigator(
     CalloutHistory: {
       screen: CalloutHistory,
       navigationOptions: ({ navigation }) => ({
-        //title: 'Callout History',
+        // title: 'Callout History',
         headerTransparent: true,
       }),
     },
@@ -303,7 +298,7 @@ const CustomDrawerComponent = (props) => (
       <Image
         source={require("./assets/Login/Queensman_logo2.png")}
         style={{ height: 90, width: 150, marginBottom: 4 }}
-      ></Image>
+      />
     </View>
     <View
       style={{
@@ -312,9 +307,9 @@ const CustomDrawerComponent = (props) => (
         marginHorizontal: 30,
         marginVertical: 15,
       }}
-    ></View>
+    />
 
-    <DrawerItems {...props}></DrawerItems>
+    <DrawerItems {...props} />
     <View
       style={{
         flex: 1,
@@ -329,39 +324,33 @@ const CustomDrawerComponent = (props) => (
         <Image
           source={require("./assets/PartnerswithSkynners2.png")}
           style={{ height: 35, width: 150 }}
-        ></Image>
+        />
       </TouchableOpacity>
       <Text> </Text>
     </View>
   </SafeAreaView>
 );
 
-/**Drawer Navigator */
+/** Drawer Navigator */
 const AppDrawerNavigator = createDrawerNavigator(
   {
     Home: {
-      screen: HomeScreenStackNavigator /**TO HomeScreen Stack navigator */,
+      screen: HomeScreenStackNavigator /** TO HomeScreen Stack navigator */,
       navigationOptions: {
         drawerLabel: "Home",
         labelStyle: { fontFamily: "Helvetica" },
         drawerIcon: ({ tintColor }) => (
-          <Icon
-            name="md-home"
-            style={{ fontSize: 24, color: tintColor }}
-          ></Icon>
+          <Icon name="md-home" style={{ fontSize: 24, color: tintColor }} />
         ),
       },
     },
     PropertyDetails: {
-      screen: PropertyDetails /**TO Property Stack navigator */,
+      screen: PropertyDetails /** TO Property Stack navigator */,
       navigationOptions: {
         drawerLabel: "Property Details",
         labelStyle: { fontFamily: "Helvetica" },
         drawerIcon: ({ tintColor }) => (
-          <Icon
-            name="business"
-            style={{ fontSize: 24, color: tintColor }}
-          ></Icon>
+          <Icon name="business" style={{ fontSize: 24, color: tintColor }} />
         ),
       },
     },
@@ -371,7 +360,7 @@ const AppDrawerNavigator = createDrawerNavigator(
         drawerLabel: "Contact Us Now",
         labelStyle: { fontFamily: "Helvetica" },
         drawerIcon: ({ tintColor }) => (
-          <Icon name="call" style={{ fontSize: 24, color: tintColor }}></Icon>
+          <Icon name="call" style={{ fontSize: 24, color: tintColor }} />
         ),
         headerTransparent: true,
       },
@@ -382,10 +371,7 @@ const AppDrawerNavigator = createDrawerNavigator(
         drawerLabel: "Settings",
         labelStyle: { fontFamily: "Helvetica" },
         drawerIcon: ({ tintColor }) => (
-          <Icon
-            name="settings"
-            style={{ fontSize: 24, color: tintColor }}
-          ></Icon>
+          <Icon name="settings" style={{ fontSize: 24, color: tintColor }} />
         ),
       },
     },

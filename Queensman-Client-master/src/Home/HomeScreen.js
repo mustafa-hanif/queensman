@@ -3,18 +3,92 @@ import {
   StyleSheet,
   Text,
   View,
-  AsyncStorage,
   Image,
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import NetInfo from "@react-native-community/netinfo";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import * as Animatable from "react-native-animatable";
 import { LinearGradient } from "expo-linear-gradient";
-let deviceWidth = Dimensions.get("window").width;
-let deviceHeight = Dimensions.get("window").height;
 import Toast from "react-native-whc-toast";
+
+const deviceWidth = Dimensions.get("window").width;
+const deviceHeight = Dimensions.get("window").height;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingHorizontal: "5%",
+    paddingVertical: "10%",
+    // justifyContent: 'center'
+  },
+  Name: {
+    marginTop: "13%",
+
+    paddingHorizontal: "5%",
+  },
+  TextStyles: {
+    shadowColor: "rgba(0,0,0, .4)", // IOS
+    textShadowOffset: { height: 1, width: 1 }, // IOS
+    shadowOpacity: 1, // IOS
+    shadowRadius: 1, // IOS
+    elevation: 3, // Android
+    fontFamily: "Helvetica",
+  },
+  bottomView: {
+    // shadowColor: 'rgba(0,0,0, .4)', // IOS
+    // shadowOffset: { height: 1, width: 1 }, // IOS
+    // shadowOpacity: 1, // IOS
+    // shadowRadius: 1, //IOS
+    // elevation: 3, // Android
+    flex: 0.5,
+    //   backgroundColor: 'rgba(255, 204, 89, 0.8)',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    width: "100%",
+    justifyContent: "center",
+    alignContent: "center",
+    flexDirection: "row",
+    // marginTop: '10%'
+    paddingHorizontal: "10%",
+  },
+  button: {
+    shadowColor: "rgba(255,255,255, .4)", // IOS
+    shadowOffset: { height: 1, width: 1 }, // IOS
+    shadowOpacity: 1, // IOS
+    shadowRadius: 1, // IOS
+    elevation: 3, // Android
+    flex: 1,
+    backgroundColor: "#F7F7F7",
+    borderRadius: 20,
+    flexDirection: "column",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "#FFCA5D",
+  },
+  gradiantStyle: {
+    width: deviceWidth,
+    height: deviceHeight,
+    position: "absolute",
+    alignSelf: "center",
+  },
+  NoInternetCard: {
+    shadowColor: "rgba(0,0,0, .4)", // IOS
+    shadowOffset: { height: 1, width: 1 }, // IOS
+    shadowOpacity: 1, // IOS
+    shadowRadius: 1, // IOS
+    elevation: 2, // Android
+    width: "90%",
+    height: "40%",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    alignSelf: "center",
+  },
+});
 
 export default class HomeScreen extends React.Component {
   constructor(props) {
@@ -24,18 +98,18 @@ export default class HomeScreen extends React.Component {
     };
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     const PropID = await AsyncStorage.getItem("QueensPropertyID"); // assign customer id here
     const g = await AsyncStorage.getItem("Queens");
-
-    if (PropID == "asd" || PropID == g) {
+    if (PropID === "asd" || PropID === g) {
       alert(
         "Please select property first from 'Property Details' tab in the menu."
       );
     }
   }
+
   requestCallOutPress = () => {
-    var time = new Date().getHours();
+    const time = new Date().getHours();
     console.log(time);
     if (time >= 19 || time < 8) {
       alert(
@@ -49,6 +123,7 @@ export default class HomeScreen extends React.Component {
   onGoingCallOutPress = () => {
     this.props.navigation.navigate("CalloutOngoing");
   };
+
   CallOutHistoryPress = () => {
     this.props.navigation.navigate("CalloutHistory");
   };
@@ -58,13 +133,9 @@ export default class HomeScreen extends React.Component {
   };
 
   render() {
-    NetInfo.fetch().then((isConnected) => {
-      this.setState({ connections: isConnected ? true : false });
-    });
     return (
       <View style={styles.container}>
         <Toast
-          ref="customToast"
           textStyle={{
             color: "#fff",
           }}
@@ -76,7 +147,7 @@ export default class HomeScreen extends React.Component {
         <LinearGradient
           colors={["#000E1E", "#001E2B", "#000E1E"]}
           style={styles.gradiantStyle}
-        ></LinearGradient>
+        />
 
         <View style={styles.Name}>
           <TouchableOpacity
@@ -85,13 +156,13 @@ export default class HomeScreen extends React.Component {
             <Image
               source={require("../../assets/Home/menu.png")}
               style={{ height: 25, width: 25 }}
-            ></Image>
+            />
           </TouchableOpacity>
           <View style={{ flexDirection: "row", paddingTop: "7%" }}>
             <Image
               source={require("../../assets/Login/Queensman_logo3.png")}
               style={{ height: 50, width: 50 }}
-            ></Image>
+            />
             <View style={{ flexDirection: "column", width: "100%" }}>
               <Text
                 style={[{ fontSize: 18, color: "#FFCA5D" }, styles.TextStyles]}
@@ -108,7 +179,7 @@ export default class HomeScreen extends React.Component {
             </View>
           </View>
         </View>
-        <View style={{ height: "10%" }}></View>
+        <View style={{ height: "10%" }} />
         {this.state.connections ? (
           <View
             animation="fadeInUpBig"
@@ -125,7 +196,7 @@ export default class HomeScreen extends React.Component {
                   <Image
                     source={require("../../assets/Home/calloutHome.png")}
                     style={{ height: 40, width: 40, alignSelf: "center" }}
-                  ></Image>
+                  />
                   <Text
                     style={[
                       {
@@ -158,7 +229,7 @@ export default class HomeScreen extends React.Component {
                   <Image
                     source={require("../../assets/Home/pendingHome.png")}
                     style={{ height: 40, width: 40, alignSelf: "center" }}
-                  ></Image>
+                  />
                   <Text
                     style={[
                       {
@@ -184,7 +255,7 @@ export default class HomeScreen extends React.Component {
               </TouchableOpacity>
             </View>
 
-            <View style={{ height: "3%" }}></View>
+            <View style={{ height: "3%" }} />
             <View style={[styles.bottomView]}>
               <TouchableOpacity
                 style={{ flex: 1 }}
@@ -194,7 +265,7 @@ export default class HomeScreen extends React.Component {
                   <Image
                     source={require("../../assets/Home/historyHome.png")}
                     style={{ height: 40, width: 40, alignSelf: "center" }}
-                  ></Image>
+                  />
                   <Text
                     style={[
                       {
@@ -227,7 +298,7 @@ export default class HomeScreen extends React.Component {
                   <Image
                     source={require("../../assets/Home/reportHome.png")}
                     style={{ height: 40, width: 40, alignSelf: "center" }}
-                  ></Image>
+                  />
                   <Text
                     style={[
                       {
@@ -267,77 +338,3 @@ export default class HomeScreen extends React.Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingHorizontal: "5%",
-    paddingVertical: "10%",
-    // justifyContent: 'center'
-  },
-  Name: {
-    marginTop: "13%",
-
-    paddingHorizontal: "5%",
-  },
-  TextStyles: {
-    shadowColor: "rgba(0,0,0, .4)", // IOS
-    textShadowOffset: { height: 1, width: 1 }, // IOS
-    shadowOpacity: 1, // IOS
-    shadowRadius: 1, //IOS
-    elevation: 3, // Android
-    fontFamily: "Helvetica",
-  },
-  bottomView: {
-    // shadowColor: 'rgba(0,0,0, .4)', // IOS
-    // shadowOffset: { height: 1, width: 1 }, // IOS
-    // shadowOpacity: 1, // IOS
-    // shadowRadius: 1, //IOS
-    // elevation: 3, // Android
-    flex: 0.5,
-    //   backgroundColor: 'rgba(255, 204, 89, 0.8)',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    width: "100%",
-    justifyContent: "center",
-    alignContent: "center",
-    flexDirection: "row",
-    //marginTop: '10%'
-    paddingHorizontal: "10%",
-  },
-  button: {
-    shadowColor: "rgba(255,255,255, .4)", // IOS
-    shadowOffset: { height: 1, width: 1 }, // IOS
-    shadowOpacity: 1, // IOS
-    shadowRadius: 1, //IOS
-    elevation: 3, // Android
-    flex: 1,
-    backgroundColor: "#F7F7F7",
-    borderRadius: 20,
-    flexDirection: "column",
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "#FFCA5D",
-  },
-  gradiantStyle: {
-    width: deviceWidth,
-    height: deviceHeight,
-    position: "absolute",
-    alignSelf: "center",
-  },
-  NoInternetCard: {
-    shadowColor: "rgba(0,0,0, .4)", // IOS
-    shadowOffset: { height: 1, width: 1 }, // IOS
-    shadowOpacity: 1, // IOS
-    shadowRadius: 1, //IOS
-    elevation: 2, // Android
-    width: "90%",
-    height: "40%",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#FFF",
-    borderRadius: 10,
-    alignSelf: "center",
-  },
-});

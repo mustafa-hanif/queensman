@@ -14,6 +14,10 @@ AWS login
 aalvi@queensman.com
 AbuQueensman01
 
+### Client login
+danebowers@me.com
+Lifekai1979
+
 ### Admin Panel
 https://www.admin.queensman.com/
 aalvi@queensman.com
