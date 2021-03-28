@@ -18,7 +18,6 @@ import NetInfo from "@react-native-community/netinfo";
 
 import { Icon } from "native-base";
 import * as Animatable from "react-native-animatable";
-import { Auth } from "aws-amplify";
 import axios from "axios";
 import * as LocalAuthentication from "expo-local-authentication";
 import Constants from "expo-constants";
