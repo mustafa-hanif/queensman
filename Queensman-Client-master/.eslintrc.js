@@ -37,5 +37,6 @@ module.exports = {
     "react/jsx-props-no-spreading": "warn",
     "global-require": "off",
     "react/prop-types": "off",
+    "react/no-unused-state": "warn",
   },
 };

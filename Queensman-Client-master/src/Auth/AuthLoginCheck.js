@@ -29,9 +29,7 @@ const styles = StyleSheet.create({
 
 const AuthLoginCheck = ({ navigation }) => {
   const { signedIn } = useAuth();
-  console.log("signedIn", signedIn);
   useEffect(() => {
-    console.log("here sign")
     if (!signedIn) {
       navigation.navigate("Login");
     }

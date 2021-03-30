@@ -388,13 +388,13 @@ const AppDrawerNavigator = createDrawerNavigator(
     },
   }
 );
-createAppContainer(AppDrawerNavigator);
+// createAppContainer(AppDrawerNavigator);
 
 /** App start Switch navigator */
 const SwithStartNavigator = createSwitchNavigator({
   AuthLogin: AuthLoginCheck,
   Login: LoginStackNavigator,
-  // AppDrawer: AppDrawerNavigator,
+  AppDrawer: AppDrawerNavigator,
 });
 
 const AppContainer = createAppContainer(SwithStartNavigator);

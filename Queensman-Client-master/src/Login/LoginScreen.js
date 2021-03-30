@@ -1,3 +1,5 @@
+/* eslint-disable react/no-access-state-in-setstate */
+/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable no-shadow */
 /* eslint-disable no-console */
 import React from "react";
@@ -13,8 +15,10 @@ import {
   Linking,
   ActivityIndicator,
   KeyboardAvoidingView,
-  AsyncStorage,
 } from "react-native";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { LinearGradient } from "expo-linear-gradient";
 import NetInfo from "@react-native-community/netinfo";
 
@@ -33,11 +37,37 @@ const deviceHeight = Dimensions.get("window").height;
 
 const TextBoxH = deviceHeight / 15.6;
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: "12%",
+  },
+  gradiantStyle: {
+    width: deviceWidth,
+    height: deviceHeight,
+    position: "absolute",
+    alignSelf: "center",
+  },
+  LogoStyle: {
+    height: 230,
+    width: 230,
+    marginBottom: "10%",
+  },
+});
+
+async function storePass(pass) {
+  try {
+    await AsyncStorage.setItem("QueensPass", pass);
+  } catch (error) {
+    // Error saving data
+  }
+}
+
 export default class LoginScreen extends React.Component {
   // animation ref
-  handleViewRef = (ref) => (this.view = ref);
-
-  handleViewRefs = (ref) => (this.view = ref);
 
   constructor(props) {
     super(props);
@@ -61,6 +91,11 @@ export default class LoginScreen extends React.Component {
       showPassword: true,
       retrievedID: "",
     };
+
+    this.textInputMobile = React.createRef();
+    this.handleViewRef = React.createRef();
+    this.customToast = React.createRef();
+    this.handleViewRefs = React.createRef();
   }
 
   async componentDidMount() {
@@ -114,12 +149,12 @@ export default class LoginScreen extends React.Component {
           console.log("off to the home hehe");
           this.props.navigation.navigate("AppDrawer");
         } else {
-          this.refs.customToast.show("Fingerprint not enabled on this phone.");
+          this.customToast.show("Fingerprint not enabled on this phone.");
         }
       });
     } else {
       // alert("Fingerprint not recognized!")
-      this.refs.customToast.show("Fingerprint not recognized!");
+      this.customToast.show("Fingerprint not recognized!");
       if (Constants.platform.android) {
         this.scanFingerprint();
       }
@@ -170,28 +205,21 @@ export default class LoginScreen extends React.Component {
       await AsyncStorage.setItem("QueensUserID", id);
 
       console.log("Save ID");
-      if (this.state.passwordcheck == "null") {
+      if (this.state.passwordcheck === "null") {
         console.log("Need new password");
         this.makeid();
         console.log(this.state.newpassword);
-        const { email, newpassword } = this.state;
-        const username = this.state.email;
-        const password = this.state.newpassword;
-        console.log(email);
-        console.log(newpassword);
-        Auth.signUp({
-          username,
-          password,
-          attributes: {
+        const { email, newpassword: password } = this.state;
+        auth
+          .register({
             email,
-          },
-          validationData: [], // optional
-        })
-          .then((data) => {
-            this.storePass(this.state.newpassword);
+            password,
+          })
+          .then(() => {
+            storePass(password);
             this.props.navigation.navigate("PinVerify", {
-              UserEmail: this.state.email,
-              // UserPassword: this.state.newpassword
+              UserEmail: email,
+              UserPassword: password,
             });
           })
           .catch((err) => {
@@ -238,14 +266,6 @@ export default class LoginScreen extends React.Component {
       this.setState({ loading: false });
     }
   };
-
-  async storePass(pass) {
-    try {
-      await AsyncStorage.setItem("QueensPass", pass);
-    } catch (error) {
-      // Error saving data
-    }
-  }
 
   makeid = () => {
     let result = "";
@@ -355,7 +375,7 @@ export default class LoginScreen extends React.Component {
       // <Content scrollEnabled={false} style={{ flex:1}}>
       <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
         <Toast
-          ref="customToast"
+          ref={this.customToast}
           textStyle={{
             color: "#fff",
           }}
@@ -392,7 +412,7 @@ export default class LoginScreen extends React.Component {
               <View style={{ justifyContent: "center", paddingLeft: "15%" }}>
                 <TextInput
                   keyboardType="email-address"
-                  ref="textInputMobile"
+                  ref={this.textInputMobile}
                   style={{ fontSize: 15, fontFamily: "Helvetica" }}
                   placeholder="Email"
                   autoCapitalize="none"
@@ -446,7 +466,7 @@ export default class LoginScreen extends React.Component {
                 }}
               >
                 <TextInput
-                  ref="textInputMobile"
+                  ref={this.textInputMobile}
                   style={{
                     fontSize: 15,
                     fontFamily: "Helvetica",
@@ -626,24 +646,3 @@ export default class LoginScreen extends React.Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: "12%",
-  },
-  gradiantStyle: {
-    width: deviceWidth,
-    height: deviceHeight,
-    position: "absolute",
-    alignSelf: "center",
-  },
-  LogoStyle: {
-    height: 230,
-    width: 230,
-    marginBottom: "10%",
-  },
-});
