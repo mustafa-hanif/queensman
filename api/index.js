@@ -61,17 +61,17 @@ async function startFetchMyQuery() {
   }
 
   // do something great with this precious data
-  data.client.forEach(client => {
-    const { email, password, full_name } = client;
-    auth.register({
-      email,
-      password,
-      options: { userData: { display_name: full_name } },
-    });
-  });
+  // data.client.forEach(client => {
+  //   const { email, password, full_name } = client;
+  //   auth.register({
+  //     email,
+  //     password,
+  //     options: { userData: { display_name: full_name } },
+  //   });
+  // });
   return data;
 }
-startFetchMyQuery();
+// startFetchMyQuery();
 module.exports = async (req, res) => {
   try {
     const data = await startFetchMyQuery();
