@@ -5,15 +5,35 @@ import {
   View,
   Dimensions,
   TouchableOpacity,
-  AsyncStorage,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Content } from "native-base";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import SmoothPinCodeInput from "react-native-smooth-pincode-input";
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingHorizontal: "10%",
+    paddingVertical: "25%",
+  },
+  gradiantStyle: {
+    width: deviceWidth,
+    height: deviceHeight,
+    position: "absolute",
+    alignSelf: "center",
+  },
+  HeadingStyle: {
+    fontSize: 23,
+    color: "#FFCA5D",
+    paddingBottom: "5%",
+    fontFamily: "Helvetica",
+  },
+});
 
 export default class PinVerfication extends React.Component {
   constructor(props) {
@@ -36,16 +56,16 @@ export default class PinVerfication extends React.Component {
     const username = this.state.email;
     const { code } = this.state;
     console.log(`${code}${username}`);
-    Auth.confirmSignUp(username, code, {
-      // Optional. Force user confirmation irrespective of existing alias. By default set to True.
-      forceAliasCreation: true,
-    })
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((err) =>
-        this.pinInput.current.shake().then(() => this.setState({ code: "" }))
-      );
+    // Auth.confirmSignUp(username, code, {
+    //   // Optional. Force user confirmation irrespective of existing alias. By default set to True.
+    //   forceAliasCreation: true,
+    // })
+    //   .then((data) => {
+    //     console.log(data);
+    //   })
+    //   .catch((err) =>
+    //     this.pinInput.current.shake().then(() => this.setState({ code: "" }))
+    //   );
   };
 
   nexthandle = () => {
@@ -147,24 +167,3 @@ export default class PinVerfication extends React.Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingHorizontal: "10%",
-    paddingVertical: "25%",
-  },
-  gradiantStyle: {
-    width: deviceWidth,
-    height: deviceHeight,
-    position: "absolute",
-    alignSelf: "center",
-  },
-  HeadingStyle: {
-    fontSize: 23,
-    color: "#FFCA5D",
-    paddingBottom: "5%",
-    fontFamily: "Helvetica",
-  },
-});

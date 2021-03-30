@@ -33,8 +33,7 @@ const AuthLoginCheck = ({ navigation }) => {
     if (!signedIn) {
       navigation.navigate("Login");
     }
-
-    navigation.navigate("AppDrawer");
+    navigation.navigate("SelectProperty");
   }, [signedIn]);
 
   if (signedIn === null) {

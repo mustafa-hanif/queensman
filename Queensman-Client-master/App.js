@@ -347,13 +347,21 @@ const AppDrawerNavigator = createDrawerNavigator(
     },
     PropertyDetails: {
       screen: PropertyDetails /** TO Property Stack navigator */,
-      navigationOptions: {
+      navigationOptions: (navigation) => ({
         drawerLabel: "Property Details",
         labelStyle: { fontFamily: "Helvetica" },
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+            <View style={{ flexDirection: "row" }}>
+              <Text> </Text>
+              <Icon name="arrow-back" style={{ fontSize: 24, color: "#000" }} />
+            </View>
+          </TouchableOpacity>
+        ),
         drawerIcon: ({ tintColor }) => (
           <Icon name="business" style={{ fontSize: 24, color: tintColor }} />
         ),
-      },
+      }),
     },
     ContactUs: {
       screen: ContactUs,

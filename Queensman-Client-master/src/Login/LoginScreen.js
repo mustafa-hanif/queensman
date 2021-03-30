@@ -149,12 +149,12 @@ export default class LoginScreen extends React.Component {
           console.log("off to the home hehe");
           this.props.navigation.navigate("AppDrawer");
         } else {
-          this.customToast.show("Fingerprint not enabled on this phone.");
+          // this.customToast.show("Fingerprint not enabled on this phone.");
         }
       });
     } else {
       // alert("Fingerprint not recognized!")
-      this.customToast.show("Fingerprint not recognized!");
+      // this.customToast.show("Fingerprint not recognized!");
       if (Constants.platform.android) {
         this.scanFingerprint();
       }
@@ -248,7 +248,7 @@ export default class LoginScreen extends React.Component {
         axios.get(link).then((result) => {
           console.log(result.data.server_responce_ID);
           active = result.data.server_responce_ID;
-          if (active == "1") {
+          if (active === "1") {
             this.fadeOutLeft(); // animation
             //  change from email to password
             setTimeout(() => {
@@ -290,7 +290,7 @@ export default class LoginScreen extends React.Component {
         .login({ email, password })
         .then((user) => {
           this.setState({ user });
-          this.refs.customToast.show("Successful sign in!");
+          // this.customToast.show("Successful sign in!");
           console.log("successful sign in!");
           this.setState({ loading: false });
           setTimeout(() => {
@@ -324,14 +324,14 @@ export default class LoginScreen extends React.Component {
   // animation function
   fadeOutLeft = () =>
     this.view
-      .fadeOutLeftBig(400)
+      ?.fadeOutLeftBig(400)
       .then((endState) =>
         console.log(endState.finished ? "bounce finished" : "bounce cancelled")
       );
 
   fadeOutRight = () =>
     this.view
-      .fadeOutRightBig(400)
+      ?.fadeOutRightBig(400)
       .then((endState) =>
         console.log(endState.finished ? "bounce finished" : "bounce cancelled")
       );

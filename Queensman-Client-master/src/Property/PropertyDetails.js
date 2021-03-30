@@ -1,4 +1,9 @@
-import React from "react";
+/* eslint-disable react/jsx-no-bind */
+import React, { useState, useRef } from "react";
+import { gql, useQuery } from "@apollo/client";
+
+import Toast from "react-native-whc-toast";
+import axios from "axios";
 import {
   StyleSheet,
   Text,
@@ -11,428 +16,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { ListItem, Icon, Picker } from "native-base";
-
-import Toast from "react-native-whc-toast";
-import axios from "axios";
-
-export default class PropertyDetails extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      leasedPropertyData: [],
-      OwnedPropertyData: [], // Ismain store horahi hayn client ki property details yahan se daaldio usmain.
-      loading: false,
-      taped: "",
-      selected: "Owned",
-      PropertyData: [],
-      LeasedDataAvaible: true,
-      OwnedDataAvaible: true,
-      cusID: "",
-    };
-    this.customToast = React.createRef();
-  }
-
-  onValueChange(value) {
-    this.setState({
-      selected: value,
-    });
-  }
-
-  Ontaps = (item) => {
-    this.customToast.show("New Property Selected");
-
-    console.log(item.Client_property.property_id);
-    this._storeData(
-      item.Client_property.property_id,
-      "owned",
-      item.Client_property.country
-    );
-  };
-
-  Ontaps2 = (item) => {
-    this.customToast.show("New Property Selected");
-
-    console.log(item.lease_property.property_id);
-    this._storeData(
-      item.lease_property.property_id,
-      "leased",
-      item.lease_property.country
-    );
-  };
-
-  _storeData = async (id, type, country) => {
-    try {
-      await AsyncStorage.setItem("QueensPropertyID", id);
-      await AsyncStorage.setItem("QueensPropertyType", type);
-      await AsyncStorage.setItem("QueensPropertyCountry", country);
-      setTimeout(() => {
-        this.props.navigation.navigate("HomeNaviagtor");
-      }, 800);
-    } catch (error) {
-      // Error saving data
-    }
-  };
-
-  async componentDidMount() {
-    this.setState({
-      loading: true,
-    });
-    // fetch customer orrder list
-    const ID = await AsyncStorage.getItem("QueensUserID"); // assign customer id here
-    this.setState({
-      cusID: ID,
-    });
-    let link = `http://13.250.20.151/queens_client_Apis/FetchClientOwnedPropertyViaClientID.php?ID=${ID}`;
-    console.log(link);
-    axios.get(link).then((result) => {
-      console.log(result.data);
-      if (result.data.server_responce == -1) {
-        this.setState({
-          loading: false,
-          OwnedDataAvaible: false,
-        });
-      } else {
-        this.setState({ OwnedPropertyData: result.data.server_responce });
-        // console.log(this.state.onGoingCallouts)
-        this.setState({
-          loading: false,
-          OwnedDataAvaible: true,
-        });
-      }
-    });
-    link = `http://13.250.20.151/queens_client_Apis/FetchClientLeasedPropertiesViaClientID.php?ID=${ID}`;
-    console.log(link);
-    axios.get(link).then((result) => {
-      console.log(result.data);
-      if (result.data.server_responce == -1) {
-        this.setState({
-          loading: false,
-          LeasedDataAvaible: false,
-        });
-      } else {
-        this.setState({ leasedPropertyData: result.data.server_responce });
-        // console.log(this.state.onGoingCallouts)
-        this.setState({
-          loading: false,
-          LeasedDataAvaible: true,
-        });
-      }
-    });
-  }
-
-  _refresh = () => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // fetch customer orrder list
-        const ID = this.state.cusID; // assign customer id here
-        let link = `http://13.250.20.151/queens_client_Apis/FetchClientOwnedPropertyViaClientID.php?ID=${ID}`;
-        console.log(link);
-        axios.get(link).then((result) => {
-          console.log(result.data);
-          if (result.data.server_responce == -1) {
-            this.setState({
-              loading: false,
-              OwnedDataAvaible: false,
-            });
-          } else {
-            this.setState({ OwnedPropertyData: result.data.server_responce });
-            // console.log(this.state.onGoingCallouts)
-            this.setState({
-              loading: false,
-              OwnedDataAvaible: true,
-            });
-          }
-        });
-        link = `http://13.250.20.151/queens_client_Apis/FetchClientLeasedPropertiesViaClientID.php?ID=${ID}`;
-        console.log(link);
-        axios.get(link).then((result) => {
-          console.log(result.data);
-          if (result.data.server_responce == -1) {
-            this.setState({
-              loading: false,
-              LeasedDataAvaible: false,
-            });
-          } else {
-            this.setState({ leasedPropertyData: result.data.server_responce });
-            // console.log(this.state.onGoingCallouts)
-            this.setState({
-              loading: false,
-              LeasedDataAvaible: true,
-            });
-          }
-        });
-        resolve();
-      }, 2000);
-    });
-  };
-
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={{ paddingTop: "5%" }}> </Text>
-
-        <Toast
-          ref={customToast}
-          textStyle={{
-            color: "#fff",
-          }}
-          style={{
-            backgroundColor: "#FFCA5D",
-          }}
-        />
-
-        <Text style={styles.HeadingStyle}>Property Details</Text>
-        <Text
-          style={[
-            styles.TextFam,
-            {
-              fontSize: 14,
-              color: "#aaa",
-              paddingTop: "2%",
-              paddingLeft: "4%",
-            },
-          ]}
-        >
-          Tap to select the property
-        </Text>
-        <Text> </Text>
-
-        <View style={{ paddingHorizontal: "5%", flexDirection: "column" }}>
-          <Text style={[styles.TextFam, { fontSize: 10, color: "#FFCA5D" }]}>
-            Select Property Type:
-          </Text>
-          <Picker
-            note
-            mode="dialog"
-            style={{ paddingTop: "2%" }}
-            itemStyle={{ fontFamily: "Helvetica" }}
-            selectedValue={this.state.selected}
-            onValueChange={this.onValueChange.bind(this)}
-          >
-            <Picker.Item label="Owned Properties" value="Owned" />
-            <Picker.Item label="Leased Properties" value="Leased" />
-          </Picker>
-        </View>
-        <Text> </Text>
-        <Text> </Text>
-        {this.state.loading ? (
-          <ActivityIndicator size="large" color="#FFCA5D" />
-        ) : (
-          <View>
-            {this.state.selected == "Owned" ? (
-              <View>
-                {!this.state.OwnedDataAvaible ? (
-                  <Text
-                    style={[
-                      styles.TextFam,
-                      {
-                        fontSize: 14,
-                        color: "#aaa",
-                        paddingTop: "3%",
-                        alignSelf: "center",
-                      },
-                    ]}
-                  >
-                    No Owned Property
-                  </Text>
-                ) : (
-                  <FlatList
-                    data={this.state.OwnedPropertyData}
-                    renderItem={({ item }) => (
-                      <View>
-                        <TouchableOpacity onPress={() => this.Ontaps(item)}>
-                          <View style={styles.Card}>
-                            <Text
-                              style={[
-                                styles.TextFam,
-                                {
-                                  fontSize: 15,
-                                  fontWeight: "bold",
-                                  paddingLeft: "5%",
-                                  paddingTop: "3%",
-                                },
-                              ]}
-                            >
-                              {item.Client_property.address}{" "}
-                            </Text>
-                            <Text
-                              style={[
-                                styles.TextFam,
-                                {
-                                  fontSize: 10,
-                                  color: "#aaa",
-                                  paddingLeft: "5%",
-                                  paddingTop: "1%",
-                                },
-                              ]}
-                            >
-                              {item.Client_property.community},
-                              {item.Client_property.city}
-                            </Text>
-
-                            <ListItem>
-                              <View
-                                style={{
-                                  flexDirection: "column",
-                                  justifyContent: "space-between",
-                                  flex: 1,
-                                }}
-                              >
-                                <Text style={styles.TextFam}>
-                                  {item.Client_property.country}
-                                </Text>
-                                <Text style={styles.TextFam}>
-                                  Property ID:{" "}
-                                  {item.Client_property.property_id}
-                                </Text>
-
-                                <Text style={styles.TextFam}>
-                                  Property Category:{" "}
-                                  {item.Client_property.category
-                                    ? item.Client_property.category
-                                    : "Not Listed"}
-                                </Text>
-                              </View>
-                            </ListItem>
-                          </View>
-                        </TouchableOpacity>
-                        <Text> </Text>
-                        {this.state.taped ==
-                        item.Client_property.property_id ? (
-                          <View
-                            style={{
-                              position: "absolute",
-                              paddingLeft: "8%",
-                              paddingTop: "10%",
-                            }}
-                          >
-                            <Icon
-                              name="checkmark-circle"
-                              style={{
-                                height: 50,
-                                width: 50,
-                                color: "#FFCA5D",
-                              }}
-                            />
-                          </View>
-                        ) : (
-                          <View />
-                        )}
-                      </View>
-                    )}
-                    keyExtractor={(item, index) => index.toString()}
-                  />
-                )}
-              </View>
-            ) : (
-              <View>
-                {!this.state.LeasedDataAvaible ? (
-                  <Text
-                    style={[
-                      styles.TextFam,
-                      {
-                        fontSize: 14,
-                        color: "#aaa",
-                        paddingTop: "3%",
-                        alignSelf: "center",
-                      },
-                    ]}
-                  >
-                    No Leased Property
-                  </Text>
-                ) : (
-                  <FlatList
-                    data={this.state.leasedPropertyData}
-                    renderItem={({ item }) => (
-                      <View>
-                        <TouchableOpacity onPress={() => this.Ontaps2(item)}>
-                          <View style={styles.Card}>
-                            <Text
-                              style={[
-                                styles.TextFam,
-                                {
-                                  fontSize: 15,
-                                  fontWeight: "bold",
-                                  paddingLeft: "5%",
-                                  paddingTop: "3%",
-                                },
-                              ]}
-                            >
-                              {item.lease_property.address}{" "}
-                            </Text>
-                            <Text
-                              style={[
-                                styles.TextFam,
-                                {
-                                  fontSize: 10,
-                                  color: "#aaa",
-                                  paddingLeft: "5%",
-                                  paddingTop: "1%",
-                                },
-                              ]}
-                            >
-                              {item.lease_property.community},
-                              {item.lease_property.city}
-                            </Text>
-
-                            <ListItem>
-                              <View
-                                style={{
-                                  flexDirection: "column",
-                                  justifyContent: "space-between",
-                                  flex: 1,
-                                }}
-                              >
-                                <Text style={styles.TextFam}>
-                                  {item.lease_property.country}
-                                </Text>
-                                <Text style={styles.TextFam}>
-                                  Property ID: {item.lease_property.property_id}
-                                </Text>
-                                <Text style={styles.TextFam}>
-                                  Property Category:{" "}
-                                  {item.lease_property.category
-                                    ? item.Client_property.category
-                                    : "Not Listed"}
-                                </Text>
-                              </View>
-                            </ListItem>
-                          </View>
-                        </TouchableOpacity>
-                        <Text> </Text>
-                        {this.state.taped == item.lease_property.property_id ? (
-                          <View
-                            style={{
-                              position: "absolute",
-                              paddingLeft: "8%",
-                              paddingTop: "10%",
-                            }}
-                          >
-                            <Icon
-                              name="checkmark-circle"
-                              style={{
-                                height: 50,
-                                width: 50,
-                                color: "#FFCA5D",
-                              }}
-                            />
-                          </View>
-                        ) : (
-                          <View />
-                        )}
-                      </View>
-                    )}
-                    keyExtractor={(item, index) => index.toString()}
-                  />
-                )}
-              </View>
-            )}
-          </View>
-        )}
-      </View>
-    );
-  }
-}
+import { auth } from "../utils/nhost";
 
 const styles = StyleSheet.create({
   container: {
@@ -471,3 +55,427 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica",
   },
 });
+
+const GET_TODOS = gql`
+  query MyQuery($email: String) {
+    client(where: { email: { _eq: $email } }) {
+      property_owneds {
+        property {
+          address
+          community
+          city
+          id
+          country
+        }
+      }
+    }
+  }
+`;
+
+const PropertyDetails = (props) => {
+  const [state, setState] = useState({
+    leasedPropertyData: [],
+    OwnedPropertyData: [], // Ismain store horahi hayn client ki property details yahan se daaldio usmain.
+    // loading: false,
+    taped: "",
+    selected: "Owned",
+    PropertyData: [],
+    LeasedDataAvaible: true,
+    OwnedDataAvaible: true,
+    cusID: "",
+  });
+
+  const email = auth?.currentSession?.session?.user?.email;
+  const { loading, data, error } = useQuery(GET_TODOS, {
+    variables: { email },
+  });
+  const customToast = useRef();
+
+  const _storeData = async (id, type, country) => {
+    try {
+      await AsyncStorage.setItem("QueensPropertyID", id);
+      await AsyncStorage.setItem("QueensPropertyType", type);
+      await AsyncStorage.setItem("QueensPropertyCountry", country);
+      setTimeout(() => {
+        props.navigation.navigate("HomeNaviagtor");
+      }, 800);
+      // eslint-disable-next-line no-shadow
+    } catch (error) {
+      // Error saving data
+    }
+  };
+
+  const onValueChange = (value) => {
+    setState({
+      selected: value,
+    });
+  };
+
+  const Ontaps = (item) => {
+    // customToast.show("New Property Selected");
+    console.log(item.id);
+    _storeData(item.id, "owned", item.country);
+  };
+
+  // const Ontaps2 = (item) => {
+  //   console.log(item.id);
+  //   _storeData(item.id, "leased", item.country);
+  // };
+
+  /* async componentDidMount() {
+    setState({
+      loading: true,
+    });
+    // fetch customer orrder list
+    const ID = await AsyncStorage.getItem("QueensUserID"); // assign customer id here
+    setState({
+      cusID: ID,
+    });
+    let link = `http://13.250.20.151/queens_client_Apis/FetchClientOwnedPropertyViaClientID.php?ID=${ID}`;
+    console.log(link);
+    axios.get(link).then((result) => {
+      console.log(result.data);
+      if (result.data.server_responce == -1) {
+        setState({
+          loading: false,
+          OwnedDataAvaible: false,
+        });
+      } else {
+        setState({ OwnedPropertyData: result.data.server_responce });
+        // console.log(state.onGoingCallouts)
+        setState({
+          loading: false,
+          OwnedDataAvaible: true,
+        });
+      }
+    });
+    link = `http://13.250.20.151/queens_client_Apis/FetchClientLeasedPropertiesViaClientID.php?ID=${ID}`;
+    console.log(link);
+    axios.get(link).then((result) => {
+      console.log(result.data);
+      if (result.data.server_responce == -1) {
+        setState({
+          loading: false,
+          LeasedDataAvaible: false,
+        });
+      } else {
+        setState({ leasedPropertyData: result.data.server_responce });
+        // console.log(state.onGoingCallouts)
+        setState({
+          loading: false,
+          LeasedDataAvaible: true,
+        });
+      }
+    });
+  } */
+
+  const _refresh = () => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // fetch customer orrder list
+        const ID = state.cusID; // assign customer id here
+        let link = `http://13.250.20.151/queens_client_Apis/FetchClientOwnedPropertyViaClientID.php?ID=${ID}`;
+        console.log(link);
+        axios.get(link).then((result) => {
+          console.log(result.data);
+          if (result.data.server_responce === -1) {
+            setState({
+              loading: false,
+              OwnedDataAvaible: false,
+            });
+          } else {
+            setState({ OwnedPropertyData: result.data.server_responce });
+            // console.log(state.onGoingCallouts)
+            setState({
+              loading: false,
+              OwnedDataAvaible: true,
+            });
+          }
+        });
+        link = `http://13.250.20.151/queens_client_Apis/FetchClientLeasedPropertiesViaClientID.php?ID=${ID}`;
+        console.log(link);
+        axios.get(link).then((result) => {
+          console.log(result.data);
+          if (result.data.server_responce === -1) {
+            setState({
+              loading: false,
+              LeasedDataAvaible: false,
+            });
+          } else {
+            setState({ leasedPropertyData: result.data.server_responce });
+            // console.log(state.onGoingCallouts)
+            setState({
+              loading: false,
+              LeasedDataAvaible: true,
+            });
+          }
+        });
+        resolve();
+      }, 2000);
+    });
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={{ paddingTop: "5%" }}> </Text>
+
+      <Toast
+        ref={customToast}
+        textStyle={{
+          color: "#fff",
+        }}
+        style={{
+          backgroundColor: "#FFCA5D",
+        }}
+      />
+
+      <Text style={styles.HeadingStyle}>Property Details</Text>
+      <Text
+        style={[
+          styles.TextFam,
+          {
+            fontSize: 14,
+            color: "#aaa",
+            paddingTop: "2%",
+            paddingLeft: "4%",
+          },
+        ]}
+      >
+        Tap to select the property
+      </Text>
+      <Text> </Text>
+
+      <View style={{ paddingHorizontal: "5%", flexDirection: "column" }}>
+        <Text style={[styles.TextFam, { fontSize: 10, color: "#FFCA5D" }]}>
+          Select Property Type:
+        </Text>
+        <Picker
+          note
+          mode="dialog"
+          style={{ paddingTop: "2%" }}
+          itemStyle={{ fontFamily: "Helvetica" }}
+          selectedValue={state.selected}
+          onValueChange={onValueChange}
+        >
+          <Picker.Item label="Owned Properties" value="Owned" />
+          <Picker.Item label="Leased Properties" value="Leased" />
+        </Picker>
+      </View>
+      {loading ? (
+        <ActivityIndicator size="large" color="#FFCA5D" />
+      ) : (
+        <View>
+          {state.selected === "Owned" ? (
+            <View>
+              {data?.client?.[0]?.property_owneds.length === 0 ? (
+                <Text
+                  style={[
+                    styles.TextFam,
+                    {
+                      fontSize: 14,
+                      color: "#aaa",
+                      paddingTop: "3%",
+                      alignSelf: "center",
+                    },
+                  ]}
+                >
+                  No Owned Property
+                </Text>
+              ) : (
+                <FlatList
+                  data={data?.client?.[0]?.property_owneds}
+                  renderItem={({ item: { property } }) => {
+                    return (
+                      <View>
+                        <TouchableOpacity onPress={() => Ontaps(property)}>
+                          <View style={styles.Card}>
+                            <Text
+                              style={[
+                                styles.TextFam,
+                                {
+                                  fontSize: 15,
+                                  fontWeight: "bold",
+                                  paddingLeft: "5%",
+                                  paddingTop: "3%",
+                                },
+                              ]}
+                            >
+                              {property.address}
+                            </Text>
+                            <Text
+                              style={[
+                                styles.TextFam,
+                                {
+                                  fontSize: 10,
+                                  color: "#aaa",
+                                  paddingLeft: "5%",
+                                  paddingTop: "1%",
+                                },
+                              ]}
+                            >
+                              {property.community},{property.city}
+                            </Text>
+
+                            <ListItem>
+                              <View
+                                style={{
+                                  flexDirection: "column",
+                                  justifyContent: "space-between",
+                                  flex: 1,
+                                }}
+                              >
+                                <Text style={styles.TextFam}>
+                                  {property.country}
+                                </Text>
+                                <Text style={styles.TextFam}>
+                                  Property ID: {property.id}
+                                </Text>
+
+                                <Text style={styles.TextFam}>
+                                  Property Category:{" "}
+                                  {property.category
+                                    ? property.category
+                                    : "Not Listed"}
+                                </Text>
+                              </View>
+                            </ListItem>
+                          </View>
+                        </TouchableOpacity>
+                        <Text> </Text>
+                        {state.taped === property.id ? (
+                          <View
+                            style={{
+                              position: "absolute",
+                              paddingLeft: "8%",
+                              paddingTop: "10%",
+                            }}
+                          >
+                            <Icon
+                              name="checkmark-circle"
+                              style={{
+                                height: 50,
+                                width: 50,
+                                color: "#FFCA5D",
+                              }}
+                            />
+                          </View>
+                        ) : (
+                          <View />
+                        )}
+                      </View>
+                    );
+                  }}
+                  keyExtractor={(item, index) => index.toString()}
+                />
+              )}
+            </View>
+          ) : (
+            <View>
+              {!state.LeasedDataAvaible ? (
+                <Text
+                  style={[
+                    styles.TextFam,
+                    {
+                      fontSize: 14,
+                      color: "#aaa",
+                      paddingTop: "3%",
+                      alignSelf: "center",
+                    },
+                  ]}
+                >
+                  No Leased Property
+                </Text>
+              ) : (
+                <FlatList
+                  data={state.leasedPropertyData}
+                  renderItem={({ item }) => (
+                    <View>
+                      <TouchableOpacity onPress={() => Ontaps2(item)}>
+                        <View style={styles.Card}>
+                          <Text
+                            style={[
+                              styles.TextFam,
+                              {
+                                fontSize: 15,
+                                fontWeight: "bold",
+                                paddingLeft: "5%",
+                                paddingTop: "3%",
+                              },
+                            ]}
+                          >
+                            {item.lease_property.address}{" "}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.TextFam,
+                              {
+                                fontSize: 10,
+                                color: "#aaa",
+                                paddingLeft: "5%",
+                                paddingTop: "1%",
+                              },
+                            ]}
+                          >
+                            {item.lease_property.community},
+                            {item.lease_property.city}
+                          </Text>
+
+                          <ListItem>
+                            <View
+                              style={{
+                                flexDirection: "column",
+                                justifyContent: "space-between",
+                                flex: 1,
+                              }}
+                            >
+                              <Text style={styles.TextFam}>
+                                {item.lease_property.country}
+                              </Text>
+                              <Text style={styles.TextFam}>
+                                Property ID: {item.lease_property.property_id}
+                              </Text>
+                              <Text style={styles.TextFam}>
+                                Property Category:{" "}
+                                {item.lease_property.category
+                                  ? item.Client_property.category
+                                  : "Not Listed"}
+                              </Text>
+                            </View>
+                          </ListItem>
+                        </View>
+                      </TouchableOpacity>
+                      <Text> </Text>
+                      {state.taped === item.lease_property.property_id ? (
+                        <View
+                          style={{
+                            position: "absolute",
+                            paddingLeft: "8%",
+                            paddingTop: "10%",
+                          }}
+                        >
+                          <Icon
+                            name="checkmark-circle"
+                            style={{
+                              height: 50,
+                              width: 50,
+                              color: "#FFCA5D",
+                            }}
+                          />
+                        </View>
+                      ) : (
+                        <View />
+                      )}
+                    </View>
+                  )}
+                  keyExtractor={(item, index) => index.toString()}
+                />
+              )}
+            </View>
+          )}
+        </View>
+      )}
+    </View>
+  );
+};
+
+export default PropertyDetails;
