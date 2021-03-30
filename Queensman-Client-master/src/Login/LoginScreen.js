@@ -270,7 +270,7 @@ export default class LoginScreen extends React.Component {
     if (this.state.connections) {
       this.setState({ loading: true });
       const { email, password } = this.state;
-
+      console.log("PASSWORD:::", { email, password });
       Auth.signIn(email, password)
         .then((user) => {
           this.setState({ user });

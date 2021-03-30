@@ -1,1 +1,1 @@
-export const endpoint = "http://queensman.com/";
+export const endpoint = "http:// 'queensman.com/";
