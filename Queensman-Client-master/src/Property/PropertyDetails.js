@@ -1,6 +1,7 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, AsyncStorage } from 'react-native';
-
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+  
 
 import { ListItem, Icon, Picker } from 'native-base';
 
@@ -62,7 +63,7 @@ export default class PropertyDetails extends React.Component {
     }
 
   }
-  async  componentWillMount() {
+  async  componentDidMount() {
     this.setState({
       loading: true,
     })

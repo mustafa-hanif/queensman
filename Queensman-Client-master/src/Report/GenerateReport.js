@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ActivityIndicator, AsyncStorage, FlatList, Linking } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ActivityIndicator, FlatList, Linking } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient'
 import { Content, } from 'native-base';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import Modal from "react-native-modal";
 import Toast from 'react-native-whc-toast'
@@ -34,7 +35,7 @@ export default class GenerateReport extends React.Component {
     }
 
   }
-  async componentWillMount() {
+  async componentDidMount() {
     this.setState({ loading: true })
     var property_ID = await AsyncStorage.getItem('QueensPropertyID');// assign customer id here
     var property_Type = await AsyncStorage.getItem('QueensPropertyType');
