@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import React, { PureComponent } from "react";
 import {
   Text,
@@ -55,9 +56,9 @@ export default class App extends PureComponent {
     if (!this.state.isReady) {
       return (
         <AppLoading
-          startAsync={this._cacheResourcesAsync}
+          startAsync={_cacheResourcesAsync}
           onFinish={() => this.setState({ isReady: true })}
-          onError={console.warn}
+          onError={console.error}
         />
       );
     }
@@ -101,7 +102,7 @@ async function _cacheResourcesAsync() {
     require("./assets/Home/pendingHome.png"),
     require("./assets/Home/reportHome.png"),
   ];
-  // this.FontLoad();
+  FontLoad();
   await Font.loadAsync({
     "Helvetica-Bold": require("./assets/Fonts/Helvetica-Bold.ttf"),
     Helvetica: require("./assets/Fonts/Helvetica.ttf"),
@@ -393,7 +394,7 @@ createAppContainer(AppDrawerNavigator);
 const SwithStartNavigator = createSwitchNavigator({
   AuthLogin: AuthLoginCheck,
   Login: LoginStackNavigator,
-  AppDrawer: AppDrawerNavigator,
+  // AppDrawer: AppDrawerNavigator,
 });
 
 const AppContainer = createAppContainer(SwithStartNavigator);

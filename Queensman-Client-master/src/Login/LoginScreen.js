@@ -1,3 +1,5 @@
+/* eslint-disable no-shadow */
+/* eslint-disable no-console */
 import React from "react";
 import {
   StyleSheet,
@@ -23,6 +25,7 @@ import * as LocalAuthentication from "expo-local-authentication";
 import Constants from "expo-constants";
 
 import Toast from "react-native-whc-toast";
+import { auth } from "../utils/nhost";
 import { endpoint } from "../constants/Endpoint";
 
 const deviceWidth = Dimensions.get("window").width;
@@ -61,6 +64,7 @@ export default class LoginScreen extends React.Component {
   }
 
   async componentDidMount() {
+    console.log("here LoginScreen");
     this.checkDeviceForHardware();
     this.checkForFingerprints();
   }
@@ -95,10 +99,11 @@ export default class LoginScreen extends React.Component {
         ) {
           const { email } = this.state;
           const password = this.state.passwordcheck;
-          Auth.signIn(email, password)
+          auth
+            .signIn({ email, password })
             .then((user) => {
               this.setState({ user });
-              this.refs.customToast.show("Successful sign in!");
+              // this.refs.customToast.show("Successful sign in!");
               console.log("successful sign in!");
             })
             .catch((err) => {
@@ -261,7 +266,8 @@ export default class LoginScreen extends React.Component {
       this.setState({ loading: true });
       const { email, password } = this.state;
 
-      Auth.signIn(email, password)
+      auth
+        .login({ email, password })
         .then((user) => {
           this.setState({ user });
           this.refs.customToast.show("Successful sign in!");

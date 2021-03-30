@@ -1,5 +1,11 @@
 import React, { useEffect } from "react";
-import { StyleSheet, View, ActivityIndicator, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  ActivityIndicator,
+  Dimensions,
+} from "react-native";
 import { useAuth } from "@nhost/react-auth";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -23,7 +29,9 @@ const styles = StyleSheet.create({
 
 const AuthLoginCheck = ({ navigation }) => {
   const { signedIn } = useAuth();
+  console.log("signedIn", signedIn);
   useEffect(() => {
+    console.log("here sign")
     if (!signedIn) {
       navigation.navigate("Login");
     }
@@ -44,7 +52,11 @@ const AuthLoginCheck = ({ navigation }) => {
       </View>
     );
   }
-  return null;
+  return (
+    <View>
+      <Text>Hi</Text>
+    </View>
+  );
 };
 
 export default AuthLoginCheck;
