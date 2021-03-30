@@ -3,4 +3,5 @@
 .nhost
 .DS_Store
 .env.development
+api/node_modules
 nmig
