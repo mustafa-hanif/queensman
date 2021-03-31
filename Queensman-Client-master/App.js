@@ -1,14 +1,7 @@
 /* eslint-disable import/order */
 /* eslint-disable no-use-before-define */
 import React, { PureComponent } from "react";
-import {
-  Text,
-  View,
-  SafeAreaView,
-  Image,
-  TouchableOpacity,
-  Linking,
-} from "react-native";
+import { Text, View, SafeAreaView, Image, TouchableOpacity, Linking } from "react-native";
 import { createSwitchNavigator, createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createDrawerNavigator, DrawerItems } from "react-navigation-drawer";
@@ -69,10 +62,7 @@ export default class App extends PureComponent {
 
     return (
       <NhostAuthProvider auth={auth}>
-        <NhostApolloProvider
-          auth={auth}
-          gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql"
-        >
+        <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">
           <StyleProvider style={getTheme(commonColor)}>
             <AppContainer />
           </StyleProvider>
@@ -325,13 +315,8 @@ const CustomDrawerComponent = (props) => (
         marginVertical: "0.2%",
       }}
     >
-      <TouchableOpacity
-        onPress={() => Linking.openURL("https://www.skynners.com")}
-      >
-        <Image
-          source={require("./assets/PartnerswithSkynners2.png")}
-          style={{ height: 35, width: 150 }}
-        />
+      <TouchableOpacity onPress={() => Linking.openURL("https://www.skynners.com")}>
+        <Image source={require("./assets/PartnerswithSkynners2.png")} style={{ height: 35, width: 150 }} />
       </TouchableOpacity>
       <Text> </Text>
     </View>
@@ -346,9 +331,7 @@ const AppDrawerNavigator = createDrawerNavigator(
       navigationOptions: {
         drawerLabel: "Home",
         labelStyle: { fontFamily: "Helvetica" },
-        drawerIcon: ({ tintColor }) => (
-          <Icon name="md-home" style={{ fontSize: 24, color: tintColor }} />
-        ),
+        drawerIcon: ({ tintColor }) => <Icon name="md-home" style={{ fontSize: 24, color: tintColor }} />,
       },
     },
     PropertyDetails: {
@@ -364,9 +347,7 @@ const AppDrawerNavigator = createDrawerNavigator(
             </View>
           </TouchableOpacity>
         ),
-        drawerIcon: ({ tintColor }) => (
-          <Icon name="business" style={{ fontSize: 24, color: tintColor }} />
-        ),
+        drawerIcon: ({ tintColor }) => <Icon name="business" style={{ fontSize: 24, color: tintColor }} />,
       }),
     },
     ContactUs: {
@@ -374,9 +355,7 @@ const AppDrawerNavigator = createDrawerNavigator(
       navigationOptions: {
         drawerLabel: "Contact Us Now",
         labelStyle: { fontFamily: "Helvetica" },
-        drawerIcon: ({ tintColor }) => (
-          <Icon name="call" style={{ fontSize: 24, color: tintColor }} />
-        ),
+        drawerIcon: ({ tintColor }) => <Icon name="call" style={{ fontSize: 24, color: tintColor }} />,
         headerTransparent: true,
       },
     },
@@ -385,9 +364,7 @@ const AppDrawerNavigator = createDrawerNavigator(
       navigationOptions: {
         drawerLabel: "Settings",
         labelStyle: { fontFamily: "Helvetica" },
-        drawerIcon: ({ tintColor }) => (
-          <Icon name="settings" style={{ fontSize: 24, color: tintColor }} />
-        ),
+        drawerIcon: ({ tintColor }) => <Icon name="settings" style={{ fontSize: 24, color: tintColor }} />,
       },
     },
   },

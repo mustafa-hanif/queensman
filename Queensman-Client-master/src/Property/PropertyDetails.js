@@ -4,14 +4,7 @@ import { gql, useQuery } from "@apollo/client";
 
 import Toast from "react-native-whc-toast";
 import axios from "axios";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  FlatList,
-  ActivityIndicator,
-} from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -56,7 +49,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const GET_TODOS = gql`
+const GET_PROPERTIES = gql`
   query MyQuery($email: String) {
     client(where: { email: { _eq: $email } }) {
       property_owneds {
@@ -86,7 +79,8 @@ const PropertyDetails = (props) => {
   });
 
   const email = auth?.currentSession?.session?.user?.email;
-  const { loading, data, error } = useQuery(GET_TODOS, {
+  console.log("email", email);
+  const { loading, data, error } = useQuery(GET_PROPERTIES, {
     variables: { email },
   });
   const customToast = useRef();
@@ -246,9 +240,7 @@ const PropertyDetails = (props) => {
       <Text> </Text>
 
       <View style={{ paddingHorizontal: "5%", flexDirection: "column" }}>
-        <Text style={[styles.TextFam, { fontSize: 10, color: "#FFCA5D" }]}>
-          Select Property Type:
-        </Text>
+        <Text style={[styles.TextFam, { fontSize: 10, color: "#FFCA5D" }]}>Select Property Type:</Text>
         <Picker
           note
           mode="dialog"
@@ -324,18 +316,11 @@ const PropertyDetails = (props) => {
                                   flex: 1,
                                 }}
                               >
-                                <Text style={styles.TextFam}>
-                                  {property.country}
-                                </Text>
-                                <Text style={styles.TextFam}>
-                                  Property ID: {property.id}
-                                </Text>
+                                <Text style={styles.TextFam}>{property.country}</Text>
+                                <Text style={styles.TextFam}>Property ID: {property.id}</Text>
 
                                 <Text style={styles.TextFam}>
-                                  Property Category:{" "}
-                                  {property.category
-                                    ? property.category
-                                    : "Not Listed"}
+                                  Property Category: {property.category ? property.category : "Not Listed"}
                                 </Text>
                               </View>
                             </ListItem>
@@ -416,8 +401,7 @@ const PropertyDetails = (props) => {
                               },
                             ]}
                           >
-                            {item.lease_property.community},
-                            {item.lease_property.city}
+                            {item.lease_property.community},{item.lease_property.city}
                           </Text>
 
                           <ListItem>
@@ -428,17 +412,11 @@ const PropertyDetails = (props) => {
                                 flex: 1,
                               }}
                             >
-                              <Text style={styles.TextFam}>
-                                {item.lease_property.country}
-                              </Text>
-                              <Text style={styles.TextFam}>
-                                Property ID: {item.lease_property.property_id}
-                              </Text>
+                              <Text style={styles.TextFam}>{item.lease_property.country}</Text>
+                              <Text style={styles.TextFam}>Property ID: {item.lease_property.property_id}</Text>
                               <Text style={styles.TextFam}>
                                 Property Category:{" "}
-                                {item.lease_property.category
-                                  ? item.Client_property.category
-                                  : "Not Listed"}
+                                {item.lease_property.category ? item.Client_property.category : "Not Listed"}
                               </Text>
                             </View>
                           </ListItem>

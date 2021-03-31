@@ -1,13 +1,8 @@
 import React, { useEffect } from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  ActivityIndicator,
-  Dimensions,
-} from "react-native";
+import { StyleSheet, View, Text, ActivityIndicator, Dimensions } from "react-native";
 import { useAuth } from "@nhost/react-auth";
 import { LinearGradient } from "expo-linear-gradient";
+import { auth } from "../utils/nhost";
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
@@ -33,17 +28,16 @@ const AuthLoginCheck = ({ navigation }) => {
     if (!signedIn) {
       navigation.navigate("Login");
     }
-    navigation.navigate("AppDrawer");
+    if (signedIn !== null) {
+      navigation.navigate("AppDrawer");
+    }
   }, [signedIn]);
 
   if (signedIn === null) {
     return (
       <View style={styles.container}>
         {/* background gradinet   */}
-        <LinearGradient
-          colors={["#000E1E", "#001E2B", "#000E1E"]}
-          style={styles.gradiantStyle}
-        />
+        <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
 
         <ActivityIndicator size="large" color="#fff" />
       </View>

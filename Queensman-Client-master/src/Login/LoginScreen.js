@@ -21,7 +21,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-
 import { Icon } from "native-base";
 import * as Animatable from "react-native-animatable";
 import axios from "axios";
@@ -119,19 +118,14 @@ export default class LoginScreen extends React.Component {
   };
 
   scanFingerprint = async () => {
-    const result = await LocalAuthentication.authenticateAsync(
-      "Scan your finger."
-    );
+    const result = await LocalAuthentication.authenticateAsync("Scan your finger.");
     // console.log('Scan Result:', result.success)
     if (result.success) {
       const link = `${endpoint}queens_client_Apis/fetchDeviceID.php?email=${this.state.email}`;
       console.log(link);
       axios.get(link).then((result) => {
         console.log(`result${result.data.server_responce.stored_device_id}`);
-        if (
-          result.data.server_responce.stored_device_id ==
-          Constants.installationId
-        ) {
+        if (result.data.server_responce.stored_device_id === Constants.installationId) {
           const { email } = this.state;
           const password = this.state.passwordcheck;
           auth
@@ -269,8 +263,7 @@ export default class LoginScreen extends React.Component {
 
   makeid = () => {
     let result = "";
-    const characters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     const charactersLength = characters.length;
     for (let i = 0; i < this.state.length; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -300,9 +293,7 @@ export default class LoginScreen extends React.Component {
           // Idher Successful hochuka hay sign-in, Yahan se aagay navigate kardena main screen pe!
         })
         .catch((err) => {
-          alert(
-            "Error signing in. The password you entered might be incorrect. "
-          );
+          alert("Error signing in. The password you entered might be incorrect. ");
           console.log("error signing in!: ", err);
           this.setState({ loading: false });
         });
@@ -325,16 +316,12 @@ export default class LoginScreen extends React.Component {
   fadeOutLeft = () =>
     this.view
       ?.fadeOutLeftBig(400)
-      .then((endState) =>
-        console.log(endState.finished ? "bounce finished" : "bounce cancelled")
-      );
+      .then((endState) => console.log(endState.finished ? "bounce finished" : "bounce cancelled"));
 
   fadeOutRight = () =>
     this.view
       ?.fadeOutRightBig(400)
-      .then((endState) =>
-        console.log(endState.finished ? "bounce finished" : "bounce cancelled")
-      );
+      .then((endState) => console.log(endState.finished ? "bounce finished" : "bounce cancelled"));
 
   backtoEmail = () => {
     this.fadeOutRight(); // animation
@@ -385,15 +372,9 @@ export default class LoginScreen extends React.Component {
         />
 
         {/* background gradinet   */}
-        <LinearGradient
-          colors={["#000E1E", "#001E2B", "#000E1E"]}
-          style={styles.gradiantStyle}
-        />
+        <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
 
-        <Image
-          style={styles.LogoStyle}
-          source={require("../../assets/Login/Queensman_logo3.png")}
-        />
+        <Image style={styles.LogoStyle} source={require("../../assets/Login/Queensman_logo3.png")} />
         <View style={{ paddingTop: "11%" }} />
 
         {/* checking if to change email and password Component */}
@@ -429,21 +410,11 @@ export default class LoginScreen extends React.Component {
               style={{ height: 38, width: 200, alignSelf: "center" }}
               onPress={this.proceedFunctionEmail}
             >
-              <ImageBackground
-                style={{ height: 38, width: 200 }}
-                source={require("../../assets/Login/Proceed2.png")}
-              />
+              <ImageBackground style={{ height: 38, width: 200 }} source={require("../../assets/Login/Proceed2.png")} />
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={{ alignSelf: "center", paddingTop: "5%" }}
-              onPress={this.ForgotPassword}
-            >
-              <Text
-                style={{ fontSize: 15, fontFamily: "Helvetica", color: "#fff" }}
-              >
-                Forgot Password?
-              </Text>
+            <TouchableOpacity style={{ alignSelf: "center", paddingTop: "5%" }} onPress={this.ForgotPassword}>
+              <Text style={{ fontSize: 15, fontFamily: "Helvetica", color: "#fff" }}>Forgot Password?</Text>
             </TouchableOpacity>
           </Animatable.View>
         ) : (
@@ -507,14 +478,8 @@ export default class LoginScreen extends React.Component {
             </ImageBackground>
 
             <View style={{ paddingVertical: "3%" }} />
-            <TouchableOpacity
-              style={{ width: 200, height: 38 }}
-              onPress={this.proceedFunctionPassword}
-            >
-              <ImageBackground
-                style={{ width: 200, height: 38 }}
-                source={require("../../assets/Login/Proceed2.png")}
-              />
+            <TouchableOpacity style={{ width: 200, height: 38 }} onPress={this.proceedFunctionPassword}>
+              <ImageBackground style={{ width: 200, height: 38 }} source={require("../../assets/Login/Proceed2.png")} />
             </TouchableOpacity>
 
             <Text
@@ -529,28 +494,13 @@ export default class LoginScreen extends React.Component {
               You may also use your phone fingerprint to login
             </Text>
             {/* go back to email */}
-            <TouchableOpacity
-              style={{ alignSelf: "center", paddingTop: "5%" }}
-              onPress={this.backtoEmail}
-            >
-              <Text
-                style={{ fontSize: 15, fontFamily: "Helvetica", color: "#fff" }}
-              >
-                Back to email
-              </Text>
+            <TouchableOpacity style={{ alignSelf: "center", paddingTop: "5%" }} onPress={this.backtoEmail}>
+              <Text style={{ fontSize: 15, fontFamily: "Helvetica", color: "#fff" }}>Back to email</Text>
             </TouchableOpacity>
           </Animatable.View>
         )}
 
-        {this.state.loading ? (
-          <ActivityIndicator
-            size="large"
-            color="#fff"
-            style={{ paddingTop: "5%" }}
-          />
-        ) : (
-          <View />
-        )}
+        {this.state.loading ? <ActivityIndicator size="large" color="#fff" style={{ paddingTop: "5%" }} /> : <View />}
 
         {/* call us */}
 
@@ -566,11 +516,7 @@ export default class LoginScreen extends React.Component {
         {this.state.emailpage ? (
           <TouchableOpacity onPress={this.ContectUsFuntion}>
             <View style={{ flexDirection: "column", paddingTop: "5%" }}>
-              <Text
-                style={{ fontSize: 11, fontFamily: "Helvetica", color: "#fff" }}
-              >
-                Haven't registered yet?
-              </Text>
+              <Text style={{ fontSize: 11, fontFamily: "Helvetica", color: "#fff" }}>Haven't registered yet?</Text>
 
               <Text
                 style={{
@@ -625,11 +571,7 @@ export default class LoginScreen extends React.Component {
               alignItems: "center",
             }}
           >
-            <Text
-              style={{ fontSize: 11, fontFamily: "Helvetica", color: "#fff" }}
-            >
-              Feel free to email us at{" "}
-            </Text>
+            <Text style={{ fontSize: 11, fontFamily: "Helvetica", color: "#fff" }}>Feel free to email us at </Text>
             <Text
               style={{
                 fontSize: 11,
