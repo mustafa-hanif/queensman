@@ -5,12 +5,12 @@ import {
   View,
   TouchableOpacity,
   Image,
-  AsyncStorage,
   Linking,
 } from "react-native";
 import { Content, List, ListItem, Row, Icon } from "native-base";
 import axios from "axios";
 import Constants from "expo-constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import Toast from "react-native-whc-toast";
 

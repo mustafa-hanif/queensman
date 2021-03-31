@@ -7,8 +7,9 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Image,
-  AsyncStorage,
 } from "react-native";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { Icon } from "native-base";
 
@@ -20,7 +21,7 @@ class CalloutHistory extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      CallOutData: [], // Ismain store horahi hayn client ki CallOut Histroy details yahan se daaldio usmain.
+      CallOutData: [], //Ismain store horahi hayn client ki CallOut Histroy details yahan se daaldio usmain.
       loading: false,
       Id: "",
       dataAvaible: true,
@@ -43,7 +44,7 @@ class CalloutHistory extends React.Component {
     const ID = await AsyncStorage.getItem("QueensUserID"); // assign customer id here
     const property_ID = await AsyncStorage.getItem("QueensPropertyID"); // assign customer id here
     const g = await AsyncStorage.getItem("Queens");
-    console.log(` my${g}`);
+    console.log(" my" + g);
     this.setState({
       cusID: ID,
       propID: property_ID,

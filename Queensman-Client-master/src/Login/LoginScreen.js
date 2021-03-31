@@ -17,10 +17,10 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import { LinearGradient } from "expo-linear-gradient";
 import NetInfo from "@react-native-community/netinfo";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 import { Icon } from "native-base";
 import * as Animatable from "react-native-animatable";

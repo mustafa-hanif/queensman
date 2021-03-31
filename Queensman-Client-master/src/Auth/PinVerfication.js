@@ -9,6 +9,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Content } from "native-base";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import SmoothPinCodeInput from "react-native-smooth-pincode-input";
 
 const deviceWidth = Dimensions.get("window").width;
