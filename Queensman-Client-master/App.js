@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 /* eslint-disable no-use-before-define */
 import React, { PureComponent } from "react";
 import {
@@ -11,7 +12,7 @@ import {
 import { createSwitchNavigator, createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createDrawerNavigator, DrawerItems } from "react-navigation-drawer";
-import { Icon } from "native-base";
+import { Icon, Container, StyleProvider } from "native-base";
 import AppLoading from "expo-app-loading";
 import * as Font from "expo-font";
 import { Asset } from "expo-asset";
@@ -42,6 +43,9 @@ import SignupContectUs from "./src/Login/SignupContectUs";
 import SettingPasswordChange from "./src/Component/SettingPasswordChange";
 import ForgotPassword from "./src/Login/ForgotPassword";
 
+import getTheme from "./native-base-theme/components";
+import commonColor from "./native-base-theme/variables/commonColor";
+
 /** App main loading */
 
 export default class App extends PureComponent {
@@ -69,7 +73,9 @@ export default class App extends PureComponent {
           auth={auth}
           gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql"
         >
-          <AppContainer />
+          <StyleProvider style={getTheme(commonColor)}>
+            <AppContainer />
+          </StyleProvider>
         </NhostApolloProvider>
       </NhostAuthProvider>
     );
@@ -396,7 +402,8 @@ const AppDrawerNavigator = createDrawerNavigator(
     },
   }
 );
-// createAppContainer(AppDrawerNavigator);
+
+createAppContainer(AppDrawerNavigator);
 
 /** App start Switch navigator */
 const SwithStartNavigator = createSwitchNavigator({

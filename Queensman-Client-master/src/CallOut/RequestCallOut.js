@@ -1,3 +1,7 @@
+/* eslint-disable react/no-unused-state */
+/* eslint-disable react/no-string-refs */
+/* eslint-disable react/jsx-no-bind */
+/* eslint-disable no-shadow */
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable camelcase */
 import React from "react";
@@ -27,6 +31,131 @@ import * as Permissions from "expo-permissions";
 import { LinearGradient } from "expo-linear-gradient";
 
 import Modal from "react-native-modal";
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  gradiantStyle: {
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    alignSelf: "center",
+  },
+  RowFlex: {
+    flexDirection: "row",
+    paddingLeft: "10%",
+  },
+  ColFlex: {
+    flexDirection: "column",
+    paddingLeft: "10%",
+  },
+  circle: {
+    height: 20,
+    width: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ACACAC",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkedCircle: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: "#FFCA5D",
+  },
+  Card: {
+    shadowColor: "rgba(0,0,0, .4)", // IOS
+    shadowOffset: { height: 1, width: 1 }, // IOS
+    shadowOpacity: 1, // IOS
+    shadowRadius: 1, // IOS
+    elevation: 1, // Android
+    width: "100%",
+    height: "72%",
+    alignSelf: "center",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    backgroundColor: "#FFF",
+    paddingHorizontal: "10%",
+    paddingVertical: 15,
+  },
+  TextFam: {
+    fontFamily: "Helvetica",
+  },
+  ButtonSty: {
+    backgroundColor: "#FFCA5D",
+    //  borderRadius: 20,
+    alignSelf: "center",
+    width: "90%",
+    // justifyContent: 'center',
+    alignItems: "center",
+    // height:'25%'
+    paddingVertical: "3%",
+  },
+  GalleryEventModel: {
+    // backgroundColor: '',
+    padding: 22,
+    //   backgroundColor: '#65061B',
+    justifyContent: "space-around",
+    // alignItems: 'center',
+    borderRadius: 4,
+    height: "80%",
+    borderColor: "rgba(0, 0, 0, 0.1)",
+  },
+  PickerStyle: {
+    width: "100%",
+    height: 42,
+    backgroundColor: "#FFCA5D",
+    borderRadius: 4,
+    justifyContent: "center",
+  },
+  OthertxtStyle: {
+    width: "100%",
+    height: 28,
+    borderRadius: 5,
+    borderWidth: 0.5,
+    borderColor: "#FFCA5D",
+    backgroundColor: "#eeeeee",
+    paddingHorizontal: "3%",
+  },
+  DestxtStyle: {
+    width: "100%",
+    height: 65,
+    borderRadius: 5,
+    borderWidth: 0.5,
+    borderColor: "#FFCA5D",
+    backgroundColor: "#eeeeee",
+    paddingHorizontal: "3%",
+  },
+  ImageSelectStyle: {
+    height: 25,
+    paddingHorizontal: "2%",
+    backgroundColor: "#FFCA5D",
+    shadowColor: "rgba(0,0,0, .4)", // IOS
+    shadowOffset: { height: 1, width: 1 }, // IOS
+    shadowOpacity: 1, // IOS
+    shadowRadius: 1, // IOS
+    elevation: 1, // Android
+    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  SubmitCallout: {
+    height: 38,
+    width: "100%",
+    backgroundColor: "#001E2B",
+    shadowColor: "rgba(0,0,0, .4)", // IOS
+    shadowOffset: { height: 1, width: 1 }, // IOS
+    shadowOpacity: 1, // IOS
+    shadowRadius: 1, // IOS
+    elevation: 1, // Android
+    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
 
 export default class RequestCallOut extends React.Component {
   constructor(props) {
@@ -78,39 +207,39 @@ export default class RequestCallOut extends React.Component {
     this.setState({
       PropertyDetailLoading: true,
     });
-    const ID = await AsyncStorage.getItem("QueensUserID"); // assign customer id here
+    // const ID = await AsyncStorage.getItem("QueensUserID"); // assign customer id here
 
-    const property_ID = await AsyncStorage.getItem("QueensPropertyID"); // assign customer id here
-    const g = await AsyncStorage.getItem("Queens");
-    console.log(` my${g}`);
+    // const property_ID = await AsyncStorage.getItem("QueensPropertyID"); // assign customer id here
+    // const g = await AsyncStorage.getItem("Queens");
+    // console.log(` my${g}`);
 
-    if (property_ID === "asd" || property_ID === g) {
-      alert(
-        "Please select property first from 'Property Details' tab in the menu."
-      );
-      this.props.navigation.navigate("HomeNaviagtor");
-    }
-    this.setState({
-      customerID: ID,
-      PropertyID: property_ID,
-    });
+    // if (property_ID ==== "asd" || property_ID ==== g) {
+    //   alert(
+    //     "Please select property first from 'Property Details' tab in the menu."
+    //   );
+    //   this.props.navigation.navigate("HomeNaviagtor");
+    // }
+    // this.setState({
+    //   customerID: ID,
+    //   PropertyID: property_ID,
+    // });
     // link = "./fetchClientProfile.php?ID=" + ID;
-    const link = `http://13.250.20.151/queens_client_Apis/FetchClientSinglePropertyViaPropID.php?ID=${property_ID}`;
-    console.log(link);
-    axios.get(link).then((result) => {
-      console.log(result.data.server_responce);
-      this.setState({ PropertyDetails: result.data.server_responce });
-      console.log(this.state.PropertyDetails[0].Client_property.address);
+    // const link = `http://13.250.20.151/queens_client_Apis/FetchClientSinglePropertyViaPropID.php?ID=${property_ID}`;
+    // console.log(link);
+    // axios.get(link).then((result) => {
+    //   console.log(result.data.server_responce);
+    //   this.setState({ PropertyDetails: result.data.server_responce });
+    //   console.log(this.state.PropertyDetails[0].Client_property.address);
 
-      this.setState((state) => ({
-        property_type: state.PropertyDetails[0].Client_property.category,
-        address: state.PropertyDetails[0].Client_property.address,
-        community: state.PropertyDetails[0].Client_property.community,
-        city: state.PropertyDetails[0].Client_property.city,
-        country: state.PropertyDetails[0].Client_property.country,
-        PropertyDetailLoading: false,
-      }));
-    });
+    //   this.setState((state) => ({
+    //     property_type: state.PropertyDetails[0].Client_property.category,
+    //     address: state.PropertyDetails[0].Client_property.address,
+    //     community: state.PropertyDetails[0].Client_property.community,
+    //     city: state.PropertyDetails[0].Client_property.city,
+    //     country: state.PropertyDetails[0].Client_property.country,
+    //     PropertyDetailLoading: false,
+    //   }));
+    // });
   }
 
   selectFromGallery = async () => {
@@ -132,21 +261,21 @@ export default class RequestCallOut extends React.Component {
 
   _uploadImage = (uri) => {
     console.log(`My:${uri}`);
-    if (this.state.picture1 == "") {
+    if (this.state.picture1 === "") {
       this.setState({
         picture1: uri,
       });
       console.log(this.state.picture1);
-    } else if (this.state.picture2 == "") {
+    } else if (this.state.picture2 === "") {
       this.setState({
         picture2: uri,
       });
       console.log(this.state.picture2);
-    } else if (this.state.picture3 == "") {
+    } else if (this.state.picture3 === "") {
       this.setState({
         picture3: uri,
       });
-    } else if (this.state.picture4 == "") {
+    } else if (this.state.picture4 === "") {
       this.setState({
         picture4: uri,
       });
@@ -215,16 +344,16 @@ export default class RequestCallOut extends React.Component {
 
   submitCallout = async () => {
     if (
-      this.state.picture1 == "" ||
-      this.state.Urgency == "" ||
-      this.state.JobType == "none"
+      this.state.picture1 === "" ||
+      this.state.Urgency === "" ||
+      this.state.JobType === "none"
     ) {
       alert("Kindly fill all the required details.");
     } else {
       NetInfo.fetch().then((isConnected) => {
         if (isConnected) {
           let JOBS = "";
-          if (this.state.OtherJobType == "") {
+          if (this.state.OtherJobType === "") {
             JOBS = this.state.JobType;
           } else {
             JOBS = `Other: ${this.state.OtherJobType}`;
@@ -234,16 +363,16 @@ export default class RequestCallOut extends React.Component {
           let pic3name = "";
           let pic4name = "";
 
-          if (this.state.picture1 != "") {
+          if (this.state.picture1 !== "") {
             pic1name = this.state.picture1.split("/").pop();
           }
-          if (this.state.picture1 != "") {
+          if (this.state.picture1 !== "") {
             pic2name = this.state.picture2.split("/").pop();
           }
-          if (this.state.picture1 != "") {
+          if (this.state.picture1 !== "") {
             pic3name = this.state.picture3.split("/").pop();
           }
-          if (this.state.picture1 != "") {
+          if (this.state.picture1 !== "") {
             pic4name = this.state.picture4.split("/").pop();
           }
 
@@ -256,16 +385,16 @@ export default class RequestCallOut extends React.Component {
               console.log(result.data.server_responce);
 
               link = "http://13.250.20.151/queens_client_Apis/uploadPhoto.php";
-              if (this.state.picture1 != "") {
+              if (this.state.picture1 !== "") {
                 this.urlToUPLOAD(this.state.picture1, link);
               }
-              if (this.state.picture2 != "") {
+              if (this.state.picture2 !== "") {
                 this.urlToUPLOAD(this.state.picture2, link);
               }
-              if (this.state.picture3 != "") {
+              if (this.state.picture3 !== "") {
                 this.urlToUPLOAD(this.state.picture3, link);
               }
-              if (this.state.picture4 != "") {
+              if (this.state.picture4 !== "") {
                 this.urlToUPLOAD(this.state.picture4, link);
               }
               setTimeout(() => {
@@ -319,19 +448,19 @@ export default class RequestCallOut extends React.Component {
   };
 
   RemoveImages = () => {
-    if (this.state.selectedNo == 1) {
+    if (this.state.selectedNo === 1) {
       this.setState({
         picture1: "",
       });
-    } else if (this.state.selectedNo == 2) {
+    } else if (this.state.selectedNo === 2) {
       this.setState({
         picture2: "",
       });
-    } else if (this.state.selectedNo == 3) {
+    } else if (this.state.selectedNo === 3) {
       this.setState({
         picture3: "",
       });
-    } else if (this.state.selectedNo == 4) {
+    } else if (this.state.selectedNo === 4) {
       this.setState({
         picture4: "",
       });
@@ -412,11 +541,13 @@ export default class RequestCallOut extends React.Component {
         </View>
 
         <View style={styles.Card}>
-          <ScrollView
-            style={styles.container}
-            showsVerticalScrollIndicator={false}
-          >
-            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
+          <View style={styles.container} showsVerticalScrollIndicator={false}>
+            <Text
+              style={[
+                styles.TextFam,
+                { color: "#000E1E", fontSize: 16, marginBottom: 8 },
+              ]}
+            >
               Job Type
             </Text>
 
@@ -425,9 +556,9 @@ export default class RequestCallOut extends React.Component {
                 note
                 mode="dialog"
                 onValueChange={this.onValueChange.bind(this)}
+                placeholderStyle={{ color: "#000" }}
                 selectedValue={this.state.JobType}
-                itemStyle={{ fontSize: 30, fontFamily: "Helvetica" }}
-                style={{}}
+                itemStyle={{ fontSize: 30 }}
               >
                 <Picker.Item label="Select" value="none" />
                 <Picker.Item label="AC" value="AC" />
@@ -440,7 +571,7 @@ export default class RequestCallOut extends React.Component {
               </Picker>
             </View>
 
-            {this.state.JobType == "other" ? (
+            {this.state.JobType === "other" ? (
               <View style={{ paddingTop: "3%" }}>
                 <View style={styles.OthertxtStyle}>
                   <TextInput
@@ -472,7 +603,7 @@ export default class RequestCallOut extends React.Component {
                 style={styles.circle}
                 onPress={() => this.setState({ Urgency: "high" })} // we set our value state to key
               >
-                {this.state.Urgency == "high" ? (
+                {this.state.Urgency === "high" ? (
                   <View style={styles.checkedCircle} />
                 ) : null}
               </TouchableOpacity>
@@ -493,7 +624,7 @@ export default class RequestCallOut extends React.Component {
                 style={styles.circle}
                 onPress={() => this.setState({ Urgency: "medium" })} // we set our value state to key
               >
-                {this.state.Urgency == "medium" ? (
+                {this.state.Urgency === "medium" ? (
                   <View style={styles.checkedCircle} />
                 ) : null}
               </TouchableOpacity>
@@ -583,7 +714,7 @@ export default class RequestCallOut extends React.Component {
                 onPress={() =>
                   this.toggleGalleryEventModal(this.state.picture1, 1)
                 }
-                disabled={this.state.picture1 == ""}
+                disabled={this.state.picture1 === ""}
               >
                 <View
                   style={{
@@ -596,7 +727,7 @@ export default class RequestCallOut extends React.Component {
                     name="link"
                     style={{
                       fontSize: 20,
-                      color: this.state.picture1 == "" ? "#aaa" : "#000E1E",
+                      color: this.state.picture1 === "" ? "#aaa" : "#000E1E",
                       paddingRight: "3%",
                     }}
                   />
@@ -604,7 +735,7 @@ export default class RequestCallOut extends React.Component {
                     style={{
                       fontSize: 13,
                       marginBottom: "1%",
-                      color: this.state.picture1 == "" ? "#aaa" : "#000E1E",
+                      color: this.state.picture1 === "" ? "#aaa" : "#000E1E",
                     }}
                   >
                     Picture 1
@@ -615,7 +746,7 @@ export default class RequestCallOut extends React.Component {
                 onPress={() =>
                   this.toggleGalleryEventModal(this.state.picture2, 2)
                 }
-                disabled={this.state.picture2 == ""}
+                disabled={this.state.picture2 === ""}
               >
                 <View
                   style={{
@@ -628,7 +759,7 @@ export default class RequestCallOut extends React.Component {
                     name="link"
                     style={{
                       fontSize: 20,
-                      color: this.state.picture2 == "" ? "#aaa" : "#000E1E",
+                      color: this.state.picture2 === "" ? "#aaa" : "#000E1E",
                       paddingRight: "3%",
                     }}
                   />
@@ -636,7 +767,7 @@ export default class RequestCallOut extends React.Component {
                     style={{
                       fontSize: 13,
                       marginBottom: "1%",
-                      color: this.state.picture2 == "" ? "#aaa" : "#000E1E",
+                      color: this.state.picture2 === "" ? "#aaa" : "#000E1E",
                     }}
                   >
                     Picture 2
@@ -657,7 +788,7 @@ export default class RequestCallOut extends React.Component {
                 onPress={() =>
                   this.toggleGalleryEventModal(this.state.picture3, 3)
                 }
-                disabled={this.state.picture3 == ""}
+                disabled={this.state.picture3 === ""}
               >
                 <View
                   style={{
@@ -670,7 +801,7 @@ export default class RequestCallOut extends React.Component {
                     name="link"
                     style={{
                       fontSize: 20,
-                      color: this.state.picture3 == "" ? "#aaa" : "#000E1E",
+                      color: this.state.picture3 === "" ? "#aaa" : "#000E1E",
                       paddingRight: "3%",
                     }}
                   />
@@ -678,7 +809,7 @@ export default class RequestCallOut extends React.Component {
                     style={{
                       fontSize: 13,
                       marginBottom: "1%",
-                      color: this.state.picture3 == "" ? "#aaa" : "#000E1E",
+                      color: this.state.picture3 === "" ? "#aaa" : "#000E1E",
                     }}
                   >
                     Picture 3
@@ -689,7 +820,7 @@ export default class RequestCallOut extends React.Component {
                 onPress={() =>
                   this.toggleGalleryEventModal(this.state.picture4, 4)
                 }
-                disabled={this.state.picture4 == ""}
+                disabled={this.state.picture4 === ""}
               >
                 <View
                   style={{
@@ -702,7 +833,7 @@ export default class RequestCallOut extends React.Component {
                     name="link"
                     style={{
                       fontSize: 20,
-                      color: this.state.picture4 == "" ? "#aaa" : "#000E1E",
+                      color: this.state.picture4 === "" ? "#aaa" : "#000E1E",
                       paddingRight: "3%",
                     }}
                   />
@@ -710,7 +841,7 @@ export default class RequestCallOut extends React.Component {
                     style={{
                       fontSize: 13,
                       marginBottom: "1%",
-                      color: this.state.picture4 == "" ? "#aaa" : "#000E1E",
+                      color: this.state.picture4 === "" ? "#aaa" : "#000E1E",
                     }}
                   >
                     Picture 4
@@ -743,7 +874,7 @@ export default class RequestCallOut extends React.Component {
               )}
             </TouchableOpacity>
             <View style={{ height: 100 }} />
-          </ScrollView>
+          </View>
         </View>
 
         <Modal
@@ -789,133 +920,3 @@ export default class RequestCallOut extends React.Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  gradiantStyle: {
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-    alignSelf: "center",
-  },
-  RowFlex: {
-    flexDirection: "row",
-    paddingLeft: "10%",
-  },
-  ColFlex: {
-    flexDirection: "column",
-    paddingLeft: "10%",
-  },
-  circle: {
-    height: 20,
-    width: 20,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#ACACAC",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  checkedCircle: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: "#FFCA5D",
-  },
-  Card: {
-    shadowColor: "rgba(0,0,0, .4)", // IOS
-    shadowOffset: { height: 1, width: 1 }, // IOS
-    shadowOpacity: 1, // IOS
-    shadowRadius: 1, // IOS
-    elevation: 1, // Android
-    width: "100%",
-    height: "72%",
-    alignSelf: "center",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    backgroundColor: "#FFF",
-    paddingHorizontal: "10%",
-    paddingVertical: 15,
-  },
-  TextFam: {
-    fontFamily: "Helvetica",
-  },
-  ButtonSty: {
-    backgroundColor: "#FFCA5D",
-    //  borderRadius: 20,
-    alignSelf: "center",
-    width: "90%",
-    // justifyContent: 'center',
-    alignItems: "center",
-    // height:'25%'
-    paddingVertical: "3%",
-  },
-  GalleryEventModel: {
-    // backgroundColor: '',
-    padding: 22,
-    //   backgroundColor: '#65061B',
-    justifyContent: "space-around",
-    // alignItems: 'center',
-    borderRadius: 4,
-    height: "80%",
-    borderColor: "rgba(0, 0, 0, 0.1)",
-  },
-  PickerStyle: {
-    width: "100%",
-    height: 28,
-    backgroundColor: "#FFCA5D",
-    shadowColor: "rgba(0,0,0, .4)", // IOS
-    shadowOffset: { height: 1, width: 1 }, // IOS
-    shadowOpacity: 1, // IOS
-    shadowRadius: 1, // IOS
-    elevation: 1, // Android
-    borderRadius: 5,
-    justifyContent: "center",
-  },
-  OthertxtStyle: {
-    width: "100%",
-    height: 28,
-    borderRadius: 5,
-    borderWidth: 0.5,
-    borderColor: "#FFCA5D",
-    backgroundColor: "#eeeeee",
-    paddingHorizontal: "3%",
-  },
-  DestxtStyle: {
-    width: "100%",
-    height: 65,
-    borderRadius: 5,
-    borderWidth: 0.5,
-    borderColor: "#FFCA5D",
-    backgroundColor: "#eeeeee",
-    paddingHorizontal: "3%",
-  },
-  ImageSelectStyle: {
-    height: 25,
-    paddingHorizontal: "2%",
-    backgroundColor: "#FFCA5D",
-    shadowColor: "rgba(0,0,0, .4)", // IOS
-    shadowOffset: { height: 1, width: 1 }, // IOS
-    shadowOpacity: 1, // IOS
-    shadowRadius: 1, // IOS
-    elevation: 1, // Android
-    borderRadius: 5,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  SubmitCallout: {
-    height: 38,
-    width: "100%",
-    backgroundColor: "#001E2B",
-    shadowColor: "rgba(0,0,0, .4)", // IOS
-    shadowOffset: { height: 1, width: 1 }, // IOS
-    shadowOpacity: 1, // IOS
-    shadowRadius: 1, // IOS
-    elevation: 1, // Android
-    borderRadius: 5,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});

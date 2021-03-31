@@ -102,9 +102,9 @@ export default class HomeScreen extends React.Component {
     const PropID = await AsyncStorage.getItem("QueensPropertyID"); // assign customer id here
     const g = await AsyncStorage.getItem("Queens");
     if (PropID === "asd" || PropID === g) {
-      alert(
-        "Please select property first from 'Property Details' tab in the menu."
-      );
+      // alert(
+      //   "Please select property first from 'Property Details' tab in the menu."
+      // );
     }
   }
 
