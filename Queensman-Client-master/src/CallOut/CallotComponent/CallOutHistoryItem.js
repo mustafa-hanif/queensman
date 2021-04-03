@@ -73,7 +73,7 @@ export default class CallOutHistoryItem extends React.Component {
       console.log(workers)
     })
       .catch(error => console.log(error));
-    link = "http://13.250.20.151/queens_client_Apis/fetchSingleJobHistory.php?callout_id=" + this.state.HistoryCallOutData.Client_property.id
+    link = "http://queensman.com/queens_client_Apis/fetchSingleJobHistory.php?callout_id=" + this.state.HistoryCallOutData.Client_property.id
     console.log(link)
     axios.get(link).then(result => {
       var length = result.data.server_response.length

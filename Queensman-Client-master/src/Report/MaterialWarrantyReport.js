@@ -39,7 +39,7 @@ export default class GenerateReport extends React.Component {
     this.setState({ loading: true });
     var property_ID = await AsyncStorage.getItem("QueensPropertyID"); // assign customer id here
     link =
-      "http://13.250.20.151/queens_client_Apis/fetchMaterialWarrantyReport.php?ID=" +
+      "http://queensman.com/queens_client_Apis/fetchMaterialWarrantyReport.php?ID=" +
       property_ID;
     console.log(link);
     axios.get(link).then((result) => {

@@ -34,7 +34,7 @@ class Settings extends React.Component {
     const value = await AsyncStorage.getItem("QueensFinger");
     this.setState({ fingerValue: value });
     // link = "./fetchClientProfile.php?ID=" + ID;
-    const link = `http://13.250.20.151/queens_client_Apis/fetchClientProfile.php?ID=${ID}`;
+    const link = `http://queensman.com/queens_client_Apis/fetchClientProfile.php?ID=${ID}`;
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data.server_responce);
@@ -100,7 +100,7 @@ class Settings extends React.Component {
 
   EnableFingerPrint = () => {
     console.log(Constants.installationId);
-    link = `http://13.250.20.151/queens_client_Apis/setDeviceID.php?email=${this.state.Email}&device_id=${Constants.installationId}`;
+    link = `http://queensman.com/queens_client_Apis/setDeviceID.php?email=${this.state.Email}&device_id=${Constants.installationId}`;
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data.server_responce);
@@ -111,7 +111,7 @@ class Settings extends React.Component {
 
   disableFingerPrint = () => {
     console.log(Constants.installationId);
-    link = `http://13.250.20.151/queens_client_Apis/setDeviceID.php?email=${this.state.Email}&device_id=null`;
+    link = `http://queensman.com/queens_client_Apis/setDeviceID.php?email=${this.state.Email}&device_id=null`;
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data.server_responce);

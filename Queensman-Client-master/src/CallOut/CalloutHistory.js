@@ -8,8 +8,9 @@ import { Icon } from "native-base";
 import Toast from "react-native-whc-toast";
 import axios from "axios";
 import PTRView from "react-native-pull-to-refresh";
+import { gql, useQuery } from "@apollo/client";
 
-class CalloutHistory extends React.Component {
+class CalloutHistoryClass extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -23,6 +24,8 @@ class CalloutHistory extends React.Component {
   }
 
   passItem = (item) => {
+    // console.log({item:this.props.navigation.push})
+    // this.props.navigation.navigate("HomeNaviagtor");
     this.props.navigation.navigate("CalloutHistoryItem", {
       it: item,
     });
@@ -47,9 +50,9 @@ class CalloutHistory extends React.Component {
     //   alert(
     //     "Please select property first from 'Property Details' tab in the menu."
     //   );
-    //   this.props.navigation.navigate("HomeNaviagtor");
+    // this.props.navigation.navigate("HomeNaviagtor");
     // }
-    link = `http://13.250.20.151/queens_client_Apis/fetchCalloutHistoryViaPropertyID.php?property_id=${property_ID}`;
+    link = `http://queensman.com/queens_client_Apis/fetchCalloutHistoryViaPropertyID.php?property_id=${property_ID}`;
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data);
@@ -76,7 +79,7 @@ class CalloutHistory extends React.Component {
       setTimeout(() => {
         // fetch customer orrder list
         const ID = this.state.cusID; // assign customer id here
-        link = `http://13.250.20.151/queens_client_Apis/fetchCalloutHistoryViaPropertyID.php?property_id=${this.state.propID}`;
+        link = `http://queensman.com/queens_client_Apis/fetchCalloutHistoryViaPropertyID.php?property_id=${this.state.propID}`;
         console.log(link);
         axios.get(link).then((result) => {
           console.log(result.data);
@@ -259,7 +262,7 @@ class CalloutHistory extends React.Component {
   }
 }
 
-export default CalloutHistory;
+// export default CalloutHistory;
 
 const styles = StyleSheet.create({
   container: {
@@ -299,3 +302,7 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica",
   },
 });
+
+export default function CalloutHistory(props) {
+  return <CalloutHistoryClass {...props}></CalloutHistoryClass>;
+}
