@@ -54,7 +54,7 @@ class OngoingCallout extends React.Component {
       this.props.navigation.navigate("HomeNaviagtor");
     }
     link =
-      "http://13.250.20.151/queens_client_Apis/fetchOngoingCalloutsViaPropertyID.php?property_id=" +
+      "http://queensman.com/queens_client_Apis/fetchOngoingCalloutsViaPropertyID.php?property_id=" +
       property_ID;
     console.log(link);
     axios.get(link).then((result) => {
@@ -83,7 +83,7 @@ class OngoingCallout extends React.Component {
         const ID = this.state.cusID; // assign customer id here
 
         link =
-          "http://13.250.20.151/queens_client_Apis/fetchOngoingCalloutsViaPropertyID.php?property_id=" +
+          "http://queensman.com/queens_client_Apis/fetchOngoingCalloutsViaPropertyID.php?property_id=" +
           this.state.propID;
         console.log(link);
         axios.get(link).then((result) => {

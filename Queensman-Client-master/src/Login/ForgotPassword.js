@@ -49,7 +49,7 @@ export default class ForgotPassword extends React.Component {
         .then((data) => {
           console.log(data);
 
-          link = `http://13.250.20.151/queens_client_Apis/UpdatePassword.php?password=${this.state.pass}&email=${this.state.email}`;
+          link = `http://queensman.com/queens_client_Apis/UpdatePassword.php?password=${this.state.pass}&email=${this.state.email}`;
           console.log(link);
           axios.get(link).then((result) => {
             console.log(result.data.server_responce);

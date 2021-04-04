@@ -38,7 +38,7 @@ export default class SettingPasswordChange extends React.Component {
   };
 
   donehandle = () => {
-    link = `http://13.250.20.151/queens_client_Apis/checkPassword.php?email=${this.state.email}`;
+    link = `http://queensman.com/queens_client_Apis/checkPassword.php?email=${this.state.email}`;
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data.server_responce.password);
@@ -58,7 +58,7 @@ export default class SettingPasswordChange extends React.Component {
         .then((data) => console.log(data))
         .catch((err) => console.log(err));
 
-      let link = `http://13.250.20.151/queens_client_Apis/UpdatePassword.php?password=${this.state.password}&email=${this.state.email}`;
+      let link = `http://queensman.com/queens_client_Apis/UpdatePassword.php?password=${this.state.password}&email=${this.state.email}`;
       console.log(link);
       axios.get(link).then((result) => {
         console.log(result.data.server_responce);

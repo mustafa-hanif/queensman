@@ -207,11 +207,13 @@ export default class RequestCallOut extends React.Component {
     this.setState({
       PropertyDetailLoading: true,
     });
-    // const ID = await AsyncStorage.getItem("QueensUserID"); // assign customer id here
+    const ID = await AsyncStorage.getItem("QueensUserID"); // assign customer id here
 
-    // const property_ID = await AsyncStorage.getItem("QueensPropertyID"); // assign customer id here
-    // const g = await AsyncStorage.getItem("Queens");
+    const property_ID = await AsyncStorage.getItem("QueensPropertyID"); // assign customer id here
+    const g = await AsyncStorage.getItem("Queens");
     // console.log(` my${g}`);
+
+    console.log({ ID, property_ID, g });
 
     // if (property_ID ==== "asd" || property_ID ==== g) {
     //   alert(
@@ -219,27 +221,28 @@ export default class RequestCallOut extends React.Component {
     //   );
     //   this.props.navigation.navigate("HomeNaviagtor");
     // }
-    // this.setState({
-    //   customerID: ID,
-    //   PropertyID: property_ID,
-    // });
-    // link = "./fetchClientProfile.php?ID=" + ID;
-    // const link = `http://13.250.20.151/queens_client_Apis/FetchClientSinglePropertyViaPropID.php?ID=${property_ID}`;
-    // console.log(link);
-    // axios.get(link).then((result) => {
-    //   console.log(result.data.server_responce);
-    //   this.setState({ PropertyDetails: result.data.server_responce });
-    //   console.log(this.state.PropertyDetails[0].Client_property.address);
+    this.setState({
+      customerID: ID,
+      PropertyID: property_ID,
+    });
 
-    //   this.setState((state) => ({
-    //     property_type: state.PropertyDetails[0].Client_property.category,
-    //     address: state.PropertyDetails[0].Client_property.address,
-    //     community: state.PropertyDetails[0].Client_property.community,
-    //     city: state.PropertyDetails[0].Client_property.city,
-    //     country: state.PropertyDetails[0].Client_property.country,
-    //     PropertyDetailLoading: false,
-    //   }));
-    // });
+    // link = "./fetchClientProfile.php?ID=" + ID;
+    const link = `http://queensman.com/queens_client_Apis/FetchClientSinglePropertyViaPropID.php?ID=${property_ID}`;
+    console.log({link});
+    axios.get(link).then((result) => {
+      console.log(result.data.server_responce);
+      this.setState({ PropertyDetails: result.data.server_responce });
+      console.log(this.state.PropertyDetails[0].Client_property.address);
+
+      this.setState((state) => ({
+        property_type: state.PropertyDetails[0].Client_property.category,
+        address: state.PropertyDetails[0].Client_property.address,
+        community: state.PropertyDetails[0].Client_property.community,
+        city: state.PropertyDetails[0].Client_property.city,
+        country: state.PropertyDetails[0].Client_property.country,
+        PropertyDetailLoading: false,
+      }));
+    });
   }
 
   selectFromGallery = async () => {
@@ -343,11 +346,7 @@ export default class RequestCallOut extends React.Component {
   };
 
   submitCallout = async () => {
-    if (
-      this.state.picture1 === "" ||
-      this.state.Urgency === "" ||
-      this.state.JobType === "none"
-    ) {
+    if (this.state.picture1 === "" || this.state.Urgency === "" || this.state.JobType === "none") {
       alert("Kindly fill all the required details.");
     } else {
       NetInfo.fetch().then((isConnected) => {
@@ -377,14 +376,14 @@ export default class RequestCallOut extends React.Component {
           }
 
           this.setState({ loading: true });
-          let link = `http://13.250.20.151/queens_client_Apis/submitCallOut.php?client_id=${this.state.customerID}&prop_id=${this.state.PropertyID}&job=${JOBS}&describe=${this.state.Description}&property_type=${this.state.property_type}&urg_lvl=${this.state.Urgency}&picture1=${pic1name}&picture2=${pic2name}&picture3=${pic3name}&picture4=${pic4name}`;
+          let link = `http://queensman.com/queens_client_Apis/submitCallOut.php?client_id=${this.state.customerID}&prop_id=${this.state.PropertyID}&job=${JOBS}&describe=${this.state.Description}&property_type=${this.state.property_type}&urg_lvl=${this.state.Urgency}&picture1=${pic1name}&picture2=${pic2name}&picture3=${pic3name}&picture4=${pic4name}`;
           console.log(link);
           axios
             .get(link)
             .then((result) => {
               console.log(result.data.server_responce);
 
-              link = "http://13.250.20.151/queens_client_Apis/uploadPhoto.php";
+              link = "http://queensman.com/queens_client_Apis/uploadPhoto.php";
               if (this.state.picture1 !== "") {
                 this.urlToUPLOAD(this.state.picture1, link);
               }
@@ -398,7 +397,7 @@ export default class RequestCallOut extends React.Component {
                 this.urlToUPLOAD(this.state.picture4, link);
               }
               setTimeout(() => {
-                link = `http://13.250.20.151/queens_client_Apis/fetchNewCalloutID.php?ID=${this.state.customerID}`;
+                link = `http://queensman.com/queens_client_Apis/fetchNewCalloutID.php?ID=${this.state.customerID}`;
                 console.log(link);
                 axios.get(link).then((result) => {
                   console.log(result.data.server_response[0].id);
@@ -406,7 +405,7 @@ export default class RequestCallOut extends React.Component {
                     CalloutID: result.data.server_response[0].id,
                   });
                   setTimeout(() => {
-                    link = `http://13.250.20.151/queens_client_Apis/fetchClientProfile.php?ID=${this.state.customerID}`;
+                    link = `http://queensman.com/queens_client_Apis/fetchClientProfile.php?ID=${this.state.customerID}`;
                     console.log(link);
 
                     axios.get(link).then((result) => {
@@ -416,7 +415,7 @@ export default class RequestCallOut extends React.Component {
                         UserName: result.data.server_responce.full_name,
                         Mobile: result.data.server_responce.phone,
                       });
-                      link = `http://13.250.20.151/queens_client_Apis/sendEmail2.php?subject=${this.state.subject}&callout_id=${this.state.CalloutID}&client_id=${this.state.customerID}&client_name=${this.state.UserName}&client_email=${this.state.Email}&job=${JOBS}&description=${this.state.Description}&callout_urgency=${this.state.Urgency}&property_id=${this.state.PropertyID}&property_address=${this.state.address}&community=${this.state.community}&city=${this.state.city}&country=${this.state.country}&client_phone=${this.state.Mobile}`;
+                      link = `http://queensman.com/queens_client_Apis/sendEmail2.php?subject=${this.state.subject}&callout_id=${this.state.CalloutID}&client_id=${this.state.customerID}&client_name=${this.state.UserName}&client_email=${this.state.Email}&job=${JOBS}&description=${this.state.Description}&callout_urgency=${this.state.Urgency}&property_id=${this.state.PropertyID}&property_address=${this.state.address}&community=${this.state.community}&city=${this.state.city}&country=${this.state.country}&client_phone=${this.state.Mobile}`;
                       console.log(link);
                       axios
                         .get(link)
@@ -491,11 +490,7 @@ export default class RequestCallOut extends React.Component {
 
   render() {
     return (
-      <KeyboardAvoidingView
-        style={{ flex: 1, justifyContent: "space-between" }}
-        behavior="padding"
-        enabled
-      >
+      <KeyboardAvoidingView style={{ flex: 1, justifyContent: "space-between" }} behavior="padding" enabled>
         <Toast
           ref="customToast"
           textStyle={{
@@ -505,22 +500,12 @@ export default class RequestCallOut extends React.Component {
             backgroundColor: "#000E1E",
           }}
         />
-        <LinearGradient
-          colors={["#000E1E", "#001E2B", "#000E1E"]}
-          style={styles.gradiantStyle}
-        />
+        <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
         <View style={{ paddingHorizontal: "10%", top: "13%" }}>
-          <Text style={[styles.TextFam, { color: "#FFCA5D", fontSize: 10 }]}>
-            Callout Address
-          </Text>
+          <Text style={[styles.TextFam, { color: "#FFCA5D", fontSize: 10 }]}>Callout Address</Text>
           {!this.state.PropertyDetailLoading ? (
             <View style={{}}>
-              <Text
-                style={[
-                  styles.TextFam,
-                  { fontSize: 16, fontWeight: "bold", color: "#fff" },
-                ]}
-              >
+              <Text style={[styles.TextFam, { fontSize: 16, fontWeight: "bold", color: "#fff" }]}>
                 {this.state.address}
               </Text>
               <Text style={[styles.TextFam, { fontSize: 10, color: "#fff" }]}>
@@ -528,12 +513,7 @@ export default class RequestCallOut extends React.Component {
               </Text>
             </View>
           ) : (
-            <Text
-              style={[
-                styles.TextFam,
-                { fontSize: 20, fontWeight: "bold", color: "#fff" },
-              ]}
-            >
+            <Text style={[styles.TextFam, { fontSize: 20, fontWeight: "bold", color: "#fff" }]}>
               Loading please wait...
             </Text>
           )}
@@ -542,14 +522,7 @@ export default class RequestCallOut extends React.Component {
 
         <View style={styles.Card}>
           <View style={styles.container} showsVerticalScrollIndicator={false}>
-            <Text
-              style={[
-                styles.TextFam,
-                { color: "#000E1E", fontSize: 16, marginBottom: 8 },
-              ]}
-            >
-              Job Type
-            </Text>
+            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>Job Type</Text>
 
             <View style={styles.PickerStyle}>
               <Picker
@@ -588,9 +561,7 @@ export default class RequestCallOut extends React.Component {
               </View>
             ) : null}
             <View style={{ height: "3%" }} />
-            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
-              Urgency
-            </Text>
+            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Urgency</Text>
             <View style={{ height: "2%" }} />
             <View
               style={{
@@ -603,48 +574,22 @@ export default class RequestCallOut extends React.Component {
                 style={styles.circle}
                 onPress={() => this.setState({ Urgency: "high" })} // we set our value state to key
               >
-                {this.state.Urgency === "high" ? (
-                  <View style={styles.checkedCircle} />
-                ) : null}
+                {this.state.Urgency === "high" ? <View style={styles.checkedCircle} /> : null}
               </TouchableOpacity>
 
-              <Text
-                style={[
-                  styles.TextFam,
-                  { paddingLeft: "2%", paddingRight: "3%", fontSize: 14 },
-                ]}
-              >
-                High
-              </Text>
-              <Icon
-                name="flag"
-                style={{ fontSize: 24, color: "red", paddingRight: "20%" }}
-              />
+              <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "3%", fontSize: 14 }]}>High</Text>
+              <Icon name="flag" style={{ fontSize: 24, color: "red", paddingRight: "20%" }} />
               <TouchableOpacity
                 style={styles.circle}
                 onPress={() => this.setState({ Urgency: "medium" })} // we set our value state to key
               >
-                {this.state.Urgency === "medium" ? (
-                  <View style={styles.checkedCircle} />
-                ) : null}
+                {this.state.Urgency === "medium" ? <View style={styles.checkedCircle} /> : null}
               </TouchableOpacity>
-              <Text
-                style={[
-                  styles.TextFam,
-                  { paddingLeft: "2%", paddingRight: "3%", fontSize: 14 },
-                ]}
-              >
-                Medium
-              </Text>
-              <Icon
-                name="flag"
-                style={{ fontSize: 24, color: "#FFCA5D", paddingRight: "6%" }}
-              />
+              <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "3%", fontSize: 14 }]}>Medium</Text>
+              <Icon name="flag" style={{ fontSize: 24, color: "#FFCA5D", paddingRight: "6%" }} />
             </View>
             <View style={{ height: "3%" }} />
-            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
-              Description
-            </Text>
+            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Description</Text>
             <View style={{ height: "2%" }} />
             <View style={styles.DestxtStyle}>
               <TextInput
@@ -667,9 +612,7 @@ export default class RequestCallOut extends React.Component {
               />
             </View>
             <View style={{ height: "3%" }} />
-            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
-              Images
-            </Text>
+            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Images</Text>
             <View
               style={{
                 flexDirection: "row",
@@ -678,27 +621,11 @@ export default class RequestCallOut extends React.Component {
                 justifyContent: "space-between",
               }}
             >
-              <TouchableOpacity
-                style={styles.ImageSelectStyle}
-                onPress={this.CameraSnap}
-              >
-                <Text
-                  style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}
-                >
-                  {" "}
-                  Camera{" "}
-                </Text>
+              <TouchableOpacity style={styles.ImageSelectStyle} onPress={this.CameraSnap}>
+                <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}> Camera </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.ImageSelectStyle}
-                onPress={this.selectFromGallery}
-              >
-                <Text
-                  style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}
-                >
-                  {" "}
-                  Select Images From Gallery{" "}
-                </Text>
+              <TouchableOpacity style={styles.ImageSelectStyle} onPress={this.selectFromGallery}>
+                <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}> Select Images From Gallery </Text>
               </TouchableOpacity>
             </View>
             <View style={{ height: "2%" }} />
@@ -711,9 +638,7 @@ export default class RequestCallOut extends React.Component {
               }}
             >
               <TouchableOpacity
-                onPress={() =>
-                  this.toggleGalleryEventModal(this.state.picture1, 1)
-                }
+                onPress={() => this.toggleGalleryEventModal(this.state.picture1, 1)}
                 disabled={this.state.picture1 === ""}
               >
                 <View
@@ -743,9 +668,7 @@ export default class RequestCallOut extends React.Component {
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() =>
-                  this.toggleGalleryEventModal(this.state.picture2, 2)
-                }
+                onPress={() => this.toggleGalleryEventModal(this.state.picture2, 2)}
                 disabled={this.state.picture2 === ""}
               >
                 <View
@@ -785,9 +708,7 @@ export default class RequestCallOut extends React.Component {
               }}
             >
               <TouchableOpacity
-                onPress={() =>
-                  this.toggleGalleryEventModal(this.state.picture3, 3)
-                }
+                onPress={() => this.toggleGalleryEventModal(this.state.picture3, 3)}
                 disabled={this.state.picture3 === ""}
               >
                 <View
@@ -817,9 +738,7 @@ export default class RequestCallOut extends React.Component {
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() =>
-                  this.toggleGalleryEventModal(this.state.picture4, 4)
-                }
+                onPress={() => this.toggleGalleryEventModal(this.state.picture4, 4)}
                 disabled={this.state.picture4 === ""}
               >
                 <View
@@ -850,16 +769,9 @@ export default class RequestCallOut extends React.Component {
               </TouchableOpacity>
             </View>
             <View style={{ height: "5%" }} />
-            <TouchableOpacity
-              style={styles.SubmitCallout}
-              onPress={() => this.askSubmitCallout()}
-            >
+            <TouchableOpacity style={styles.SubmitCallout} onPress={() => this.askSubmitCallout()}>
               {this.state.loading ? (
-                <ActivityIndicator
-                  size="large"
-                  color="#fff"
-                  style={{ alignSelf: "center" }}
-                />
+                <ActivityIndicator size="large" color="#fff" style={{ alignSelf: "center" }} />
               ) : (
                 <Text
                   style={{
@@ -893,25 +805,15 @@ export default class RequestCallOut extends React.Component {
 
             <TouchableOpacity onPress={() => this.RemoveImages()}>
               <View style={styles.ButtonSty}>
-                <Text
-                  style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}
-                >
-                  Remove Image
-                </Text>
+                <Text style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}>Remove Image</Text>
               </View>
             </TouchableOpacity>
             <Text> </Text>
             <Text> </Text>
 
-            <TouchableOpacity
-              onPress={() => this.setState({ isPicvisible: false })}
-            >
+            <TouchableOpacity onPress={() => this.setState({ isPicvisible: false })}>
               <View style={styles.ButtonSty}>
-                <Text
-                  style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}
-                >
-                  Close
-                </Text>
+                <Text style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}>Close</Text>
               </View>
             </TouchableOpacity>
           </View>

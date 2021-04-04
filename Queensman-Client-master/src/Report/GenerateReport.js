@@ -47,12 +47,12 @@ export default class GenerateReport extends React.Component {
       alert("Reports are only available for owned properties.")
       this.props.navigation.navigate('HomeNaviagtor')
     }
-    link = "http://13.250.20.151/queens_client_Apis/fetchManagementReport.php?ID=" + property_ID
+    link = "http://queensman.com/queens_client_Apis/fetchManagementReport.php?ID=" + property_ID
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data.server_response)
       this.setState({ ManagementReportData: result.data.server_response, propertyID: property_ID });
-      link = "http://13.250.20.151/queens_client_Apis/fetchMarketReport.php?ID=" + property_ID
+      link = "http://queensman.com/queens_client_Apis/fetchMarketReport.php?ID=" + property_ID
       console.log(link);
       axios.get(link).then((result) => {
         console.log(result.data)

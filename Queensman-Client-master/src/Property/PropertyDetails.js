@@ -87,15 +87,17 @@ const PropertyDetails = (props) => {
 
   const _storeData = async (id, type, country) => {
     try {
-      await AsyncStorage.setItem("QueensPropertyID", id);
-      await AsyncStorage.setItem("QueensPropertyType", type);
-      await AsyncStorage.setItem("QueensPropertyCountry", country);
+      await AsyncStorage.setItem("QueensPropertyID", JSON.stringify(id));
+      await AsyncStorage.setItem("QueensPropertyType", JSON.stringify(type));
+      await AsyncStorage.setItem("QueensPropertyCountry", JSON.stringify(country));
+      console.log("Item saved in asyncstorage")
       setTimeout(() => {
         props.navigation.navigate("HomeNaviagtor");
       }, 800);
       // eslint-disable-next-line no-shadow
     } catch (error) {
       // Error saving data
+      console.log(error)
     }
   };
 
@@ -108,6 +110,7 @@ const PropertyDetails = (props) => {
   const Ontaps = (item) => {
     // customToast.show("New Property Selected");
     console.log(item.id);
+    console.log({ item });
     _storeData(item.id, "owned", item.country);
   };
 
@@ -125,7 +128,7 @@ const PropertyDetails = (props) => {
     setState({
       cusID: ID,
     });
-    let link = `http://13.250.20.151/queens_client_Apis/FetchClientOwnedPropertyViaClientID.php?ID=${ID}`;
+    let link = `http://queensman.com/queens_client_Apis/FetchClientOwnedPropertyViaClientID.php?ID=${ID}`;
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data);
@@ -143,7 +146,7 @@ const PropertyDetails = (props) => {
         });
       }
     });
-    link = `http://13.250.20.151/queens_client_Apis/FetchClientLeasedPropertiesViaClientID.php?ID=${ID}`;
+    link = `http://queensman.com/queens_client_Apis/FetchClientLeasedPropertiesViaClientID.php?ID=${ID}`;
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data);
@@ -168,7 +171,7 @@ const PropertyDetails = (props) => {
       setTimeout(() => {
         // fetch customer orrder list
         const ID = state.cusID; // assign customer id here
-        let link = `http://13.250.20.151/queens_client_Apis/FetchClientOwnedPropertyViaClientID.php?ID=${ID}`;
+        let link = `http://queensman.com/queens_client_Apis/FetchClientOwnedPropertyViaClientID.php?ID=${ID}`;
         console.log(link);
         axios.get(link).then((result) => {
           console.log(result.data);
@@ -186,7 +189,7 @@ const PropertyDetails = (props) => {
             });
           }
         });
-        link = `http://13.250.20.151/queens_client_Apis/FetchClientLeasedPropertiesViaClientID.php?ID=${ID}`;
+        link = `http://queensman.com/queens_client_Apis/FetchClientLeasedPropertiesViaClientID.php?ID=${ID}`;
         console.log(link);
         axios.get(link).then((result) => {
           console.log(result.data);

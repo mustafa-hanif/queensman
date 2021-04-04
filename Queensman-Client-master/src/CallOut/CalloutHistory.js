@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  ActivityIndicator,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity, Image } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -16,8 +8,9 @@ import { Icon } from "native-base";
 import Toast from "react-native-whc-toast";
 import axios from "axios";
 import PTRView from "react-native-pull-to-refresh";
+import { gql, useQuery } from "@apollo/client";
 
-class CalloutHistory extends React.Component {
+class CalloutHistoryClass extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -31,6 +24,8 @@ class CalloutHistory extends React.Component {
   }
 
   passItem = (item) => {
+    // console.log({item:this.props.navigation.push})
+    // this.props.navigation.navigate("HomeNaviagtor");
     this.props.navigation.navigate("CalloutHistoryItem", {
       it: item,
     });
@@ -45,17 +40,19 @@ class CalloutHistory extends React.Component {
     const property_ID = await AsyncStorage.getItem("QueensPropertyID"); // assign customer id here
     const g = await AsyncStorage.getItem("Queens");
     console.log(" my" + g);
+
+    console.log({ ID, property_ID, g });
     this.setState({
       cusID: ID,
       propID: property_ID,
     });
-    if (property_ID == "asd" || property_ID == g) {
-      alert(
-        "Please select property first from 'Property Details' tab in the menu."
-      );
-      this.props.navigation.navigate("HomeNaviagtor");
-    }
-    link = `http://13.250.20.151/queens_client_Apis/fetchCalloutHistoryViaPropertyID.php?property_id=${property_ID}`;
+    // if (property_ID == "asd" || property_ID == g) {
+    //   alert(
+    //     "Please select property first from 'Property Details' tab in the menu."
+    //   );
+    // this.props.navigation.navigate("HomeNaviagtor");
+    // }
+    link = `http://queensman.com/queens_client_Apis/fetchCalloutHistoryViaPropertyID.php?property_id=${property_ID}`;
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data);
@@ -82,7 +79,7 @@ class CalloutHistory extends React.Component {
       setTimeout(() => {
         // fetch customer orrder list
         const ID = this.state.cusID; // assign customer id here
-        link = `http://13.250.20.151/queens_client_Apis/fetchCalloutHistoryViaPropertyID.php?property_id=${this.state.propID}`;
+        link = `http://queensman.com/queens_client_Apis/fetchCalloutHistoryViaPropertyID.php?property_id=${this.state.propID}`;
         console.log(link);
         axios.get(link).then((result) => {
           console.log(result.data);
@@ -169,12 +166,7 @@ class CalloutHistory extends React.Component {
                               justifyContent: "space-between",
                             }}
                           >
-                            <Text
-                              style={[
-                                styles.TextFam,
-                                { fontSize: 15, fontWeight: "bold" },
-                              ]}
-                            >
+                            <Text style={[styles.TextFam, { fontSize: 15, fontWeight: "bold" }]}>
                               Job Type: {item.Client_property.job_type}{" "}
                             </Text>
                             <Icon
@@ -184,8 +176,7 @@ class CalloutHistory extends React.Component {
                                 color:
                                   item.Client_property.urgency_level == "High"
                                     ? "red"
-                                    : item.Client_property.urgency_level ==
-                                      "Scheduled"
+                                    : item.Client_property.urgency_level == "Scheduled"
                                     ? "#aaa"
                                     : "#FFCA5D",
                                 paddingRight: "5%",
@@ -213,16 +204,11 @@ class CalloutHistory extends React.Component {
                                 style={{ height: 20, width: 20 }}
                               />
                               <View style={{ flexDirection: "column" }}>
-                                <Text
-                                  style={[styles.TextFam, { fontSize: 10 }]}
-                                >
+                                <Text style={[styles.TextFam, { fontSize: 10 }]}>
                                   Callout ID :{item.Client_property.id}
                                 </Text>
-                                <Text
-                                  style={[styles.TextFam, { fontSize: 10 }]}
-                                >
-                                  Property ID :
-                                  {item.Client_property.property_id}
+                                <Text style={[styles.TextFam, { fontSize: 10 }]}>
+                                  Property ID :{item.Client_property.property_id}
                                 </Text>
                               </View>
                             </View>
@@ -256,8 +242,7 @@ class CalloutHistory extends React.Component {
                                   },
                                 ]}
                               >
-                                Resolved Date:{" "}
-                                {item.Client_property.resolved_time}
+                                Resolved Date: {item.Client_property.resolved_time}
                               </Text>
                             </View>
                           </View>
@@ -277,7 +262,7 @@ class CalloutHistory extends React.Component {
   }
 }
 
-export default CalloutHistory;
+// export default CalloutHistory;
 
 const styles = StyleSheet.create({
   container: {
@@ -317,3 +302,7 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica",
   },
 });
+
+export default function CalloutHistory(props) {
+  return <CalloutHistoryClass {...props}></CalloutHistoryClass>;
+}

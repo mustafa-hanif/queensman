@@ -29,7 +29,7 @@ export default class SignupContectUs extends React.Component {
       }
     submithandle = () => {
 
-        link="http://13.250.20.151/queens_client_Apis/setContactDetail.php?name="+this.state.Name+"&email="+this.state.Email+"&phone="+this.state.PhoneNo
+        link="http://queensman.com/queens_client_Apis/setContactDetail.php?name="+this.state.Name+"&email="+this.state.Email+"&phone="+this.state.PhoneNo
         console.log(link);
         axios.get(link).then(result=> console.log(result.data.server_responce))
         .catch(error => console.log(error));
