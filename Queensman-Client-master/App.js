@@ -35,6 +35,7 @@ import PinVerfication from "./src/Auth/PinVerfication";
 import SignupContectUs from "./src/Login/SignupContectUs";
 import SettingPasswordChange from "./src/Component/SettingPasswordChange";
 import ForgotPassword from "./src/Login/ForgotPassword";
+import SelectSchedule from "./src/CallOut/SelectSchedule";
 
 import getTheme from "./native-base-theme/components";
 import commonColor from "./native-base-theme/variables/commonColor";
@@ -234,6 +235,26 @@ const HomeScreenStackNavigator = createStackNavigator(
       navigationOptions: ({ navigation }) => ({
         // title: 'Callout History',
         headerTransparent: true,
+      }),
+    },
+    SelectSchedule: {
+      screen: SelectSchedule,
+      navigationOptions: ({ navigation }) => ({
+        title: "Select Schedule",
+        headerBackTitle: "Back",
+        headerStyle: {
+          backgroundColor: "#000E1E",
+        },
+        headerTintColor:  "#FFCA5D",
+       
+        headerBackTitleStyle: {
+          color: "#FFCA5D",
+        },
+
+        headerTitleStyle: {
+          color: "#FFCA5D",
+          fontWeight: "bold",
+        },
       }),
     },
     OngoingcalloutItem: {
