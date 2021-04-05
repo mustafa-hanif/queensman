@@ -296,7 +296,7 @@ const HomeScreenStackNavigator = createStackNavigator(
     },
   },
   {
-    initialRouteName: "SelectSchedule",
+    initialRouteName: "HomeNaviagtor",
   }
 );
 createAppContainer(HomeScreenStackNavigator);
