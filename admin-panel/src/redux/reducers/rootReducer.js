@@ -5,11 +5,13 @@ import { combineReducers } from 'redux'
 import auth from './auth'
 import navbar from './navbar'
 import layout from './layout'
+import calendar from '@src/views/schedule/store/reducer'
 
 const rootReducer = combineReducers({
   auth,
   navbar,
-  layout
+  layout,
+  calendar
 })
 
 export default rootReducer

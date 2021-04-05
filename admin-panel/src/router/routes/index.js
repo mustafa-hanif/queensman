@@ -25,6 +25,10 @@ const Routes = [
     }
   },
   {
+    path: '/schedule',
+    component: lazy(() => import('../../views/schedule'))
+  },
+  {
     path: '/error',
     component: lazy(() => import('../../views/Error')),
     layout: 'BlankLayout'

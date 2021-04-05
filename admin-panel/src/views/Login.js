@@ -1,20 +1,30 @@
 import { Link, useHistory } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import InputPasswordToggle from '@components/input-password-toggle'
-import { Alert, Card, CardBody, CardTitle, CardText, Form, FormGroup, Label, Input, CustomInput, Button } from 'reactstrap'
+import { Alert, Card, CardBody, CardTitle, CardText, Form, FormGroup, Label, Input, CustomInput, Button, Spinner } from 'reactstrap'
 import { auth } from "../utility/nhost"
 
 import '@styles/base/pages/page-auth.scss'
 
 const LoginV1 = () => {
   const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(true)
   const history = useHistory()
+  useEffect(() => {
+    auth.isAuthenticatedAsync().then(status => {
+      if (status) {
+        history.push('/home')
+      } else {
+        setLoading(false)
+      }
+    })
+  }, [])
   const onSubmit = async (e) => {
     e.preventDefault()
     try { 
       const data = await auth.login({ email: e.target.elements.email.value, password: e.target.elements.password.value})
       localStorage.setItem('userData', JSON.stringify(data))
-      history.push('/home')
+      
     } catch (e) {
       setError(e.response.data.message)
     }
@@ -23,6 +33,7 @@ const LoginV1 = () => {
   return (
     <div className='auth-wrapper auth-v1 px-2'>
       <div className='auth-inner py-2'>
+        {loading ? <Spinner color='primary' /> : <>
       {error && (
         <Alert color='warning'>
           <h4 className='alert-heading'>{error}</h4>
@@ -64,6 +75,7 @@ const LoginV1 = () => {
             </Form>
           </CardBody>
         </Card>
+        </>}
       </div>
     </div>
   )
