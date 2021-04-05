@@ -25,13 +25,14 @@ const styles = StyleSheet.create({
 const AuthLoginCheck = ({ navigation }) => {
   const { signedIn } = useAuth();
   useEffect(() => {
-    console.log({ signedIn });
-    if (!signedIn) {
-      navigation.navigate("Login");
-    } else {
-      console.log("ye bhi chalra");
-      navigation.navigate("AppDrawer");
-    }
+    navigation.navigate("AppDrawer");
+    // console.log({ signedIn });
+    // if (!signedIn) {
+    //   navigation.navigate("Login");
+    // } else {
+    //   console.log("ye bhi chalra");
+    //   navigation.navigate("AppDrawer");
+    // }
   }, [signedIn]);
 
   if (signedIn === null) {
