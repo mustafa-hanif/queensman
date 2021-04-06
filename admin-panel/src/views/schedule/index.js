@@ -38,18 +38,18 @@ const calendarsColor = {
 }
 
 const GET_SCHEDULE = gql`
-query MyQuery {
-  scheduler(limit: 10) {
-    id
-    start: date_on_calendar
-    startTime: time_on_calendar
-    title: notes
-    worker {
-      full_name
+  query MyQuery {
+    scheduler {
+      id
+      start: date_on_calendar
+      startTime: time_on_calendar
+      title: notes
+      worker {
+        full_name
+      }
+      callout_id
     }
   }
-}
-
 `
 
 const CalendarComponent = () => {
@@ -98,9 +98,6 @@ const CalendarComponent = () => {
   }
 
   const { loading, data, error, refetch } = useQuery(GET_SCHEDULE)
-  if (loading) {
-    return <div></div>
-  }
   // ** Fetch Events On Mount
   // useEffect(() => {
   //   dispatch(fetchEvents(store.selectedCalendars))
@@ -110,24 +107,23 @@ const CalendarComponent = () => {
     <Fragment>
       <div className='app-calendar overflow-hidden border'>
         <Row noGutters>
-          <Col
+          {/* <Col
             id='app-calendar-sidebar'
             className={classnames('col app-calendar-sidebar flex-grow-0 overflow-hidden d-flex flex-column', {
               show: leftSidebarOpen
             })}
           >
             <SidebarLeft
-              store={store}
               updateFilter={updateFilter}
               toggleSidebar={toggleSidebar}
               updateAllFilters={updateAllFilters}
               handleAddEventSidebar={handleAddEventSidebar}
             />
-          </Col>
+          </Col> */}
           <Col className='position-relative'>
             <Calendar
               isRtl={isRtl}
-              events={data.scheduler}
+              events={data?.scheduler ?? []}
               blankEvent={blankEvent}
               calendarApi={calendarApi}
               selectEvent={selectEvent}
