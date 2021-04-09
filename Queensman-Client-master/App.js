@@ -36,6 +36,7 @@ import SignupContectUs from "./src/Login/SignupContectUs";
 import SettingPasswordChange from "./src/Component/SettingPasswordChange";
 import ForgotPassword from "./src/Login/ForgotPassword";
 import SelectSchedule from "./src/CallOut/SelectSchedule";
+import Notification from "./src/Notification";
 
 import getTheme from "./native-base-theme/components";
 import commonColor from "./native-base-theme/variables/commonColor";
@@ -212,6 +213,17 @@ const HomeScreenStackNavigator = createStackNavigator(
         headerTransparent: true,
       }),
     },
+    Notification: {
+      screen: Notification,
+      navigationOptions: ({ navigation }) => ({
+        title: "Notification",
+        headerTransparent: true,
+        headerTintColor: "#FFCA5D",
+        headerTitleStyle: {
+          fontFamily: "Helvetica",
+        },
+      }),
+    },
     RequestCallOut: {
       screen: RequestCallOut,
       navigationOptions: ({ navigation }) => ({
@@ -245,8 +257,8 @@ const HomeScreenStackNavigator = createStackNavigator(
         headerStyle: {
           backgroundColor: "#000E1E",
         },
-        headerTintColor:  "#FFCA5D",
-       
+        headerTintColor: "#FFCA5D",
+
         headerBackTitleStyle: {
           color: "#FFCA5D",
         },

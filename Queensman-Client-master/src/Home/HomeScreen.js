@@ -1,17 +1,11 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-} from "react-native";
+import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import * as Animatable from "react-native-animatable";
 import { LinearGradient } from "expo-linear-gradient";
 import Toast from "react-native-whc-toast";
+import Icon from "react";
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
@@ -144,54 +138,33 @@ export default class HomeScreen extends React.Component {
           }}
         />
         {/* background gradinet   */}
-        <LinearGradient
-          colors={["#000E1E", "#001E2B", "#000E1E"]}
-          style={styles.gradiantStyle}
-        />
+        <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
 
         <View style={styles.Name}>
-          <TouchableOpacity
-            onPress={() => this.props.navigation.toggleDrawer()}
-          >
-            <Image
-              source={require("../../assets/Home/menu.png")}
-              style={{ height: 25, width: 25 }}
-            />
-          </TouchableOpacity>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+            <TouchableOpacity onPress={() => this.props.navigation.toggleDrawer()}>
+              <Image source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => this.props.navigation.navigate("Notification")}>
+              <Image
+                source={require("../../assets/Home/notifications.png")}
+                style={{ tintColor: "#FFCA5D", height: 25, width: 25 }}
+              />
+            </TouchableOpacity>
+          </View>
           <View style={{ flexDirection: "row", paddingTop: "7%" }}>
-            <Image
-              source={require("../../assets/Login/Queensman_logo3.png")}
-              style={{ height: 50, width: 50 }}
-            />
+            <Image source={require("../../assets/Login/Queensman_logo3.png")} style={{ height: 50, width: 50 }} />
             <View style={{ flexDirection: "column", width: "100%" }}>
-              <Text
-                style={[{ fontSize: 18, color: "#FFCA5D" }, styles.TextStyles]}
-              >
-                {" "}
-                Property Maintenance...
-              </Text>
-              <Text
-                style={[{ fontSize: 18, color: "#FFCA5D" }, styles.TextStyles]}
-              >
-                {" "}
-                Perfectly Managed!
-              </Text>
+              <Text style={[{ fontSize: 18, color: "#FFCA5D" }, styles.TextStyles]}> Property Maintenance...</Text>
+              <Text style={[{ fontSize: 18, color: "#FFCA5D" }, styles.TextStyles]}> Perfectly Managed!</Text>
             </View>
           </View>
         </View>
         <View style={{ height: "10%" }} />
         {this.state.connections ? (
-          <View
-            animation="fadeInUpBig"
-            iterationCount={1}
-            duration={1000}
-            style={{ flex: 1 }}
-          >
+          <View animation="fadeInUpBig" iterationCount={1} duration={1000} style={{ flex: 1 }}>
             <View style={[styles.bottomView]}>
-              <TouchableOpacity
-                style={{ flex: 1 }}
-                onPress={this.requestCallOutPress}
-              >
+              <TouchableOpacity style={{ flex: 1 }} onPress={this.requestCallOutPress}>
                 <View style={[styles.button]}>
                   <Image
                     source={require("../../assets/Home/calloutHome.png")}
@@ -210,21 +183,13 @@ export default class HomeScreen extends React.Component {
                   >
                     Request
                   </Text>
-                  <Text
-                    style={[
-                      { alignSelf: "center", fontSize: 12, color: "#000E1E" },
-                      styles.TextStyles,
-                    ]}
-                  >
+                  <Text style={[{ alignSelf: "center", fontSize: 12, color: "#000E1E" }, styles.TextStyles]}>
                     Callout
                   </Text>
                 </View>
               </TouchableOpacity>
               <Text> </Text>
-              <TouchableOpacity
-                style={{ flex: 1 }}
-                onPress={this.onGoingCallOutPress}
-              >
+              <TouchableOpacity style={{ flex: 1 }} onPress={this.onGoingCallOutPress}>
                 <View style={styles.button}>
                   <Image
                     source={require("../../assets/Home/pendingHome.png")}
@@ -243,12 +208,7 @@ export default class HomeScreen extends React.Component {
                   >
                     Scheduled
                   </Text>
-                  <Text
-                    style={[
-                      { alignSelf: "center", fontSize: 12, color: "#000E1E" },
-                      styles.TextStyles,
-                    ]}
-                  >
+                  <Text style={[{ alignSelf: "center", fontSize: 12, color: "#000E1E" }, styles.TextStyles]}>
                     Services
                   </Text>
                 </View>
@@ -257,10 +217,7 @@ export default class HomeScreen extends React.Component {
 
             <View style={{ height: "3%" }} />
             <View style={[styles.bottomView]}>
-              <TouchableOpacity
-                style={{ flex: 1 }}
-                onPress={this.CallOutHistoryPress}
-              >
+              <TouchableOpacity style={{ flex: 1 }} onPress={this.CallOutHistoryPress}>
                 <View style={styles.button}>
                   <Image
                     source={require("../../assets/Home/historyHome.png")}
@@ -279,21 +236,13 @@ export default class HomeScreen extends React.Component {
                   >
                     Services
                   </Text>
-                  <Text
-                    style={[
-                      { alignSelf: "center", fontSize: 12, color: "#000E1E" },
-                      styles.TextStyles,
-                    ]}
-                  >
+                  <Text style={[{ alignSelf: "center", fontSize: 12, color: "#000E1E" }, styles.TextStyles]}>
                     History
                   </Text>
                 </View>
               </TouchableOpacity>
               <Text> </Text>
-              <TouchableOpacity
-                style={{ flex: 1 }}
-                onPress={this.CallOutReportPress}
-              >
+              <TouchableOpacity style={{ flex: 1 }} onPress={this.CallOutReportPress}>
                 <View style={styles.button}>
                   <Image
                     source={require("../../assets/Home/reportHome.png")}
@@ -317,19 +266,9 @@ export default class HomeScreen extends React.Component {
             </View>
           </View>
         ) : (
-          <Animatable.View
-            animation="zoomIn"
-            iterationCount={1}
-            style={styles.NoInternetCard}
-          >
-            <Text
-              style={{ fontSize: 24, paddingHorizontal: 20, color: "#FFCA5D" }}
-            >
-              No Internet
-            </Text>
-            <Text
-              style={{ fontSize: 10, paddingTop: 30, paddingHorizontal: 20 }}
-            >
+          <Animatable.View animation="zoomIn" iterationCount={1} style={styles.NoInternetCard}>
+            <Text style={{ fontSize: 24, paddingHorizontal: 20, color: "#FFCA5D" }}>No Internet</Text>
+            <Text style={{ fontSize: 10, paddingTop: 30, paddingHorizontal: 20 }}>
               Queensmen Spades App require internet connection.
             </Text>
           </Animatable.View>
