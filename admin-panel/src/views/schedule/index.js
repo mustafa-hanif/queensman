@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, useState, useEffect } from 'react'
+import { Fragment, useState, useEffect, useRef } from 'react'
 import { gql, useQuery } from "@apollo/client"
 
 // ** Third Party Components
@@ -38,8 +38,8 @@ const calendarsColor = {
 }
 
 const GET_SCHEDULE = gql`
-  query MyQuery {
-    scheduler {
+  query MyQuery($_gte: date!, $_lte: date!) {
+    scheduler(where: {date_on_calendar: {_gte: $_gte, _lte: $_lte}}) {
       id
       start: date_on_calendar
       startTime: time_on_calendar
@@ -59,6 +59,7 @@ const CalendarComponent = () => {
     return state.calendar
   })
 
+  const selectedDates = useRef(null)
   const [selectedEvent, selectEvent] = useState(null)
 
   // ** states
@@ -97,11 +98,28 @@ const CalendarComponent = () => {
     }
   }
 
-  const { loading, data, error, refetch } = useQuery(GET_SCHEDULE)
+  const _gte = selectedDates.current?._gte
+  const _lte = selectedDates.current?._gte
+
+  const { loading, data, error, refetch } = useQuery(GET_SCHEDULE, {
+    variables: {
+      _gte,
+      _lte
+    }
+  })
   // ** Fetch Events On Mount
   // useEffect(() => {
   //   dispatch(fetchEvents(store.selectedCalendars))
   // }, [])
+
+  const fetchEvents = (info, successCallback, failureCallback) => {
+    console.log(info)
+    selectedDates.current = {
+      _gte: info.startStr,
+      _lte: info.endStr
+    }
+    successCallback(data?.scheduler ?? [])
+  }
 
   return (
     <Fragment>
@@ -123,7 +141,7 @@ const CalendarComponent = () => {
           <Col className='position-relative'>
             <Calendar
               isRtl={isRtl}
-              events={data?.scheduler ?? []}
+              events={fetchEvents}
               blankEvent={blankEvent}
               calendarApi={calendarApi}
               selectEvent={selectEvent}
