@@ -329,9 +329,9 @@ const AddEventSidebar = props => {
       id: selectedEvent?.extendedProps?.callout_id
     }
   })
-  console.log(selectedEvent?.extendedProps?.callout_id)
+  // console.log(selectedEvent?.extendedProps?.callout_id)
   if (!loading) {
-    console.log(data?.extendedProps)
+    // console.log(data?.extendedProps)
   }
   // ** Close BTN
   const CloseBtn = <X className='cursor-pointer' size={15} onClick={handleAddEventSidebar} />

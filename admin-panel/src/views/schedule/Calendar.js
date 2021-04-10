@@ -36,7 +36,7 @@ const Calendar = props => {
   const {
     events,
     isRtl,
-    dispatch,
+    datesSet,
     calendarsColor,
     calendarApi,
     setCalendarApi,
@@ -58,6 +58,7 @@ const Calendar = props => {
   const calendarOptions = {
     events,
     initialDate: '2020-08-01',
+    datesSet,
     eventDataTransform: (eventData => {
       const { id, worker: { full_name: workerName }, callout_id, start, startTime, title } = eventData
       return {

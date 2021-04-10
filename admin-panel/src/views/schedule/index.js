@@ -1,6 +1,6 @@
 // ** React Imports
 import { Fragment, useState, useEffect, useRef } from 'react'
-import { gql, useQuery } from "@apollo/client"
+import { gql, useLazyQuery, useQuery } from "@apollo/client"
 
 // ** Third Party Components
 import classnames from 'classnames'
@@ -59,7 +59,10 @@ const CalendarComponent = () => {
     return state.calendar
   })
 
-  const selectedDates = useRef(null)
+  const [selectedDates, setSelectedDates] = useState({
+    _gte: '2020-08-01',
+    _lte: '2020-08-01'
+  })
   const [selectedEvent, selectEvent] = useState(null)
 
   // ** states
@@ -98,10 +101,10 @@ const CalendarComponent = () => {
     }
   }
 
-  const _gte = selectedDates.current?._gte
-  const _lte = selectedDates.current?._gte
-
-  const { loading, data, error, refetch } = useQuery(GET_SCHEDULE, {
+  const _gte = selectedDates._gte
+  const _lte = selectedDates._lte
+  
+  const [getSchedule, { loading, data }] = useLazyQuery(GET_SCHEDULE, {
     variables: {
       _gte,
       _lte
@@ -112,13 +115,12 @@ const CalendarComponent = () => {
   //   dispatch(fetchEvents(store.selectedCalendars))
   // }, [])
 
-  const fetchEvents = (info, successCallback, failureCallback) => {
+  const datesSet = (info) => {
     console.log(info)
-    selectedDates.current = {
+    getSchedule({ variables: {
       _gte: info.startStr,
       _lte: info.endStr
-    }
-    successCallback(data?.scheduler ?? [])
+    }})
   }
 
   return (
@@ -141,7 +143,8 @@ const CalendarComponent = () => {
           <Col className='position-relative'>
             <Calendar
               isRtl={isRtl}
-              events={fetchEvents}
+              events={data?.scheduler ?? []}
+              datesSet={datesSet}
               blankEvent={blankEvent}
               calendarApi={calendarApi}
               selectEvent={selectEvent}
