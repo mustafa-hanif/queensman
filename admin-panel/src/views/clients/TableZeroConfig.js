@@ -10,7 +10,7 @@ const DataTablesBasic = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle tag='h4'>Zero Configuration</CardTitle>
+        <CardTitle tag='h4'>Clients</CardTitle>
       </CardHeader>
       <DataTable
         noHeader
