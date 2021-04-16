@@ -29,7 +29,7 @@ export default class CallOutHistoryItem extends React.Component {
 
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     var prepictures = []
     var postpictures = []
     var workers = []

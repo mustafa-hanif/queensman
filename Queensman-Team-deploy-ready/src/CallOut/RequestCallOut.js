@@ -56,7 +56,7 @@ export default class RequestCallOut extends React.Component {
             JobType: value
         });
     }
-    async componentWillMount() {
+    async componentDidMount() {
 
         this.setState({
             PropertyDetailLoading: true,

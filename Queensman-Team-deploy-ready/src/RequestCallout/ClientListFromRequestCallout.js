@@ -44,7 +44,7 @@ export default class clientList extends React.Component {
         });
     }
 
-    async  componentWillMount() {
+    async  componentDidMount() {
         var clientsArray = [];
         this.setState({ loading: true })
         link = "https://www.queensman.com/phase_2/queens_admin_Apis/fetchClients.php"

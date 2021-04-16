@@ -43,7 +43,7 @@ export default class PostJob extends React.Component {
     }
 
 
-    async componentWillMount() {
+    async componentDidMount() {
         const WorkerID = await AsyncStorage.getItem('QueensmanWorkerID'); // assign customer id here
         this.setState({ workerID: WorkerID })
     }
