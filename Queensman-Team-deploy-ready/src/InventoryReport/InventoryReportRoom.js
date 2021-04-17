@@ -65,7 +65,7 @@ export default class InventoryReportRoom extends React.Component {
 
         });
     }
-    componentWillMount() {
+    componentDidMount() {
         this.subs = this.props.navigation.addListener("didFocus", async () => {
             var clientsArray = [];
             this.setState({ loading: true })
