@@ -11,13 +11,14 @@ import {
   Linking,
   ActivityIndicator,
   KeyboardAvoidingView,
-  AsyncStorage,
 } from "react-native";
+
 import { Font, Constants } from "expo";
 import { LinearGradient } from "expo-linear-gradient";
 import { Content, Icon } from "native-base";
 import { LocalAuthentication } from "expo";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 let deviceWidth = Dimensions.get("window").width;
 let deviceHeight = Dimensions.get("window").height;
@@ -33,14 +34,17 @@ export default class Login extends React.Component {
       password: "",
       phoneno: "97148721301",
       passwordcheck: "",
-      loading: false, //put true to start loading  false to end loading
+      loading: true, //put true to start loading  false to end loading
       clientID: "",
       showPassword: true,
       workerID: "",
     };
   }
 
-  async componentDidMount() {}
+  async componentDidMount() {
+    this.setState({ loading: true });
+    console.log("HEREERERE");
+  }
 
   toggleSwitch = () => {
     this.setState({ showPassword: !this.state.showPassword });
