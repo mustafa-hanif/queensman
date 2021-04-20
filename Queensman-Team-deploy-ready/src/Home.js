@@ -86,7 +86,7 @@ export default class HomeScreen extends React.Component {
         console.log(response);
         const { sound } = await Audio.Sound.createAsync(
           //THIS FILE DOES NOT EXIST RIGHT NOW
-          require("../assets/test.mp3")
+          require("../assets/etest.mp3")
         );
 
         console.log("Playing Sound");
