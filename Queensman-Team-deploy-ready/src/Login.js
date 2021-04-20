@@ -34,7 +34,7 @@ export default class Login extends React.Component {
       password: "",
       phoneno: "97148721301",
       passwordcheck: "",
-      loading: true, //put true to start loading  false to end loading
+      loading: false, //put true to start loading  false to end loading
       clientID: "",
       showPassword: true,
       workerID: "",
@@ -42,7 +42,7 @@ export default class Login extends React.Component {
   }
 
   async componentDidMount() {
-    this.setState({ loading: true });
+    // this.setState({ loading: true });
     console.log("HEREERERE");
   }
 

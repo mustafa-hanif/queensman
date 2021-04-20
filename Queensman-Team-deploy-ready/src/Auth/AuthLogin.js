@@ -21,7 +21,8 @@ export default class AuthLogin extends React.Component {
 
   async componentDidMount() {
     console.log("yeFireHo rha Kia");
-    const WorkerID = await AsyncStorageß.getItem("QueensmanWorkerID");
+    const WorkerID = await AsyncStorage.getItem("QueensmanWorkerID");
+    console.log(WorkerID);
     if (WorkerID == "asd" || WorkerID == null)
       this.props.navigation.navigate("Login");
     else this.props.navigation.navigate("AppDrawer");
