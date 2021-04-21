@@ -71,30 +71,30 @@ export default class HomeScreen extends React.Component {
       }),
     });
     this.registerForPushNotificationsAsync().then((token) =>
-      console.log(token)
+      console.log({token})
     );
 
     this.notificationListener = Notifications.addNotificationReceivedListener(
       (notification) => {
         // setNotification(notification);
-        console.log(notification);
+        console.log({notification});
       }
     );
 
     this.responseListener = Notifications.addNotificationResponseReceivedListener(
       async (response) => {
-        console.log(response);
-        const { sound } = await Audio.Sound.createAsync(
-          //THIS FILE DOES NOT EXIST RIGHT NOW
-          require("../assets/etest.mp3")
-        );
+        console.log({response});
+        // const { sound } = await Audio.Sound.createAsync(
+        //   //THIS FILE DOES NOT EXIST RIGHT NOW
+        //   // require("../assets/etest.mp3")
+        // );
 
-        console.log("Playing Sound");
-        await sound.playAsync();
-        let timeout = setTimeout(() => {
-          sound.unloadAsync();
-          clearTimeout(timeout);
-        }, 60000);
+      //   console.log("Playing Sound");
+      //   await sound.playAsync();
+      //   let timeout = setTimeout(() => {
+      //     sound.unloadAsync();
+      //     clearTimeout(timeout);
+      //   }, 60000);
       }
     );
 
