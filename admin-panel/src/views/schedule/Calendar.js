@@ -36,7 +36,7 @@ const Calendar = props => {
   const {
     events,
     isRtl,
-    dispatch,
+    datesSet,
     calendarsColor,
     calendarApi,
     setCalendarApi,
@@ -58,12 +58,16 @@ const Calendar = props => {
   const calendarOptions = {
     events,
     initialDate: '2020-08-01',
+    datesSet,
     eventDataTransform: (eventData => {
-      const { id, worker: { full_name: workerName }, start, startTime, title } = eventData
+      const { id, worker: { full_name: workerName }, callout_id, start, startTime, title } = eventData
       return {
         id,
         title: `${title} by ${workerName}`,
-        start: `${start}T${startTime}`
+        start: `${start}T${startTime}`,
+        extendedProps: {
+          callout_id
+        }
       }
     }),
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
@@ -102,15 +106,15 @@ const Calendar = props => {
     */
     navLinks: true,
 
-    eventClassNames({ event: calendarEvent }) {
-      // eslint-disable-next-line no-underscore-dangle
-      const colorName = calendarsColor[calendarEvent._def.extendedProps.calendar]
+    // eventClassNames({ event: calendarEvent }) {
+    //   // eslint-disable-next-line no-underscore-dangle
+    //   const colorName = calendarsColor[calendarEvent._def.extendedProps.calendar]
 
-      return [
-        // Background Color
-        `bg-light-${colorName}`
-      ]
-    },
+    //   return [
+    //     // Background Color
+    //     `bg-light-${colorName}`
+    //   ]
+    // },
 
     eventClick({ event: clickedEvent }) {
       console.log(clickedEvent)

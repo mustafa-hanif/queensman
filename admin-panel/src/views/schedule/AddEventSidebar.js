@@ -1,5 +1,7 @@
 // ** React Imports
 import { Fragment, useState } from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { gql, useQuery } from "@apollo/client"
 
 // ** Custom Components
 import Avatar from '@components/avatar'
@@ -11,7 +13,7 @@ import Flatpickr from 'react-flatpickr'
 import { X, Check, Trash } from 'react-feather'
 import Select, { components } from 'react-select'
 import { useForm, Controller } from 'react-hook-form'
-import { Button, Modal, ModalHeader, ModalBody, FormGroup, Label, CustomInput, Input, Form } from 'reactstrap'
+import { Button, Modal, ModalHeader, ModalBody, Card, ListGroup, ListGroupItem, FormGroup, Label, CustomInput, Input, Form, Spinner } from 'reactstrap'
 
 // ** Utils
 import { selectThemeColors, isObjEmpty } from '@utils'
@@ -39,6 +41,55 @@ const ToastComponent = ({ title, icon, color }) => (
     </div>
   </Fragment>
 )
+
+const GET_CALLOUT = gql`
+  query MyQuery($id: Int!) {
+    callout_by_pk(id: $id) {
+      pre_pics {
+        picture_location
+      }
+      postpics {
+        picture_location
+      }
+      job_worker {
+        worker {
+          email
+          full_name
+          phone
+        }
+      }
+      job_notes {
+        note
+      }
+    }
+  }
+`
+
+const params = {
+  slidesPerView: 5,
+  spaceBetween: 50,
+  pagination: {
+    clickable: true
+  },
+  breakpoints: {
+    1024: {
+      slidesPerView: 4,
+      spaceBetween: 40
+    },
+    768: {
+      slidesPerView: 3,
+      spaceBetween: 30
+    },
+    640: {
+      slidesPerView: 2,
+      spaceBetween: 20
+    },
+    320: {
+      slidesPerView: 1,
+      spaceBetween: 10
+    }
+  }
+}
 
 const AddEventSidebar = props => {
   // ** Props
@@ -273,8 +324,15 @@ const AddEventSidebar = props => {
       )
     }
   }
-  const { loading, data, error, refetch } = useQuery(GET_SCHEDULE)
-  
+  const { loading, data, error, refetch } = useQuery(GET_CALLOUT, {
+    variables: {
+      id: selectedEvent?.extendedProps?.callout_id
+    }
+  })
+  // console.log(selectedEvent?.extendedProps?.callout_id)
+  if (!loading) {
+    // console.log(data?.extendedProps)
+  }
   // ** Close BTN
   const CloseBtn = <X className='cursor-pointer' size={15} onClick={handleAddEventSidebar} />
   return (
@@ -287,13 +345,18 @@ const AddEventSidebar = props => {
          </h5>
        </ModalHeader>
        <ModalBody className='flex-grow-1 pb-sm-0 pb-3'>
-        <Card className='mb-4'>
+        {loading && <Spinner />}
+        {!loading && <Card className='mb-4'>
           <ListGroup flush>
-            <ListGroupItem>Cras justo odio</ListGroupItem>
+            <ListGroupItem>
+              <Swiper {...params}>
+                {data?.callout_by_pk?.postpics?.map(pic => <SwiperSlide><img width="200" src={pic?.picture_location} /></SwiperSlide>)}
+              </Swiper>
+            </ListGroupItem>
             <ListGroupItem>Dapibus ac facilisis in</ListGroupItem>
             <ListGroupItem>Vestibulum at eros</ListGroupItem>
           </ListGroup>
-        </Card>
+        </Card>}
        </ModalBody>
     </Modal>
 

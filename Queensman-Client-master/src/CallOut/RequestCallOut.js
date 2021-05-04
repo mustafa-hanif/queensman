@@ -228,7 +228,7 @@ export default class RequestCallOut extends React.Component {
 
     // link = "./fetchClientProfile.php?ID=" + ID;
     const link = `http://queensman.com/queens_client_Apis/FetchClientSinglePropertyViaPropID.php?ID=${property_ID}`;
-    console.log({link});
+    console.log({ link });
     axios.get(link).then((result) => {
       console.log(result.data.server_responce);
       this.setState({ PropertyDetails: result.data.server_responce });
@@ -315,6 +315,10 @@ export default class RequestCallOut extends React.Component {
   };
 
   askSubmitCallout = () => {
+    if (this.state.Urgency === "medium") {
+      return this.props.navigation.navigate("SelectSchedule");
+    }
+
     Alert.alert(
       "Callout Request Confirmation.",
       "Kindly click YES to submit this callout.",

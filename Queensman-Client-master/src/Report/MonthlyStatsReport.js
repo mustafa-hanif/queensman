@@ -1,14 +1,5 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Button,
-  Dimensions,
-  TouchableOpacity,
-  Linking,
-  ActivityIndicator,
-} from "react-native";
+import { StyleSheet, Text, View, Button, Dimensions, TouchableOpacity, Linking, ActivityIndicator } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -36,9 +27,7 @@ export default class GenerateReport extends React.Component {
   async componentDidMount() {
     this.setState({ loading: true });
     var property_ID = await AsyncStorage.getItem("QueensPropertyID"); // assign customer id here
-    link =
-      "http://queensman.com/queens_client_Apis/fetchMonthlyServicesReport.php?ID=" +
-      property_ID;
+    link = "http://13.250.20.151/queens_client_Apis/fetchMonthlyServicesReport.php?ID=" + property_ID;
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data.server_response);
@@ -92,24 +81,15 @@ export default class GenerateReport extends React.Component {
         });
         for (var i = 0; i < arrayLength; i++) {
           //checkArray.push([result.data.server_response[i].server_response.report_year])e
-          if (
-            result.data.server_response[i].server_response.report_year in
-            checkArray
-          ) {
-            console.log(
-              result.data.server_response[i].server_response.report_year +
-                "Exists already"
-            );
-            checkArray[
-              result.data.server_response[i].server_response.report_year
-            ][result.data.server_response[i].server_response.report_month] =
-              result.data.server_response[i].server_response.report_location;
+          if (result.data.server_response[i].server_response.report_year in checkArray) {
+            console.log(result.data.server_response[i].server_response.report_year + "Exists already");
+            checkArray[result.data.server_response[i].server_response.report_year][
+              result.data.server_response[i].server_response.report_month
+            ] = result.data.server_response[i].server_response.report_location;
             //  checkArray[result.data.server_response[i].server_response.report_year].push(result.data.server_response[i].server_response.report_month)
             //     checkArray[result.data.server_response[i].server_response.report_year][result.data.server_response[i].server_response.report_month]=result.data.server_response[i].server_response.report_location
           } else {
-            checkArray[
-              result.data.server_response[i].server_response.report_year
-            ] = {
+            checkArray[result.data.server_response[i].server_response.report_year] = {
               1: -1,
               2: -1,
               3: -1,
@@ -123,10 +103,9 @@ export default class GenerateReport extends React.Component {
               11: -1,
               12: -1,
             };
-            checkArray[
-              result.data.server_response[i].server_response.report_year
-            ][result.data.server_response[i].server_response.report_month] =
-              result.data.server_response[i].server_response.report_location;
+            checkArray[result.data.server_response[i].server_response.report_year][
+              result.data.server_response[i].server_response.report_month
+            ] = result.data.server_response[i].server_response.report_location;
             //  checkArray[result.data.server_response[i].server_response.report_year][result.data.server_response[i].server_response.report_month]=result.data.server_response[i].server_response.report_location
           }
         }
@@ -193,14 +172,9 @@ export default class GenerateReport extends React.Component {
       //content as view type  and touch exit
       <View style={styles.container}>
         {/* background gradinet   */}
-        <LinearGradient
-          colors={["#000E1E", "#001E2B", "#000E1E"]}
-          style={styles.gradiantStyle}
-        ></LinearGradient>
+        <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle}></LinearGradient>
         <View style={{ paddingHorizontal: "5%", flexDirection: "column" }}>
-          <Text style={[styles.TextFam, { fontSize: 10, color: "#FFCA5D" }]}>
-            Select Year:
-          </Text>
+          <Text style={[styles.TextFam, { fontSize: 10, color: "#FFCA5D" }]}>Select Year:</Text>
           <Picker
             note
             mode="dialog"
@@ -226,11 +200,7 @@ export default class GenerateReport extends React.Component {
         </View>
         <View style={{ height: "3%" }}></View>
         {this.state.loading ? (
-          <ActivityIndicator
-            size="large"
-            color="#fff"
-            style={{ marginTop: "10%" }}
-          />
+          <ActivityIndicator size="large" color="#fff" style={{ marginTop: "10%" }} />
         ) : (
           <View>
             <TouchableOpacity
@@ -238,8 +208,7 @@ export default class GenerateReport extends React.Component {
               style={[
                 styles.buttonstyle,
                 {
-                  backgroundColor:
-                    this.state.monthArray[1] != -1 ? "#FFCA5D" : "#d3d3d3",
+                  backgroundColor: this.state.monthArray[1] != -1 ? "#FFCA5D" : "#d3d3d3",
                 },
               ]}
               onPress={() => this.Reporthandle(this.state.monthArray[1])}
@@ -252,8 +221,7 @@ export default class GenerateReport extends React.Component {
               style={[
                 styles.buttonstyle,
                 {
-                  backgroundColor:
-                    this.state.monthArray[2] != -1 ? "#FFCA5D" : "#d3d3d3",
+                  backgroundColor: this.state.monthArray[2] != -1 ? "#FFCA5D" : "#d3d3d3",
                 },
               ]}
               onPress={() => this.Reporthandle(this.state.monthArray[2])}
@@ -266,8 +234,7 @@ export default class GenerateReport extends React.Component {
               style={[
                 styles.buttonstyle,
                 {
-                  backgroundColor:
-                    this.state.monthArray[3] != -1 ? "#FFCA5D" : "#d3d3d3",
+                  backgroundColor: this.state.monthArray[3] != -1 ? "#FFCA5D" : "#d3d3d3",
                 },
               ]}
               onPress={() => this.Reporthandle(this.state.monthArray[3])}
@@ -280,8 +247,7 @@ export default class GenerateReport extends React.Component {
               style={[
                 styles.buttonstyle,
                 {
-                  backgroundColor:
-                    this.state.monthArray[4] != -1 ? "#FFCA5D" : "#d3d3d3",
+                  backgroundColor: this.state.monthArray[4] != -1 ? "#FFCA5D" : "#d3d3d3",
                 },
               ]}
               onPress={() => this.Reporthandle(this.state.monthArray[4])}
@@ -294,8 +260,7 @@ export default class GenerateReport extends React.Component {
               style={[
                 styles.buttonstyle,
                 {
-                  backgroundColor:
-                    this.state.monthArray[5] != -1 ? "#FFCA5D" : "#d3d3d3",
+                  backgroundColor: this.state.monthArray[5] != -1 ? "#FFCA5D" : "#d3d3d3",
                 },
               ]}
               onPress={() => this.Reporthandle(this.state.monthArray[5])}
@@ -308,8 +273,7 @@ export default class GenerateReport extends React.Component {
               style={[
                 styles.buttonstyle,
                 {
-                  backgroundColor:
-                    this.state.monthArray[6] != -1 ? "#FFCA5D" : "#d3d3d3",
+                  backgroundColor: this.state.monthArray[6] != -1 ? "#FFCA5D" : "#d3d3d3",
                 },
               ]}
               onPress={() => this.Reporthandle(this.state.monthArray[6])}
@@ -322,8 +286,7 @@ export default class GenerateReport extends React.Component {
               style={[
                 styles.buttonstyle,
                 {
-                  backgroundColor:
-                    this.state.monthArray[7] != -1 ? "#FFCA5D" : "#d3d3d3",
+                  backgroundColor: this.state.monthArray[7] != -1 ? "#FFCA5D" : "#d3d3d3",
                 },
               ]}
               onPress={() => this.Reporthandle(this.state.monthArray[7])}
@@ -336,8 +299,7 @@ export default class GenerateReport extends React.Component {
               style={[
                 styles.buttonstyle,
                 {
-                  backgroundColor:
-                    this.state.monthArray[8] != -1 ? "#FFCA5D" : "#d3d3d3",
+                  backgroundColor: this.state.monthArray[8] != -1 ? "#FFCA5D" : "#d3d3d3",
                 },
               ]}
               onPress={() => this.Reporthandle(this.state.monthArray[8])}
@@ -350,8 +312,7 @@ export default class GenerateReport extends React.Component {
               style={[
                 styles.buttonstyle,
                 {
-                  backgroundColor:
-                    this.state.monthArray[9] != -1 ? "#FFCA5D" : "#d3d3d3",
+                  backgroundColor: this.state.monthArray[9] != -1 ? "#FFCA5D" : "#d3d3d3",
                 },
               ]}
               onPress={() => this.Reporthandle(this.state.monthArray[9])}
@@ -364,8 +325,7 @@ export default class GenerateReport extends React.Component {
               style={[
                 styles.buttonstyle,
                 {
-                  backgroundColor:
-                    this.state.monthArray[10] != -1 ? "#FFCA5D" : "#d3d3d3",
+                  backgroundColor: this.state.monthArray[10] != -1 ? "#FFCA5D" : "#d3d3d3",
                 },
               ]}
               onPress={() => this.Reporthandle(this.state.monthArray[10])}
@@ -378,8 +338,7 @@ export default class GenerateReport extends React.Component {
               style={[
                 styles.buttonstyle,
                 {
-                  backgroundColor:
-                    this.state.monthArray[11] != -1 ? "#FFCA5D" : "#d3d3d3",
+                  backgroundColor: this.state.monthArray[11] != -1 ? "#FFCA5D" : "#d3d3d3",
                 },
               ]}
               onPress={() => this.Reporthandle(this.state.monthArray[11])}
@@ -392,8 +351,7 @@ export default class GenerateReport extends React.Component {
               style={[
                 styles.buttonstyle,
                 {
-                  backgroundColor:
-                    this.state.monthArray[12] != -1 ? "#FFCA5D" : "#d3d3d3",
+                  backgroundColor: this.state.monthArray[12] != -1 ? "#FFCA5D" : "#d3d3d3",
                 },
               ]}
               onPress={() => this.Reporthandle(this.state.monthArray[12])}

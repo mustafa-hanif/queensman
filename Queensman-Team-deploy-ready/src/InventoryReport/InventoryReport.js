@@ -79,7 +79,7 @@ export default class InventoryReport extends React.Component {
     }
 
 
-    async  componentWillMount() {
+    async  componentDidMount() {
         this.subs = this.props.navigation.addListener("didFocus", async () => {
             var clientsArray = [];
             var roomIDs = [];

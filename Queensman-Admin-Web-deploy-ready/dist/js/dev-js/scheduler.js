@@ -142,14 +142,14 @@
                                    dateTime =item.schedule.date_on_calendar
                                }
                                 let obj = {
-                                    id: item.schedule.id,
-                                    schedule_id: item.schedule.id,
-                                    callout_id: item.schedule.callout_id,
-                                    worker_id:  item.schedule.worker_id,
-                                    title:  'C '+ item.schedule.callout_id+' / T '+item.schedule.worker_id+' / '+item.schedule.notes,
-                                    start:  dateTime,
-                                    color:  color_code,
-                                    allDay: false
+                                  id: item.schedule.id,
+                                  schedule_id: item.schedule.id,
+                                  callout_id: item.schedule.callout_id,
+                                  worker_id:  item.schedule.worker_id,
+                                  title:  'C '+ item.schedule.callout_id+' / T '+item.schedule.worker_id+' / '+item.schedule.notes,
+                                  start:  dateTime,
+                                  color:  color_code,
+                                  allDay: false
                                 }
                                 events.push(obj);
                         
@@ -1210,7 +1210,7 @@
     let callout_id = '';
     function Calendar_Events() {
 
-        var calendarEl = document.getElementById('calendar');
+      var calendarEl = document.getElementById('calendar');
         
       var calendar = new FullCalendar.Calendar(calendarEl, {
         plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],

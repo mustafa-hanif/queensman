@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, ActivityIndicator, Dimensions } from "react-nat
 import { useAuth } from "@nhost/react-auth";
 import { LinearGradient } from "expo-linear-gradient";
 import { auth } from "../utils/nhost";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
@@ -26,12 +27,19 @@ const AuthLoginCheck = ({ navigation }) => {
   const { signedIn } = useAuth();
   useEffect(() => {
     console.log({ signedIn });
-    if (!signedIn) {
-      navigation.navigate("Login");
-    } else {
-      console.log("ye bhi chalra");
-      navigation.navigate("AppDrawer");
-    }
+    AsyncStorage.getItem("QueensUserID").then((res) => {
+      if (res) {
+        navigation.navigate("AppDrawer");
+      } else {
+        navigation.navigate("Login");
+      }
+    });
+    // if (!signedIn) {
+    //   navigation.navigate("Login");
+    // } else {
+    //   console.log("ye bhi chalra");
+    //   navigation.navigate("AppDrawer");
+    // }
   }, [signedIn]);
 
   if (signedIn === null) {

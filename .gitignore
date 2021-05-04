@@ -5,3 +5,5 @@
 .env.development
 api/node_modules
 nmig
+packager-info.json
+.DS_Store

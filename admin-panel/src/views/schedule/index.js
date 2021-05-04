@@ -1,6 +1,6 @@
 // ** React Imports
-import { Fragment, useState, useEffect } from 'react'
-import { gql, useQuery } from "@apollo/client"
+import { Fragment, useState, useEffect, useRef } from 'react'
+import { gql, useLazyQuery, useQuery } from "@apollo/client"
 
 // ** Third Party Components
 import classnames from 'classnames'
@@ -38,18 +38,18 @@ const calendarsColor = {
 }
 
 const GET_SCHEDULE = gql`
-query MyQuery {
-  scheduler(limit: 10) {
-    id
-    start: date_on_calendar
-    startTime: time_on_calendar
-    title: notes
-    worker {
-      full_name
+  query MyQuery($_gte: date!, $_lte: date!) {
+    scheduler(where: {date_on_calendar: {_gte: $_gte, _lte: $_lte}}) {
+      id
+      start: date_on_calendar
+      startTime: time_on_calendar
+      title: notes
+      worker {
+        full_name
+      }
+      callout_id
     }
   }
-}
-
 `
 
 const CalendarComponent = () => {
@@ -59,6 +59,10 @@ const CalendarComponent = () => {
     return state.calendar
   })
 
+  const [selectedDates, setSelectedDates] = useState({
+    _gte: '2020-08-01',
+    _lte: '2020-08-01'
+  })
   const [selectedEvent, selectEvent] = useState(null)
 
   // ** states
@@ -97,37 +101,50 @@ const CalendarComponent = () => {
     }
   }
 
-  const { loading, data, error, refetch } = useQuery(GET_SCHEDULE)
-  if (loading) {
-    return <div></div>
-  }
+  const _gte = selectedDates._gte
+  const _lte = selectedDates._lte
+  
+  const [getSchedule, { loading, data }] = useLazyQuery(GET_SCHEDULE, {
+    variables: {
+      _gte,
+      _lte
+    }
+  })
   // ** Fetch Events On Mount
   // useEffect(() => {
   //   dispatch(fetchEvents(store.selectedCalendars))
   // }, [])
 
+  const datesSet = (info) => {
+    console.log(info)
+    getSchedule({ variables: {
+      _gte: info.startStr,
+      _lte: info.endStr
+    }})
+  }
+
   return (
     <Fragment>
       <div className='app-calendar overflow-hidden border'>
         <Row noGutters>
-          <Col
+          {/* <Col
             id='app-calendar-sidebar'
             className={classnames('col app-calendar-sidebar flex-grow-0 overflow-hidden d-flex flex-column', {
               show: leftSidebarOpen
             })}
           >
             <SidebarLeft
-              store={store}
               updateFilter={updateFilter}
               toggleSidebar={toggleSidebar}
               updateAllFilters={updateAllFilters}
               handleAddEventSidebar={handleAddEventSidebar}
             />
-          </Col>
+          </Col> */}
           <Col className='position-relative'>
             <Calendar
               isRtl={isRtl}
-              events={data.scheduler}
+              events={data?.scheduler ?? []}
+              datesSet={datesSet}
               blankEvent={blankEvent}
               calendarApi={calendarApi}
               selectEvent={selectEvent}

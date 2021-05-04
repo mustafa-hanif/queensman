@@ -24,7 +24,7 @@ const LoginV1 = () => {
     try { 
       const data = await auth.login({ email: e.target.elements.email.value, password: e.target.elements.password.value})
       localStorage.setItem('userData', JSON.stringify(data))
-      
+      history.push('/home')
     } catch (e) {
       setError(e.response.data.message)
     }

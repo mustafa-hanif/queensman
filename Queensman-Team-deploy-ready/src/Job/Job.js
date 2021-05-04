@@ -41,7 +41,7 @@ export default class Job extends React.Component {
 
 
     }
-    async componentWillMount() {
+    async componentDidMount() {
         const WorkerID = await AsyncStorage.getItem('QueensmanWorkerID'); // assign customer id here
         this.setState({ workerID: WorkerID })
         link = "https://www.queensman.com/phase_2/queens_worker_Apis/fetchJobWorkers.php?ID=" + this.props.navigation.getParam('it', 'Something').service_details.id
