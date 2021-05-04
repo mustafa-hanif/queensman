@@ -128,8 +128,8 @@ const CallOutReportPress = (navigation) => {
 };
 
 const UPDATE_TOKEN = gql`
-  mutation MyMutation($token: String!, $id: Int!) {
-    update_client_by_pk(pk_columns: { id: $id }, _set: { expo_token: $token }) {
+  mutation MyMutation($token: String!, $email: String!) {
+    update_client(pk_columns: { email: $id }, _set: { expo_token: $token }) {
       expo_token
     }
   }
@@ -158,9 +158,10 @@ const HomeScreen = ({ navigation }) => {
     });
     registerForPushNotificationsAsync()
       .then(async (token) => {
-        const id = await AsyncStorage.getItem("QueensUserID");
-        console.log({ variables: { token, id: parseInt(id, 10) } });
-        updateToken({ variables: { token, id } });
+        const user = JSON.parse(await AsyncStorage.getItem("QueensUser"));
+        const email = user?.user?.email;
+        console.log({ variables: { token, email } });
+        updateToken({ variables: { token, email } });
         console.log(token);
       })
       .catch(alert);

@@ -1,3 +1,6 @@
+/* eslint-disable no-lonely-if */
+/* eslint-disable no-console */
+/* eslint-disable no-alert */
 import React from "react";
 import {
   StyleSheet,
@@ -49,14 +52,6 @@ const styles = StyleSheet.create({
     marginBottom: "10%",
   },
 });
-
-async function storePass(pass) {
-  try {
-    await AsyncStorage.setItem("QueensPass", pass);
-  } catch (error) {
-    // Error saving data
-  }
-}
 
 export default class LoginScreen extends React.Component {
   // animation ref
@@ -110,174 +105,16 @@ export default class LoginScreen extends React.Component {
     this.setState({ fingerprints });
   };
 
-  scanFingerprint = async () => {
-    const result = await LocalAuthentication.authenticateAsync("Scan your finger.");
-    // console.log('Scan Result:', result.success)
-    if (result.success) {
-      const link = `${endpoint}queens_client_Apis/fetchDeviceID.php?email=${this.state.email}`;
-      console.log(link);
-      axios.get(link).then((result) => {
-        console.log(`result${result.data.server_responce.stored_device_id}`);
-        if (result.data.server_responce.stored_device_id === Constants.installationId) {
-          const { email } = this.state;
-          const password = this.state.passwordcheck;
-          auth
-            .signIn({ email, password })
-            .then((user) => {
-              this.setState({ user });
-              // this.refs.customToast.show("Successful sign in!");
-              console.log("successful sign in!");
-            })
-            .catch((err) => {
-              alert("Error signing in! ");
-              console.log("error signing in!: ", err);
-              this.setState({ loading: false });
-            });
-          console.log("off to the home hehe");
-          this.props.navigation.navigate("AppDrawer");
-        } else {
-          // this.customToast.show("Fingerprint not enabled on this phone.");
-        }
-      });
-    } else {
-      // alert("Fingerprint not recognized!")
-      // this.customToast.show("Fingerprint not recognized!");
-      if (Constants.platform.android) {
-        // this.scanFingerprint();
-      }
-    }
-  };
-
-  proceedFunctionEmail = () => {
-    NetInfo.fetch().then((isConnected) => {
-      this.setState({ connections: !!isConnected });
-    });
-
-    if (this.state.connections) {
-      this.setState({
-        loading: true,
-      });
-      // alert("Proceed");
-
-      let link = `${endpoint}queens_client_Apis/checkPassword.php?email=${this.state.email}`;
-      console.log(link);
-      axios.get(link).then((result) => {
-        console.log(result.data);
-        this.setState({
-          passwordcheck: result.data.server_responce.password,
-        });
-        console.log({ passowrdcheck: this.state.passwordcheck });
-        if (result.data.server_responce == -1) {
-          alert(
-            "Either you are not a registered user or the email you entered is incorrect. Kindly contact us for more details."
-          );
-          this.setState({ loading: false });
-        } else {
-          link = `${endpoint}queens_client_Apis/fetchClientID.php?email=${this.state.email}`;
-          console.log(link);
-          axios.get(link).then((result) => {
-            console.log(result.data.server_responce_ID);
-            this._storeData(result.data.server_responce_ID);
-          });
-        }
-      });
-    } else {
-      alert("Internet connection failed!");
-      this.setState({ loading: false });
-    }
-  };
-
-  _storeData = async (id) => {
-    try {
-      await AsyncStorage.setItem("QueensUserID", id);
-
-      console.log("Save ID");
-      if (this.state.passwordcheck === "null") {
-        console.log("Need new password");
-        this.makeid();
-        console.log(this.state.newpassword);
-        const { email, newpassword: password } = this.state;
-        auth
-          .register({
-            email,
-            password,
-          })
-          .then(() => {
-            storePass(password);
-            this.props.navigation.navigate("PinVerify", {
-              UserEmail: email,
-              UserPassword: password,
-            });
-          })
-          .catch((err) => {
-            console.log(err);
-            this.props.navigation.navigate("PinVerify", {
-              UserEmail: this.state.email,
-              // UserPassword: this.state.newpassword
-            });
-          });
-
-        // link = "http://www.skynners.com/queenTest/sendEmail.php?subject=" + this.state.subject + "&message=" + this.state.message + this.state.newpassword + "&to=" + this.state.email
-        // console.log(link);
-        // axios.get(link).then(result => {
-        //     console.log(result.data);
-        //     alert('Email with PIN Successfully Sent');
-
-        //     this.setState({ loading: false })
-        // }).catch(error => {
-        //     console.log(error);
-        //     this.setState({ loading: false })
-        // })
-      } else {
-        let active = "";
-        const link = `${endpoint}queens_client_Apis/fetchClientActive.php?email=${this.state.email}`;
-        console.log(link);
-        axios.get(link).then((result) => {
-          console.log(result.data.server_responce_ID);
-          active = result.data.server_responce_ID;
-          if (active === "1") {
-            //  email verified success
-
-            // now check password
-            this.proceedFunctionPassword();
-
-            // this.fadeOutLeft(); // animation
-            // //  change from email to password
-            // setTimeout(() => {
-            //   this.setState({ emailpage: false, loading: false });
-            // }, 400);
-            // this.scanFingerprint();
-          } else {
-            alert("Your account is currently deactivated.");
-            this.setState({ loading: false });
-          }
-        });
-      }
-    } catch (error) {
-      // Error saving data
-      this.setState({ loading: false });
-    }
-  };
-
-  makeid = () => {
-    let result = "";
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const charactersLength = characters.length;
-    for (let i = 0; i < this.state.length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    this.setState({ newpassword: result });
-  };
-
-  proceedFunctionPassword = () => {
+  proceedFunctionEmail = async () => {
     const { email, password } = this.state;
 
     auth
       .login({ email, password })
-      .then((user) => {
-        this.setState({ user, loading: false }, () => {
-          this.props.navigation.navigate("AppDrawer");
-        });
+      .then(async (user) => {
+        this.setState({ user, loading: false });
+        console.log(user);
+        await AsyncStorage.setItem("QueensUser", JSON.stringify(user));
+        this.props.navigation.navigate("AppDrawer");
       })
       .catch((err) => {
         alert("Error signing in. The password you entered might be incorrect. ");

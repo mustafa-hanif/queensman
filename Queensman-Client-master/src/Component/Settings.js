@@ -1,18 +1,36 @@
+/* eslint-disable no-console */
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Image,
-  Linking,
-} from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Image, Linking } from "react-native";
 import { Content, List, ListItem, Row, Icon } from "native-base";
 import axios from "axios";
 import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import Toast from "react-native-whc-toast";
+import { auth } from "../utils/nhost";
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+
+    justifyContent: "center",
+  },
+  ImageStyle: {
+    height: 80,
+    width: 80,
+    alignSelf: "center",
+    marginTop: "7%",
+  },
+  Name: {
+    paddingTop: "10%",
+    paddingLeft: "3%",
+    flexDirection: "row",
+  },
+  TextFam: {
+    fontFamily: "Helvetica",
+  },
+});
 
 class Settings extends React.Component {
   constructor(props) {
@@ -63,8 +81,7 @@ class Settings extends React.Component {
   };
 
   signOut = () => {
-    this.refs.customToast.show("Signing out... Please wait");
-    this._RemoveData();
+    auth.logout();
   };
 
   updatePassword = () => {
@@ -137,10 +154,7 @@ class Settings extends React.Component {
 
         <Content>
           <List>
-            <Image
-              style={styles.ImageStyle}
-              source={require("../../assets/Home/mens.png")}
-            />
+            <Image style={styles.ImageStyle} source={require("../../assets/Home/mens.png")} />
 
             <ListItem />
 
@@ -157,9 +171,7 @@ class Settings extends React.Component {
                 />
                 <View style={{ flexDirection: "column" }}>
                   <Text style={styles.TextFam}>Name</Text>
-                  <Text style={[styles.TextFam, { color: "#718792" }]}>
-                    {this.state.UserName}
-                  </Text>
+                  <Text style={[styles.TextFam, { color: "#718792" }]}>{this.state.UserName}</Text>
                 </View>
                 <Text> </Text>
               </Row>
@@ -178,9 +190,7 @@ class Settings extends React.Component {
                 />
                 <View style={{ flexDirection: "column" }}>
                   <Text style={styles.TextFam}>Phone</Text>
-                  <Text style={[styles.TextFam, { color: "#718792" }]}>
-                    {this.state.Mobile}
-                  </Text>
+                  <Text style={[styles.TextFam, { color: "#718792" }]}>{this.state.Mobile}</Text>
                 </View>
                 <Text> </Text>
               </Row>
@@ -200,9 +210,7 @@ class Settings extends React.Component {
                   />
                   <View style={{ flexDirection: "column" }}>
                     <Text style={styles.TextFam}>Password</Text>
-                    <Text style={[styles.TextFam, { color: "#718792" }]}>
-                      Tap to update password
-                    </Text>
+                    <Text style={[styles.TextFam, { color: "#718792" }]}>Tap to update password</Text>
                   </View>
                   <Text> </Text>
                 </Row>
@@ -222,9 +230,7 @@ class Settings extends React.Component {
                 />
                 <View style={{ flexDirection: "column" }}>
                   <Text style={styles.TextFam}>Email</Text>
-                  <Text style={[styles.TextFam, { color: "#718792" }]}>
-                    {this.state.Email}
-                  </Text>
+                  <Text style={[styles.TextFam, { color: "#718792" }]}>{this.state.Email}</Text>
                 </View>
                 <Text> </Text>
               </Row>
@@ -244,9 +250,7 @@ class Settings extends React.Component {
                   />
                   <View style={{ flexDirection: "column" }}>
                     <Text style={styles.TextFam}>Fingerprint Login</Text>
-                    <Text style={[styles.TextFam, { color: "#718792" }]}>
-                      Tap to enable/disable fingerprint login
-                    </Text>
+                    <Text style={[styles.TextFam, { color: "#718792" }]}>Tap to enable/disable fingerprint login</Text>
                   </View>
                   <Text> </Text>
                 </Row>
@@ -257,13 +261,7 @@ class Settings extends React.Component {
               <Text style={[styles.TextFam, styles.textheader]}>About</Text>
             </ListItem>
             <ListItem>
-              <TouchableOpacity
-                onPress={() =>
-                  Linking.openURL(
-                    "https://queensman.com/management-maintenance"
-                  )
-                }
-              >
+              <TouchableOpacity onPress={() => Linking.openURL("https://queensman.com/management-maintenance")}>
                 <Row>
                   <Image
                     source={require("../../assets/Login/Queensman_logo3.png")}
@@ -275,19 +273,13 @@ class Settings extends React.Component {
                     }}
                   />
                   {/* <Icon name="people" style={{ fontSize: 30, color: '#718792', paddingRight: '13.5%', paddingTop: '3%', paddingLeft: '1%' }}></Icon> */}
-                  <Text style={[styles.TextFam, { paddingTop: "3%" }]}>
-                    About Us
-                  </Text>
+                  <Text style={[styles.TextFam, { paddingTop: "3%" }]}>About Us</Text>
                   <Text> </Text>
                 </Row>
               </TouchableOpacity>
             </ListItem>
             <ListItem>
-              <TouchableOpacity
-                onPress={() =>
-                  Linking.openURL("https://queensman.com/terms-of-use")
-                }
-              >
+              <TouchableOpacity onPress={() => Linking.openURL("https://queensman.com/terms-of-use")}>
                 <Row>
                   <Icon
                     name="clipboard"
@@ -299,9 +291,7 @@ class Settings extends React.Component {
                       paddingLeft: "1%",
                     }}
                   />
-                  <Text style={[styles.TextFam, { paddingTop: "5%" }]}>
-                    Terms and Conditions
-                  </Text>
+                  <Text style={[styles.TextFam, { paddingTop: "5%" }]}>Terms and Conditions</Text>
                   <Text> </Text>
                 </Row>
               </TouchableOpacity>
@@ -319,9 +309,7 @@ class Settings extends React.Component {
                       paddingLeft: "1%",
                     }}
                   />
-                  <Text style={[styles.TextFam, { paddingTop: "5%" }]}>
-                    Sign Out
-                  </Text>
+                  <Text style={[styles.TextFam, { paddingTop: "5%" }]}>Sign Out</Text>
                   <Text> </Text>
                 </Row>
               </TouchableOpacity>
@@ -334,26 +322,3 @@ class Settings extends React.Component {
 }
 
 export default Settings;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-
-    justifyContent: "center",
-  },
-  ImageStyle: {
-    height: 80,
-    width: 80,
-    alignSelf: "center",
-    marginTop: "7%",
-  },
-  Name: {
-    paddingTop: "10%",
-    paddingLeft: "3%",
-    flexDirection: "row",
-  },
-  TextFam: {
-    fontFamily: "Helvetica",
-  },
-});
