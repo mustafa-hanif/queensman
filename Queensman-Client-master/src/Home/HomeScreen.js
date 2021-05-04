@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions, Platform } from "react-native";
+import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions, Platform, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import * as Animatable from "react-native-animatable";
@@ -95,22 +95,22 @@ export default class HomeScreen extends React.Component {
 
   registerForPushNotificationsAsync = async () => {
     let token;
-    if (Constants.isDevice) {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      if (existingStatus !== "granted") {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      if (finalStatus !== "granted") {
-        alert("Failed to get push token for push notification!");
-        return;
-      }
-      token = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log(token);
-    } else {
-      alert("Must use physical device for Push Notifications");
+    // if (Constants.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
     }
+    if (finalStatus !== "granted") {
+      alert("Failed to get push token for push notification!");
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    console.log(token);
+    // } else {
+    //   alert("Must use physical device for Push Notifications");
+    // }
 
     if (Platform.OS === "android") {
       Notifications.setNotificationChannelAsync("default", {
@@ -132,6 +132,7 @@ export default class HomeScreen extends React.Component {
       //   "Please select property first from 'Property Details' tab in the menu."
       // );
     }
+
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
@@ -143,11 +144,18 @@ export default class HomeScreen extends React.Component {
 
     this.notificationListener = Notifications.addNotificationReceivedListener((notification) => {
       // setNotification(notification);
-      console.log(notification);
+      console.log("Add Notification Recieved", notification);
     });
 
     this.responseListener = Notifications.addNotificationResponseReceivedListener(async (response) => {
-      console.log(response);
+      if (response.notification.request.content.data.type === "alert") {
+        let t = setTimeout(() => {
+          clearTimeout(t);
+          alert("Notification Recieved");
+        }, 500);
+      }
+      console.log("response", response.notification.request.content.data.type);
+      // if (response.notification.request.content.data.type === "alert")
     });
   }
 
