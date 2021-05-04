@@ -1,6 +1,8 @@
+/* eslint-disable no-console */
 /* eslint-disable import/order */
 /* eslint-disable no-use-before-define */
 import React, { PureComponent } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import { Text, View, SafeAreaView, Image, TouchableOpacity, Linking } from "react-native";
 import { createSwitchNavigator, createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
@@ -42,6 +44,10 @@ import getTheme from "./native-base-theme/components";
 import commonColor from "./native-base-theme/variables/commonColor";
 
 /** App main loading */
+// Prevent native splash screen from autohiding before App component declaration
+SplashScreen.preventAutoHideAsync()
+  .then((result) => console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`))
+  .catch(console.warn); // it's good to explicitly catch and inspect any error
 
 export default class App extends PureComponent {
   state = {
@@ -49,9 +55,6 @@ export default class App extends PureComponent {
   };
 
   render() {
-    // if (!this.state.fontsAreLoaded) {
-    //   return <AppLoading />;
-    // }
     if (!this.state.isReady) {
       return (
         <AppLoading
@@ -61,7 +64,7 @@ export default class App extends PureComponent {
         />
       );
     }
-
+    SplashScreen.hideAsync();
     return (
       <NhostAuthProvider auth={auth}>
         <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">

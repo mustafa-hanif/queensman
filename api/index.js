@@ -18,19 +18,24 @@ const config = {
 const { auth } = createClient(config);
 
 async function fetchGraphQL(operationsDoc, operationName, variables) {
-  const result = await fetch(
-    "https://hasura-8106d23e.nhost.app/v1/graphql",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        query: operationsDoc,
-        variables: variables,
-        operationName: operationName
-      })
-    }
-  );
-
-  return await result.json();
+  try {
+    const result = await fetch(
+      "https://hasura-8106d23e.nhost.app/v1/graphql",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          query: operationsDoc,
+          variables: variables,
+          operationName: operationName
+        })
+      }
+    );
+  
+    return await result.json();
+  } catch (e) {
+    console.log(e);
+  }
+  
 }
 
 const operationsDoc = `
@@ -56,26 +61,30 @@ async function startFetchMyQuery() {
 
   if (errors) {
     // handle those errors like a pro
-    console.error(errors);
+    console.log(errors);
   }
 
   // do something great with this precious data
-  data.admin.forEach(client => {
-    const { email, password, full_name } = client;
-    auth.register({
-      email,
-      password,
-      options: { userData: { display_name: full_name } },
-    });
-  });
+  // data.admin.forEach(client => {
+  //   const { email, password, full_name } = client;
+  //   auth.register({
+  //     email,
+  //     password,
+  //     options: { userData: { display_name: full_name } },
+  //   });
+  // });
   return data;
 }
-startFetchMyQuery();
+// startFetchMyQuery();
 module.exports = async (req, res) => {
   try {
     const data = await startFetchMyQuery();
     res.status(200).send(data);  
   }catch(e){
+    console.log(e);
     res.status(500).send(JSON.stringify(e));
   }
 };
+
+// 1000.KKMVUNA32T73YUVGDL7D3KJ3DC4B8R
+// bfa88968c677caa1f1dac8a558377a74cd52b33860

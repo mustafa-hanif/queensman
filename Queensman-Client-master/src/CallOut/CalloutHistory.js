@@ -8,7 +8,6 @@ import { Icon } from "native-base";
 import Toast from "react-native-whc-toast";
 import axios from "axios";
 import PTRView from "react-native-pull-to-refresh";
-import { gql, useQuery } from "@apollo/client";
 
 class CalloutHistoryClass extends React.Component {
   constructor(props) {
