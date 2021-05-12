@@ -31,3 +31,10 @@ PhpMyAdmin
 root
 v8mw7DOVnoHY
 /opt/bitnami/mysql/bin/mysql -u root -p -e "grant all privileges on *.* to 'root'@'%' identified by 'v8mw7DOVnoHY' with grant option";
+
+
+## AWS Lamda
+secret:
+2LmFKvldgGcT47WdNLco5MFL0D0zReUxN94FGODU
+access:
+AKIAVKWFAHNZZPWTPZN3
