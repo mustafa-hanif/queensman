@@ -64,24 +64,18 @@ class Settings extends React.Component {
     });
   }
 
-  _RemoveData = async () => {
+  signOut = async () => {
     try {
-      await AsyncStorage.setItem("QueensPropertyID", "asd");
-      await AsyncStorage.setItem("QueensPropertyType", " ");
-      await AsyncStorage.setItem("QueensPropertyCountry", " ");
-      Auth.signOut()
-        .then((data) => console.log(data))
-        .catch((err) => console.log(err));
-
-      this.props.navigation.navigate("Login");
+      await AsyncStorage.removeItem("QueensUser");
+      await AsyncStorage.removeItem("QueensPropertyID");
+      await AsyncStorage.removeItem("QueensPropertyType");
+      await AsyncStorage.removeItem("QueensPropertyCountry");
+      auth.logout().then((data) => {
+        this.props.navigation.navigate("Login");
+      });
     } catch (error) {
-      // Error saving data
-      this.refs.customToast.show("Error Signing out");
+      console.log(error);
     }
-  };
-
-  signOut = () => {
-    auth.logout();
   };
 
   updatePassword = () => {

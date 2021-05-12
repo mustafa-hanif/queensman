@@ -95,16 +95,6 @@ export default class LoginScreen extends React.Component {
     this.setState({ showPassword: !this.state.showPassword });
   };
 
-  checkDeviceForHardware = async () => {
-    const compatible = await LocalAuthentication.hasHardwareAsync();
-    this.setState({ compatible });
-  };
-
-  checkForFingerprints = async () => {
-    const fingerprints = await LocalAuthentication.isEnrolledAsync();
-    this.setState({ fingerprints });
-  };
-
   proceedFunctionEmail = async () => {
     const { email, password } = this.state;
 

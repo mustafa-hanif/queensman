@@ -27,7 +27,7 @@ const AuthLoginCheck = ({ navigation }) => {
   const { signedIn } = useAuth();
   useEffect(() => {
     console.log({ signedIn });
-    AsyncStorage.getItem("QueensUserID").then((res) => {
+    AsyncStorage.getItem("QueensUser").then((res) => {
       if (res) {
         navigation.navigate("AppDrawer");
       } else {

@@ -129,8 +129,10 @@ const CallOutReportPress = (navigation) => {
 
 const UPDATE_TOKEN = gql`
   mutation MyMutation($token: String!, $email: String!) {
-    update_client(pk_columns: { email: $id }, _set: { expo_token: $token }) {
-      expo_token
+    update_client(where: { email: { _eq: $email } }, _set: { expo_token: $token }) {
+      returning {
+        expo_token
+      }
     }
   }
 `;

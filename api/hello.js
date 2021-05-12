@@ -1,3 +1,7 @@
+import sendNotification from './lib/sendNotification';
+
 module.exports = async (req, res) => {
-  res.status(200).send({ hi: "a"});  
+  sendNotification({ token: 'ExponentPushToken[ND9cDRCLOD4_IQZGeDwsyR]', message: "Hello world"})
 };
+
+// sendNotification({ token: 'ExponentPushToken[ND9cDRCLOD4_IQZGeDwsyR]', message: "Hello world"})
