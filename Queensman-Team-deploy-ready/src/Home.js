@@ -18,6 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Content, Icon } from "native-base";
 import { LinearGradient } from "expo-linear-gradient";
 import { Audio } from "expo-av";
+import { Colors } from "react-native/Libraries/NewAppScreen";
 let deviceWidth = Dimensions.get("window").width;
 let deviceHeight = Dimensions.get("window").height;
 
@@ -32,9 +33,8 @@ export default class HomeScreen extends React.Component {
   registerForPushNotificationsAsync = async () => {
     let token;
     if (Constants.isDevice) {
-      const {
-        status: existingStatus,
-      } = await Notifications.getPermissionsAsync();
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
       if (existingStatus !== "granted") {
         const { status } = await Notifications.requestPermissionsAsync();
@@ -71,32 +71,33 @@ export default class HomeScreen extends React.Component {
       }),
     });
     this.registerForPushNotificationsAsync().then((token) =>
-      console.log({token})
+      console.log({ token })
     );
 
     this.notificationListener = Notifications.addNotificationReceivedListener(
       (notification) => {
         // setNotification(notification);
-        console.log({notification});
+        console.log({ notification });
       }
     );
 
-    this.responseListener = Notifications.addNotificationResponseReceivedListener(
-      async (response) => {
-        console.log({response});
-        // const { sound } = await Audio.Sound.createAsync(
-        //   //THIS FILE DOES NOT EXIST RIGHT NOW
-        //   // require("../assets/etest.mp3")
-        // );
+    this.responseListener =
+      Notifications.addNotificationResponseReceivedListener(
+        async (response) => {
+          console.log({ response });
+          // const { sound } = await Audio.Sound.createAsync(
+          //   //THIS FILE DOES NOT EXIST RIGHT NOW
+          //   // require("../assets/etest.mp3")
+          // );
 
-      //   console.log("Playing Sound");
-      //   await sound.playAsync();
-      //   let timeout = setTimeout(() => {
-      //     sound.unloadAsync();
-      //     clearTimeout(timeout);
-      //   }, 60000);
-      }
-    );
+          //   console.log("Playing Sound");
+          //   await sound.playAsync();
+          //   let timeout = setTimeout(() => {
+          //     sound.unloadAsync();
+          //     clearTimeout(timeout);
+          //   }, 60000);
+        }
+      );
 
     console.log("componentDidMount");
   }
@@ -125,6 +126,10 @@ export default class HomeScreen extends React.Component {
 
   RequestCalloutHandler = () => {
     this.props.navigation.navigate("ClientListFromRequestCallout");
+  };
+
+  onBellIconPress = () => {
+    this.props.navigation.navigate("Notification");
   };
 
   AlertLogout = () => {
@@ -184,12 +189,25 @@ export default class HomeScreen extends React.Component {
                 style={{ height: 25, width: 25 }}
               ></Image>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => this.AlertLogout()}>
-              <Icon
-                name="power"
-                style={{ fontSize: 25, color: "#FFCA5D" }}
-              ></Icon>
-            </TouchableOpacity>
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity onPress={() => this.AlertLogout()}>
+                <Icon
+                  name="power"
+                  style={{ fontSize: 25, color: "#FFCA5D" }}
+                ></Icon>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ marginLeft: 10 }}
+                onPress={() => this.onBellIconPress()}
+              >
+                <Image
+                  resizeMode={"contain"}
+                  tintColor={"#FFCA5D"}
+                  source={require("../assets/Home/notifications.png")}
+                  style={{ height: 25, width: 25 }}
+                ></Image>
+              </TouchableOpacity>
+            </View>
           </View>
           <View style={{ flexDirection: "row", paddingTop: "7%" }}>
             <Image
