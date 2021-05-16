@@ -1,19 +1,59 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Modal, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, Modal, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Calendar, CalendarList, Agenda } from "react-native-calendars";
 import { Button } from "native-base";
 import colors from "../../native-base-theme/variables/commonColor";
 import moment from "moment";
+
+import { gql, useQuery, useLazyQuery } from "@apollo/client";
+
+const GET_SCHEDULE = gql`
+  query MyQuery($_gte: date!, $_lte: date!) {
+    scheduler(where: { date_on_calendar: { _gte: $_gte, _lte: $_lte } }) {
+      id
+      start: date_on_calendar
+      startTime: time_on_calendar
+      title: notes
+      worker {
+        full_name
+      }
+      callout_id
+    }
+  }
+`;
+
 export default function SelectSchedule(props) {
   const [selectedDate, setselectedDate] = useState(null);
   const [modalVisible, setmodalVisible] = useState(false);
   const [markedDate, setmarkedDate] = useState({});
 
-  useEffect(() => {
-    const date = new Date();
-    const formattedDate = moment(date).format("YYYY-MM-DD");
-    setMarkedDATE(formattedDate);
-  }, []);
+  const formatDate = (date) => {
+    return moment(date).format("YYYY-MM-DD");
+  };
+
+  const GetCurrentDate = () => {
+    return "2020-08-01";
+    return formatDate(new Date());
+  };
+
+  const GetOneYearFromNow = () => {
+    return formatDate(new Date(new Date().setFullYear(new Date().getFullYear() + 1)));
+  };
+
+  const { loading, data, error } = useQuery(GET_SCHEDULE, {
+    variables: {
+      _gte: GetCurrentDate(),
+      _lte: GetOneYearFromNow(),
+    },
+  });
+
+  // console.log({
+  //   loading,
+  //   data: data?.scheduler.map((val) => {
+  //     return { [val.start]: { selected: true, marked: true } };
+  //   }),
+  //   error,
+  // });
 
   const setMarkedDATE = (date) => {
     const mark = {};
@@ -58,12 +98,44 @@ export default function SelectSchedule(props) {
     );
   };
 
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator color={colors.brandPrimary} size={"large"}></ActivityIndicator>
+      </View>
+    );
+  }
+
+  const getMarkedDates = () => {
+    const disable = {
+      // selected: true,
+      selectedColor: colors.buttonDisabledBg,
+      disabled: true,
+      disableTouchEvent: true,
+      activeOpacity: 0.1,
+    };
+
+    return {
+      "2021-05-16": disable,
+      "2021-05-17": disable,
+      "2021-05-18": disable,
+      "2021-05-19": disable,
+    };
+
+    const markedDates = {};
+    data.scheduler.forEach((element) => {
+      markedDates[element.start] = { selected: true, marked: true };
+    });
+    console.log(markedDates);
+    return markedDates;
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <CalendarList
         minDate={Date.now()}
         pastScrollRange={0}
-        markedDates={markedDate}
+        markedDates={getMarkedDates()}
         onDayPress={(day) => {
           console.log({ day });
           setselectedDate(day.dateString);
