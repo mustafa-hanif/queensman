@@ -33,7 +33,7 @@ export default function index() {
             <NotificationList
               key={1}
               item={{
-                title: 'val?.notification',
+                title: 'title',
                 description: "test",
                 date: "22-May-2019",
               }}
