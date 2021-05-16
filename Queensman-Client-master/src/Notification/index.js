@@ -1,10 +1,10 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect } from "react";
 import { View, Text, ScrollView } from "react-native";
-import NotificationList from "./component/NotificationList";
-import { auth } from "../utils/nhost";
 import { gql, useQuery } from "@apollo/client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import NotificationList from "./component/NotificationList";
+import { auth } from "../utils/nhost";
 
 const GET_NOTIFICATIONS = gql`
   query MyQuery($email: String!) {
