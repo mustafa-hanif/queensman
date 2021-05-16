@@ -24,15 +24,14 @@ export default function index() {
     variables: { email },
   });
 
-  console.log({ loading, data, error });
-  console.log("0000", data?.client[0].client_notifications);
   return (
     <>
       <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
       <View style={{ flex: 1, paddingHorizontal: "5%", paddingVertical: "10%", marginTop: "15%" }}>
         <ScrollView>
-          {data?.client[0]?.client_notifications?.map((val) => (
+          {data?.client[0]?.client_notifications?.map((val, index) => (
             <NotificationList
+              key={index}
               item={{
                 title: val.notification,
                 // description: "test",
