@@ -17,6 +17,12 @@ import {
   createMaterialTopTabNavigator,
 } from "react-navigation";
 import { Icon } from "native-base";
+import AppLoading from "expo-app-loading";
+
+import { NhostApolloProvider } from "@nhost/react-apollo";
+import { NhostAuthProvider } from "@nhost/react-auth";
+import { auth } from "./src/utils/nhost";
+
 
 //Classes import
 import Login from "./src/Login";
@@ -31,6 +37,7 @@ import Settings from "./src/Components/Settings";
 import ServicesHistory from "./src/Components/ServicesHistory";
 import AuthLogin from "./src/Auth/AuthLogin";
 import ServicesHistoryItem from "./src/Components/ServicesHistoryItem";
+
 //Inventory Report
 import ClientList from "./src/InventoryReport/ClientList";
 import PropertiesList from "./src/InventoryReport/PropertiesList";
@@ -43,6 +50,48 @@ import ClientListFromRequestCallout from "./src/RequestCallout/ClientListFromReq
 import PropertiesListFromRequestCallout from "./src/RequestCallout/PropertiesListFromRequestCallout";
 import RequestCallOut from "./src/RequestCallout/RequestCallOut";
 import Notification from "./src/Notification";
+
+import getTheme from "./native-base-theme/components";
+import commonColor from "./native-base-theme/variables/commonColor";
+
+/** App main loading */
+// Prevent native splash screen from autohiding before App component declaration
+SplashScreen.preventAutoHideAsync()
+  .then((result) => console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`))
+  .catch(console.warn); // it's good to explicitly catch and inspect any error
+
+export default class App extends PureComponent {
+  state = {
+    isReady: false,
+  };
+
+  render() {
+    if (!this.state.isReady) {
+      return (
+        <AppLoading
+          startAsync={_cacheResourcesAsync}
+          onFinish={() => this.setState({ isReady: true })}
+          onError={console.error}
+        />
+      );
+    }
+    SplashScreen.hideAsync();
+    return (
+      <NhostAuthProvider auth={auth}>
+        <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">
+          <StyleProvider style={getTheme(commonColor)}>
+            <AppContainer />
+          </StyleProvider>
+        </NhostApolloProvider>
+      </NhostAuthProvider>
+    );
+  }
+}
+
+async function _cacheResourcesAsync() {
+  return Promise.resolve();
+}
+
 /** Setting Screen */
 const SettingStackNavigator = createStackNavigator(
   {
@@ -512,4 +561,5 @@ const SwithStartNavigator = createSwitchNavigator({
   Login: Login,
   AppDrawer: AppDrawerNavigator,
 });
-export default createAppContainer(SwithStartNavigator);
+
+const AppContainer = createAppContainer(SwithStartNavigator);

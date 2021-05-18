@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { StyleSheet, View, Text, ActivityIndicator, Dimensions } from "react-native";
 import { useAuth } from "@nhost/react-auth";
 import { LinearGradient } from "expo-linear-gradient";
-import { auth } from "../utils/nhost";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { auth } from "../utils/nhost";
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
