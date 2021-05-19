@@ -248,7 +248,7 @@ const RequestCallOut = (props) => {
     GET_PROPERTY_BY_ID
   );
 
-  // Did mount
+  // Did mount - Select the first property of the client, or use the one in async storage
   useEffect(() => {
     setState({
       ...state,
@@ -264,7 +264,6 @@ const RequestCallOut = (props) => {
         customerEmail: email,
         PropertyID: property_ID,
       });
-      console.log("I will load property: ", property_ID);
       loadProperty({ variables: { id: property_ID } });
     };
     if (allProperties) {
@@ -272,6 +271,8 @@ const RequestCallOut = (props) => {
     }
   }, [allProperties]);
 
+  // Once we have a selected property - Load it in the local state
+  // TODO: This is not necessary, we can use the selected property directly
   useEffect(() => {
     if (selectedProperty) {
       const propertyDetails = selectedProperty?.property_owned_by_pk?.property;
