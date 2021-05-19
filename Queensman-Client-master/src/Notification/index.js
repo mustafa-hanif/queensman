@@ -16,7 +16,7 @@ const GET_NOTIFICATIONS = gql`
   }
 `;
 
-export default function index() {
+export default function Index() {
   const email = auth?.currentSession?.session?.user.email;
 
   console.log({ email });
@@ -31,6 +31,7 @@ export default function index() {
         <ScrollView>
           {data?.client[0]?.client_notifications?.map((val, index) => (
             <NotificationList
+              // eslint-disable-next-line react/no-array-index-key
               key={index}
               item={{
                 title: val.notification,

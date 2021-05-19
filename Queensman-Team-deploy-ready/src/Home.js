@@ -63,6 +63,10 @@ export default class HomeScreen extends React.Component {
   };
 
   componentDidMount() {
+    if (!Constants.isDevice) {
+      return;
+    }
+
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
@@ -70,6 +74,7 @@ export default class HomeScreen extends React.Component {
         shouldSetBadge: false,
       }),
     });
+
     this.registerForPushNotificationsAsync().then((token) =>
       console.log({ token })
     );
@@ -160,7 +165,7 @@ export default class HomeScreen extends React.Component {
   };
 
   render() {
-    console.log("render");
+    console.log("render home");
     // NetInfo.fetch().then(isConnected => {
     //   this.setState({ connections: isConnected ? true : false })
     // });

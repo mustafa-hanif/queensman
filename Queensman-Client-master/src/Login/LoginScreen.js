@@ -17,16 +17,11 @@ import {
 } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
-import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { Icon } from "native-base";
-import axios from "axios";
-import * as LocalAuthentication from "expo-local-authentication";
-import Constants from "expo-constants";
 
 import { auth } from "../utils/nhost";
-import { endpoint } from "../constants/Endpoint";
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;

@@ -21,11 +21,13 @@ export default class AuthLogin extends React.Component {
 
   async componentDidMount() {
     console.log("yeFireHo rha Kia");
-    const WorkerID = await AsyncStorage.getItem("QueensmanWorkerID");
-    console.log(WorkerID);
-    if (WorkerID == "asd" || WorkerID == null)
+    const QueensUser = JSON.parse(await AsyncStorage.getItem("QueensUser"));
+    console.log(QueensUser);
+    if (QueensUser?.email) {
+      this.props.navigation.navigate("AppDrawer");
+    } else {
       this.props.navigation.navigate("Login");
-    else this.props.navigation.navigate("AppDrawer");
+    }
 
     //Login  ko hata kar  AppDrawer kardana kud home kulay ga
   }
