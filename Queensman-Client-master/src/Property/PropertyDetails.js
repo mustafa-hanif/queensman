@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable react/jsx-no-bind */
 import React, { useState, useRef } from "react";
 import { gql, useQuery } from "@apollo/client";
@@ -90,14 +91,14 @@ const PropertyDetails = (props) => {
       await AsyncStorage.setItem("QueensPropertyID", JSON.stringify(id));
       await AsyncStorage.setItem("QueensPropertyType", JSON.stringify(type));
       await AsyncStorage.setItem("QueensPropertyCountry", JSON.stringify(country));
-      console.log("Item saved in asyncstorage")
+      console.log("Item saved in asyncstorage");
       setTimeout(() => {
         props.navigation.navigate("HomeNaviagtor");
       }, 800);
       // eslint-disable-next-line no-shadow
     } catch (error) {
       // Error saving data
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -114,10 +115,10 @@ const PropertyDetails = (props) => {
     _storeData(item.id, "owned", item.country);
   };
 
-  // const Ontaps2 = (item) => {
-  //   console.log(item.id);
-  //   _storeData(item.id, "leased", item.country);
-  // };
+  const Ontaps2 = (item) => {
+    console.log(item.id);
+    _storeData(item.id, "leased", item.country);
+  };
 
   /* async componentDidMount() {
     setState({
