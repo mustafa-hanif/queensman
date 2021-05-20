@@ -1,10 +1,12 @@
+/* eslint-disable no-alert */
+/* eslint-disable no-console */
+/* eslint-disable no-use-before-define */
 /* eslint-disable react/no-unused-state */
-/* eslint-disable react/no-string-refs */
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable no-shadow */
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable camelcase */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -23,6 +25,8 @@ import NetInfo from "@react-native-community/netinfo";
 
 import { Picker, ListItem, Row, Icon, Col, Button, Left } from "native-base";
 import Toast from "react-native-whc-toast";
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
+
 import axios from "axios";
 
 import * as ImagePicker from "expo-image-picker";
@@ -31,6 +35,7 @@ import * as Permissions from "expo-permissions";
 import { LinearGradient } from "expo-linear-gradient";
 
 import Modal from "react-native-modal";
+import { auth } from "../utils/nhost";
 
 const styles = StyleSheet.create({
   container: {
@@ -157,97 +162,137 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class RequestCallOut extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      PropertyDetails: [],
-      property_type: "",
-      address: "",
-      community: "",
-      city: "",
-      country: "",
-      JobType: "none",
-      OtherJobType: "",
-      Urgency: "",
-      Description: "",
-      to: "aalvi@queensman.com",
-      subject: "Callout from Queensman Spades",
-      message: "Just checking hehe",
-      customermessage:
-        "Thankyou for registering a callout.A representative from Queensman Spades will get in touch with you as soon as possible. \n" +
-        "Best regards, \n" +
-        "Queensman Spades",
-      picture1: "",
-      picture2: "",
-      picture3: "",
-      picture4: "",
-      customerID: "",
-      PropertyID: "",
-      Email: "",
-      UserName: "",
-      Mobile: "",
-      PropertyDetailLoading: false,
-      CalloutID: "",
-      loading: false,
-      isPicvisible: false, // veiw image app kay lia
-      connections: true,
-      selectedPic: "",
-      selectedNo: 0,
-    };
+const GET_PROPERTIES = gql`
+  query MyQuery($email: String) {
+    client(where: { email: { _eq: $email } }) {
+      property_owneds {
+        property {
+          address
+          community
+          city
+          id
+          country
+        }
+      }
+    }
   }
+`;
 
-  onValueChange(value) {
-    this.setState({
+const GET_PROPERTY_BY_ID = gql`
+  query FetchPropertyById($id: Int = 10) {
+    property_owned_by_pk(id: $id) {
+      property {
+        address
+        city
+        community
+        country
+        category: type
+      }
+      id
+      owner_id
+    }
+  }
+`;
+
+const RequestCallOut = (props) => {
+  const [state, setState] = useState({
+    PropertyDetails: [],
+    property_type: "",
+    address: "",
+    community: "",
+    city: "",
+    country: "",
+    JobType: "none",
+    OtherJobType: "",
+    Urgency: "",
+    Description: "",
+    to: "aalvi@queensman.com",
+    subject: "Callout from Queensman Spades",
+    message: "Just checking hehe",
+    customermessage:
+      "Thankyou for registering a callout.A representative from Queensman Spades will get in touch with you as soon as possible. \n" +
+      "Best regards, \n" +
+      "Queensman Spades",
+    picture1: "",
+    picture2: "",
+    picture3: "",
+    picture4: "",
+    customerEmail: "",
+    PropertyID: "",
+    Email: "",
+    UserName: "",
+    Mobile: "",
+    PropertyDetailLoading: false,
+    CalloutID: "",
+    loading: false,
+    isPicvisible: false, // veiw image app kay lia
+    connections: true,
+    selectedPic: "",
+    selectedNo: 0,
+  });
+
+  const onValueChange = (value) => {
+    setState((state) => ({
+      ...state,
       JobType: value,
-    });
-  }
+    }));
+  };
 
-  async componentDidMount() {
-    this.setState({
+  const user = auth?.currentSession?.session?.user;
+  const email = user?.email;
+  const { loading, data: allProperties, error } = useQuery(GET_PROPERTIES, {
+    variables: { email },
+  });
+
+  const [loadProperty, { loading: loadingSingleProperty, data: selectedProperty, error: propertyError }] = useLazyQuery(
+    GET_PROPERTY_BY_ID
+  );
+
+  // Did mount - Select the first property of the client, or use the one in async storage
+  useEffect(() => {
+    setState({
+      ...state,
       PropertyDetailLoading: true,
     });
-    const ID = await AsyncStorage.getItem("QueensUserID"); // assign customer id here
+    const loadSelectedProperty = async (properties) => {
+      let property_ID = await AsyncStorage.getItem("QueensPropertyID"); // assign customer id here
+      if (!property_ID) {
+        property_ID = properties?.[0]?.property?.id;
+      }
+      setState({
+        ...state,
+        customerEmail: email,
+        PropertyID: property_ID,
+      });
+      loadProperty({ variables: { id: property_ID } });
+    };
+    if (allProperties) {
+      loadSelectedProperty(allProperties?.client?.[0]?.property_owneds);
+    }
+  }, [allProperties]);
 
-    const property_ID = await AsyncStorage.getItem("QueensPropertyID"); // assign customer id here
-    const g = await AsyncStorage.getItem("Queens");
-    // console.log(` my${g}`);
-
-    console.log({ ID, property_ID, g });
-
-    // if (property_ID ==== "asd" || property_ID ==== g) {
-    //   alert(
-    //     "Please select property first from 'Property Details' tab in the menu."
-    //   );
-    //   this.props.navigation.navigate("HomeNaviagtor");
-    // }
-    this.setState({
-      customerID: ID,
-      PropertyID: property_ID,
-    });
-
-    // link = "./fetchClientProfile.php?ID=" + ID;
-    const link = `http://queensman.com/queens_client_Apis/FetchClientSinglePropertyViaPropID.php?ID=${property_ID}`;
-    console.log({ link });
-    axios.get(link).then((result) => {
-      console.log(result.data.server_responce);
-      this.setState({ PropertyDetails: result.data.server_responce });
-      console.log(this.state.PropertyDetails[0].Client_property.address);
-
-      this.setState((state) => ({
-        property_type: state.PropertyDetails[0].Client_property.category,
-        address: state.PropertyDetails[0].Client_property.address,
-        community: state.PropertyDetails[0].Client_property.community,
-        city: state.PropertyDetails[0].Client_property.city,
-        country: state.PropertyDetails[0].Client_property.country,
+  // Once we have a selected property - Load it in the local state
+  // TODO: This is not necessary, we can use the selected property directly
+  useEffect(() => {
+    if (selectedProperty) {
+      const propertyDetails = selectedProperty?.property_owned_by_pk?.property;
+      const { category, address, community, city, country } = propertyDetails;
+      setState({ ...state, PropertyDetails: propertyDetails });
+      setState((state) => ({
+        ...state,
+        property_type: category,
+        address,
+        community,
+        city,
+        country,
         PropertyDetailLoading: false,
       }));
-    });
-  }
+    }
+  }, [selectedProperty]);
 
-  selectFromGallery = async () => {
+  const selectFromGallery = async () => {
     if (Constants.platform.ios) {
-      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
       if (status !== "granted") {
         alert("Sorry, we need camera roll permissions to make this work!");
       }
@@ -258,28 +303,30 @@ export default class RequestCallOut extends React.Component {
       quality: 0.1,
     });
     if (!result.cancelled) {
-      this._uploadImage(result.uri);
+      _uploadImage(result.uri);
     }
   };
 
-  _uploadImage = (uri) => {
+  const _uploadImage = (uri) => {
     console.log(`My:${uri}`);
-    if (this.state.picture1 === "") {
-      this.setState({
+    if (state.picture1 === "") {
+      setState({
+        ...state,
         picture1: uri,
       });
-      console.log(this.state.picture1);
-    } else if (this.state.picture2 === "") {
-      this.setState({
+      console.log(state.picture1);
+    } else if (state.picture2 === "") {
+      setState({
+        ...state,
         picture2: uri,
       });
-      console.log(this.state.picture2);
-    } else if (this.state.picture3 === "") {
-      this.setState({
+      console.log(state.picture2);
+    } else if (state.picture3 === "") {
+      setState({
         picture3: uri,
       });
-    } else if (this.state.picture4 === "") {
-      this.setState({
+    } else if (state.picture4 === "") {
+      setState({
         picture4: uri,
       });
     } else {
@@ -287,7 +334,7 @@ export default class RequestCallOut extends React.Component {
     }
   };
 
-  urlToUPLOAD = async (url, link) => {
+  const urlToUPLOAD = async (url, link) => {
     const localUri = url;
     const filename = localUri.split("/").pop();
 
@@ -306,17 +353,17 @@ export default class RequestCallOut extends React.Component {
     });
   };
 
-  toggleGalleryEventModal = (vale, no) => {
-    this.setState({
-      isPicvisible: !this.state.isPicvisible,
+  const toggleGalleryEventModal = (vale, no) => {
+    setState({
+      isPicvisible: !state.isPicvisible,
       selectedPic: vale,
       selectedNo: no,
     });
   };
 
-  askSubmitCallout = () => {
-    if (this.state.Urgency === "medium") {
-      return this.props.navigation.navigate("SelectSchedule");
+  const askSubmitCallout = () => {
+    if (state.Urgency === "medium") {
+      props.navigation.navigate("SelectSchedule");
     }
 
     Alert.alert(
@@ -328,13 +375,13 @@ export default class RequestCallOut extends React.Component {
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
-        { text: "Yes", onPress: () => this.submitCallout() },
+        { text: "Yes", onPress: () => submitCallout() },
       ],
       { cancelable: false }
     );
   };
 
-  SubmittedCalloutAlert = () => {
+  const SubmittedCalloutAlert = () => {
     Alert.alert(
       "Callout Request Submitted.",
       "One of our team will be in touch shortly.",
@@ -349,38 +396,38 @@ export default class RequestCallOut extends React.Component {
     );
   };
 
-  submitCallout = async () => {
-    if (this.state.picture1 === "" || this.state.Urgency === "" || this.state.JobType === "none") {
+  const submitCallout = async () => {
+    if (state.picture1 === "" || state.Urgency === "" || state.JobType === "none") {
       alert("Kindly fill all the required details.");
     } else {
       NetInfo.fetch().then((isConnected) => {
         if (isConnected) {
           let JOBS = "";
-          if (this.state.OtherJobType === "") {
-            JOBS = this.state.JobType;
+          if (state.OtherJobType === "") {
+            JOBS = state.JobType;
           } else {
-            JOBS = `Other: ${this.state.OtherJobType}`;
+            JOBS = `Other: ${state.OtherJobType}`;
           }
           let pic1name = "";
           let pic2name = "";
           let pic3name = "";
           let pic4name = "";
 
-          if (this.state.picture1 !== "") {
-            pic1name = this.state.picture1.split("/").pop();
+          if (state.picture1 !== "") {
+            pic1name = state.picture1.split("/").pop();
           }
-          if (this.state.picture1 !== "") {
-            pic2name = this.state.picture2.split("/").pop();
+          if (state.picture1 !== "") {
+            pic2name = state.picture2.split("/").pop();
           }
-          if (this.state.picture1 !== "") {
-            pic3name = this.state.picture3.split("/").pop();
+          if (state.picture1 !== "") {
+            pic3name = state.picture3.split("/").pop();
           }
-          if (this.state.picture1 !== "") {
-            pic4name = this.state.picture4.split("/").pop();
+          if (state.picture1 !== "") {
+            pic4name = state.picture4.split("/").pop();
           }
 
-          this.setState({ loading: true });
-          let link = `http://queensman.com/queens_client_Apis/submitCallOut.php?client_id=${this.state.customerID}&prop_id=${this.state.PropertyID}&job=${JOBS}&describe=${this.state.Description}&property_type=${this.state.property_type}&urg_lvl=${this.state.Urgency}&picture1=${pic1name}&picture2=${pic2name}&picture3=${pic3name}&picture4=${pic4name}`;
+          setState({ loading: true });
+          let link = `http://queensman.com/queens_client_Apis/submitCallOut.php?client_id=${state.customerID}&prop_id=${state.PropertyID}&job=${JOBS}&describe=${state.Description}&property_type=${state.property_type}&urg_lvl=${state.Urgency}&picture1=${pic1name}&picture2=${pic2name}&picture3=${pic3name}&picture4=${pic4name}`;
           console.log(link);
           axios
             .get(link)
@@ -388,54 +435,54 @@ export default class RequestCallOut extends React.Component {
               console.log(result.data.server_responce);
 
               link = "http://queensman.com/queens_client_Apis/uploadPhoto.php";
-              if (this.state.picture1 !== "") {
-                this.urlToUPLOAD(this.state.picture1, link);
+              if (state.picture1 !== "") {
+                urlToUPLOAD(state.picture1, link);
               }
-              if (this.state.picture2 !== "") {
-                this.urlToUPLOAD(this.state.picture2, link);
+              if (state.picture2 !== "") {
+                urlToUPLOAD(state.picture2, link);
               }
-              if (this.state.picture3 !== "") {
-                this.urlToUPLOAD(this.state.picture3, link);
+              if (state.picture3 !== "") {
+                urlToUPLOAD(state.picture3, link);
               }
-              if (this.state.picture4 !== "") {
-                this.urlToUPLOAD(this.state.picture4, link);
+              if (state.picture4 !== "") {
+                urlToUPLOAD(state.picture4, link);
               }
               setTimeout(() => {
-                link = `http://queensman.com/queens_client_Apis/fetchNewCalloutID.php?ID=${this.state.customerID}`;
+                link = `http://queensman.com/queens_client_Apis/fetchNewCalloutID.php?ID=${state.customerID}`;
                 console.log(link);
                 axios.get(link).then((result) => {
                   console.log(result.data.server_response[0].id);
-                  this.setState({
+                  setState({
                     CalloutID: result.data.server_response[0].id,
                   });
                   setTimeout(() => {
-                    link = `http://queensman.com/queens_client_Apis/fetchClientProfile.php?ID=${this.state.customerID}`;
+                    link = `http://queensman.com/queens_client_Apis/fetchClientProfile.php?ID=${state.customerID}`;
                     console.log(link);
 
                     axios.get(link).then((result) => {
                       console.log(result.data.server_responce);
-                      this.setState({
+                      setState({
                         Email: result.data.server_responce.email,
                         UserName: result.data.server_responce.full_name,
                         Mobile: result.data.server_responce.phone,
                       });
-                      link = `http://queensman.com/queens_client_Apis/sendEmail2.php?subject=${this.state.subject}&callout_id=${this.state.CalloutID}&client_id=${this.state.customerID}&client_name=${this.state.UserName}&client_email=${this.state.Email}&job=${JOBS}&description=${this.state.Description}&callout_urgency=${this.state.Urgency}&property_id=${this.state.PropertyID}&property_address=${this.state.address}&community=${this.state.community}&city=${this.state.city}&country=${this.state.country}&client_phone=${this.state.Mobile}`;
+                      link = `http://queensman.com/queens_client_Apis/sendEmail2.php?subject=${state.subject}&callout_id=${state.CalloutID}&client_id=${state.customerID}&client_name=${state.UserName}&client_email=${state.Email}&job=${JOBS}&description=${state.Description}&callout_urgency=${state.Urgency}&property_id=${state.PropertyID}&property_address=${state.address}&community=${state.community}&city=${state.city}&country=${state.country}&client_phone=${state.Mobile}`;
                       console.log(link);
                       axios
                         .get(link)
                         .then((result) => {
                           console.log(result.data);
-                          this.SubmittedCalloutAlert();
-                          // this.refs.customToast.show('Callout Successfully Sent');
-                          this.setState({ loading: false });
+                          SubmittedCalloutAlert();
+                          // refs.customToast.show('Callout Successfully Sent');
+                          setState({ loading: false });
                           setTimeout(() => {
-                            this.props.navigation.navigate("HomeNaviagtor");
+                            props.navigation.navigate("HomeNaviagtor");
                           }, 800);
                         })
                         .catch((error) => {
                           console.log(error);
-                          this.refs.customToast.show(error);
-                          this.setState({ loading: false });
+                          alert(error);
+                          setState({ loading: false });
                         });
                     });
                   }, 2000);
@@ -444,34 +491,34 @@ export default class RequestCallOut extends React.Component {
             })
             .catch((error) => console.log(error));
         } else {
-          this.refs.customToast.show("No Internet Connection Callout failed");
+          alert("No Internet Connection Callout failed");
         }
       });
     }
   };
 
-  RemoveImages = () => {
-    if (this.state.selectedNo === 1) {
-      this.setState({
+  const RemoveImages = () => {
+    if (state.selectedNo === 1) {
+      setState({
         picture1: "",
       });
-    } else if (this.state.selectedNo === 2) {
-      this.setState({
+    } else if (state.selectedNo === 2) {
+      setState({
         picture2: "",
       });
-    } else if (this.state.selectedNo === 3) {
-      this.setState({
+    } else if (state.selectedNo === 3) {
+      setState({
         picture3: "",
       });
-    } else if (this.state.selectedNo === 4) {
-      this.setState({
+    } else if (state.selectedNo === 4) {
+      setState({
         picture4: "",
       });
     }
-    this.setState({ isPicvisible: false });
+    setState({ isPicvisible: false });
   };
 
-  CameraSnap = async () => {
+  const CameraSnap = async () => {
     if (Constants.platform.ios) {
       const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
       if (status !== "granted") {
@@ -488,341 +535,336 @@ export default class RequestCallOut extends React.Component {
       quality: 0.2,
     });
     if (!result.cancelled) {
-      this._uploadImage(result.uri);
+      _uploadImage(result.uri);
     }
   };
 
-  render() {
-    return (
-      <KeyboardAvoidingView style={{ flex: 1, justifyContent: "space-between" }} behavior="padding" enabled>
-        <Toast
-          ref="customToast"
-          textStyle={{
-            color: "#fff",
-          }}
-          style={{
-            backgroundColor: "#000E1E",
-          }}
-        />
-        <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
-        <View style={{ paddingHorizontal: "10%", top: "13%" }}>
-          <Text style={[styles.TextFam, { color: "#FFCA5D", fontSize: 10 }]}>Callout Address</Text>
-          {!this.state.PropertyDetailLoading ? (
-            <View style={{}}>
-              <Text style={[styles.TextFam, { fontSize: 16, fontWeight: "bold", color: "#fff" }]}>
-                {this.state.address}
-              </Text>
-              <Text style={[styles.TextFam, { fontSize: 10, color: "#fff" }]}>
-                {this.state.community},{this.state.city},{this.state.country}
-              </Text>
-            </View>
-          ) : (
-            <Text style={[styles.TextFam, { fontSize: 20, fontWeight: "bold", color: "#fff" }]}>
-              Loading please wait...
+  return (
+    <KeyboardAvoidingView style={{ flex: 1, justifyContent: "space-between" }} behavior="padding" enabled>
+      <Toast
+        textStyle={{
+          color: "#fff",
+        }}
+        style={{
+          backgroundColor: "#000E1E",
+        }}
+      />
+      <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
+      <View style={{ paddingHorizontal: "10%", top: "13%" }}>
+        <Text style={[styles.TextFam, { color: "#FFCA5D", fontSize: 10 }]}>Callout Address</Text>
+        {!state.PropertyDetailLoading ? (
+          <View style={{}}>
+            <Text style={[styles.TextFam, { fontSize: 16, fontWeight: "bold", color: "#fff" }]}>{state.address}</Text>
+            <Text style={[styles.TextFam, { fontSize: 10, color: "#fff" }]}>
+              {state.community},{state.city},{state.country}
             </Text>
-          )}
-          <View style={{ height: "2%" }} />
-        </View>
+          </View>
+        ) : (
+          <Text style={[styles.TextFam, { fontSize: 20, fontWeight: "bold", color: "#fff" }]}>
+            Loading please wait...
+          </Text>
+        )}
+        <View style={{ height: "2%" }} />
+      </View>
 
-        <View style={styles.Card}>
-          <View style={styles.container} showsVerticalScrollIndicator={false}>
-            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>Job Type</Text>
+      <View style={styles.Card}>
+        <View style={styles.container} showsVerticalScrollIndicator={false}>
+          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>Job Type</Text>
 
-            <View style={styles.PickerStyle}>
-              <Picker
-                note
-                mode="dialog"
-                onValueChange={this.onValueChange.bind(this)}
-                placeholderStyle={{ color: "#000" }}
-                selectedValue={this.state.JobType}
-                itemStyle={{ fontSize: 30 }}
-              >
-                <Picker.Item label="Select" value="none" />
-                <Picker.Item label="AC" value="AC" />
-                <Picker.Item label="Plumbing" value="Plumbing" />
-                <Picker.Item label="Electric" value="Electric" />
-                <Picker.Item label="Woodworks" value="Woodworks" />
-                <Picker.Item label="Paintworks" value="Paintworks" />
-                <Picker.Item label="Masonry" value="Masonry" />
-                <Picker.Item label="Other" value="other" />
-              </Picker>
-            </View>
+          <View style={styles.PickerStyle}>
+            <Picker
+              note
+              mode="dialog"
+              onValueChange={onValueChange}
+              placeholderStyle={{ color: "#000" }}
+              selectedValue={state.JobType}
+              itemStyle={{ fontSize: 30 }}
+            >
+              <Picker.Item label="Select" value="none" />
+              <Picker.Item label="AC" value="AC" />
+              <Picker.Item label="Plumbing" value="Plumbing" />
+              <Picker.Item label="Electric" value="Electric" />
+              <Picker.Item label="Woodworks" value="Woodworks" />
+              <Picker.Item label="Paintworks" value="Paintworks" />
+              <Picker.Item label="Masonry" value="Masonry" />
+              <Picker.Item label="Other" value="other" />
+            </Picker>
+          </View>
 
-            {this.state.JobType === "other" ? (
-              <View style={{ paddingTop: "3%" }}>
-                <View style={styles.OthertxtStyle}>
-                  <TextInput
-                    ref="textInputMobile"
-                    style={{ fontSize: 14, fontFamily: "Helvetica" }}
-                    placeholder="Type other here...."
-                    underlineColorAndroid="transparent"
-                    numberOfLines={1}
-                    onChangeText={(OtherJobType) => {
-                      this.setState({ OtherJobType });
-                    }}
-                  />
-                </View>
+          {state.JobType === "other" ? (
+            <View style={{ paddingTop: "3%" }}>
+              <View style={styles.OthertxtStyle}>
+                <TextInput
+                  style={{ fontSize: 14, fontFamily: "Helvetica" }}
+                  placeholder="Type other here...."
+                  underlineColorAndroid="transparent"
+                  numberOfLines={1}
+                  onChangeText={(OtherJobType) => {
+                    setState({ OtherJobType });
+                  }}
+                />
               </View>
-            ) : null}
-            <View style={{ height: "3%" }} />
-            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Urgency</Text>
-            <View style={{ height: "2%" }} />
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                paddingHorizontal: "5%",
-              }}
+            </View>
+          ) : null}
+          <View style={{ height: "3%" }} />
+          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Urgency</Text>
+          <View style={{ height: "2%" }} />
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              paddingHorizontal: "5%",
+            }}
+          >
+            <TouchableOpacity
+              style={styles.circle}
+              onPress={() => setState({ ...state, Urgency: "high" })} // we set our value state to key
             >
-              <TouchableOpacity
-                style={styles.circle}
-                onPress={() => this.setState({ Urgency: "high" })} // we set our value state to key
-              >
-                {this.state.Urgency === "high" ? <View style={styles.checkedCircle} /> : null}
-              </TouchableOpacity>
+              {state.Urgency === "high" ? <View style={styles.checkedCircle} /> : null}
+            </TouchableOpacity>
 
-              <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "3%", fontSize: 14 }]}>High</Text>
-              <Icon name="flag" style={{ fontSize: 24, color: "red", paddingRight: "20%" }} />
-              <TouchableOpacity
-                style={styles.circle}
-                onPress={() => this.setState({ Urgency: "medium" })} // we set our value state to key
-              >
-                {this.state.Urgency === "medium" ? <View style={styles.checkedCircle} /> : null}
-              </TouchableOpacity>
-              <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "3%", fontSize: 14 }]}>Medium</Text>
-              <Icon name="flag" style={{ fontSize: 24, color: "#FFCA5D", paddingRight: "6%" }} />
-            </View>
-            <View style={{ height: "3%" }} />
-            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Description</Text>
-            <View style={{ height: "2%" }} />
-            <View style={styles.DestxtStyle}>
-              <TextInput
-                ref="textInputMobile"
+            <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "3%", fontSize: 14 }]}>High</Text>
+            <Icon name="flag" style={{ fontSize: 24, color: "red", paddingRight: "20%" }} />
+            <TouchableOpacity
+              style={styles.circle}
+              onPress={() => setState({ ...state, Urgency: "medium" })} // we set our value state to key
+            >
+              {state.Urgency === "medium" ? <View style={styles.checkedCircle} /> : null}
+            </TouchableOpacity>
+            <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "3%", fontSize: 14 }]}>Medium</Text>
+            <Icon name="flag" style={{ fontSize: 24, color: "#FFCA5D", paddingRight: "6%" }} />
+          </View>
+          <View style={{ height: "3%" }} />
+          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Description</Text>
+          <View style={{ height: "2%" }} />
+          <View style={styles.DestxtStyle}>
+            <TextInput
+              style={{
+                fontSize: 14,
+                color: "#8c8c8c",
+                width: "90%",
+                fontFamily: "Helvetica",
+                paddingTop: "2%",
+              }}
+              placeholder="Type description here ...."
+              placeholderTextColor="#8c8c8c"
+              multiline
+              numberOfLines={1}
+              underlineColorAndroid="transparent"
+              onChangeText={(Description) => {
+                setState({ Description });
+              }} // email set
+            />
+          </View>
+          <View style={{ height: "3%" }} />
+          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Images</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <TouchableOpacity style={styles.ImageSelectStyle} onPress={CameraSnap}>
+              <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}> Camera </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.ImageSelectStyle} onPress={selectFromGallery}>
+              <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}> Select Images From Gallery </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{ height: "2%" }} />
+          <View
+            style={{
+              flexDirection: "row",
+              width: "80%",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => toggleGalleryEventModal(state.picture1, 1)}
+              disabled={state.picture1 === ""}
+            >
+              <View
                 style={{
-                  fontSize: 14,
-                  color: "#8c8c8c",
-                  width: "90%",
-                  fontFamily: "Helvetica",
-                  paddingTop: "2%",
+                  flexDirection: "row",
+                  width: "100%",
+                  alignItems: "center",
                 }}
-                placeholder="Type description here ...."
-                placeholderTextColor="#8c8c8c"
-                multiline
-                numberOfLines={1}
-                underlineColorAndroid="transparent"
-                onChangeText={(Description) => {
-                  this.setState({ Description });
-                }} // email set
-              />
-            </View>
-            <View style={{ height: "3%" }} />
-            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Images</Text>
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <TouchableOpacity style={styles.ImageSelectStyle} onPress={this.CameraSnap}>
-                <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}> Camera </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.ImageSelectStyle} onPress={this.selectFromGallery}>
-                <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}> Select Images From Gallery </Text>
-              </TouchableOpacity>
-            </View>
-            <View style={{ height: "2%" }} />
-            <View
-              style={{
-                flexDirection: "row",
-                width: "80%",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <TouchableOpacity
-                onPress={() => this.toggleGalleryEventModal(this.state.picture1, 1)}
-                disabled={this.state.picture1 === ""}
               >
-                <View
+                <Icon
+                  name="link"
                   style={{
-                    flexDirection: "row",
-                    width: "100%",
-                    alignItems: "center",
+                    fontSize: 20,
+                    color: state.picture1 === "" ? "#aaa" : "#000E1E",
+                    paddingRight: "3%",
                   }}
-                >
-                  <Icon
-                    name="link"
-                    style={{
-                      fontSize: 20,
-                      color: this.state.picture1 === "" ? "#aaa" : "#000E1E",
-                      paddingRight: "3%",
-                    }}
-                  />
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      marginBottom: "1%",
-                      color: this.state.picture1 === "" ? "#aaa" : "#000E1E",
-                    }}
-                  >
-                    Picture 1
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => this.toggleGalleryEventModal(this.state.picture2, 2)}
-                disabled={this.state.picture2 === ""}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    width: "100%",
-                    alignItems: "center",
-                  }}
-                >
-                  <Icon
-                    name="link"
-                    style={{
-                      fontSize: 20,
-                      color: this.state.picture2 === "" ? "#aaa" : "#000E1E",
-                      paddingRight: "3%",
-                    }}
-                  />
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      marginBottom: "1%",
-                      color: this.state.picture2 === "" ? "#aaa" : "#000E1E",
-                    }}
-                  >
-                    Picture 2
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-            <View style={{ height: "1%" }} />
-            <View
-              style={{
-                flexDirection: "row",
-                width: "80%",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <TouchableOpacity
-                onPress={() => this.toggleGalleryEventModal(this.state.picture3, 3)}
-                disabled={this.state.picture3 === ""}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    width: "100%",
-                    alignItems: "center",
-                  }}
-                >
-                  <Icon
-                    name="link"
-                    style={{
-                      fontSize: 20,
-                      color: this.state.picture3 === "" ? "#aaa" : "#000E1E",
-                      paddingRight: "3%",
-                    }}
-                  />
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      marginBottom: "1%",
-                      color: this.state.picture3 === "" ? "#aaa" : "#000E1E",
-                    }}
-                  >
-                    Picture 3
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => this.toggleGalleryEventModal(this.state.picture4, 4)}
-                disabled={this.state.picture4 === ""}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    width: "100%",
-                    alignItems: "center",
-                  }}
-                >
-                  <Icon
-                    name="link"
-                    style={{
-                      fontSize: 20,
-                      color: this.state.picture4 === "" ? "#aaa" : "#000E1E",
-                      paddingRight: "3%",
-                    }}
-                  />
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      marginBottom: "1%",
-                      color: this.state.picture4 === "" ? "#aaa" : "#000E1E",
-                    }}
-                  >
-                    Picture 4
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-            <View style={{ height: "5%" }} />
-            <TouchableOpacity style={styles.SubmitCallout} onPress={() => this.askSubmitCallout()}>
-              {this.state.loading ? (
-                <ActivityIndicator size="large" color="#fff" style={{ alignSelf: "center" }} />
-              ) : (
+                />
                 <Text
                   style={{
-                    color: "#fff",
-                    fontSize: 15,
-                    fontFamily: "Helvetica",
-                    alignSelf: "center",
+                    fontSize: 13,
+                    marginBottom: "1%",
+                    color: state.picture1 === "" ? "#aaa" : "#000E1E",
                   }}
                 >
-                  Submit Callout
+                  Picture 1
                 </Text>
-              )}
+              </View>
             </TouchableOpacity>
-            <View style={{ height: 100 }} />
+            <TouchableOpacity
+              onPress={() => toggleGalleryEventModal(state.picture2, 2)}
+              disabled={state.picture2 === ""}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  width: "100%",
+                  alignItems: "center",
+                }}
+              >
+                <Icon
+                  name="link"
+                  style={{
+                    fontSize: 20,
+                    color: state.picture2 === "" ? "#aaa" : "#000E1E",
+                    paddingRight: "3%",
+                  }}
+                />
+                <Text
+                  style={{
+                    fontSize: 13,
+                    marginBottom: "1%",
+                    color: state.picture2 === "" ? "#aaa" : "#000E1E",
+                  }}
+                >
+                  Picture 2
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
+          <View style={{ height: "1%" }} />
+          <View
+            style={{
+              flexDirection: "row",
+              width: "80%",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => toggleGalleryEventModal(state.picture3, 3)}
+              disabled={state.picture3 === ""}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  width: "100%",
+                  alignItems: "center",
+                }}
+              >
+                <Icon
+                  name="link"
+                  style={{
+                    fontSize: 20,
+                    color: state.picture3 === "" ? "#aaa" : "#000E1E",
+                    paddingRight: "3%",
+                  }}
+                />
+                <Text
+                  style={{
+                    fontSize: 13,
+                    marginBottom: "1%",
+                    color: state.picture3 === "" ? "#aaa" : "#000E1E",
+                  }}
+                >
+                  Picture 3
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => toggleGalleryEventModal(state.picture4, 4)}
+              disabled={state.picture4 === ""}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  width: "100%",
+                  alignItems: "center",
+                }}
+              >
+                <Icon
+                  name="link"
+                  style={{
+                    fontSize: 20,
+                    color: state.picture4 === "" ? "#aaa" : "#000E1E",
+                    paddingRight: "3%",
+                  }}
+                />
+                <Text
+                  style={{
+                    fontSize: 13,
+                    marginBottom: "1%",
+                    color: state.picture4 === "" ? "#aaa" : "#000E1E",
+                  }}
+                >
+                  Picture 4
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+          <View style={{ height: "5%" }} />
+          <TouchableOpacity style={styles.SubmitCallout} onPress={() => askSubmitCallout()}>
+            {state.loading ? (
+              <ActivityIndicator size="large" color="#fff" style={{ alignSelf: "center" }} />
+            ) : (
+              <Text
+                style={{
+                  color: "#fff",
+                  fontSize: 15,
+                  fontFamily: "Helvetica",
+                  alignSelf: "center",
+                }}
+              >
+                Submit Callout
+              </Text>
+            )}
+          </TouchableOpacity>
+          <View style={{ height: 100 }} />
         </View>
+      </View>
 
-        <Modal
-          isVisible={this.state.isPicvisible}
-          onSwipeComplete={() => this.setState({ isPicvisible: false })}
-          swipeDirection={["left", "right", "down"]}
-          onBackdropPress={() => this.setState({ isPicvisible: false })}
-        >
-          <View style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}>
-            <Image
-              style={{ width: "80%", height: "80%", alignSelf: "center" }}
-              source={{ uri: this.state.selectedPic }}
-              resizeMode="contain"
-            />
-            <Text> </Text>
+      <Modal
+        isVisible={state.isPicvisible}
+        onSwipeComplete={() => setState({ isPicvisible: false })}
+        swipeDirection={["left", "right", "down"]}
+        onBackdropPress={() => setState({ isPicvisible: false })}
+      >
+        <View style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}>
+          <Image
+            style={{ width: "80%", height: "80%", alignSelf: "center" }}
+            source={{ uri: state.selectedPic }}
+            resizeMode="contain"
+          />
+          <Text> </Text>
 
-            <TouchableOpacity onPress={() => this.RemoveImages()}>
-              <View style={styles.ButtonSty}>
-                <Text style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}>Remove Image</Text>
-              </View>
-            </TouchableOpacity>
-            <Text> </Text>
-            <Text> </Text>
+          <TouchableOpacity onPress={() => RemoveImages()}>
+            <View style={styles.ButtonSty}>
+              <Text style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}>Remove Image</Text>
+            </View>
+          </TouchableOpacity>
+          <Text> </Text>
+          <Text> </Text>
 
-            <TouchableOpacity onPress={() => this.setState({ isPicvisible: false })}>
-              <View style={styles.ButtonSty}>
-                <Text style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}>Close</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </Modal>
-      </KeyboardAvoidingView>
-    );
-  }
-}
+          <TouchableOpacity onPress={() => setState({ isPicvisible: false })}>
+            <View style={styles.ButtonSty}>
+              <Text style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}>Close</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    </KeyboardAvoidingView>
+  );
+};
+
+export default RequestCallOut;

@@ -7,7 +7,7 @@ import { Text, View, SafeAreaView, Image, TouchableOpacity, Linking } from "reac
 import { createSwitchNavigator, createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createDrawerNavigator, DrawerItems } from "react-navigation-drawer";
-import { Icon, Container, StyleProvider } from "native-base";
+import { Icon, StyleProvider } from "native-base";
 import AppLoading from "expo-app-loading";
 import * as Font from "expo-font";
 import { Asset } from "expo-asset";

@@ -1,7 +1,13 @@
 {
+<<<<<<< HEAD
   "expoServerPort": 19001,
   "devToolsPort": 19003,
   "packagerPort": 19001,
+=======
+  "expoServerPort": 19000,
+  "devToolsPort": 19002,
+  "packagerPort": 19000,
+>>>>>>> 2a3ea6f9bd89c013065c0ed0f89359fd242777a0
   "packagerPid": null,
   "expoServerNgrokUrl": null,
   "packagerNgrokUrl": null,
