@@ -9,14 +9,15 @@ import {
   TouchableOpacity,
   Linking,
 } from "react-native";
+
 import {
-  createDrawerNavigator,
-  DrawerItems,
   createSwitchNavigator,
-  createStackNavigator,
   createAppContainer,
   createMaterialTopTabNavigator,
 } from "react-navigation";
+
+import { DrawerItems, createDrawerNavigator } from 'react-navigation-drawer';
+import { createStackNavigator } from 'react-navigation-stack';
 
 import { Icon, StyleProvider } from "native-base";
 import AppLoading from "expo-app-loading";
