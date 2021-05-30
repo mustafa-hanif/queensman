@@ -202,10 +202,6 @@ export default class ServicesHistory extends React.Component {
             note
             mode="dialog"
             style={{ marginTop: "1%", fontSize: 20 }}
-            itemStyle={{
-              // fontFamily: 'serif',
-              fontSize: 20,
-            }}
             selectedValue={this.state.selected}
             onValueChange={this.onValueChange.bind(this)}
           >
