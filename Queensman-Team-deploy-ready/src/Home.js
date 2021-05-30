@@ -22,7 +22,7 @@ import { Colors } from "react-native/Libraries/NewAppScreen";
 let deviceWidth = Dimensions.get("window").width;
 let deviceHeight = Dimensions.get("window").height;
 
-export default class HomeScreen extends React.Component {
+class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -75,21 +75,36 @@ export default class HomeScreen extends React.Component {
       }),
     });
 
-    this.registerForPushNotificationsAsync().then((token) =>
-      console.log({ token })
-    );
+    this.registerForPushNotificationsAsync().then(async (token) => {
+      const user = JSON.parse(await AsyncStorage.getItem("QueensUser"));
+      const email = user?.email;
+      this.props.sendTokenToServer({ variables: { token, email } });
+    });
 
     this.notificationListener = Notifications.addNotificationReceivedListener(
       (notification) => {
         // setNotification(notification);
         console.log({ notification });
+
+        const { content } = notification.request;
+        if (content.data.type === "alert") {
+          this.showNotificationAlert(content);
+        }
       }
     );
 
     this.responseListener =
       Notifications.addNotificationResponseReceivedListener(
         async (response) => {
-          console.log({ response });
+          console.log(
+            "from --- Notifications.addNotificationResponseReceivedListener",
+            { response }
+          );
+
+          const { content } = response.notification.request;
+          if (content.data.type === "alert") {
+            this.showNotificationAlert(content);
+          }
           // const { sound } = await Audio.Sound.createAsync(
           //   //THIS FILE DOES NOT EXIST RIGHT NOW
           //   // require("../assets/etest.mp3")
@@ -105,6 +120,11 @@ export default class HomeScreen extends React.Component {
       );
 
     console.log("componentDidMount");
+  }
+
+  showNotificationAlert(content) {
+    const { title, body } = content;
+    Alert.alert(title, body);
   }
 
   componentWillUnmount() {
@@ -456,6 +476,37 @@ export default class HomeScreen extends React.Component {
       </View>
     );
   }
+}
+
+const UPDATE_TOKEN = gql`
+  mutation MyMutation($token: String!, $email: String!) {
+    update_worker(
+      where: { email: { _eq: $email } }
+      _set: { expo_token: $token }
+    ) {
+      returning {
+        expo_token
+      }
+    }
+  }
+`;
+
+import { gql, useMutation } from "@apollo/client";
+
+export default function HomeFunction(props) {
+  const [updateToken, { loading: mutationLoading, error: mutationError }] =
+    useMutation(UPDATE_TOKEN);
+
+  function sendTokenToServer(token) {
+    console.log({ mutationLoading, mutationError });
+    updateToken(token)
+      .then((res) => console.log(res))
+      .catch((err) => console.log("error", err));
+  }
+
+  return (
+    <HomeScreen sendTokenToServer={sendTokenToServer} {...props}></HomeScreen>
+  );
 }
 
 const styles = StyleSheet.create({

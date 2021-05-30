@@ -362,8 +362,12 @@ const RequestCallOut = (props) => {
   };
 
   const askSubmitCallout = () => {
+    if (state.JobType == "none") {
+      return alert("Please Select Job Type First");
+    }
+
     if (state.Urgency === "medium") {
-      props.navigation.navigate("SelectSchedule");
+      return props.navigation.navigate("SelectSchedule", { state: state });
     }
 
     Alert.alert(
@@ -826,7 +830,7 @@ const RequestCallOut = (props) => {
                   alignSelf: "center",
                 }}
               >
-                Submit Callout
+                {state.Urgency === "medium" ? "Select Date" : "Submit Callout"}
               </Text>
             )}
           </TouchableOpacity>

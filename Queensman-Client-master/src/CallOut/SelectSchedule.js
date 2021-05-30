@@ -5,7 +5,10 @@ import { Button } from "native-base";
 import colors from "../../native-base-theme/variables/commonColor";
 import moment from "moment";
 
-import { gql, useQuery, useLazyQuery } from "@apollo/client";
+import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
+
+import { auth } from "../utils/nhost";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const GET_SCHEDULE = gql`
   query MyQuery($_gte: date!, $_lte: date!) {
@@ -22,10 +25,51 @@ const GET_SCHEDULE = gql`
   }
 `;
 
+const REQUEST_CALLOUT = gql`
+  mutation AddCallout(
+    $property_id: Int
+    $date_on_calendar: date
+    $notes: String
+    $time_on_calendar: time
+    $email: String
+    $category: String
+    $job_type: String
+    $status: String
+    $request_time: timestamp
+    $urgency_level: String
+  ) {
+    insert_scheduler_one(
+      object: {
+        callout: {
+          data: {
+            callout_by_email: $email
+            property_id: $property_id
+            category: $category
+            job_type: $job_type
+            status: $status
+            request_time: $request_time
+            urgency_level: $urgency_level
+            active: 1
+          }
+        }
+        date_on_calendar: $date_on_calendar
+        time_on_calendar: $time_on_calendar
+        notes: $notes
+      }
+    ) {
+      date_on_calendar
+    }
+  }
+`;
+
 export default function SelectSchedule(props) {
   const [selectedDate, setselectedDate] = useState(null);
   const [modalVisible, setmodalVisible] = useState(false);
   const [markedDate, setmarkedDate] = useState({});
+
+  const [requestCalloutApiCall, { loading: mutationLoading, error: mutationError }] = useMutation(REQUEST_CALLOUT);
+
+  const state = props.navigation.getParam("state", {});
 
   const formatDate = (date) => {
     return moment(date).format("YYYY-MM-DD");
@@ -56,15 +100,39 @@ export default function SelectSchedule(props) {
   // });
 
   const setMarkedDATE = (date) => {
-    const mark = {};
+    const mark = markedDate;
     mark[date] = { selected: true, marked: true };
+    console.log({ mark });
     setmarkedDate(mark);
   };
 
-  const onConfirmButtonPress = () => {
+  const onConfirmButtonPress = async () => {
+    // console.log(state);
+    const property_id = await AsyncStorage.getItem("QueensPropertyID");
+
+    const current = new Date();
     setmodalVisible(false);
-    props.navigation.navigate("HomeNaviagtor");
+    requestCalloutApiCall({
+      variables: {
+        property_id: state.PropertyID,
+        email: auth.user().email,
+        notes: state.Description,
+        time_on_calendar: current.toLocaleTimeString(),
+        date_on_calendar: selectedDate,
+        category: "Uncategorized",
+        job_type: state.JobType,
+        status: "Requested",
+        request_time: current.toLocaleDateString(),
+        urgency_level: "Medium",
+      },
+    })
+      .then((res) => {
+        props.navigation.navigate("HomeNaviagtor");
+      })
+      .catch((err) => console.log({ err }));
   };
+
+  console.log({ markedDate });
 
   const Confirmmodal = () => {
     return (
@@ -115,18 +183,12 @@ export default function SelectSchedule(props) {
       activeOpacity: 0.1,
     };
 
-    return {
-      "2021-05-16": disable,
-      "2021-05-17": disable,
-      "2021-05-18": disable,
-      "2021-05-19": disable,
-    };
-
     const markedDates = {};
     data.scheduler.forEach((element) => {
-      markedDates[element.start] = { selected: true, marked: true };
+      markedDates[element.start] = disable;
     });
     console.log(markedDates);
+
     return markedDates;
   };
 

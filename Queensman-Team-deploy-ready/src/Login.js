@@ -18,7 +18,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Content, Icon } from "native-base";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { auth } from './utils/nhost';
+import { auth } from "./utils/nhost";
 let deviceWidth = Dimensions.get("window").width;
 let deviceHeight = Dimensions.get("window").height;
 
@@ -47,12 +47,15 @@ export default class Login extends React.Component {
   proceedFunction = () => {
     this.setState({ loading: true });
     const { email, password } = this.state;
-    auth.login({ email, password }).then(async ({ user }) => {
-      console.log(user)
-      this.setState({ loading: false });
-      await AsyncStorage.setItem("QueensUser", JSON.stringify(user));
-      this.props.navigation.navigate("AppDrawer");
-    });
+    auth
+      .login({ email, password })
+      .then(async ({ user }) => {
+        console.log(user);
+        this.setState({ loading: false });
+        await AsyncStorage.setItem("QueensUser", JSON.stringify(user));
+        this.props.navigation.navigate("AppDrawer");
+      })
+      .catch((err) => console.log(err));
   };
 
   CallUsFunction = () => {

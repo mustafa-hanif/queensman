@@ -31,10 +31,7 @@ export default function Index() {
         <ScrollView>
           {data?.client[0]?.client_notifications?.map((val, index) => (
             <NotificationList
-<<<<<<< HEAD
-=======
               // eslint-disable-next-line react/no-array-index-key
->>>>>>> 2a3ea6f9bd89c013065c0ed0f89359fd242777a0
               key={index}
               item={{
                 title: val.notification,
