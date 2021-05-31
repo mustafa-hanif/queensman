@@ -1,10 +1,12 @@
-import React from "react";
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
+import React, { useState } from "react";
+
 import {
   StyleSheet,
   Text,
   View,
   ActivityIndicator,
-  AsyncStorage,
   KeyboardAvoidingView,
   TextInput,
   Button,
@@ -18,41 +20,39 @@ import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Modal from "react-native-modal";
 
 import { Content, Icon } from "native-base";
 
-export default class PreJob extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      Note: "",
-      Notes: [{ note: "" }],
-      Pic1: "link",
-      Pic2: "link",
-      Pic3: "link",
-      Pic4: "link",
-      Pic5: "link",
-      Pic6: "link",
-      Pic7: "link",
-      Pic8: "link",
-      Pic9: "link",
-      ViewOpacity: 1,
-      UploadButtonDeactive: false,
-      Pic10: "link",
-      selectedPic:
-        "https://en.wikipedia.org/wiki/Art#/media/File:Art-portrait-collage_2.jpg",
-      isPicvisible: false, //veiw image app kay lia
-      picturename: "",
-      CallOutID: this.props.navigation.getParam("QJobID", "Something"),
-      IsImageuploaded: false,
-      selectedNo: 0,
-      NoteItem: {
-        key: "hay",
-      },
-    };
-  }
+const PreJob = (props) => {
+  const [state, setState] = useState({
+    Note: "",
+    Notes: [{ note: "" }],
+    Pic1: "link",
+    Pic2: "link",
+    Pic3: "link",
+    Pic4: "link",
+    Pic5: "link",
+    Pic6: "link",
+    Pic7: "link",
+    Pic8: "link",
+    Pic9: "link",
+    ViewOpacity: 1,
+    UploadButtonDeactive: false,
+    Pic10: "link",
+    selectedPic:
+      "https://en.wikipedia.org/wiki/Art#/media/File:Art-portrait-collage_2.jpg",
+    isPicvisible: false, //veiw image app kay lia
+    picturename: "",
+    CallOutID: this.props.navigation.getParam("QJobID", null),
+    IsImageuploaded: false,
+    selectedNo: 0,
+    NoteItem: {
+      key: "hay",
+    },
+  });
+
   componentDidMount() {
     link =
       "https://www.queensman.com/phase_2/queens_worker_Apis/fetchOngoingJobPrePictures.php?ID=" +

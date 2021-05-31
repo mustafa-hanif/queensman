@@ -1,6 +1,7 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, AsyncStorage, KeyboardAvoidingView, TextInput, Button, Alert, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
-
+import { StyleSheet, Text, View, ActivityIndicator, KeyboardAvoidingView, TextInput, Button, Alert, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Modal from "react-native-modal";
 
 import { Content, Icon } from 'native-base';
@@ -8,9 +9,6 @@ import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
-
-
-
 
 
 export default class PostJob extends React.Component {
