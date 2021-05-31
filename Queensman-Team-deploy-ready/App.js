@@ -40,7 +40,6 @@ import Settings from "./src/Components/Settings";
 import ServicesHistory from "./src/Components/ServicesHistory";
 import AuthLogin from "./src/Auth/AuthLogin";
 import ServicesHistoryItem from "./src/Components/ServicesHistoryItem";
-
 //Inventory Report
 import ClientList from "./src/InventoryReport/ClientList";
 import PropertiesList from "./src/InventoryReport/PropertiesList";
