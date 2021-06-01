@@ -1,14 +1,18 @@
+/* eslint-disable camelcase */
+/* eslint-disable no-unreachable */
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-use-before-define */
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, Modal, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Calendar, CalendarList, Agenda } from "react-native-calendars";
 import { Button } from "native-base";
-import colors from "../../native-base-theme/variables/commonColor";
 import moment from "moment";
 
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 
-import { auth } from "../utils/nhost";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { auth, storage } from "../utils/nhost";
+import colors from "../../native-base-theme/variables/commonColor";
 
 const GET_SCHEDULE = gql`
   query MyQuery($_gte: date!, $_lte: date!) {
@@ -67,7 +71,9 @@ export default function SelectSchedule(props) {
   const [modalVisible, setmodalVisible] = useState(false);
   const [markedDate, setmarkedDate] = useState({});
 
-  const [requestCalloutApiCall, { loading: mutationLoading, error: mutationError }] = useMutation(REQUEST_CALLOUT);
+  const [requestCalloutApiCall, { loading: requestCalloutLoading, error: mutationError }] = useMutation(
+    REQUEST_CALLOUT
+  );
 
   const state = props.navigation.getParam("state", {});
 
@@ -102,16 +108,42 @@ export default function SelectSchedule(props) {
   const setMarkedDATE = (date) => {
     const mark = markedDate;
     mark[date] = { selected: true, marked: true };
-    console.log({ mark });
+    // console.log({ mark });
     setmarkedDate(mark);
   };
 
   const onConfirmButtonPress = async () => {
     // console.log(state);
     const property_id = await AsyncStorage.getItem("QueensPropertyID");
-
+    let category = "Uncategorized";
     const current = new Date();
     setmodalVisible(false);
+    console.log(state.property_type);
+    if (state.property_type?.indexOf("AMC") >= 0 || state.property_type?.indexOf("Annual Maintenance Contract") >= 0) {
+      category = "AMC";
+    } else if (state.property_type?.indexOf("MTR") >= 0 || state.property_type?.indexOf("Metered") >= 0) {
+      category = "Metered Service";
+    }
+
+    // let pic1name = '';
+    // let pic2name = '';
+    // let pic3name = '';
+    // let pic4name = '';
+    // if (state.picture1 !== "") {
+    //   pic1name = state.picture1.split("/").pop();
+    // }
+    // if (state.picture1 !== "") {
+    //   pic2name = state.picture2.split("/").pop();
+    // }
+    // if (state.picture1 !== "") {
+    //   pic3name = state.picture3.split("/").pop();
+    // }
+    // if (state.picture1 !== "") {
+    //   pic4name = state.picture4.split("/").pop();
+    // }
+    // console.log(state.picture1);
+    // storage.put(`/callout_pics/${pic1name}`, state.picture1).then(console.log).catch(console.error);
+
     requestCalloutApiCall({
       variables: {
         property_id: state.PropertyID,
@@ -119,7 +151,7 @@ export default function SelectSchedule(props) {
         notes: state.Description,
         time_on_calendar: current.toLocaleTimeString(),
         date_on_calendar: selectedDate,
-        category: "Uncategorized",
+        category,
         job_type: state.JobType,
         status: "Requested",
         request_time: current.toLocaleDateString(),
@@ -132,27 +164,25 @@ export default function SelectSchedule(props) {
       .catch((err) => console.log({ err }));
   };
 
-  console.log({ markedDate });
+  // console.log({ markedDate });
 
   const Confirmmodal = () => {
     return (
-      <Modal animationType="slide" transparent={true} visible={modalVisible}>
+      <Modal animationType="slide" transparent visible={modalVisible}>
         <View style={{ flex: 1 }}>
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={() => setmodalVisible(false)}
-            style={{ flex: 1 }}
-          ></TouchableOpacity>
+          <TouchableOpacity activeOpacity={1} onPress={() => setmodalVisible(false)} style={{ flex: 1 }} />
           <View
             style={{
               backgroundColor: "white",
-              borderWidth: 1,
-              borderTopEndRadius: 30,
-              borderTopLeftRadius: 30,
+              borderColor: "#cccccc",
+              borderWidth: 0.2,
+              borderTopEndRadius: 12,
+              borderTopLeftRadius: 12,
               padding: 35,
             }}
           >
-            <Text style={{ ...styles.heading }}> Schedule The Service for {selectedDate}</Text>
+            <Text style={{ ...styles.heading }}>Schedule the service for</Text>
+            <Text style={{ ...styles.heading }}>{moment(selectedDate).format("Do MMMM, YYYY")}</Text>
             <Button
               onPress={() => onConfirmButtonPress()}
               style={{ backgroundColor: colors.buttonPrimaryBg, marginVertical: 20 }}
@@ -166,10 +196,10 @@ export default function SelectSchedule(props) {
     );
   };
 
-  if (loading) {
+  if (requestCalloutLoading || loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator color={colors.brandPrimary} size={"large"}></ActivityIndicator>
+        <ActivityIndicator color={colors.brandPrimary} size="large" />
       </View>
     );
   }
@@ -187,7 +217,7 @@ export default function SelectSchedule(props) {
     data.scheduler.forEach((element) => {
       markedDates[element.start] = disable;
     });
-    console.log(markedDates);
+    // console.log(markedDates);
 
     return markedDates;
   };
@@ -199,20 +229,20 @@ export default function SelectSchedule(props) {
         pastScrollRange={0}
         markedDates={getMarkedDates()}
         onDayPress={(day) => {
-          console.log({ day });
+          // console.log({ day });
           setselectedDate(day.dateString);
           setMarkedDATE(day.dateString);
           setmodalVisible(true);
         }}
-        hideArrows={true}
-        hideExtraDays={true}
-        disableMonthChange={true}
+        hideArrows
+        hideExtraDays
+        disableMonthChange
         firstDay={1}
-        hideDayNames={true}
+        hideDayNames
         showWeekNumbers={false}
-        disableArrowLeft={true}
-        disableArrowRight={true}
-        disableAllTouchEventsForDisabledDays={true}
+        disableArrowLeft
+        disableArrowRight
+        disableAllTouchEventsForDisabledDays
         renderHeader={(date) => {
           const header = date.toString("MMMM yyyy");
           const [month, year] = header.split(" ");
@@ -231,7 +261,7 @@ export default function SelectSchedule(props) {
         }}
         enableSwipeMonths={false}
       />
-      <Confirmmodal></Confirmmodal>
+      <Confirmmodal />
     </View>
   );
 }
