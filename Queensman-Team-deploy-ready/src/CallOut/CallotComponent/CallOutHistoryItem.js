@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
 
   },
   TextFam: {
-    fontFamily: 'Helvetica'
+    // fontFamily: 'Helvetica'
   },
   GalleryEventModel: {
 

@@ -1,6 +1,8 @@
 'use strict';
-var sendNotification = require('./api/sendNotification').sendNotification;
-var zohoCrmTest = require('./api/zohoCrmTest').zohoCrmTest;
+var sendNotification = require('./api/sendNotification').sendNotificationAPI;
+var scheduleCallout = require('./api/scheduleCallout').scheduleCallout;
+// var zohoCrmTest = require('./api/zohoCrmTest').zohoCrmTest;
 
 module.exports.sendNotification = sendNotification;
-module.exports.zohoCrmTest = zohoCrmTest;
+module.exports.scheduleCallout = scheduleCallout;
+// module.exports.zohoCrmTest = zohoCrmTest;
