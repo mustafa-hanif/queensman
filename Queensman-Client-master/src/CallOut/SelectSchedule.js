@@ -39,6 +39,10 @@ const REQUEST_CALLOUT = gql`
     $category: String
     $job_type: String
     $status: String
+    $picture1: String
+    $picture2: String
+    $picture3: String
+    $picture4: String
     $request_time: timestamp
     $urgency_level: String
   ) {
@@ -53,6 +57,10 @@ const REQUEST_CALLOUT = gql`
             status: $status
             request_time: $request_time
             urgency_level: $urgency_level
+            picture1: $picture1
+            picture2: $picture2
+            picture3: $picture3
+            picture4: $picture4
             active: 1
           }
         }
@@ -112,37 +120,40 @@ export default function SelectSchedule(props) {
     setmarkedDate(mark);
   };
 
+  const expoFileToFormFile = (url) => {
+    const localUri = url;
+    const filename = localUri.split("/").pop();
+
+    const match = /\.(\w+)$/.exec(filename);
+    const type = match ? `image/${match[1]}` : `image`;
+    return { uri: localUri, name: filename, type };
+  };
+
   const onConfirmButtonPress = async () => {
-    // console.log(state);
     const property_id = await AsyncStorage.getItem("QueensPropertyID");
     let category = "Uncategorized";
     const current = new Date();
     setmodalVisible(false);
-    console.log(state.property_type);
+
     if (state.property_type?.indexOf("AMC") >= 0 || state.property_type?.indexOf("Annual Maintenance Contract") >= 0) {
       category = "AMC";
     } else if (state.property_type?.indexOf("MTR") >= 0 || state.property_type?.indexOf("Metered") >= 0) {
       category = "Metered Service";
     }
-
-    // let pic1name = '';
-    // let pic2name = '';
-    // let pic3name = '';
-    // let pic4name = '';
-    // if (state.picture1 !== "") {
-    //   pic1name = state.picture1.split("/").pop();
-    // }
-    // if (state.picture1 !== "") {
-    //   pic2name = state.picture2.split("/").pop();
-    // }
-    // if (state.picture1 !== "") {
-    //   pic3name = state.picture3.split("/").pop();
-    // }
-    // if (state.picture1 !== "") {
-    //   pic4name = state.picture4.split("/").pop();
-    // }
-    // console.log(state.picture1);
-    // storage.put(`/callout_pics/${pic1name}`, state.picture1).then(console.log).catch(console.error);
+    const pictures = Object.fromEntries(
+      [...Array(4)]
+        .map((_, i) => {
+          const _statePic = state[`picture${i}`];
+          console.log(_statePic);
+          if (_statePic) {
+            const file = expoFileToFormFile(_statePic);
+            storage.put(`/callout_pics/${file.name}`, file).then(console.log).catch(console.error);
+            return [`picture${i}`, `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`];
+          }
+          return null;
+        })
+        .filter(Boolean)
+    );
 
     requestCalloutApiCall({
       variables: {
@@ -156,6 +167,7 @@ export default function SelectSchedule(props) {
         status: "Requested",
         request_time: current.toLocaleDateString(),
         urgency_level: "Medium",
+        ...pictures,
       },
     })
       .then((res) => {
