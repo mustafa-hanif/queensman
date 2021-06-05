@@ -176,7 +176,7 @@ class HomeScreen extends React.Component {
 
   logout = async () => {
     try {
-      await AsyncStorage.setItem("QueensmanWorkerID", "asd");
+      await AsyncStorage.removeItem("QueensUser");
       setTimeout(() => {
         this.props.navigation.navigate("Login");
       }, 500);

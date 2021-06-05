@@ -20,7 +20,7 @@ export default class AuthLogin extends React.Component {
   }
 
   async componentDidMount() {
-    console.log("yeFireHo rha Kia");
+
     const QueensUser = JSON.parse(await AsyncStorage.getItem("QueensUser"));
     console.log(QueensUser);
     if (QueensUser?.email) {
