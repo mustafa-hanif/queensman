@@ -16,6 +16,7 @@
     "@react-native-community/masked-view": "0.1.10",
     "@react-native-community/netinfo": "6.0.0",
     "axios": "^0.19.0",
+    "dayjs": "^1.10.5",
     "expo": "^41.0.0",
     "expo-app-loading": "^1.0.1",
     "expo-av": "~9.1.2",

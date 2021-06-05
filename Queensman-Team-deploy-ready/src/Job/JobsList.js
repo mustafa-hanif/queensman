@@ -26,12 +26,13 @@ import {
   Picker,
 } from "native-base";
 
+import dayjs from 'dayjs';
 import { gql, useQuery } from "@apollo/client";
 import { auth } from '../utils/nhost';
 
 const GET_JOBS_LIST = gql`
   query JobsList($email: String) {
-    callout(where: {job_worker: {worker: {email: {_eq: $email}}}}) {
+    callout(order_by: {request_time: desc}, where: {job_worker: {worker: {email: {_eq: $email}}}}) {
       id
       property_id
       job_type
@@ -197,6 +198,20 @@ const JobsList = (props) => {
     }
   }, [data?.callout]);
 
+  if (error) {
+    return <View style={styles.container}>
+      <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "500",
+            color: "#FF2222",
+            marginRight: "4%",
+          }}
+        >
+          Error
+        </Text>
+    </View>
+  }
   return (
     <View style={styles.container}>
       <View
@@ -331,7 +346,7 @@ const JobsList = (props) => {
                           },
                         ]}
                       >
-                        Request time : {item.request_time}
+                        Request time : {dayjs(item.request_time).format('DD/MM/YYYY')}
                       </Text>
                     </View>
                   </View>

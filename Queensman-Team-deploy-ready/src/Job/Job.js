@@ -73,6 +73,7 @@ const Job = (props) => {
     JobData: props.navigation.getParam("it", null),
     workerList: [],
     workerID: 1,
+    imageLoading: false,
     W1ID: "none",
     W1Name: "none",
     W1Phone: "none",
@@ -153,7 +154,7 @@ const Job = (props) => {
     setState({
       ...state,
       isPicvisible: !state.isPicvisible,
-      selectedPic: value,
+      selectedPic: `${value}?w=640&h=960&q=75`,
     });
   };
 
@@ -163,6 +164,42 @@ const Job = (props) => {
   if (loading) {
     return <ActivityIndicator size="large" color="#FFCA5D" />;
   }
+  const pictureLinks = [...Array(4)].map((_, index) => {
+    const statePicture = state.JobData[`picture${index}`];
+    if (statePicture) {
+      return <TouchableOpacity
+      onPress={() => toggleGalleryEventModal(statePicture)}
+      disabled={statePicture == "" ? true : false}
+    >
+      <View
+        style={{
+          flexDirection: "row",
+          width: "100%",
+          alignItems: "center",
+        }}
+      >
+        <Icon
+          name="image"
+          style={{
+            fontSize: 20,
+            color: statePicture == "" ? "#aaa" : "#000E1E",
+            paddingRight: "3%",
+          }}
+        ></Icon>
+        <Text
+          style={{
+            fontSize: 13,
+            marginBottom: "1%",
+            color: statePicture == "" ? "#aaa" : "#000E1E",
+          }}
+        >
+          Picture {index}
+        </Text>
+      </View>
+    </TouchableOpacity>
+    }
+    return null;
+  }).filter(Boolean);
   return (
     <ScrollView style={styles.container}>
       <View style={{ height: 20 }}></View>
@@ -260,126 +297,7 @@ const Job = (props) => {
         Callout Images
       </Text>
       <View style={{ width: "100%", paddingHorizontal: "5%", marginTop: "2%" }}>
-        <TouchableOpacity
-          onPress={() => toggleGalleryEventModal(state.JobData.picture1)}
-          disabled={state.JobData.picture1 == "" ? true : false}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              width: "100%",
-              alignItems: "center",
-            }}
-          >
-            <Icon
-              name="image"
-              style={{
-                fontSize: 20,
-                color: state.JobData.picture1 == "" ? "#aaa" : "#000E1E",
-                paddingRight: "3%",
-              }}
-            ></Icon>
-            <Text
-              style={{
-                fontSize: 13,
-                marginBottom: "1%",
-                color: state.JobData.picture1 == "" ? "#aaa" : "#000E1E",
-              }}
-            >
-              Picture 1
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => toggleGalleryEventModal(state.JobData.picture2)}
-          disabled={state.JobData.picture2 == "" ? true : false}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              width: "100%",
-              alignItems: "center",
-            }}
-          >
-            <Icon
-              name="image"
-              style={{
-                fontSize: 20,
-                color: state.JobData.picture2 == "" ? "#aaa" : "#000E1E",
-                paddingRight: "3%",
-              }}
-            ></Icon>
-            <Text
-              style={{
-                fontSize: 13,
-                marginBottom: "1%",
-                color: state.JobData.picture2 == "" ? "#aaa" : "#000E1E",
-              }}
-            >
-              Picture 2
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => toggleGalleryEventModal(state.JobData.picture3)}
-          disabled={state.JobData.picture3 == "" ? true : false}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              width: "100%",
-              alignItems: "center",
-            }}
-          >
-            <Icon
-              name="image"
-              style={{
-                fontSize: 20,
-                color: state.JobData.picture3 == "" ? "#aaa" : "#000E1E",
-                paddingRight: "3%",
-              }}
-            ></Icon>
-            <Text
-              style={{
-                fontSize: 13,
-                marginBottom: "1%",
-                color: state.JobData.picture3 == "" ? "#aaa" : "#000E1E",
-              }}
-            >
-              Picture 3
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => toggleGalleryEventModal(state.JobData.picture4)}
-          disabled={state.JobData.picture4 == "" ? true : false}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              width: "100%",
-              alignItems: "center",
-            }}
-          >
-            <Icon
-              name="image"
-              style={{
-                fontSize: 20,
-                color: state.JobData.picture4 == "" ? "#aaa" : "#000E1E",
-                paddingRight: "3%",
-              }}
-            ></Icon>
-            <Text
-              style={{
-                fontSize: 13,
-                marginBottom: "1%",
-                color: state.JobData.picture4 == "" ? "#aaa" : "#000E1E",
-              }}
-            >
-              Picture 4
-            </Text>
-          </View>
-        </TouchableOpacity>
+        {pictureLinks}
       </View>
       <View style={{ height: "3%" }}></View>
       <Text
@@ -488,9 +406,11 @@ const Job = (props) => {
         <View style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}>
           <Image
             style={{ width: "80%", height: "80%", alignSelf: "center" }}
+            onLoadStart={() => setState({...state, imageLoading: true})}
+            onLoadEnd={() => setState({...state, imageLoading: false})}
             source={{ uri: state.selectedPic }}
           />
-          <Text> </Text>
+          {state.imageLoading && <ActivityIndicator />}
           <TouchableOpacity
             onPress={() => setState({ ...state, isPicvisible: false })}
           >
