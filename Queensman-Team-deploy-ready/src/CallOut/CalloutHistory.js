@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     paddingLeft: "6%",
     color: "#FFCA5D",
 
-    fontFamily: "Helvetica",
+    // fontFamily: "Helvetica",
   },
   Card: {
     shadowColor: "rgba(0,0,0, .4)", // IOS
@@ -315,6 +315,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   TextFam: {
-    fontFamily: "Helvetica",
+    // fontFamily: "Helvetica",
   },
 });

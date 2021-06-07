@@ -1,24 +1,22 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from "react-native";
 
 export default function NotificationList({ item, viewStyle, textStyle, dotStyle }) {
+  console.log(item)
   return (
     <>
       <TouchableOpacity onPress={() => {}}>
         <View style={[styles.row, viewStyle]}>
           <View style={{ flex: 2 }}>
             <Text style={[[styles.text, textStyle, { fontWeight: "bold" }]]} numberOfLines={2}>
-              {item.title}
-            </Text>
-            <Text style={[[styles.text, textStyle]]} numberOfLines={2}>
-              {item.description}
+              {item.text}
             </Text>
           </View>
-          <Text> </Text>
-
           <View style={[styles.time, dotStyle]}>
             <Text style={[styles.timeText, textStyle]} numberOfLines={2}>
-              {item.date}
+              {item.created_at}
             </Text>
           </View>
         </View>
@@ -47,13 +45,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     width: "95%",
     borderRadius: 15,
-    backgroundColor: "#fff",
+    backgroundColor: "#eee",
     alignSelf: "center",
     marginBottom: 12,
   },
   text: {
     marginLeft: 1,
-    fontFamily: "Helvetica",
+    // fontFamily: "Helvetica",
   },
   time: {
     marginRight: 1,
@@ -63,20 +61,20 @@ const styles = StyleSheet.create({
   },
   timeText: {
     opacity: 0.4,
-    fontFamily: "Helvetica",
+    // fontFamily: "Helvetica",
   },
   dot: {
     height: 12,
     width: 12,
     borderRadius: 12,
-    backgroundColor: "#fff",
+    backgroundColor: "#eee",
     marginTop: 4,
   },
   unDot: {
     height: 12,
     width: 12,
     borderRadius: 12,
-    backgroundColor: "#fff",
+    backgroundColor: "#eee",
     marginTop: 4,
   },
   popUp: {
@@ -85,6 +83,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     justifyContent: "center",
     position: "absolute",
-    backgroundColor: "#fff",
+    backgroundColor: "#eee",
   },
 });

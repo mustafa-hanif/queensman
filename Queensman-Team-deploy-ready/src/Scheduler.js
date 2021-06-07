@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 
 import React, { Component } from 'react';
 import { Alert, StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';

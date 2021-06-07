@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from "react";
 import {
   StyleSheet,
@@ -50,7 +51,7 @@ export default class Login extends React.Component {
     auth
       .login({ email, password })
       .then(async ({ user }) => {
-        console.log(user);
+        // console.log(user);
         this.setState({ loading: false });
         await AsyncStorage.setItem("QueensUser", JSON.stringify(user));
         this.props.navigation.navigate("AppDrawer");

@@ -1,14 +1,16 @@
 'use strict';
 var sendNotification = require('../lib/sendNotification');
-var fetchExpoToken = require('../lib/graphql');
+var fetchExpoToken = require('../lib/graphql').fetchExpoToken;
 
-export const sendNotification = async (event) => {
+const sendNotificationAPI = async (event) => {
   console.log(event);
   try {
-    const { type, email } = JSON.parse(event.body);
+    const { event: { data: { new: query } } } = JSON.parse(event.body);
+    const { worker_email, type, text, client_email } = query;
+    let email = type === 'worker' ? worker_email : client_email;
     const tokenData = await fetchExpoToken({ type, email });
     const token = tokenData[type]?.[0]?.expo_token;
-    const receipts = await sendNotification({ token, message: "Hello world"})
+    const receipts = await sendNotification({ token, message: text})
     return {
       statusCode: 200,
       body: JSON.stringify(
@@ -22,6 +24,7 @@ export const sendNotification = async (event) => {
       ),
     };
   } catch (e) {
+    console.log(e)
     return {
       statusCode: 500,
       body: JSON.stringify(
@@ -35,3 +38,5 @@ export const sendNotification = async (event) => {
     };
   }
 };
+
+module.exports = { sendNotificationAPI }

@@ -33,6 +33,7 @@ import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
 import { LinearGradient } from "expo-linear-gradient";
+import moment from "moment";
 
 import Modal from "react-native-modal";
 import { auth } from "../utils/nhost";
@@ -323,10 +324,12 @@ const RequestCallOut = (props) => {
       console.log(state.picture2);
     } else if (state.picture3 === "") {
       setState({
+        ...state,
         picture3: uri,
       });
     } else if (state.picture4 === "") {
       setState({
+        ...state,
         picture4: uri,
       });
     } else {
@@ -355,6 +358,7 @@ const RequestCallOut = (props) => {
 
   const toggleGalleryEventModal = (vale, no) => {
     setState({
+      ...state,
       isPicvisible: !state.isPicvisible,
       selectedPic: vale,
       selectedNo: no,
@@ -362,27 +366,31 @@ const RequestCallOut = (props) => {
   };
 
   const askSubmitCallout = () => {
-    if (state.JobType == "none") {
+    if (state.JobType === "none") {
       return alert("Please Select Job Type First");
+    }
+    if (state.picture1 === "" || state.Urgency === "" || state.JobType === "none") {
+      return alert("Kindly fill all the required details.");
     }
 
     if (state.Urgency === "medium") {
-      return props.navigation.navigate("SelectSchedule", { state: state });
+      return props.navigation.navigate("SelectSchedule", { state });
     }
+    return null;
 
-    Alert.alert(
-      "Callout Request Confirmation.",
-      "Kindly click YES to submit this callout.",
-      [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
-          style: "cancel",
-        },
-        { text: "Yes", onPress: () => submitCallout() },
-      ],
-      { cancelable: false }
-    );
+    // Alert.alert(
+    //   "Callout Request Confirmation.",
+    //   "Kindly click YES to submit this callout.",
+    //   [
+    //     {
+    //       text: "Cancel",
+    //       onPress: () => console.log("Cancel Pressed"),
+    //       style: "cancel",
+    //     },
+    //     { text: "Yes", onPress: () => submitCallout() },
+    //   ],
+    //   { cancelable: false }
+    // );
   };
 
   const SubmittedCalloutAlert = () => {
@@ -430,7 +438,7 @@ const RequestCallOut = (props) => {
             pic4name = state.picture4.split("/").pop();
           }
 
-          setState({ loading: true });
+          setState({ ...state, loading: true });
           let link = `http://queensman.com/queens_client_Apis/submitCallOut.php?client_id=${state.customerID}&prop_id=${state.PropertyID}&job=${JOBS}&describe=${state.Description}&property_type=${state.property_type}&urg_lvl=${state.Urgency}&picture1=${pic1name}&picture2=${pic2name}&picture3=${pic3name}&picture4=${pic4name}`;
           console.log(link);
           axios
@@ -457,6 +465,7 @@ const RequestCallOut = (props) => {
                 axios.get(link).then((result) => {
                   console.log(result.data.server_response[0].id);
                   setState({
+                    ...state,
                     CalloutID: result.data.server_response[0].id,
                   });
                   setTimeout(() => {
@@ -466,6 +475,7 @@ const RequestCallOut = (props) => {
                     axios.get(link).then((result) => {
                       console.log(result.data.server_responce);
                       setState({
+                        ...state,
                         Email: result.data.server_responce.email,
                         UserName: result.data.server_responce.full_name,
                         Mobile: result.data.server_responce.phone,
@@ -478,7 +488,7 @@ const RequestCallOut = (props) => {
                           console.log(result.data);
                           SubmittedCalloutAlert();
                           // refs.customToast.show('Callout Successfully Sent');
-                          setState({ loading: false });
+                          setState({ ...state, loading: false });
                           setTimeout(() => {
                             props.navigation.navigate("HomeNaviagtor");
                           }, 800);
@@ -486,7 +496,7 @@ const RequestCallOut = (props) => {
                         .catch((error) => {
                           console.log(error);
                           alert(error);
-                          setState({ loading: false });
+                          setState({ ...state, loading: false });
                         });
                     });
                   }, 2000);
@@ -504,22 +514,26 @@ const RequestCallOut = (props) => {
   const RemoveImages = () => {
     if (state.selectedNo === 1) {
       setState({
+        ...state,
         picture1: "",
       });
     } else if (state.selectedNo === 2) {
       setState({
+        ...state,
         picture2: "",
       });
     } else if (state.selectedNo === 3) {
       setState({
+        ...state,
         picture3: "",
       });
     } else if (state.selectedNo === 4) {
       setState({
+        ...state,
         picture4: "",
       });
     }
-    setState({ isPicvisible: false });
+    setState({ ...state, isPicvisible: false });
   };
 
   const CameraSnap = async () => {
@@ -604,7 +618,7 @@ const RequestCallOut = (props) => {
                   underlineColorAndroid="transparent"
                   numberOfLines={1}
                   onChangeText={(OtherJobType) => {
-                    setState({ OtherJobType });
+                    setState({ ...state, OtherJobType });
                   }}
                 />
               </View>
@@ -656,7 +670,7 @@ const RequestCallOut = (props) => {
               numberOfLines={1}
               underlineColorAndroid="transparent"
               onChangeText={(Description) => {
-                setState({ Description });
+                setState({ ...state, Description });
               }} // email set
             />
           </View>
@@ -840,9 +854,9 @@ const RequestCallOut = (props) => {
 
       <Modal
         isVisible={state.isPicvisible}
-        onSwipeComplete={() => setState({ isPicvisible: false })}
+        onSwipeComplete={() => setState({ ...state, isPicvisible: false })}
         swipeDirection={["left", "right", "down"]}
-        onBackdropPress={() => setState({ isPicvisible: false })}
+        onBackdropPress={() => setState({ ...state, isPicvisible: false })}
       >
         <View style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}>
           <Image

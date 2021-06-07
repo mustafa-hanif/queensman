@@ -394,7 +394,7 @@ export default class RequestCallOut extends React.Component {
                                 mode="dialog"
                                 onValueChange={this.onValueChange.bind(this)}
                                 selectedValue={this.state.JobType}
-                                itemStyle={{ fontSize: 30, fontFamily: 'Helvetica' }}
+                                itemStyle={{ fontSize: 30 }}
                                 style={{}}
 
                             >
@@ -414,7 +414,7 @@ export default class RequestCallOut extends React.Component {
                             <View style={styles.OthertxtStyle}>
                                 <TextInput
                                     ref="textInputMobile"
-                                    style={{ fontSize: 14, fontFamily: 'Helvetica' }}
+                                    style={{ fontSize: 14 }}
                                     placeholder='Type other here....'
                                     underlineColorAndroid="transparent"
                                     numberOfLines={1}
@@ -451,7 +451,7 @@ export default class RequestCallOut extends React.Component {
                         <View style={styles.DestxtStyle}>
                             <TextInput
                                 ref="textInputMobile"
-                                style={{ fontSize: 14, color: '#8c8c8c', width: '90%', fontFamily: 'Helvetica', paddingTop: '2%' }}
+                                style={{ fontSize: 14, color: '#8c8c8c', width: '90%', paddingTop: '2%' }}
                                 placeholder='Type description here ....'
                                 placeholderTextColor='#8c8c8c'
                                 multiline={true}
@@ -507,7 +507,7 @@ export default class RequestCallOut extends React.Component {
                         </View>
                         <View style={{ height: "5%" }}></View>
                         <TouchableOpacity style={styles.SubmitCallout} onPress={() => this.askSubmitCallout()}>
-                            {this.state.loading ? <ActivityIndicator size='large' color="#fff" style={{ alignSelf: 'center' }} /> : <Text style={{ color: '#fff', fontSize: 15, fontFamily: 'Helvetica', alignSelf: 'center' }}>Submit Callout</Text>}
+                            {this.state.loading ? <ActivityIndicator size='large' color="#fff" style={{ alignSelf: 'center' }} /> : <Text style={{ color: '#fff', fontSize: 15, alignSelf: 'center' }}>Submit Callout</Text>}
                         </TouchableOpacity>
                         <View style={{ height: 100 }}></View>
                     </ScrollView>
@@ -607,7 +607,7 @@ const styles = StyleSheet.create({
         paddingVertical: 15
     },
     TextFam: {
-        fontFamily: 'Helvetica'
+        // fontFamily: 'Helvetica'
     },
     ButtonSty: {
         backgroundColor: "#FFCA5D",
