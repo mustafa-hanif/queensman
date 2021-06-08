@@ -1,3 +1,7 @@
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable consistent-return */
+/* eslint-disable react/no-access-state-in-setstate */
+/* eslint-disable react/no-unused-state */
 /* eslint-disable no-lonely-if */
 /* eslint-disable no-console */
 /* eslint-disable no-alert */

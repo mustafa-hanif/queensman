@@ -14,8 +14,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
+import dayjs from 'dayjs';
 import Modal from "react-native-modal";
 
 import { Content, Icon } from "native-base";
@@ -91,14 +90,15 @@ const Job = (props) => {
   const calloutIdFromParam = props.navigation.getParam("it", null);
 
   // API
-  const [startJob, { error: startJobError }] = useMutation(START_JOB, {
-    onCompleted: () => {
-      props.navigation.navigate("PreJob", {
-        QJobID: state.JobData.id,
-      });
-    },
+  const [startJob, {  called: startJobCalled, loading: startJobLoading, error: startJobError }] = useMutation(START_JOB, {
     onError: (error) => alert(error),
   });
+
+  if (startJobCalled && !startJobLoading) {
+    props.navigation.navigate("PreJob", {
+      QJobID: state.JobData.id,
+    });
+  }
 
   const { loading, data, error } = useQuery(GET_JOB_WORKERS, {
     variables: {
@@ -161,6 +161,8 @@ const Job = (props) => {
   const job = state?.JobData?.job?.[0];
   const client = state?.JobData?.client;
   const property = state?.JobData?.property;
+
+  console.log(state?.JobData)
   if (loading) {
     return <ActivityIndicator size="large" color="#FFCA5D" />;
   }
@@ -203,7 +205,7 @@ const Job = (props) => {
   return (
     <ScrollView style={styles.container}>
       <View style={{ height: 20 }}></View>
-      <Text style={styles.HeadingStyle}>{state.JobData.request_time}</Text>
+      <Text style={styles.HeadingStyle}>{dayjs(state.JobData.request_time).format('DD MMM YYYY')}</Text>
       <Text
         style={{
           fontSize: 17,
@@ -256,7 +258,7 @@ const Job = (props) => {
           Urgency Level: {state.JobData.urgency_level}
         </Text>
         <Text style={{ fontSize: 13, marginBottom: "3%" }}>
-          Request Time: {state.JobData.request_time}
+          Request Time: {dayjs(state.JobData.request_time).format('DD MMM YYYY')}
         </Text>
       </View>
       <Text
@@ -410,7 +412,7 @@ const Job = (props) => {
             onLoadEnd={() => setState({...state, imageLoading: false})}
             source={{ uri: state.selectedPic }}
           />
-          {state.imageLoading && <ActivityIndicator />}
+          {state.imageLoading && <ActivityIndicator size="large" color="#FFCA5D" />}
           <TouchableOpacity
             onPress={() => setState({ ...state, isPicvisible: false })}
           >

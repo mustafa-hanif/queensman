@@ -27,26 +27,21 @@ import Modal from "react-native-modal";
 import { Content, Icon } from "native-base";
 
 const PreJob = (props) => {
+  const pics = Object.fromEntries([...Array(10)].map((_, index) => {
+    return [`Pic${index}`, 'link'];
+  }));
+
   const [state, setState] = useState({
     Note: "",
     Notes: [{ note: "" }],
-    Pic1: "link",
-    Pic2: "link",
-    Pic3: "link",
-    Pic4: "link",
-    Pic5: "link",
-    Pic6: "link",
-    Pic7: "link",
-    Pic8: "link",
-    Pic9: "link",
+    ...pics,
     ViewOpacity: 1,
     UploadButtonDeactive: false,
-    Pic10: "link",
     selectedPic:
       "https://en.wikipedia.org/wiki/Art#/media/File:Art-portrait-collage_2.jpg",
     isPicvisible: false, //veiw image app kay lia
     picturename: "",
-    CallOutID: this.props.navigation.getParam("QJobID", null),
+    CallOutID: props.navigation.getParam("QJobID", null),
     IsImageuploaded: false,
     selectedNo: 0,
     NoteItem: {
@@ -55,129 +50,33 @@ const PreJob = (props) => {
   });
 
   useEffect(() => {
-    link =
-      "https://www.queensman.com/phase_2/queens_worker_Apis/fetchOngoingJobPrePictures.php?ID=" +
-      this.state.CallOutID;
-    console.log(link);
-    axios.get(link).then((result) => {
-      console.log(
-        result.data.server_response[0].ongoing_job_pictures.picture_location
-      );
-      if (result.data.server_response != -1) {
-        if (
-          result.data.server_response[0].ongoing_job_pictures.picture_location
-        ) {
-          this.setState({
-            IsImageuploaded: true,
-            Pic1:
-              result.data.server_response[0].ongoing_job_pictures
-                .picture_location,
-          });
-        }
-        if (
-          result.data.server_response[1].ongoing_job_pictures.picture_location
-        ) {
-          this.setState({
-            IsImageuploaded: true,
-            Pic2:
-              result.data.server_response[1].ongoing_job_pictures
-                .picture_location,
-          });
-        }
-        if (
-          result.data.server_response[2].ongoing_job_pictures.picture_location
-        ) {
-          this.setState({
-            IsImageuploaded: true,
-            Pic3:
-              result.data.server_response[2].ongoing_job_pictures
-                .picture_location,
-          });
-        }
-        if (
-          result.data.server_response[3].ongoing_job_pictures.picture_location
-        ) {
-          this.setState({
-            IsImageuploaded: true,
-            Pic4:
-              result.data.server_response[3].ongoing_job_pictures
-                .picture_location,
-          });
-        }
-        if (
-          result.data.server_response[4].ongoing_job_pictures.picture_location
-        ) {
-          this.setState({
-            IsImageuploaded: true,
-            Pic5:
-              result.data.server_response[4].ongoing_job_pictures
-                .picture_location,
-          });
-        }
-        if (
-          result.data.server_response[5].ongoing_job_pictures.picture_location
-        ) {
-          this.setState({
-            IsImageuploaded: true,
-            Pic6:
-              result.data.server_response[5].ongoing_job_pictures
-                .picture_location,
-          });
-        }
-        if (
-          result.data.server_response[6].ongoing_job_pictures.picture_location
-        ) {
-          this.setState({
-            IsImageuploaded: true,
-            Pic7:
-              result.data.server_response[6].ongoing_job_pictures
-                .picture_location,
-          });
-        }
-        if (
-          result.data.server_response[7].ongoing_job_pictures.picture_location
-        ) {
-          this.setState({
-            IsImageuploaded: true,
-            Pic8:
-              result.data.server_response[7].ongoing_job_pictures
-                .picture_location,
-          });
-        }
-        if (
-          result.data.server_response[8].ongoing_job_pictures.picture_location
-        ) {
-          this.setState({
-            IsImageuploaded: true,
-            Pic9:
-              result.data.server_response[8].ongoing_job_pictures
-                .picture_location,
-          });
-        }
-      }
-    });
-    this.FetchUpdateNotes();
+    // link =
+    //   "https://www.queensman.com/phase_2/queens_worker_Apis/fetchOngoingJobPrePictures.php?ID=" +
+    //   state.CallOutID;
+    // console.log(link);
+   
+    FetchUpdateNotes();
   }, []);
     
   const FetchUpdateNotes = () => {
     const link =
       "https://www.queensman.com/phase_2/queens_worker_Apis/fetchJobNotes.php?ID=" +
-      this.state.CallOutID;
+      state.CallOutID;
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data);
       if (result.data.server_response != -1) {
-        this.setState({
+        setState({ ...state, 
           Notes: result.data.server_response,
         });
       }
-      console.log(this.state.Notes);
+      console.log(state.Notes);
     });
   }
 
   const toggleGalleryEventModal = (vale, no) => {
-    this.setState({
-      isPicvisible: !this.state.isPicvisible,
+    setState({ ...state, 
+      isPicvisible: !state.isPicvisible,
       selectedPic: vale,
       selectedNo: no,
     });
@@ -192,16 +91,16 @@ const PreJob = (props) => {
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
-        { text: "Yes", onPress: () => this.PreJobHandler() },
+        { text: "Yes", onPress: () => PreJobHandler() },
       ],
       { cancelable: false }
     );
   };
 
   const PreJobHandler = () => {
-    if (this.state.IsImageuploaded) {
-      this.props.navigation.navigate("PostJob", {
-        QJobID: this.state.CallOutID,
+    if (state.IsImageuploaded) {
+      props.navigation.navigate("PostJob", {
+        QJobID: state.CallOutID,
       });
     } else {
       alert("Please upload pre job images first!");
@@ -217,7 +116,7 @@ const PreJob = (props) => {
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
-        { text: "Yes", onPress: () => this.UploadImage() },
+        { text: "Yes", onPress: () => UploadImage() },
       ],
       { cancelable: false }
     );
@@ -225,7 +124,7 @@ const PreJob = (props) => {
 
   const SelectImages = async () => {
     if (Constants.platform.ios) {
-      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
       if (status !== "granted") {
         alert("Sorry, we need camera roll permissions to make this work!");
       }
@@ -235,149 +134,28 @@ const PreJob = (props) => {
       quality: 0.1,
     });
     if (!result.cancelled) {
-      this._uploadImage(result.uri);
+      _uploadImage(result.uri);
     }
   };
 
   const UploadImage = () => {
-    if (this.state.Pic1 != "link") {
-      let link =
-        "https://www.queensman.com/phase_2/queens_worker_Apis/uploadPrePicture_a.php";
-      if (this.state.Pic1 != "link") {
-        this.urlToUPLOAD(this.state.Pic1, link);
-      }
-      if (this.state.Pic2 != "link") {
-        this.urlToUPLOAD(this.state.Pic2, link);
-        // blink="https://www.queensman.com/phase_2/queens_worker_Apis/uploadPrePicture_b.php?target_file="+this.state.picturename+"&ID="+this.state.CallOutID
-        // console.log(blink)
-        // axios.get(blink).then((result)=>
-        // {
-        //     console.log(result.data)
-        // })
-      }
-      if (this.state.Pic3 != "link") {
-        this.urlToUPLOAD(this.state.Pic3, link);
-        // blink="https://www.queensman.com/phase_2/queens_worker_Apis/uploadPrePicture_b.php?target_file="+this.state.picturename+"&ID="+this.state.CallOutID
-        // console.log(blink)
-        // axios.get(blink).then((result)=>
-        // {
-        //     console.log(result.data)
-        // })
-      }
-      if (this.state.Pic4 != "link") {
-        this.urlToUPLOAD(this.state.Pic4, link);
-        // blink="https://www.queensman.com/phase_2/queens_worker_Apis/uploadPrePicture_b.php?target_file="+this.state.picturename+"&ID="+this.state.CallOutID
-        // console.log(blink)
-        // axios.get(blink).then((result)=>
-        // {
-        //     console.log(result.data)
-        // })
-      }
-      if (this.state.Pic5 != "link") {
-        this.urlToUPLOAD(this.state.Pic5, link);
-        // blink="https://www.queensman.com/phase_2/queens_worker_Apis/uploadPrePicture_b.php?target_file="+this.state.picturename+"&ID="+this.state.CallOutID
-        // console.log(blink)
-        // axios.get(blink).then((result)=>
-        // {
-        //     console.log(result.data)
-        // })
-      }
-      if (this.state.Pic6 != "link") {
-        this.urlToUPLOAD(this.state.Pic6, link);
-        // blink="https://www.queensman.com/phase_2/queens_worker_Apis/uploadPrePicture_b.php?target_file="+this.state.picturename+"&ID="+this.state.CallOutID
-        // console.log(blink)
-        // axios.get(blink).then((result)=>
-        // {
-        //     console.log(result.data)
-        // })
-      }
-      if (this.state.Pic7 != "link") {
-        this.urlToUPLOAD(this.state.Pic7, link);
-        // blink="https://www.queensman.com/phase_2/queens_worker_Apis/uploadPrePicture_b.php?target_file="+this.state.picturename+"&ID="+this.state.CallOutID
-        // console.log(blink)
-        // axios.get(blink).then((result)=>
-        // {
-        //     console.log(result.data)
-        // })
-      }
-      if (this.state.Pic8 != "link") {
-        this.urlToUPLOAD(this.state.Pic8, link);
-        // blink="https://www.queensman.com/phase_2/queens_worker_Apis/uploadPrePicture_b.php?target_file="+this.state.picturename+"&ID="+this.state.CallOutID
-        // console.log(blink)
-        // axios.get(blink).then((result)=>
-        // {
-        //     console.log(result.data)
-        // })
-      }
-      if (this.state.Pic9 != "link") {
-        this.urlToUPLOAD(this.state.Pic9, link);
-        // blink="https://www.queensman.com/phase_2/queens_worker_Apis/uploadPrePicture_b.php?target_file="+this.state.picturename+"&ID="+this.state.CallOutID
-        // console.log(blink)
-        // axios.get(blink).then((result)=>
-        // {
-        //     console.log(result.data)
-        // })
-      }
-      if (this.state.Pic10 != "link") {
-        this.urlToUPLOAD(this.state.Pic10, link);
-        // blink="https://www.queensman.com/phase_2/queens_worker_Apis/uploadPrePicture_b.php?target_file="+this.state.picturename+"&ID="+this.state.CallOutID
-        // console.log(blink)
-        // axios.get(blink).then((result)=>
-        // {
-        //     console.log(result.data)
-        // })
-      }
-      this.setState({ IsImageuploaded: true });
-    } else {
-      alert("Please select atleast 1 image!");
-    }
+
+    // expoFileToFormFile(state.Pic1);
+    //   setState({ ...state,  IsImageuploaded: true });
+    // } else {
+    //   alert("Please select atleast 1 image!");
+    // }
   };
 
   const _uploadImage = (uri) => {
-    if (this.state.Pic1 == "link") {
-      this.setState({
-        Pic1: uri,
-      });
-      console.log(this.state.picture1);
-    } else if (this.state.Pic2 == "link") {
-      this.setState({
-        Pic2: uri,
-      });
-      console.log(this.state.picture2);
-    } else if (this.state.Pic3 == "link") {
-      this.setState({
-        Pic3: uri,
-      });
-    } else if (this.state.Pic4 == "link") {
-      this.setState({
-        Pic4: uri,
-      });
-    } else if (this.state.Pic5 == "link") {
-      this.setState({
-        Pic5: uri,
-      });
-    } else if (this.state.Pic6 == "link") {
-      this.setState({
-        Pic6: uri,
-      });
-    } else if (this.state.Pic7 == "link") {
-      this.setState({
-        Pic7: uri,
-      });
-    } else if (this.state.Pic8 == "link") {
-      this.setState({
-        Pic8: uri,
-      });
-    } else if (this.state.Pic9 == "link") {
-      this.setState({
-        Pic9: uri,
-      });
-    } else if (this.state.Pic10 == "link") {
-      this.setState({
-        Pic10: uri,
-      });
-    } else {
-      alert("Pictures Limit Reached, i.e 10");
+    for (let i = 0; i < 10; i++) {
+      if (state[`Pic${i}`] === "link") {
+        setState({ ...state, 
+          ...state,
+          [`Pic${i}`]: uri,
+        });
+        break;
+      }
     }
   };
   const urlToUPLOAD = async (url, link) => {
@@ -387,13 +165,13 @@ const PreJob = (props) => {
       "https://www.queensman.com/phase_2/queens_worker_Apis/uploadPrePicture_b.php?target_file=" +
       filename +
       "&ID=" +
-      this.state.CallOutID;
+      state.CallOutID;
     console.log(blink);
     axios.get(blink).then((result) => {
       console.log(result.data);
     });
     console.log(filename);
-    this.setState({
+    setState({ ...state, 
       picturename: filename,
     });
     let match = /\.(\w+)$/.exec(filename);
@@ -416,16 +194,16 @@ const PreJob = (props) => {
   const addNote = () => {
     const link =
       "https://www.queensman.com/phase_2/queens_worker_Apis/insertJobNotes.php?ID=" +
-      this.state.CallOutID +
+      state.CallOutID +
       "&note=" +
-      this.state.Note;
+      state.Note;
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data);
-      this.setState({
+      setState({ ...state, 
         Note: "",
       });
-      this.FetchUpdateNotes();
+      FetchUpdateNotes();
     });
   };
   const RemoveNotesAlert = (item) => {
@@ -438,7 +216,7 @@ const PreJob = (props) => {
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
-        { text: "Remove", onPress: () => this.RemoveNotes(item) },
+        { text: "Remove", onPress: () => RemoveNotes(item) },
       ],
       { cancelable: false }
     );
@@ -446,63 +224,63 @@ const PreJob = (props) => {
   const RemoveNotes = (item) => {
     const link =
       "https://www.queensman.com/phase_2/queens_worker_Apis/deleteJobNotes.php?ID=" +
-      this.state.CallOutID +
+      state.CallOutID +
       "&note=" +
       item.note;
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data);
 
-      this.FetchUpdateNotes();
+      FetchUpdateNotes();
     });
   };
   const RemoveImages = () => {
-    if (this.state.selectedNo == 1) {
-      this.setState({
+    if (state.selectedNo == 1) {
+      setState({ ...state, 
         Pic1: "link",
       });
-    } else if (this.state.selectedNo == 2) {
-      this.setState({
+    } else if (state.selectedNo == 2) {
+      setState({ ...state, 
         Pic2: "link",
       });
-    } else if (this.state.selectedNo == 3) {
-      this.setState({
+    } else if (state.selectedNo == 3) {
+      setState({ ...state, 
         Pic3: "link",
       });
-    } else if (this.state.selectedNo == 4) {
-      this.setState({
+    } else if (state.selectedNo == 4) {
+      setState({ ...state, 
         Pic4: "link",
       });
-    } else if (this.state.selectedNo == 5) {
-      this.setState({
+    } else if (state.selectedNo == 5) {
+      setState({ ...state, 
         Pic5: "link",
       });
-    } else if (this.state.selectedNo == 6) {
-      this.setState({
+    } else if (state.selectedNo == 6) {
+      setState({ ...state, 
         Pic6: "link",
       });
-    } else if (this.state.selectedNo == 7) {
-      this.setState({
+    } else if (state.selectedNo == 7) {
+      setState({ ...state, 
         Pic7: "link",
       });
-    } else if (this.state.selectedNo == 8) {
-      this.setState({
+    } else if (state.selectedNo == 8) {
+      setState({ ...state, 
         Pic8: "link",
       });
-    } else if (this.state.selectedNo == 9) {
-      this.setState({
+    } else if (state.selectedNo == 9) {
+      setState({ ...state, 
         Pic9: "link",
       });
-    } else if (this.state.selectedNo == 10) {
-      this.setState({
+    } else if (state.selectedNo == 10) {
+      setState({ ...state, 
         Pic10: "link",
       });
     }
-    this.setState({ isPicvisible: false });
+    setState({ ...state,  isPicvisible: false });
   };
   const CameraSnap = async () => {
     if (Constants.platform.ios) {
-      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
       if (status !== "granted") {
         alert("Sorry, we need camera roll permissions to make this work!");
       }
@@ -517,7 +295,7 @@ const PreJob = (props) => {
       quality: 0.2,
     });
     if (!result.cancelled) {
-      this._uploadImage(result.uri);
+      _uploadImage(result.uri);
     }
   };
 
@@ -542,11 +320,11 @@ const PreJob = (props) => {
             justifyContent: "space-between",
             alignItems: "center",
             paddingHorizontal: "5%",
-            opacity: this.state.IsImageuploaded ? 0.3 : 1,
+            opacity: state.IsImageuploaded ? 0.3 : 1,
           }}
-          pointerEvents={this.state.IsImageuploaded ? "none" : "auto"}
+          pointerEvents={state.IsImageuploaded ? "none" : "auto"}
         >
-          <TouchableOpacity onPress={this.CameraSnap}>
+          <TouchableOpacity onPress={CameraSnap}>
             <View
               style={{
                 flexDirection: "row",
@@ -563,8 +341,8 @@ const PreJob = (props) => {
           </TouchableOpacity>
           <Text style={{ fontSize: 13, marginBottom: "1%" }}>OR</Text>
           <TouchableOpacity
-            onPress={this.SelectImages}
-            disabled={this.state.UploadButtonDeactive}
+            onPress={SelectImages}
+            disabled={state.UploadButtonDeactive}
           >
             <View
               style={{
@@ -589,314 +367,17 @@ const PreJob = (props) => {
             width: "100%",
             paddingHorizontal: "5%",
             marginTop: "2%",
-            opacity: this.state.IsImageuploaded ? 0.3 : 1,
+            opacity: state.IsImageuploaded ? 0.3 : 1,
           }}
         >
-          <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic1, 1)}
-            disabled={this.state.Pic1 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: this.state.Pic1 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              ></Icon>
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: this.state.Pic1 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 1
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic2, 2)}
-            disabled={this.state.Pic2 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: this.state.Pic2 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              ></Icon>
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: this.state.Pic2 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 2
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic3, 3)}
-            disabled={this.state.Pic3 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: this.state.Pic3 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              ></Icon>
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: this.state.Pic3 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 3
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic4, 4)}
-            disabled={this.state.Pic4 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: this.state.Pic4 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              ></Icon>
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: this.state.Pic4 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 4
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic5, 5)}
-            disabled={this.state.Pic5 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: this.state.Pic5 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              ></Icon>
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: this.state.Pic5 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 5
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic6, 6)}
-            disabled={this.state.Pic6 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: this.state.Pic6 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              ></Icon>
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: this.state.Pic6 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 6
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic7, 7)}
-            disabled={this.state.Pic7 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: this.state.Pic7 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              ></Icon>
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: this.state.Pic7 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 7
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic8, 8)}
-            disabled={this.state.Pic8 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: this.state.Pic8 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              ></Icon>
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: this.state.Pic8 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 8
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic9, 9)}
-            disabled={this.state.Pic9 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: this.state.Pic9 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              ></Icon>
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: this.state.Pic9 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 9
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic10, 10)}
-            disabled={this.state.Pic10 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: this.state.Pic10 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              ></Icon>
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: this.state.Pic10 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 10
-              </Text>
-            </View>
-          </TouchableOpacity>
+          {[...Array(10)].map((_, i)=> {
+            return <PictureLink key={`Picture ${i}`} label={`Picture ${i}`} picture={state[`Pic${i}`]} toggleGalleryEventModal={toggleGalleryEventModal} index={i} />
+          })}
         </View>
         <View style={{ height: "3%" }}></View>
         <Button
-          disabled={this.state.IsImageuploaded}
-          onPress={this.AlertUploadImage}
+          disabled={state.IsImageuploaded}
+          onPress={AlertUploadImage}
           title="UPLOAD IMAGES"
           color="#FFCA5D"
         />
@@ -913,7 +394,7 @@ const PreJob = (props) => {
         </Text>
         <View style={{ heigh: "30%", width: "100%" }}>
           <FlatList
-            data={this.state.Notes}
+            data={state.Notes}
             keyExtractor={(item, index) => `${index}`}
             renderItem={({ item }) => (
               <View
@@ -936,7 +417,7 @@ const PreJob = (props) => {
                   </Text>
                 </View>
 
-                <TouchableOpacity onPress={() => this.RemoveNotesAlert(item)}>
+                <TouchableOpacity onPress={() => RemoveNotesAlert(item)}>
                   <Icon
                     name="close-circle"
                     style={{ fontSize: 20, color: "#FFCA5D" }}
@@ -958,17 +439,16 @@ const PreJob = (props) => {
             style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput
-            ref="textInputMobile"
             style={{ fontSize: 15, color: "#000E1E", width: "83%" }}
             placeholder="Type note here"
-            defaultValue={this.state.Note}
+            defaultValue={state.Note}
             placeholderTextColor="#000E1E"
             underlineColorAndroid="transparent"
             onChangeText={(Note) => {
-              this.setState({ Note });
+              setState({ ...state,  Note });
             }} //email set
           />
-          <TouchableOpacity onPress={this.addNote}>
+          <TouchableOpacity onPress={addNote}>
             <Icon
               name="add-circle"
               style={{ fontSize: 25, color: "#000E1E" }}
@@ -985,7 +465,7 @@ const PreJob = (props) => {
         ></View>
         <View style={{ height: "3%" }}></View>
         <Button
-          onPress={this.AlertPreJobHandler}
+          onPress={AlertPreJobHandler}
           title="NEXT"
           color="#FFCA5D"
         />
@@ -994,30 +474,30 @@ const PreJob = (props) => {
         <Button title="" color="#fff" />
 
         <Modal
-          isVisible={this.state.isPicvisible}
-          onSwipeComplete={() => this.setState({ isPicvisible: false })}
+          isVisible={state.isPicvisible}
+          onSwipeComplete={() => setState({ ...state,  isPicvisible: false })}
           swipeDirection={["left", "right", "down"]}
-          onBackdropPress={() => this.setState({ isPicvisible: false })}
+          onBackdropPress={() => setState({ ...state,  isPicvisible: false })}
         >
           <View
             style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}
           >
             <Image
               style={{ width: "80%", height: "80%", alignSelf: "center" }}
-              source={{ uri: this.state.selectedPic }}
+              source={{ uri: state.selectedPic }}
             />
             <Text> </Text>
 
             <Button
-              disabled={this.state.IsImageuploaded}
-              onPress={() => this.RemoveImages()}
+              disabled={state.IsImageuploaded}
+              onPress={() => RemoveImages()}
               title="REMOVE IMAGE"
               color="#FFCA5D"
             />
             <Text> </Text>
             <Text> </Text>
             <Button
-              onPress={() => this.setState({ isPicvisible: false })}
+              onPress={() => setState({ ...state,  isPicvisible: false })}
               title="CLOSE"
               color="#FFCA5D"
             />
@@ -1057,4 +537,44 @@ const styles = StyleSheet.create({
   },
 });
 
+const PictureLink = ({ toggleGalleryEventModal, picture, label, index }) => {
+  return <TouchableOpacity
+    onPress={() => toggleGalleryEventModal(picture, index)}
+    disabled={picture == "link" ? true : false}
+  >
+    <View
+      style={{
+        flexDirection: "row",
+        width: "100%",
+        alignItems: "center",
+      }}
+    >
+      <Icon
+        name="link"
+        style={{
+          fontSize: 20,
+          color: picture == "link" ? "#aaa" : "#000E1E",
+          paddingRight: "3%",
+        }}
+      ></Icon>
+      <Text
+        style={{
+          fontSize: 13,
+          marginBottom: "1%",
+          color: picture == "link" ? "#aaa" : "#000E1E",
+        }}
+      >
+        {label}
+      </Text>
+    </View>
+  </TouchableOpacity>
+}
+const expoFileToFormFile = (url) => {
+  const localUri = url;
+  const filename = localUri.split("/").pop();
+
+  const match = /\.(\w+)$/.exec(filename);
+  const type = match ? `image/${match[1]}` : `image`;
+  return { uri: localUri, name: filename, type };
+};
 export default PreJob;

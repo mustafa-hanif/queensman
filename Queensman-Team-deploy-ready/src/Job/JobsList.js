@@ -46,7 +46,7 @@ const GET_JOBS_LIST = gql`
       picture4
       urgency_level
       client_id:callout_by
-      client: client_callout {
+      client: client_callout_email {
         full_name
         email
         phone
