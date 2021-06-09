@@ -1,14 +1,10 @@
 /* eslint-disable react/prop-types */
 import React from "react";
-import {
-  StyleSheet,
-  View,
-  ActivityIndicator,
-  Dimensions,
-} from "react-native";
+import { StyleSheet, View, ActivityIndicator, Dimensions } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
-import { auth } from '../utils/nhost';
+import { auth } from "../utils/nhost";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 let deviceWidth = Dimensions.get("window").width;
 let deviceHeight = Dimensions.get("window").height;
@@ -20,7 +16,10 @@ export default class AuthLogin extends React.Component {
   }
 
   async componentDidMount() {
-    const email = auth?.currentSession?.session?.user.email
+    const user = await AsyncStorage.getItem("QueensUser");
+    // const email = auth?.currentSession?.session?.user.email;
+    const email = JSON.parse(user).email;
+    console.log("In AuthLogin", { email });
     if (email) {
       this.props.navigation.navigate("AppDrawer");
     } else {
