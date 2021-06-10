@@ -24,25 +24,16 @@ const styles = StyleSheet.create({
 });
 
 const AuthLoginCheck = ({ navigation }) => {
-  const { signedIn } = useAuth();
+  const email = auth?.currentSession?.session?.user.email;
   useEffect(() => {
-    console.log({ signedIn });
-    AsyncStorage.getItem("QueensUser").then((res) => {
-      if (res) {
-        navigation.navigate("AppDrawer");
-      } else {
-        navigation.navigate("Login");
-      }
-    });
-    // if (!signedIn) {
-    //   navigation.navigate("Login");
-    // } else {
-    //   console.log("ye bhi chalra");
-    //   navigation.navigate("AppDrawer");
-    // }
-  }, [signedIn]);
+    if (!email) {
+      navigation.navigate("Login");
+    } else {
+      navigation.navigate("AppDrawer");
+    }
+  }, [email]);
 
-  if (signedIn === null) {
+  if (email === null) {
     return (
       <View style={styles.container}>
         {/* background gradinet   */}
