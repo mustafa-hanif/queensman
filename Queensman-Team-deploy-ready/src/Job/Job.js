@@ -170,6 +170,7 @@ const Job = (props) => {
     const statePicture = state.JobData[`picture${index}`];
     if (statePicture) {
       return <TouchableOpacity
+      key={index}
       onPress={() => toggleGalleryEventModal(statePicture)}
       disabled={statePicture == "" ? true : false}
     >

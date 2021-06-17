@@ -1,7 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/display-name */
-/* eslint-disable react/prop-types */
 import React, { PureComponent } from "react";
 // import * as SplashScreen from "expo-splash-screen";
 import {
@@ -12,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
   Linking,
+  LogBox,
 } from "react-native";
 
 import {
@@ -20,8 +17,8 @@ import {
   createMaterialTopTabNavigator,
 } from "react-navigation";
 
-import { DrawerItems, createDrawerNavigator } from 'react-navigation-drawer';
-import { createStackNavigator } from 'react-navigation-stack';
+import { DrawerItems, createDrawerNavigator } from "react-navigation-drawer";
+import { createStackNavigator } from "react-navigation-stack";
 
 import { Icon, StyleProvider } from "native-base";
 import AppLoading from "expo-app-loading";
@@ -29,7 +26,6 @@ import AppLoading from "expo-app-loading";
 import { NhostApolloProvider } from "@nhost/react-apollo";
 import { NhostAuthProvider } from "@nhost/react-auth";
 import { auth } from "./src/utils/nhost";
-
 
 //Classes import
 import Login from "./src/Login";
@@ -71,6 +67,10 @@ export default class App extends PureComponent {
     isReady: false,
   };
 
+  componentDidMount() {
+    LogBox.ignoreAllLogs();
+  }
+
   render() {
     console.log({ isReady: this.state.isReady });
     if (!this.state.isReady) {
@@ -85,7 +85,10 @@ export default class App extends PureComponent {
     // SplashScreen.hideAsync();
     return (
       <NhostAuthProvider auth={auth}>
-        <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">
+        <NhostApolloProvider
+          auth={auth}
+          gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql"
+        >
           <StyleProvider style={getTheme(commonColor)}>
             <AppContainer />
           </StyleProvider>
@@ -136,7 +139,7 @@ const RequestCalloutStackNavigator = createStackNavigator(
   {
     ClientListFromRequestCallout: {
       screen: ClientListFromRequestCallout,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: "Clients",
         headerStyle: {
           backgroundColor: "#000E1E",
@@ -149,7 +152,7 @@ const RequestCalloutStackNavigator = createStackNavigator(
     },
     PropertiesListFromRequestCallout: {
       screen: PropertiesListFromRequestCallout,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: " Client Properties",
 
         headerStyle: {
@@ -163,7 +166,7 @@ const RequestCalloutStackNavigator = createStackNavigator(
     },
     RequestCallOut: {
       screen: RequestCallOut,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: " Client Properties",
 
         headerStyle: {
@@ -214,7 +217,7 @@ const InventoryReportStackNavigator = createStackNavigator(
     },
     PropertiesList: {
       screen: PropertiesList,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: " Client Properties",
 
         headerStyle: {
@@ -228,7 +231,7 @@ const InventoryReportStackNavigator = createStackNavigator(
     },
     InventoryReportList: {
       screen: InventoryReportList,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: " Inventory Reports",
 
         headerStyle: {
@@ -242,7 +245,7 @@ const InventoryReportStackNavigator = createStackNavigator(
     },
     InventoryReport: {
       screen: InventoryReport,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: " Inventory Report",
 
         headerStyle: {
@@ -256,7 +259,7 @@ const InventoryReportStackNavigator = createStackNavigator(
     },
     InventoryReportRoom: {
       screen: InventoryReportRoom,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: " Inventory Report Room",
 
         headerStyle: {
@@ -270,7 +273,7 @@ const InventoryReportStackNavigator = createStackNavigator(
     },
     Articles: {
       screen: Articles,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: " Room Article",
 
         headerStyle: {
@@ -295,7 +298,7 @@ const HomeScreenStackNavigator = createStackNavigator(
   {
     HomeNaviagtor: {
       screen: Home,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
         // headerLeft: (
         //   <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
@@ -307,7 +310,7 @@ const HomeScreenStackNavigator = createStackNavigator(
     },
     Notification: {
       screen: Notification,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: "Notification",
         headerTransparent: true,
         headerTintColor: "#FFCA5D",
@@ -319,7 +322,7 @@ const HomeScreenStackNavigator = createStackNavigator(
 
     Job: {
       screen: Job,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: "Job Description",
 
         headerStyle: {
@@ -333,7 +336,7 @@ const HomeScreenStackNavigator = createStackNavigator(
     },
     JobComplete: {
       screen: JobComplete,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: "Customer Satisfaction",
         //headerTransparent: true,
         headerStyle: {
@@ -347,7 +350,7 @@ const HomeScreenStackNavigator = createStackNavigator(
     },
     JobList: {
       screen: JobsList,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: "Assigned Services",
         //headerTransparent: true,
         headerStyle: {
@@ -361,7 +364,7 @@ const HomeScreenStackNavigator = createStackNavigator(
     },
     JobSteps: {
       screen: JobsSteps,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: "Safety Precautions",
         //headerTransparent: true,
         headerStyle: {
@@ -375,7 +378,7 @@ const HomeScreenStackNavigator = createStackNavigator(
     },
     PostJob: {
       screen: PostJob,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: "Post Job",
         //headerTransparent: true,
         headerStyle: {
@@ -389,7 +392,7 @@ const HomeScreenStackNavigator = createStackNavigator(
     },
     PreJob: {
       screen: PreJob,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: "Pre Job",
         //headerTransparent: true,
         headerStyle: {
@@ -403,7 +406,7 @@ const HomeScreenStackNavigator = createStackNavigator(
     },
     ServicesHistory: {
       screen: ServicesHistory,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: "Services History",
 
         headerStyle: {
@@ -417,7 +420,7 @@ const HomeScreenStackNavigator = createStackNavigator(
     },
     ServicesHistoryItem: {
       screen: ServicesHistoryItem,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: "Services Details",
 
         headerStyle: {
@@ -431,7 +434,7 @@ const HomeScreenStackNavigator = createStackNavigator(
     },
     Scheduler: {
       screen: Scheduler,
-      navigationOptions: () => ({
+      navigationOptions: ({ navigation }) => ({
         title: "Scheduler",
 
         headerStyle: {
