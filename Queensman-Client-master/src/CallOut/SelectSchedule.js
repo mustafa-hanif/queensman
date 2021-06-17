@@ -144,7 +144,6 @@ export default function SelectSchedule(props) {
       [...Array(4)]
         .map((_, i) => {
           const _statePic = state[`picture${i}`];
-          console.log(_statePic);
           if (_statePic) {
             const file = expoFileToFormFile(_statePic);
             storage.put(`/callout_pics/${file.name}`, file).then(console.log).catch(console.error);
