@@ -57,13 +57,13 @@ const Calendar = props => {
   // ** calendarOptions(Props)
   const calendarOptions = {
     events,
-    initialDate: '2020-08-01',
+    // initialDate: '2020-08-01',
     datesSet,
     eventDataTransform: (eventData => {
-      const { id, worker: { full_name: workerName }, callout_id, start, startTime, title } = eventData
+      const { id, worker, callout_id, start, startTime, title } = eventData
       return {
         id,
-        title: `${title} by ${workerName}`,
+        title: worker?.full_name ? `${title} by ${worker?.full_name}` : '',
         start: `${start}T${startTime}`,
         extendedProps: {
           callout_id
