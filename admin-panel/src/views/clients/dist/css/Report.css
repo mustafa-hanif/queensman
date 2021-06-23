@@ -1,0 +1,399 @@
+
+.content-wrapper
+{
+    background-color:#EEEEEE;
+    background-size: 100%;
+}
+/* Properties tab*/
+.modal-title
+{
+    color:#052244;
+    font-weight: bold;
+    text-align: center;
+    font-size:0.6cm;
+}
+.modal-time
+{
+    text-align: left;
+    font-size: 0.4cm;
+    font-weight: bold;
+}
+.modal-type
+{
+    text-align: left;
+    font-size: 0.3cm;
+    font-weight: bold;
+}
+.modal-client
+{
+    margin-top: 2%;
+    text-align: left;
+    font-size: 0.4cm;
+    font-weight: bold;
+    color:#EEC95E;
+}
+.details
+{
+    text-align: left;
+    font-size: 0.3cm;
+    font-weight: bold;
+    color:black;
+    margin-left: 2%;
+}
+/* CLients tab*/
+
+.SearchBarClient
+{
+    margin-left:0%;
+    width:85%;
+    height: 30px;
+    margin-left: 0px;
+    margin-right:0px;
+    border: 1px solid #e5e5e5;
+}
+.SearchButton
+{
+    margin-left:1%;
+    margin-right:0%;
+    height: 30px;
+    background-color: #fff;
+    color: #fff;
+    border: 2px;
+    border-block-color: white;
+}
+.list-group-item
+{
+    display: inline-flex;
+    width:100%
+}
+
+
+.list-group
+{
+    list-style-type: none;
+    margin-top:0px;
+    margin-bottom: 0px;
+}
+.image-parent 
+{
+    max-width: 40px;
+    margin-right: none;
+}
+.img-circle
+{
+    height:40px;
+    margin-right: none;
+    margin-right: 10%;
+    margin-left: 5%;
+    
+}
+.client-name
+{
+    text-align: center;
+    width:100%;
+    color:#052244;
+}
+/* Report tab*/
+.details1
+{
+    font-size:0.4cm;
+    margin-left: 5%;
+    color:#052244;
+}
+.ReportStatus
+{
+    color: black;
+    background-color: #EEC95E;
+    border-color: #EEC95E;
+    padding: 10px;
+    border-radius: 0px;
+    width:70%;
+    font-size: 0.4cm;
+    font-display: bold;
+    margin-right: 1%;
+    margin-top: 4%;
+    margin-bottom:4%;
+    margin-left: 10%;
+    margin-right: 10%;
+    text-align: center;
+}
+
+.ReportStatus:focus , .ReportStatus:hover
+{
+    color: white;
+    background-color:#052244;
+    border-color:#052244;
+}
+
+.content_bar_items
+{
+    display:inline;
+}
+.btn-content_bar
+{
+    color: black;
+    background-color: #EEC95E;
+    border-color: #EEC95E;
+    border-radius: 0px;
+    width:40%;
+    margin-left: -2%;
+    margin-right: 3%;
+}
+.btn-content_bar:hover
+{
+    color: white;
+    background-color:#052244;
+    border-color:#052244;
+    border-radius: 0px;
+    width:40%;
+}
+
+
+.Arrows
+{
+  list-style-type: none;
+}
+.fa-arrow-right
+{
+    margin-left:91%;
+}
+.checkbox-warning
+{
+    height:28px;
+    width:28px;
+    margin-left:10%;
+}
+
+.CheckBoxText
+{
+    font-size:0.3cm;
+    width: 70%;
+    margin-left: 20%;
+    margin-right: 20%;
+    margin-top: -11%;
+    color:#052244;
+}
+.datepicker
+{
+    width:50%;
+    margin-top: 5%;
+}
+.date
+{
+    margin-bottom: 1%;
+}
+/* .carousel-control-next-icon {
+    height: 100px;
+    width: 100px;
+    outline: black;
+    background-size: 100%, 100%;
+    border-radius: 50%;
+    border: 1px solid black;
+    background-image: none;
+  } */
+  
+.carousel-control-next-icon:after
+{
+    margin-left:83%;
+    content: '>';
+    font-size: 35px;
+    color: #052244;
+    margin-bottom: 0%;
+}
+  
+.carousel-control-prev-icon:after 
+{
+    content: '<';
+    font-size: 35px;
+    color:#052244;
+    margin-bottom: 0%;
+}
+#arrow
+{
+      margin-top: -51% important;
+}
+.menu
+{
+    list-style-type: none;
+    display: inline-flexbox;
+    margin-top: 5%;
+}
+.content_bar_items3
+{
+    margin-left: 0%;
+    margin-right: 0%;
+    display:inline;
+}
+.content_bar_items4
+{
+   margin-top:5%;
+   margin-left: 0%;
+   margin-right: 0%;
+   display:inline;
+
+}
+.btn
+{
+    color: black;
+    background-color: #EEC95E;
+    border-color: #EEC95E;
+    border-radius: 0px;
+}
+.btn:hover
+{
+    color: white;
+    background-color:#052244;
+    border-color:#052244;
+    border-radius: 0px;
+}
+
+/* change password */
+
+.open-button {
+    background-color: #DAA207;
+    color: white;
+    border: none;
+    cursor: pointer;
+    opacity: 1;
+    width: 150px;
+    height: 40px;
+}
+input[type=password]
+{
+    width:95%;
+}
+
+.btn-Inventory-Report
+{
+    color: black;
+    background-color: #EEC95E;
+    border-color: #EEC95E;
+    border-radius: 0px;
+    padding: 3px;
+    font-size: 15px;
+}
+.btn-Inventory-Report:hover
+{
+    color: white;
+    background-color:#052244;
+    border-color:#052244;
+    padding: 3px;
+    border-radius: 0px;
+    font-size: 15px;
+}
+@media (max-width: 1920px)
+{
+    .main-sidebar
+    {
+        height:100%;
+    }
+    .Services_buttons
+    {
+        margin-top: -4%;
+    }
+    .btn-content_bar
+    {
+        margin-top: 2%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 12.1%;
+    }
+}
+@media (max-width: 1680px)
+{
+    .main-sidebar
+    {
+        height:95%;
+    }
+    .btn-content_bar
+    {
+        margin-top: 2%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 13.7%;
+    }
+}
+@media (max-width: 1600px)
+{
+    .main-sidebar
+    {
+        height:70%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 14.5%;
+    }
+}
+@media (max-width: 1440px)
+{
+    .main-sidebar
+    {
+        height:115%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 16.2%;
+    }
+}
+@media (max-width: 1366px)
+{
+    .main-sidebar
+    {
+        height:165%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 17.0%;
+    }
+}
+@media (max-width: 1280px)
+{
+    .main-sidebar
+    {
+        height:115%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 18.2%;
+    }
+}
+
+/* Mobile */
+@media (max-width:768px)
+{
+    /* Report */
+    .modal-body
+    {
+        margin-bottom:15%;
+    }
+    .carousel
+    {
+        margin-bottom:15%;
+    }
+}

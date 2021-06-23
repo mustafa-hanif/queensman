@@ -1,0 +1,519 @@
+/* Above Table*/
+.content-header
+{
+    color:#EEC95E;
+    text-align: left;
+    margin-left: 3%;
+    font-weight: bold;
+}
+.menu
+{
+    list-style-type: none;
+    margin-left: 70%;
+    margin-right:0%;
+}
+
+.btn-content_bar
+{
+    text-align: center;
+    color: black;
+    background-color: #EEC95E;
+    border-color: #EEC95E;
+    border-radius: 0px;
+    width:10%;
+}
+.btn-content_bar:hover
+{
+    color: black;
+    background-color:#052244;
+    border-color:whitesmoke;
+    border-radius: 0px;
+    color: white;
+    width:10%;
+}
+
+.menu2
+{
+    list-style-type: none;
+    margin-left: 5%;
+    margin-right:5%;
+}
+.content_bar_items2
+{
+    display:inline;
+    margin-left: 20%;
+    margin-right:20%;
+    font-weight: bold;
+    color:#052244;
+    font-size: 0.5cm
+}
+/* Table*/
+.col-md-8
+{
+    background-color:white;
+}
+.nav-tabs
+{
+    list-style-type: none;
+    display: inline;
+}
+.TabTitle
+{
+    
+    text-align: center;
+    margin-left: 0px;
+    margin-right: 0px;
+    display: inline;
+    font-size: 0.4cm;
+    margin-top:1%;
+    width:110px;
+}
+.TabTitle > a
+{
+    color:#001E29;
+}
+
+.nav-tabs>li>a
+{
+    background-color:#001E29;
+    color: #fff;
+    width:115px;
+}
+.nav-tabs>li>a:hover , .nav-tabs>li>a:active
+{
+    color:z;
+    background-color: #fff;
+    width:115px;
+}
+tr > td
+{
+    color:#001E29;
+}
+.pagination
+{
+    margin-left: 65%;
+}
+
+.content-wrapper
+{
+    background-color:#EEEEEE;
+    background-size: 100%;
+}
+
+/* clients tab*/
+.modal-title
+{
+    color:#052244;
+    font-weight: bold;
+    text-align: center;
+    font-size:0.5cm;
+}
+.modal-time
+{
+    text-align: left;
+    font-size: 0.4cm;
+    font-weight: bold;
+}
+.modal-type
+{
+    text-align: left;
+    font-size: 0.3cm;
+    font-weight: bold;
+}
+.modal-client
+{
+    text-align: left;
+    font-size: 0.4cm;
+    font-weight: bold;
+    color:#EEC95E;
+}
+.details
+{
+    text-align: left;
+    font-size: 0.3cm;
+    font-weight: bold;
+    color:black;
+    margin-left: 2%;
+}
+
+.SearchBarClient
+{
+    margin-left:0%;
+    width:85%;
+    height: 30px;
+    margin-left: 0px;
+    margin-right:0px;
+    border: 0px;
+    border: 1px solid #e5e5e5;
+}
+.SearchButton
+{
+    margin-left:1%;
+    margin-right:0%;
+    height: 30px;
+    background-color: #fff;
+    color: #fff;
+    border: 2px;
+    border-block-color: white;
+}
+/* Search job button */
+.SearchButton1
+{
+    margin-left:0%;
+    margin-right:0%;
+    height: 30px;
+    background-color: #fff;
+    border: 2px;
+    border-block-color: white;
+}
+.list-group-item
+{
+    display: inline-flex;
+    width:100%
+}
+
+
+.list-group
+{
+    list-style-type: none;
+    margin-top:0px;
+    margin-bottom: 0px;
+}
+.image-parent 
+{
+    max-width: 40px;
+    margin-right: none;
+}
+.img-circle
+{
+    height:40px;
+    margin-right: none;
+    margin-right: 10%;
+    margin-left: 5%;
+    
+}
+.client-name
+{
+text-align: center;
+width:100%;
+color:#052244;
+}
+
+.checkbox-warning
+{
+height:28px;
+width:28px;
+margin-left:10%;
+
+}
+.btn-pri:hover
+{
+    color: black;
+    background-color: #EEC95E;
+    border-color: #EEC95E;
+    border-radius: 0px;
+}
+.btn-pri:active
+{
+    color: black;
+    background-color: #EEC95E;
+    border-color: #EEC95E;
+    border-radius: 0px;
+}
+.btn-pri
+{
+    color: black;
+    background-color:white;
+    border-color:whitesmoke;
+    border-radius: 0px;
+}
+.nav-tabs-custom>.nav-tabs>li>a
+{
+    color:white;
+    background-color: #001E29;
+}
+.nav-tabs-custom>.nav-tabs>li.active {
+    border-top-color: #EEC95E;
+}
+.fa-eye
+{
+    font-size: 75px;
+    color:#EEC95E;
+}
+/* change password */
+
+.open-button {
+    background-color: #DAA207;
+    color: white;
+    border: none;
+    cursor: pointer;
+    opacity: 1;
+    width: 150px;
+    height: 40px;
+}
+input[type=password]
+{
+    width:95%;
+}   
+.table-responsive
+{
+    overflow-y: hidden;
+}
+@media (max-width: 1920px)
+{
+    .main-sidebar
+    {
+        height:100%;
+    }
+    .modal-body
+    {
+        height: 410px;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 12.1% ;
+    }
+
+}
+@media (max-width: 1680px)
+{
+    .main-sidebar
+    {
+        height:115%;
+    }
+    .modal-body
+    {
+        height: 415px;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 14.4%;
+    }
+
+}
+@media (max-width: 1600px)
+{
+    .main-sidebar
+    {
+        height:110%;
+    }
+    .modal-body
+    {
+        height: 415px;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 14.5%;
+    }
+}
+@media (max-width: 1440px)
+{
+    .main-sidebar
+    {
+        height:115%;
+    }
+    .modal-body
+    {
+        height: 410px;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 16.2%;
+    }
+            /* Tabs */
+        .TabTitle
+        {
+            margin-top:2%;
+            width:105px;
+            text-align: center;
+        }
+        .nav-tabs>li>a
+        {
+            background-color:#001E29;
+            color: #fff;
+            width:105px;
+        }
+}
+@media (max-width: 1366px)
+{
+    .main-sidebar
+    {
+        height:165%;
+    }
+    .modal-body
+    {
+        height: 420px;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 17.4%;
+    }
+                /* Tabs */
+        .TabTitle
+        {
+            margin-top:2%;
+            width:102px;
+            text-align: center;
+        }
+        .nav-tabs>li>a
+        {
+            background-color:#001E29;
+            color: #fff;
+            width:102px;
+        }
+}
+@media (max-width: 1280px)
+{
+    .main-sidebar
+    {
+        height:165%;
+    }
+    .modal-body
+    {
+        height: 430px;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 18.2%;
+    }
+        /* Tabs */
+        .TabTitle
+        {
+            margin-top:2%;
+            width:94px;
+            text-align: center;
+        }
+        .nav-tabs>li>a
+        {
+            background-color:#001E29;
+            color: #fff;
+            width:94px;
+        }
+}
+    /* mobile  */
+    @media (max-width:768px)
+    {
+        /* Assign Property  */
+    .btn-golden
+    {
+        color: black;
+        background-color: #EEC95E;
+        border-color: #EEC95E;
+        padding: 10px;
+        border-radius: 0px;
+        width:52%;
+        font-size: 0.4cm;
+        font-display: bold;
+        margin-right: 10%;
+        text-align: center;
+        margin-top:3%;
+    }
+    .btn-golden:hover
+    {
+        color: black;
+        background-color:#052244;
+        border-color:whitesmoke;
+        padding: 10px;
+        border-radius: 0px;
+        width:52%;
+        font-size: 0.4cm;
+        font-display: bold;
+        color:white;
+        text-align: center;
+        margin-top:3%;
+    }
+ 
+    /* cancel assign */
+    .menu
+    {
+    margin-left:0%;
+    margin-top: 2%;
+    margin-bottom:2%;
+    }
+    /* Tabs */
+    .TabTitle
+    {
+        margin-top:2%;
+        width:100%;
+        text-align: center;
+    }
+    .nav-tabs>li>a
+    {
+        background-color:#001E29;
+        color: #fff;
+        width:100%;
+    }
+
+.SearchBar
+{
+    margin-left:-2%;
+    width:80%;
+    height: 30px;
+    margin-top: 3%;
+    margin-bottom:3%;
+  /*  box-shadow: 2px 2px #888888;*/
+}
+     /* Assign job  */
+     .btn-content_bar
+{
+    color: black;
+    background-color: #EEC95E;
+    border-color: #EEC95E;
+    border-radius: 0px;
+    width:40%;
+}
+.btn-content_bar:hover
+{
+    color: black;
+    background-color:#052244;
+    border-color:whitesmoke;
+    border-radius: 0px;
+    width:40%;
+    color:white;
+}
+
+
+     .modal-body
+     {
+         margin-top:15%;
+     }
+ 
+    #ModelData
+    {
+        margin-top:240%;
+    }
+    .modal-body
+    {
+        height: 540px;
+        margin-bottom:20px;
+    }
+}
+
+#all_jobs_table, #assigned_table, #schedule_table, #progress_table, #closed_table, #cancelled_table
+{
+    width:100% !important;
+}

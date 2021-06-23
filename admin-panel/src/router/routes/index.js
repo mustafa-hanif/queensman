@@ -17,6 +17,30 @@ const Routes = [
     component: lazy(() => import('../../views/clients'))
   },
   {
+    path: '/tickets',
+    component: lazy(() => import('../../views/tickets'))
+  },
+  {
+    path: '/monthreports',
+    component: lazy(() => import('../../views/monthreports'))
+  },
+  {
+    path: '/inventory',
+    component: lazy(() => import('../../views/inventory'))
+  },
+  {
+    path: '/property',
+    component: lazy(() => import('../../views/property'))
+  },
+  {
+    path: '/workers',
+    component: lazy(() => import('../../views/workers'))
+  },
+  {
+    path: '/services',
+    component: lazy(() => import('../../views/services'))
+  },
+  {
     path: '/login',
     component: lazy(() => import('../../views/Login')),
     layout: 'BlankLayout',
