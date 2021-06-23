@@ -14,9 +14,45 @@ export default [
     navLink: '/clients'
   },
   {
+    id: 'tickets',
+    title: 'Tickets',
+    icon: <Mail size={20} />,
+    navLink: '/tickets'
+  },
+  {
     id: 'schedule',
     title: 'Team Schedule',
     icon: <Clock size={20} />,
     navLink: '/schedule'
+  },
+  {
+    id: 'monthly reports',
+    title: 'Monthly Reports',
+    icon: <Clock size={20} />,
+    navLink: '/monthreports'
+  },
+  {
+    id: 'inventory',
+    title: 'Inventory',
+    icon: <Clock size={20} />,
+    navLink: '/inventory'
+  },
+  {
+    id: 'Properties',
+    title: 'Properties',
+    icon: <Clock size={20} />,
+    navLink: '/property'
+  },
+  {
+    id: 'workers',
+    title: 'Workers',
+    icon: <Clock size={20} />,
+    navLink: '/workers'
+  },
+  {
+    id: 'services',
+    title: 'Services',
+    icon: <Clock size={20} />,
+    navLink: '/services'
   }
 ]
