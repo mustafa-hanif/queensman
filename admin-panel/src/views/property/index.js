@@ -61,13 +61,16 @@ function Clients() {
     <table name="client"  class="table">
   <thead>
     <tr>
-      <th scope="col">Name</th>
-      <th scope="col">Email</th>
-      <th scope="col">Password</th>
-      <th scope="col">Phone</th>
-      <th scope="col">Account Type</th>
+      <th scope="col">Clinet Nmae</th>
+      <th scope="col">Address</th>
+      <th scope="col">Property Type</th>
+      <th scope="col">Leased/Owned</th>
+      <th scope="col">Community</th>
+      <th scope="col">City</th>
+      <th scope="col">Country</th>
+      <th scope="col">Comments</th>
       <th scope="col">Active/Inactive</th>
-      <th scope="col">Details</th>
+      <th scope="col"> Details</th>
 
     </tr>
   </thead>
@@ -89,6 +92,15 @@ function Clients() {
         </td>
         <td key={client.id} value={client.account_type}>
           {client.account_type}
+        </td>
+        <td>
+
+        </td>
+        <td>
+
+        </td>
+        <td>
+          
         </td>
         <td key={client.id} value={client.active}>
           {client.active}
