@@ -21,6 +21,7 @@ import {
   updateEvent,
   updateFilter,
   updateAllFilters,
+  selectEvent,
   addEvent,
   removeEvent
 } from './store/actions/index'
@@ -63,7 +64,7 @@ const CalendarComponent = () => {
     _gte: '2020-08-01',
     _lte: '2020-08-01'
   })
-  const [selectedEvent, selectEvent] = useState(null)
+  // const [selectedEvent, selectEvent] = useState({})
 
   // ** states
   const [addSidebarOpen, setAddSidebarOpen] = useState(false),
@@ -111,9 +112,10 @@ const CalendarComponent = () => {
     }
   })
   // ** Fetch Events On Mount
-  // useEffect(() => {
-  //   dispatch(fetchEvents(store.selectedCalendars))
-  // }, [])
+  useEffect(() => {
+  //  console.log(data)
+    // dispatch(fetchEvents(store.selectedCalendars))
+  }, [])
 
   const datesSet = (info) => {
     console.log(info)
@@ -121,6 +123,7 @@ const CalendarComponent = () => {
       _gte: info.startStr,
       _lte: info.endStr
     }})
+    // console.log(data)
   }
 
   return (
@@ -143,7 +146,9 @@ const CalendarComponent = () => {
           <Col className='position-relative'>
             <Calendar
               isRtl={isRtl}
+              store={store}
               events={data?.scheduler ?? []}
+              dispatch={dispatch}
               datesSet={datesSet}
               blankEvent={blankEvent}
               calendarApi={calendarApi}
@@ -164,9 +169,11 @@ const CalendarComponent = () => {
         </Row>
       </div>
       <AddEventSidebar
+      store={store}
         addEvent={addEvent}
+        dispatch={dispatch}
         open={addSidebarOpen}
-        selectedEvent={selectedEvent}
+        // selectedEvent={selectedEvent}
         selectEvent={selectEvent}
         updateEvent={updateEvent}
         removeEvent={removeEvent}

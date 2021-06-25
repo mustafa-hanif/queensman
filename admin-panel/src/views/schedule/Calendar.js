@@ -36,7 +36,9 @@ const Calendar = props => {
   const {
     events,
     isRtl,
+    store,
     datesSet,
+    dispatch,
     calendarsColor,
     calendarApi,
     setCalendarApi,
@@ -61,10 +63,22 @@ const Calendar = props => {
     datesSet,
     eventDataTransform: (eventData => {
       const { id, worker, callout_id, start, startTime, title } = eventData
-      return {
+      console.log({
+        allDay: false,
+        // end: `${start}T${'00:00:00.000Z'}`,
         id,
-        title: worker?.full_name ? `${title} by ${worker?.full_name}` : '',
-        start: `${start}T${startTime}`,
+        title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
+        start: new Date(`${start} ${startTime}`).toISOString(),
+        extendedProps: {
+          callout_id
+        }
+      })
+      return {
+        allDay: false,
+        // end: `${start}T${'00:00:00.000Z'}`,
+        id,
+        title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
+        start: new Date(`${start} ${startTime}`).toISOString(),
         extendedProps: {
           callout_id
         }
@@ -142,6 +156,7 @@ const Calendar = props => {
       const ev = blankEvent
       ev.start = info.date
       ev.end = info.date
+      console.log("abc")
       dispatch(selectEvent(ev))
       handleAddEventSidebar()
     },

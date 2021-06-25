@@ -1,7 +1,7 @@
 // ** React Imports
 import { Fragment, useState } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { gql, useQuery } from "@apollo/client"
+import { gql, useQuery, useMutation } from "@apollo/client"
 
 // ** Custom Components
 import Avatar from '@components/avatar'
@@ -65,6 +65,51 @@ const GET_CALLOUT = gql`
   }
 `
 
+const REQUEST_CALLOUT = gql`
+  mutation AddCallout(
+    $property_id: Int
+    $date_on_calendar: date
+    $notes: String
+    $time_on_calendar: time
+    $email: String
+    $category: String
+    $job_type: String
+    $status: String
+    $picture1: String
+    $picture2: String
+    $picture3: String
+    $picture4: String
+    $request_time: timestamp
+    $urgency_level: String
+  ) {
+    insert_scheduler_one(
+      object: {
+        callout: {
+          data: {
+            callout_by_email: $email
+            property_id: $property_id
+            category: $category
+            job_type: $job_type
+            status: $status
+            request_time: $request_time
+            urgency_level: $urgency_level
+            picture1: $picture1
+            picture2: $picture2
+            picture3: $picture3
+            picture4: $picture4
+            active: 1
+          }
+        }
+        date_on_calendar: $date_on_calendar
+        time_on_calendar: $time_on_calendar
+        notes: $notes
+      }
+    ) {
+      date_on_calendar
+    }
+  }
+`
+
 const params = {
   slidesPerView: 5,
   spaceBetween: 50,
@@ -94,19 +139,21 @@ const params = {
 const AddEventSidebar = props => {
   // ** Props
   const {
+    store,
+    dispatch,
     open,
     handleAddEventSidebar,
     calendarsColor,
     calendarApi,
     refetchEvents,
     addEvent,
-    selectedEvent,
     selectEvent,
     updateEvent,
     removeEvent
   } = props
 
   // ** Vars
+  const selectedEvent = store.selectedEvent
   const { register, errors, handleSubmit } = useForm()
 
   // ** States
@@ -119,6 +166,9 @@ const AddEventSidebar = props => {
   const [endPicker, setEndPicker] = useState(new Date())
   const [startPicker, setStartPicker] = useState(new Date())
   const [value, setValue] = useState([{ value: 'Business', label: 'Business', color: 'primary' }])
+  const [requestCalloutApiCall, { loading: requestCalloutLoading, error: mutationError }] = useMutation(
+    REQUEST_CALLOUT
+  )
 
   // ** Select Options
   const options = [
@@ -161,21 +211,49 @@ const AddEventSidebar = props => {
 
   // ** Adds New Event
   const handleAddEvent = () => {
-    const obj = {
-      title,
-      start: startPicker,
-      end: endPicker,
-      allDay,
-      display: 'block',
-      extendedProps: {
-        calendar: value[0].label,
-        url: url.length ? url : undefined,
-        guests: guests.length ? guests : undefined,
-        location: location.length ? location : undefined,
-        desc: desc.length ? desc : undefined
+    // const obj = {
+    //   title,
+    //   start: startPicker,
+    //   end: endPicker,
+    //   allDay,
+    //   display: 'block',
+    //   extendedProps: {
+    //     calendar: value[0].label,
+    //     url: url.length ? url : undefined,
+    //     guests: guests.length ? guests : undefined,
+    //     location: location.length ? location : undefined,
+    //     desc: desc.length ? desc : undefined
+    //   }
+    // }
+    // dispatch(addEvent(obj))
+    // console.log(obj)
+    // console.log({
+    //     property_id: 1,
+    //     email: 'salmanhanif@gmail.com',
+    //     notes: '1',
+    //     time_on_calendar : startPicker.toTimeString().substr(0, 8), 
+    //     date_on_calendar : startPicker.toISOString().substring(0, 10), 
+    //     category: value[0].label, 
+    //     job_type: value[0].label, 
+    //     status: "Requested",
+    //     request_time: new Date().toLocaleDateString(),
+    //     urgency_level: "Medium"})
+    requestCalloutApiCall({
+      variables: {
+        property_id: 1,
+        email: 'salmanhanif@gmail.com',
+        notes: "1",
+        time_on_calendar : startPicker.toTimeString().substr(0, 8), 
+        date_on_calendar : startPicker.toISOString().substring(0, 10), 
+        category: "Uncategorized", 
+        job_type: value[0].label, 
+        status: "Requested",
+        request_time: new Date().toLocaleDateString(),
+        urgency_level: "Medium"
+        // ...pictures,
       }
-    }
-    dispatch(addEvent(obj))
+    })
+      .catch((err) => console.log({ err }))
     refetchEvents()
     handleAddEventSidebar()
     toast.success(<ToastComponent title='Event Added' color='success' icon={<Check />} />, {
@@ -338,6 +416,9 @@ const AddEventSidebar = props => {
   return (
     <Modal
       isOpen={open}
+      onOpened={handleSelectedEvent}
+      onClosed={handleResetInputValues}
+      toggle={handleAddEventSidebar}
     >
       <ModalHeader className='mb-1' toggle={handleAddEventSidebar} close={CloseBtn} tag='div'>
          <h5 className='modal-title'>
@@ -345,7 +426,19 @@ const AddEventSidebar = props => {
          </h5>
        </ModalHeader>
        <ModalBody className='flex-grow-1 pb-sm-0 pb-3'>
-        {loading && <Spinner />}
+       <Form
+          onSubmit={handleSubmit(data => {
+            if (isObjEmpty(errors)) {
+              if (isObjEmpty(selectedEvent) || (!isObjEmpty(selectedEvent) && !selectedEvent.title.length)) {
+                handleAddEvent()
+              } else {
+                handleUpdateEvent()
+              }
+              handleAddEventSidebar()
+            }
+          })}
+        >
+        {/* {loading && <Spinner />}
         {!loading && <Card className='mb-4'>
           <ListGroup flush>
             <ListGroupItem>
@@ -356,10 +449,80 @@ const AddEventSidebar = props => {
             <ListGroupItem>Dapibus ac facilisis in</ListGroupItem>
             <ListGroupItem>Vestibulum at eros</ListGroupItem>
           </ListGroup>
-        </Card>}
+        </Card>} */}
+           <FormGroup>
+             <Label for='title'>
+               Title <span className='text-danger'>*</span>
+             </Label>
+            <Input
+               id='title'
+               name='title'
+               placeholder='Title'
+               value={title}
+               onChange={e => setTitle(e.target.value)}
+               innerRef={register({ register: true, validate: value => value !== '' })}
+               className={classnames({
+                 'is-invalid': errors.title
+               })}
+             />
+           </FormGroup>
+
+           <FormGroup>
+             <Label for='label'>Label</Label>
+             <Select
+               id='label'
+               value={value}
+               options={options}
+               theme={selectThemeColors}
+               className='react-select'
+               classNamePrefix='select'
+               isClearable={false}
+               onChange={data => setValue([data])}
+               components={{
+                 Option: OptionComponent
+               }}
+             />
+           </FormGroup>
+
+           <FormGroup>
+             <Label for='startDate'>Start Date</Label>
+             <Flatpickr
+               required
+               id='startDate'
+                //tag={Flatpickr}
+               name='startDate'
+               className='form-control'
+               onChange={date => setStartPicker(date[0])}
+               value={startPicker}
+               options={{
+                 enableTime: allDay === false,
+                 dateFormat: 'Y-m-d H:i'
+               }}
+             />
+           </FormGroup>
+
+           <FormGroup>
+             <Label for='endDate'>End Date</Label>
+             <Flatpickr
+               required
+               id='endDate'
+               // tag={Flatpickr}
+               name='endDate'
+               className='form-control'
+               onChange={date => setEndPicker(date[0])}
+               value={endPicker}
+               options={{
+                 enableTime: allDay === false,
+                 dateFormat: 'Y-m-d H:i'
+               }}
+             />
+           </FormGroup>
+           <FormGroup className='d-flex'>
+            <EventActions />
+          </FormGroup>
+           </Form>
        </ModalBody>
     </Modal>
-
   )
   // return (
   //   <Modal
