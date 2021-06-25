@@ -142,7 +142,7 @@ const Calendar = props => {
       const ev = blankEvent
       ev.start = info.date
       ev.end = info.date
-      dispatch(selectEvent(ev))
+      selectEvent(ev)
       handleAddEventSidebar()
     },
 
@@ -152,7 +152,7 @@ const Calendar = props => {
       ? We can use `eventDragStop` but it doesn't return updated event so we have to use `eventDrop` which returns updated event
     */
     eventDrop({ event: droppedEvent }) {
-      dispatch(updateEvent(droppedEvent))
+      updateEvent(droppedEvent)
       toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
         autoClose: 2000,
         hideProgressBar: true,
@@ -165,7 +165,7 @@ const Calendar = props => {
       ? Docs: https://fullcalendar.io/docs/eventResize
     */
     eventResize({ event: resizedEvent }) {
-      dispatch(updateEvent(resizedEvent))
+      updateEvent(resizedEvent)
       toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
         autoClose: 2000,
         hideProgressBar: true,

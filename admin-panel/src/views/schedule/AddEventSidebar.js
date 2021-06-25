@@ -175,7 +175,7 @@ const AddEventSidebar = props => {
         desc: desc.length ? desc : undefined
       }
     }
-    dispatch(addEvent(obj))
+    addEvent(obj)
     refetchEvents()
     handleAddEventSidebar()
     toast.success(<ToastComponent title='Event Added' color='success' icon={<Check />} />, {
@@ -187,7 +187,7 @@ const AddEventSidebar = props => {
 
   // ** Reset Input Values on Close
   const handleResetInputValues = () => {
-    dispatch(selectEvent({}))
+    selectEvent({})
     setTitle('')
     setAllDay(false)
     setUrl('')
@@ -269,7 +269,7 @@ const AddEventSidebar = props => {
     const propsToUpdate = ['id', 'title', 'url']
     const extendedPropsToUpdate = ['calendar', 'guests', 'location', 'description']
 
-    dispatch(updateEvent(eventToUpdate))
+    updateEvent(eventToUpdate)
     updateEventInCalendar(eventToUpdate, propsToUpdate, extendedPropsToUpdate)
     handleAddEventSidebar()
     toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
@@ -284,7 +284,7 @@ const AddEventSidebar = props => {
     calendarApi.getEventById(eventId).remove()
   }
   const handleDeleteEvent = () => {
-    dispatch(removeEvent(selectedEvent.id))
+    removeEvent(selectedEvent.id)
     removeEventInCalendar(selectedEvent.id)
     handleAddEventSidebar()
     toast.error(<ToastComponent title='Event Removed' color='danger' icon={<Trash />} />, {
@@ -313,7 +313,7 @@ const AddEventSidebar = props => {
           <Button.Ripple
             className='mr-1'
             color='primary'
-            // onClick={handleUpdateEvent}
+            onClick={handleUpdateEvent}
           >
             Update
           </Button.Ripple>
