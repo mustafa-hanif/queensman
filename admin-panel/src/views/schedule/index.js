@@ -215,6 +215,7 @@ const CalendarComponent = () => {
           </Col> */}
           <Col className='position-relative'>
             <Calendar
+              loading={loading || requestCalloutLoading}
               isRtl={isRtl}
               // store={store}
               events={data?.scheduler ?? []}

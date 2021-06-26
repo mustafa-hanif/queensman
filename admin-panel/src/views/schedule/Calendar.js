@@ -1,5 +1,5 @@
 // ** React Import
-import { useEffect, useRef, memo, Fragment } from 'react'
+import { useEffect, useRef, memo, Fragment, useState } from 'react'
 
 // ** Full Calendar & it's Plugins
 import FullCalendar from '@fullcalendar/react'
@@ -13,7 +13,7 @@ import Avatar from '@components/avatar'
 
 // ** Third Party Components
 import { toast } from 'react-toastify'
-import { Card, CardBody } from 'reactstrap'
+import { Card, CardBody, Spinner } from 'reactstrap'
 import { Menu, Check } from 'react-feather'
 
 // ** Toast Component
@@ -31,11 +31,11 @@ const ToastComponent = ({ title, icon, color }) => (
 const Calendar = props => {
   // ** Refs
   const calendarRef = useRef(null)
-
   // ** Props
   const {
     events,
     isRtl,
+    loading,
     // store,
     datesSet,
     selectedEvent,
@@ -201,6 +201,7 @@ const Calendar = props => {
   return (
     <Card className='shadow-none border-0 mb-0 rounded-0'>
       <CardBody className='pb-0'>
+        {loading && <Spinner />}
         <FullCalendar {...calendarOptions} />{' '}
       </CardBody>
     </Card>
