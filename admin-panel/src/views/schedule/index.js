@@ -1,6 +1,6 @@
 // ** React Imports
 import { Fragment, useState, useEffect, useRef } from 'react'
-import { gql, useLazyQuery, useQuery } from "@apollo/client"
+import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client"
 
 // ** Third Party Components
 import classnames from 'classnames'
@@ -49,6 +49,51 @@ const GET_SCHEDULE = gql`
         full_name
       }
       callout_id
+    }
+  }
+`
+
+const REQUEST_CALLOUT = gql`
+  mutation AddCallout(
+    $property_id: Int
+    $date_on_calendar: date
+    $notes: String
+    $time_on_calendar: time
+    $email: String
+    $category: String
+    $job_type: String
+    $status: String
+    $picture1: String
+    $picture2: String
+    $picture3: String
+    $picture4: String
+    $request_time: timestamp
+    $urgency_level: String
+  ) {
+    insert_scheduler_one(
+      object: {
+        callout: {
+          data: {
+            callout_by_email: $email
+            property_id: $property_id
+            category: $category
+            job_type: $job_type
+            status: $status
+            request_time: $request_time
+            urgency_level: $urgency_level
+            picture1: $picture1
+            picture2: $picture2
+            picture3: $picture3
+            picture4: $picture4
+            active: 1
+          }
+        }
+        date_on_calendar: $date_on_calendar
+        time_on_calendar: $time_on_calendar
+        notes: $notes
+      }
+    ) {
+      date_on_calendar
     }
   }
 `
@@ -106,14 +151,30 @@ const CalendarComponent = () => {
       _lte
     }
   })
+
+  const [requestCalloutApiCall, { loading: requestCalloutLoading, error: mutationError }] = useMutation(
+    REQUEST_CALLOUT,
+    {
+      refetchQueries: [
+        { 
+          query: GET_SCHEDULE,
+          variables: {
+            _gte,
+            _lte
+          } 
+        }
+      ]
+    }
+  )
+
   // ** refetchEvents
   const refetchEvents = () => {
     if (calendarApi !== null) {
       calendarApi.refetchEvents()
-      getSchedule({ variables: {
-        _gte,
-        _lte
-      }})
+      // getSchedule({ variables: {
+      //   _gte,
+      //   _lte
+      // }})
     }
   }
   // ** Fetch Events On Mount
@@ -182,6 +243,7 @@ const CalendarComponent = () => {
         //store={store}
         addEvent={addEvent}
         // dispatch={dispatch}
+        requestCalloutApiCall={requestCalloutApiCall}
         open={addSidebarOpen}
         selectedEvent={selectedEvent}
         selectEvent={selectEvent}
