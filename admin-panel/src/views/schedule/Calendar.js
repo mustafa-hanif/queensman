@@ -149,7 +149,8 @@ const Calendar = props => {
     eventClick({ event: clickedEvent }) {
       console.log(clickedEvent, 'bonga')
       selectEvent(clickedEvent)
-      handleAddEventSidebar()
+        handleAddEventSidebar()
+      
 
       // * Only grab required field otherwise it goes in infinity loop
       // ! Always grab all fields rendered by form (even if it get `undefined`) otherwise due to Vue3/Composition API you might get: "object is not extensible"

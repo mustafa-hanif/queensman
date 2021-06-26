@@ -145,7 +145,7 @@ const AddEventSidebar = props => {
   // ** States
   const [url, setUrl] = useState(selectedEvent.url || '')
   const [desc, setDesc] = useState(selectedEvent.extendedProps?.description || '')
-  const [title, setTitle] = useState(selectedEvent.title || '')
+  const [title, setTitle] = useState(selectedEvent.title || false)
   const [guests, setGuests] = useState(selectedEvent.extendedProps?.guests || '')
   const [allDay, setAllDay] = useState(selectedEvent.allDay || false)
   const [location, setLocation] = useState(selectedEvent.extendedProps?.location || '')
@@ -329,20 +329,18 @@ const AddEventSidebar = props => {
     const eventToUpdate = {
       id: selectedEvent.id,
       title,
-      allDay,
       start: startPicker,
-      end: endPicker,
-      url,
       extendedProps: {
-        location,
-        description: desc,
-        guests,
-        calendar: value[0].label
+        clientName,
+        category: 'Uncategorized',
+        propertyName,
+        workerName,
+        propertyId
       }
     }
 
-    const propsToUpdate = ['id', 'title', 'url']
-    const extendedPropsToUpdate = ['calendar', 'guests', 'location', 'description']
+    const propsToUpdate = ['start', 'title']
+    const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'propertyId']
 
     updateEvent(eventToUpdate)
     updateEventInCalendar(eventToUpdate, propsToUpdate, extendedPropsToUpdate)
@@ -427,7 +425,7 @@ const AddEventSidebar = props => {
            {selectedEvent?.title}
          </h5>
        </ModalHeader>
-       <ModalBody className='flex-grow-1 pb-sm-0 pb-3'>
+       {title ? <ModalBody className='flex-grow-1 pb-sm-0 pb-3'>
        <Form
           onSubmit={handleSubmit(data => {
             if (isObjEmpty(errors)) {
@@ -528,7 +526,7 @@ const AddEventSidebar = props => {
            suggestions={allProperty.property_owned.map(a => a.property)}
            className='form-control'
            filterKey='address'
-           value={null}
+           value={propertyName}
            defaultSuggestions={true}
            placeholder="Search Propery Name"
            customRender={(
@@ -637,7 +635,7 @@ const AddEventSidebar = props => {
             <EventActions />
           </FormGroup>
            </Form>
-       </ModalBody>
+       </ModalBody> : <Spinner />}
     </Modal>
   )
 }

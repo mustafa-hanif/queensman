@@ -18,7 +18,7 @@ import { useRTL } from '@hooks/useRTL'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   fetchEvents,
-  updateEvent,
+  // updateEvent,
   updateFilter,
   updateAllFilters,
   // selectEvent,
@@ -122,6 +122,9 @@ const CalendarComponent = () => {
   }) //, setSelectedDates] = useState({
     
   const [selectedEvent, selectEvent] = useState({})
+  const updateEvent = (eventToUpdate) => {
+console.log(eventToUpdate)
+  }
 
   // ** states
   const [addSidebarOpen, setAddSidebarOpen] = useState(false),
