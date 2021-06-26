@@ -39,18 +39,29 @@ const calendarsColor = {
 }
 
 const GET_SCHEDULE = gql`
-  query GetSchedule($_gte: date!, $_lte: date!) {
-    scheduler(where: {date_on_calendar: {_gte: $_gte, _lte: $_lte}}, order_by: {date_on_calendar: asc}) {
-      id
-      start: date_on_calendar
-      startTime: time_on_calendar
-      title: notes
-      worker {
+query GetSchedule($_gte: date!, $_lte: date!) {
+  scheduler(where: {date_on_calendar: {_gte: $_gte, _lte: $_lte}}) {
+    id
+    start: date_on_calendar
+    startTime: time_on_calendar
+    title: notes
+    worker {
+      full_name
+    }
+    callout_id
+    callout {
+      property {
+        address
+        id
+      }
+      client_callout_email {
+        email
         full_name
       }
-      callout_id
-    }
+      category
+    }    
   }
+}
 `
 
 const REQUEST_CALLOUT = gql`
@@ -184,7 +195,7 @@ const CalendarComponent = () => {
   }, [])
 
   const datesSet = (info) => {
-    console.log(info, new Date(info.start).toISOString().substring(0, 10), 'datesSet')
+    console.log(info)
     selectedDates.current = {
       _gte: info.start, //new Date(info.start).toISOString().substring(0, 10),
       _lte: info.end // new Date(info.end).toISOString().substring(0, 10)
@@ -199,20 +210,7 @@ const CalendarComponent = () => {
   return (
     <Fragment>
       <div className='app-calendar overflow-hidden border'>
-        <Row noGutters>
-          {/* <Col
-            id='app-calendar-sidebar'
-            className={classnames('col app-calendar-sidebar flex-grow-0 overflow-hidden d-flex flex-column', {
-              show: leftSidebarOpen
-            })}
-          >
-            <SidebarLeft
-              updateFilter={updateFilter}
-              toggleSidebar={toggleSidebar}
-              updateAllFilters={updateAllFilters}
-              handleAddEventSidebar={handleAddEventSidebar}
-            />
-          </Col> */}
+        <Row noGutters>        
           <Col className='position-relative'>
             <Calendar
               loading={loading || requestCalloutLoading}
