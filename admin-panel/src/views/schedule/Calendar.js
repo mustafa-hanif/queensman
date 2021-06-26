@@ -64,20 +64,20 @@ const Calendar = props => {
     selectedEvent,
     eventDataTransform: (eventData => {
       const { id, worker, callout_id, start, startTime, title } = eventData
-      console.log({
-        allDay: false,
-        end: `${start}T${'00:00:00.000Z'}`,
-        id,
-        title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
-        start: `${start}T${startTime}`,
-        start, //: new Date(`${start} ${startTime}`).toISOString(),
-        extendedProps: {
-          callout_id
-        }
-      })
+      // console.log({
+      //   allDay: false,
+      //   end: `${start}T${'00:00:00.000Z'}`,
+      //   id,
+      //   title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
+      //   start: `${start}T${startTime}`,
+      //   start, //: new Date(`${start} ${startTime}`).toISOString(),
+      //   extendedProps: {
+      //     callout_id
+      //   }
+      // })
       return {
         allDay: false,
-        end: `${start}T${'00:00:00.000Z'}`,
+        // end: `${start}T${'00:00:00.000Z'}`,
         id,
         title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
         start: `${start}T${startTime}`,
@@ -89,7 +89,7 @@ const Calendar = props => {
       }
     }),
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
-    initialView: 'listMonth',
+    initialView: 'timeGridWeek',
     headerToolbar: {
       start: 'sidebarToggle, prev,next, title',
       end: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
@@ -98,7 +98,7 @@ const Calendar = props => {
       Enable dragging and resizing event
       ? Docs: https://fullcalendar.io/docs/editable
     */
-    editable: false,
+    editable: true,
 
     /*
       Enable resizing event from start
@@ -135,7 +135,7 @@ const Calendar = props => {
     // },
 
     eventClick({ event: clickedEvent }) {
-      console.log(clickedEvent, 'bonga')
+      // console.log(clickedEvent, 'bonga')
       selectEvent(clickedEvent)
       handleAddEventSidebar()
 
@@ -157,7 +157,7 @@ const Calendar = props => {
     },
 
     dateClick(info) {
-      console.log(info)
+      // console.log(info)
       const ev = blankEvent
       ev.start = info.date
       ev.end = info.date

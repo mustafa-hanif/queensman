@@ -40,7 +40,7 @@ const calendarsColor = {
 
 const GET_SCHEDULE = gql`
   query GetSchedule($_gte: date!, $_lte: date!) {
-    scheduler(where: {date_on_calendar: {_gte: $_gte, _lte: $_lte}}) {
+    scheduler(where: {date_on_calendar: {_gte: $_gte, _lte: $_lte}}, order_by: {date_on_calendar: asc}) {
       id
       start: date_on_calendar
       startTime: time_on_calendar
@@ -60,10 +60,11 @@ const CalendarComponent = () => {
   //   return state.calendar
   // })
 
-  const [selectedDates, setSelectedDates] = useState({
+  const selectedDates = useRef({
     _gte: new Date().toISOString().split('T')[0],
     _lte: new Date().toISOString().split('T')[0]
-  })
+  }) //, setSelectedDates] = useState({
+    
   const [selectedEvent, selectEvent] = useState({})
 
   // ** states
@@ -96,8 +97,8 @@ const CalendarComponent = () => {
   }
 
   
-  const _gte = selectedDates._gte
-  const _lte = selectedDates._lte
+  const _gte = selectedDates.current._gte
+  const _lte = selectedDates.current._lte
   
   const [getSchedule, { loading, data }] = useLazyQuery(GET_SCHEDULE, {
     variables: {
@@ -122,14 +123,14 @@ const CalendarComponent = () => {
   }, [])
 
   const datesSet = (info) => {
-    console.log(info, 'datesSet')
-    setSelectedDates({
-      _gte: new Date(info.start).toISOString().substring(0, 10),
-      _lte: new Date(info.end).toISOString().substring(0, 10)
-    })
+    console.log(info, new Date(info.start).toISOString().substring(0, 10), 'datesSet')
+    selectedDates.current = {
+      _gte: info.start, //new Date(info.start).toISOString().substring(0, 10),
+      _lte: info.end // new Date(info.end).toISOString().substring(0, 10)
+    }
     getSchedule({ variables: {
-      _gte,
-      _lte
+      _gte: info.start,
+      _lte: info.end
     }})
     // console.log(data)
   }
