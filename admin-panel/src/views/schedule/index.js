@@ -21,6 +21,7 @@ import {
   updateEvent,
   updateFilter,
   updateAllFilters,
+  // selectEvent,
   addEvent,
   removeEvent
 } from './store/actions/index'
@@ -38,7 +39,7 @@ const calendarsColor = {
 }
 
 const GET_SCHEDULE = gql`
-  query MyQuery($_gte: date!, $_lte: date!) {
+  query GetSchedule($_gte: date!, $_lte: date!) {
     scheduler(where: {date_on_calendar: {_gte: $_gte, _lte: $_lte}}) {
       id
       start: date_on_calendar
@@ -54,16 +55,16 @@ const GET_SCHEDULE = gql`
 
 const CalendarComponent = () => {
   // ** Variables
-  const dispatch = useDispatch()
-  const store = useSelector(state => {
-    return state.calendar
-  })
+  // const dispatch = useDispatch()
+  // const store = useSelector(state => {
+  //   return state.calendar
+  // })
 
   const [selectedDates, setSelectedDates] = useState({
-    _gte: '2020-08-01',
-    _lte: '2020-08-01'
+    _gte: new Date().toISOString().split('T')[0],
+    _lte: new Date().toISOString().split('T')[0]
   })
-  const [selectedEvent, selectEvent] = useState(null)
+  const [selectedEvent, selectEvent] = useState({})
 
   // ** states
   const [addSidebarOpen, setAddSidebarOpen] = useState(false),
@@ -94,13 +95,7 @@ const CalendarComponent = () => {
     }
   }
 
-  // ** refetchEvents
-  const refetchEvents = () => {
-    if (calendarApi !== null) {
-      calendarApi.refetchEvents()
-    }
-  }
-
+  
   const _gte = selectedDates._gte
   const _lte = selectedDates._lte
   
@@ -110,17 +105,33 @@ const CalendarComponent = () => {
       _lte
     }
   })
+  // ** refetchEvents
+  const refetchEvents = () => {
+    if (calendarApi !== null) {
+      calendarApi.refetchEvents()
+      getSchedule({ variables: {
+        _gte,
+        _lte
+      }})
+    }
+  }
   // ** Fetch Events On Mount
-  // useEffect(() => {
-  //   dispatch(fetchEvents(store.selectedCalendars))
-  // }, [])
+  useEffect(() => {
+  //  console.log(data)
+    // dispatch(fetchEvents(store.selectedCalendars))
+  }, [])
 
   const datesSet = (info) => {
-    console.log(info)
+    console.log(info, 'datesSet')
+    setSelectedDates({
+      _gte: new Date(info.start).toISOString().substring(0, 10),
+      _lte: new Date(info.end).toISOString().substring(0, 10)
+    })
     getSchedule({ variables: {
-      _gte: info.startStr,
-      _lte: info.endStr
+      _gte,
+      _lte
     }})
+    // console.log(data)
   }
 
   return (
@@ -143,11 +154,14 @@ const CalendarComponent = () => {
           <Col className='position-relative'>
             <Calendar
               isRtl={isRtl}
+              // store={store}
               events={data?.scheduler ?? []}
+              // dispatch={dispatch}
               datesSet={datesSet}
               blankEvent={blankEvent}
               calendarApi={calendarApi}
               selectEvent={selectEvent}
+              selectedEvent={selectedEvent}
               updateEvent={updateEvent}
               toggleSidebar={toggleSidebar}
               calendarsColor={calendarsColor}
@@ -164,7 +178,9 @@ const CalendarComponent = () => {
         </Row>
       </div>
       <AddEventSidebar
+        //store={store}
         addEvent={addEvent}
+        // dispatch={dispatch}
         open={addSidebarOpen}
         selectedEvent={selectedEvent}
         selectEvent={selectEvent}

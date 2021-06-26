@@ -22,7 +22,7 @@ export let data
 // ** Get initial Data
 import { gql, useLazyQuery, useQuery } from "@apollo/client"
 const GET_CLIENT = gql`
-query MyQuery {
+query GetClients {
   client {
     email
     full_name
