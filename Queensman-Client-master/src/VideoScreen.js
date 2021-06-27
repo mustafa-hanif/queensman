@@ -22,7 +22,7 @@ const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
 
   const startRecording = () => {
     camera.current
-      .recordAsync({ maxDuration: 30 })
+      .recordAsync({ maxDuration: 30, quality: Camera.Constants.VideoQuality["720p"] })
       .then((video) => {
         setShowVideoScreen(false);
         saveVideo(video);
@@ -49,8 +49,6 @@ const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
       <Camera
         style={styleCamera.camera}
         type={Camera.Constants.Type.back}
-        quality={Camera.Constants.VideoQuality["720p"]}
-        useCamera2Api
         ref={(ref) => {
           camera.current = ref;
         }}

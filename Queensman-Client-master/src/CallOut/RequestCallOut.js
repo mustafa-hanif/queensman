@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable no-alert */
 /* eslint-disable no-console */
 /* eslint-disable no-use-before-define */
@@ -6,29 +7,25 @@
 /* eslint-disable no-shadow */
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable camelcase */
-import React, { useRef, useEffect, useState } from "react";
-import { Video, AVPlaybackStatus } from "expo-av";
+import React, { useEffect, useState } from "react";
+import { Video } from "expo-av";
 import {
   StyleSheet,
   Text,
   View,
   TextInput,
   TouchableOpacity,
-  Pressable,
   Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Dimensions,
-  ScrollView,
+  Button,
   Image,
 } from "react-native";
-
-import { Camera } from "expo-camera";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 
-import { Picker, ListItem, Row, Icon, Col, Button, Left } from "native-base";
+import { Picker, Icon } from "native-base";
 import Toast from "react-native-whc-toast";
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
 
@@ -38,12 +35,10 @@ import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
 import { LinearGradient } from "expo-linear-gradient";
-import moment from "moment";
 import Modal from "react-native-modal";
+import { auth, storage } from "../utils/nhost";
 
 import VideoScreen from "../VideoScreen";
-
-import { auth } from "../utils/nhost";
 
 const styles = StyleSheet.create({
   container: {
@@ -155,6 +150,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  disabledButton: {
+    backgroundColor: "#eee",
+    color: "#ccc",
+  },
   SubmitCallout: {
     height: 38,
     width: "100%",
@@ -226,6 +225,7 @@ const RequestCallOut = (props) => {
     picture3: "",
     picture4: "",
     video: "",
+    videoUrl: "",
     customerEmail: "",
     PropertyID: "",
     Email: "",
@@ -240,6 +240,7 @@ const RequestCallOut = (props) => {
     selectedNo: 0,
   });
 
+  const [videoSaving, setVideoSaving] = useState(false);
   const [showVideoScreen, setShowVideoScreen] = useState(false);
 
   const onValueChange = (value) => {
@@ -579,7 +580,31 @@ const RequestCallOut = (props) => {
   const showPlayVideoScreen = () => {
     setVideoPlayScreen(true);
   };
-  const saveVideoCloud = () => {};
+
+  const expoFileToFormFile = (url, mimeType = "image") => {
+    const localUri = url;
+    const filename = localUri.split("/").pop();
+
+    const match = /\.(\w+)$/.exec(filename);
+    const type = match ? `${mimeType}/${match[1]}` : mimeType;
+    return { uri: localUri, name: filename, type };
+  };
+
+  const saveVideoCloud = () => {
+    const file = expoFileToFormFile(state.video, "video");
+    console.log(`/callout_videos/${file.name}`);
+    setVideoSaving(true);
+    storage
+      .put(`/callout_videos/${file.name}`, file)
+      .then(() => {
+        setVideoSaving(false);
+      })
+      .catch(console.error);
+    setState({
+      ...state,
+      videoUrl: `https://backend-8106d23e.nhost.app/storage/o/callout_videos/${file.name}`,
+    });
+  };
 
   if (videoPlayScreen) {
     console.log("will return video play screen");
@@ -723,14 +748,27 @@ const RequestCallOut = (props) => {
               <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}> Select Images From Gallery </Text>
             </TouchableOpacity>
             {state.video ? (
-              <View>
-                <TouchableOpacity style={[styles.ImageSelectStyle, { marginBottom: 10 }]} onPress={showPlayVideoScreen}>
-                  <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>Play Video</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.ImageSelectStyle} onPress={saveVideoCloud}>
-                  <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>Save Video</Text>
-                </TouchableOpacity>
-              </View>
+              !videoSaving ? (
+                <View>
+                  <TouchableOpacity
+                    style={[styles.ImageSelectStyle, { marginBottom: 10 }]}
+                    onPress={showPlayVideoScreen}
+                  >
+                    <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>Play Video</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    disabled={state.videoUrl.length}
+                    style={[styles.ImageSelectStyle, state.videoUrl.length ? styles.disabledButton : null]}
+                    onPress={saveVideoCloud}
+                  >
+                    <Text style={[styles.TextFam, { color: state.videoUrl.length ? "#bbb" : "#000E1E", fontSize: 10 }]}>
+                      Save Video
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <ActivityIndicator size="large" color="#000" style={{ alignSelf: "center" }} />
+              )
             ) : (
               <TouchableOpacity style={styles.ImageSelectStyle} onPress={showVideoScreenCallback}>
                 <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>Add video</Text>
@@ -950,9 +988,11 @@ const VideoPlayScreen = ({ setVideoPlayScreen, video: uri }) => {
       <View style={videoPlayStyles.buttons}>
         <Button
           title={status.isPlaying ? "Pause" : "Play"}
+          color="#FFCA5D"
+          style={{ marginRight: 20 }}
           onPress={() => (status.isPlaying ? video.current.pauseAsync() : video.current.playAsync())}
         />
-        <Button title="Close" onPress={() => setVideoPlayScreen(false)} />
+        <Button color="#FFCA5D" title="Close" onPress={() => setVideoPlayScreen(false)} />
       </View>
     </View>
   );
@@ -962,17 +1002,16 @@ const videoPlayStyles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "#eee",
+    alignItems: "center",
+    backgroundColor: "#000",
   },
   video: {
-    alignSelf: "center",
-    width: 320,
-    height: 200,
+    width: 1280,
+    height: 600,
   },
   buttons: {
     flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "space-around",
   },
 });
 
