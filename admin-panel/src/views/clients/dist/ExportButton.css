@@ -1,0 +1,22 @@
+.dt-buttons
+{
+    text-align: center;
+    position: relative;
+}
+.dt-button
+{
+    color: black;
+    background-color: #EEC95E;
+    border-color: #EEC95E;
+    border-radius: 0px;
+    width:20%;
+}
+.dt-button:hover
+{
+    color: black;
+    background-color:#052244;
+    border-color:whitesmoke;
+    border-radius: 0px;
+    width:20%;
+    color:white;
+}

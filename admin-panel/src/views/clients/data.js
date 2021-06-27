@@ -20,6 +20,19 @@ const status = {
 export let data
 
 // ** Get initial Data
+import { gql, useLazyQuery, useQuery } from "@apollo/client"
+const GET_CLIENT = gql`
+query GetClients {
+  client {
+    email
+    full_name
+    gender
+    occupation
+    organization
+    phone
+  }
+}
+`
 axios.get('/api/datatables/initial-data').then(response => {
   data = response.data
 })

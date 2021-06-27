@@ -1,5 +1,5 @@
 // ** React Import
-import { useEffect, useRef, memo, Fragment } from 'react'
+import { useEffect, useRef, memo, Fragment, useState } from 'react'
 
 // ** Full Calendar & it's Plugins
 import FullCalendar from '@fullcalendar/react'
@@ -13,7 +13,7 @@ import Avatar from '@components/avatar'
 
 // ** Third Party Components
 import { toast } from 'react-toastify'
-import { Card, CardBody } from 'reactstrap'
+import { Card, CardBody, Spinner } from 'reactstrap'
 import { Menu, Check } from 'react-feather'
 
 // ** Toast Component
@@ -31,12 +31,14 @@ const ToastComponent = ({ title, icon, color }) => (
 const Calendar = props => {
   // ** Refs
   const calendarRef = useRef(null)
-
   // ** Props
   const {
     events,
     isRtl,
+    loading,
+    // store,
     datesSet,
+    selectedEvent,
     calendarsColor,
     calendarApi,
     setCalendarApi,
@@ -57,21 +59,50 @@ const Calendar = props => {
   // ** calendarOptions(Props)
   const calendarOptions = {
     events,
-    initialDate: '2020-08-01',
+    // initialDate: '2020-08-01',
     datesSet,
+    selectedEvent,
     eventDataTransform: (eventData => {
-      const { id, worker: { full_name: workerName }, callout_id, start, startTime, title } = eventData
-      return {
+      console.log(events)
+      const { id, worker, callout_id, start, startTime, title, callout } = eventData
+      console.log({
+        allDay: false,
+        // end: `${start}T${'00:00:00.000Z'}`,
         id,
-        title: `${title} by ${workerName}`,
+        title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
         start: `${start}T${startTime}`,
+        workerName: worker?.full_name || 'No Worker name',
+        clientName: callout.client_callout_email?.full_name || 'No Client name',
+        category: callout?.category || "Uncategorized",
+        propertyName: callout.property?.address || 'No Porperty',
+        propertyId: callout.property?.id || 0,
+        // start: new Date(`${start} ${startTime}`).toISOString(),
+        // start,
+        extendedProps: {
+          callout_id
+        }
+      })
+      return {
+        allDay: false,
+        // end: `${start}T${'00:00:00.000Z'}`,
+        id,
+        title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
+        start: `${start}T${startTime}`,
+        workerName: worker?.full_name || 'No Worker name',
+        clientName: callout.client_callout_email?.full_name || 'No Client name',
+        clientEmail:callout.client_callout_email?.email || 'No Client email',
+        category: callout?.category || "Uncategorized",
+        propertyName: callout.property?.address || 'No Porperty',
+        propertyId: callout.property?.id || 0,
+        // start: new Date(`${start} ${startTime}`).toISOString(),
+        // start,
         extendedProps: {
           callout_id
         }
       }
     }),
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
-    initialView: 'listMonth',
+    initialView: 'timeGridWeek',
     headerToolbar: {
       start: 'sidebarToggle, prev,next, title',
       end: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
@@ -80,7 +111,7 @@ const Calendar = props => {
       Enable dragging and resizing event
       ? Docs: https://fullcalendar.io/docs/editable
     */
-    editable: false,
+    editable: true,
 
     /*
       Enable resizing event from start
@@ -117,9 +148,10 @@ const Calendar = props => {
     // },
 
     eventClick({ event: clickedEvent }) {
-      console.log(clickedEvent)
+      console.log(clickedEvent, 'bonga')
       selectEvent(clickedEvent)
-      handleAddEventSidebar()
+        handleAddEventSidebar()
+      
 
       // * Only grab required field otherwise it goes in infinity loop
       // ! Always grab all fields rendered by form (even if it get `undefined`) otherwise due to Vue3/Composition API you might get: "object is not extensible"
@@ -139,10 +171,11 @@ const Calendar = props => {
     },
 
     dateClick(info) {
+      // console.log(info)
       const ev = blankEvent
       ev.start = info.date
       ev.end = info.date
-      dispatch(selectEvent(ev))
+      selectEvent(ev)
       handleAddEventSidebar()
     },
 
@@ -152,7 +185,7 @@ const Calendar = props => {
       ? We can use `eventDragStop` but it doesn't return updated event so we have to use `eventDrop` which returns updated event
     */
     eventDrop({ event: droppedEvent }) {
-      dispatch(updateEvent(droppedEvent))
+      updateEvent(droppedEvent)
       toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
         autoClose: 2000,
         hideProgressBar: true,
@@ -165,7 +198,7 @@ const Calendar = props => {
       ? Docs: https://fullcalendar.io/docs/eventResize
     */
     eventResize({ event: resizedEvent }) {
-      dispatch(updateEvent(resizedEvent))
+      updateEvent(resizedEvent)
       toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
         autoClose: 2000,
         hideProgressBar: true,
@@ -182,6 +215,7 @@ const Calendar = props => {
   return (
     <Card className='shadow-none border-0 mb-0 rounded-0'>
       <CardBody className='pb-0'>
+        {loading && <Spinner />}
         <FullCalendar {...calendarOptions} />{' '}
       </CardBody>
     </Card>

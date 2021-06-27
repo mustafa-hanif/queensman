@@ -1,0 +1,99 @@
+
+body{
+  text-align: center;
+  background-color: #091d28 !important;
+  min-height: 100vh;
+  flex-direction: column;
+  background-image: radial-gradient(circle, #032f42, #000E1E,#000E1E) !important;
+}
+
+.logo{
+	margin-top:30px;
+	width:250px;
+	height:200px;
+	
+}
+.usernamesection{
+
+margin-top:100px;
+position:relative;
+	
+	
+}
+.usernamesection img{
+  height: 50px;
+  margin-bottom: 25px;
+}
+
+.usernamefield{
+  
+  position: relative;
+  top: 40px;
+  z-index: 1000;
+  background-color: transparent;
+  background: transparent;
+  padding: 0px;
+  font-weight: bold;
+
+}
+.usernameinput{
+  background: transparent;
+  border: 0;
+  outline: 0;
+  width: 240px;
+  padding-left: 20px;
+  height:30px;
+  
+}
+
+#proceedButton,#proceedButton_forgot{
+  font-size: 20px;
+  color: black;
+  text-align: center;
+  line-height: 1;
+  height: 35px;
+  width: 200px;
+  background: transparent;
+  border: 0px;
+  margin-bottom: 15px;
+  border-radius: 0px;
+  padding: 0px;
+  box-shadow: none;
+  outline:none;
+}
+#proceedButton img,#proceedButton_forgot img{
+  height: 30px;
+ 
+}
+
+.phonelogo{
+  height:2.2vh;
+  margin-right:10px;
+  margin-left:0px;
+}
+#password
+{
+  margin-top: -1%;
+}
+.loader {
+  border: 6px solid #f3f3f3ad;
+  border-radius: 50%;
+  border-top: 6px solid gold;
+  border-right: 6px solid grey;
+  border-left: 6px solid grey;
+  border-bottom: 6px solid gold;
+  width: 30px;
+  height: 30px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+0% { -webkit-transform: rotate(0deg); }
+100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}

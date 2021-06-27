@@ -1,0 +1,459 @@
+/* Above Table*/
+.menu
+{
+margin-left:70%;
+}
+.main-sidebar
+{
+    height:180%;
+}
+.content-header
+{
+    color:#EEC95E;
+    text-align: left;
+    margin-left: 0%;
+    font-weight: bold;
+}
+.btn-content_bar
+{
+    text-align: center;
+    color: black;
+    background-color: #EEC95E;
+    border-color: #EEC95E;
+    border-radius: 0px;
+    width:10%;
+}
+.btn-content_bar:hover
+{
+    color: black;
+    background-color:#052244;
+    border-color:whitesmoke;
+    border-radius: 0px;
+    color:white;
+    width:10%;
+
+}
+.menu2
+{
+    list-style-type: none;
+    margin-left: 0%;
+    margin-right:2%;
+}
+.content_bar_items2
+{
+    display:inline;
+    font-weight: bold;
+    color:#052244;
+    font-size: 0.5cm;
+    margin-right: 67%;
+    margin-left: -2%;
+}
+
+.btn-content_bar2
+{
+    text-align: center;
+    color: black;
+    background-color: #EEC95E;
+    border-color: #EEC95E;
+    border-radius: 0px;
+    margin-left: 0%;
+    margin-right:0%;
+    border:0px;
+    width:10%;
+    
+}
+.btn-content_bar2:hover
+{
+    color: black;
+    background-color:white;
+    border-color:whitesmoke;
+    border-radius: 0px;
+    margin-left: 0%;
+    margin-right:0%;
+    width:10%;
+}
+.content_bar_items2t
+{
+    font-weight: bold;
+    color:#052244;
+    font-size: 0.5cm;
+}
+
+
+.content-wrapper
+{
+    background-color:#EEEEEE;
+    background-size: 100%;
+}
+
+/*Worker*/
+.PropNo
+{
+font-weight: bold;
+color:#052244;
+margin-top:3%;
+}
+
+.form-labels
+{
+    font-weight: bold;
+    color:#052244;
+}
+.Prop-desc
+{
+    font-weight:bold;
+    margin-left:0%;
+}
+.Prop-desc-text
+{
+    margin-left:1%;
+}
+.Page
+{
+    margin-left:90%;
+    font-weight:bold;
+    margin-right: 0%;
+}
+
+
+/* clients tab*/
+.modal-title
+{
+    color:#052244;
+    font-weight: bold;
+    text-align: left;
+    font-size:0.5cm;
+}
+.modal-time
+{
+    text-align: left;
+    font-size: 0.4cm;
+    font-weight: bold;
+}
+.modal-type
+{
+    text-align: left;
+    font-size: 0.3cm;
+    font-weight: bold;
+}
+.modal-client
+{
+    text-align: left;
+    font-size: 0.4cm;
+    font-weight: bold;
+    color:#EEC95E;
+}
+.details
+{
+    text-align: left;
+    font-size: 0.3cm;
+    font-weight: bold;
+    color:black;
+    margin-left: 2%;
+}
+
+.SearchBarClient
+{
+    margin-left:0%;
+    width:85%;
+    height: 30px;
+    margin-left: 0px;
+    margin-right:0px;
+    border: 2px;
+  /*  box-shadow: 2px 2px #888888;*/
+}
+.SearchButton
+{
+    margin-left:1%;
+    margin-right:0%;
+    height: 30px;
+    background-color: #fff;
+    color: #fff;
+    border: 2px;
+    border-block-color: white;
+}
+.list-group-item
+{
+    display: inline-flex;
+    width:100%;
+}
+
+
+.list-group
+{
+    list-style-type: none;
+    margin-top:0px;
+    margin-bottom: 0px;
+    
+}
+.image-parent 
+{
+    max-width: 40px;
+    margin-right: none;
+}
+.img-circle
+{
+    height:40px;
+    margin-right: none;
+    margin-right: 10%;
+    margin-left: 5%;
+    
+}
+.client-name
+{
+text-align: center;
+margin-right: 10%;
+margin-left: 2%;
+color:#052244;
+}
+
+/* Spinners */
+.spinner {
+    width: 100px;
+  }
+  .spinner input {
+    text-align: right;
+  }
+  .input-group
+  {
+      margin-top:5%;
+      margin-bottom:5%;
+  }
+  .input-group-btn-vertical {
+    position: relative;
+    white-space: nowrap;
+    width: 1%;
+    vertical-align: middle;
+    display: table-cell;
+  }
+  .input-group-btn-vertical > .btn {
+    display: block;
+    float: none;
+    width: 100%;
+    max-width: 100%;
+    padding: 8px;
+    margin-left: -1px;
+    position: relative;
+    border-radius: 0;
+  }
+  .input-group-btn-vertical > .btn:first-child {
+    border-top-right-radius: 4px;
+  }
+  .input-group-btn-vertical > .btn:last-child {
+    margin-top: -2px;
+    border-bottom-right-radius: 4px;
+  }
+  .input-group-btn-vertical i{
+    position: absolute;
+    top: 0;
+    left: 4px;
+  }
+  
+
+.online-booking
+{
+    text-align: left;
+    color:#052244;
+    font-weight: bold;
+    margin-left: -55%;
+    margin-right: 0%;
+    margin-top:-3%;
+
+}
+.datepicker
+{
+    width:50%;
+    margin-top: 3%;
+}
+.checkbox-warning
+{
+height:28px;
+width:28px;
+margin-left:-35%;
+margin-top:-7%;
+}
+.fa-eye
+{
+    font-size: 75px;
+    color:#EEC95E;
+}
+
+input[type=password]
+{
+    width:10%;
+}
+input[data-toggle=password]
+{
+    width:0%;
+}
+/* change password */
+
+.open-button {
+    background-color: #DAA207;
+    color: white;
+    border: none;
+    cursor: pointer;
+    opacity: 1;
+    width: 150px;
+    height: 40px;
+}
+input[type=password]
+{
+    width:100%;
+}
+@media (max-width: 1920px)
+{
+    .main-sidebar
+    {
+        height:105%;
+    }
+    .PwdCol
+    {
+        margin-top: -3.1%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 12.1%;
+    }
+}
+@media (max-width: 1680px)
+{
+    .main-sidebar
+    {
+        height:105%;
+    }
+    .PwdCol
+    {
+        margin-top: -2.5%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 13.9%;
+    }
+}
+@media (max-width: 1600px)
+{
+    .main-sidebar
+    {
+        height:110%;
+    }
+    .PwdCol
+    {
+        margin-top: -2.5%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 14.5%;
+    }
+}
+@media (max-width: 1440px)
+{
+    .main-sidebar
+    {
+        height:115%;
+    }
+    .PwdCol
+    {
+        margin-top: -2.5%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 16.2%;
+    }
+}
+@media (max-width: 1366px)
+{
+    .main-sidebar
+    {
+        height:165%;
+    }
+    .PwdCol
+    {
+        margin-top: -1.5%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 17.0%;
+    }
+}
+@media (max-width: 1280px)
+{
+    .main-sidebar
+    {
+        height:135%;
+    }
+    .PwdCol
+    {
+        margin-top: -1.5%;
+    }
+    .btn-content_bar
+    {
+        width:9%;
+    }
+    .sidebar-menu
+    {
+        margin-top:7%;
+        text-align:center;
+        position: fixed;
+        text-align: center;
+        width: 18.2%;
+    }
+}
+   /* mobile  */
+   @media (max-width:768px)
+   {
+    /*  Add Client*/
+    .content_bar_items2
+    {
+   
+        display:inline;
+        font-weight: bold;
+        color:#052244;
+        font-size: 0.5cm;
+        margin-right: 60%;
+        margin-left: 0%; 
+    }
+   /* cancel save */
+   .btn-content_bar
+   {
+       color: black;
+       background-color: #EEC95E;
+       border-color: #EEC95E;
+       border-radius: 0px;
+       width:40%;
+       margin-top:2%;
+   }
+   .btn-content_bar:hover
+   {
+       color: black;
+       background-color:#052244;
+       border-color:whitesmoke;
+       border-radius: 0px;
+       width:40%;
+       color:white;
+       margin-top:2%;
+   }
+
+   }
+   
+   

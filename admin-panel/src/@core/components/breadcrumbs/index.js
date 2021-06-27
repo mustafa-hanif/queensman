@@ -2,11 +2,11 @@
 import { Fragment, useState, useEffect } from 'react'
 
 // ** Invoice List Sidebar
-import Sidebar from './Sidebar'
+// import Sidebar from './Sidebar'
 
 // ** Columns
-import { columns } from './columns'
-
+// import { columns } from './columns'
+const columns = {}
 // ** Store & Actions
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -66,7 +66,7 @@ const CustomHeader = ({ toggleSidebar, handlePerPage, rowsPerPage, handleFilter,
             />
           </div>
           <Button.Ripple color='primary' onClick={toggleSidebar}>
-            Add New User
+            Add New Client
           </Button.Ripple>
         </Col>
       </Row>
@@ -211,7 +211,7 @@ const UsersList = () => {
         />
       </Card>
 
-      <Sidebar open={sidebarOpen} toggleSidebar={toggleSidebar} />
+      {/* <Sidebar open={sidebarOpen} toggleSidebar={toggleSidebar} /> */}
     </Fragment>
   )
 }
