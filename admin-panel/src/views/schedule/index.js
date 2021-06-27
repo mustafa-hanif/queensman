@@ -18,12 +18,12 @@ import { useRTL } from '@hooks/useRTL'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   fetchEvents,
-  updateEvent,
+  // updateEvent,
   updateFilter,
   updateAllFilters,
   // selectEvent,
-  addEvent,
-  removeEvent
+  addEvent
+  // removeEvent
 } from './store/actions/index'
 
 // ** Styles
@@ -39,18 +39,51 @@ const calendarsColor = {
 }
 
 const GET_SCHEDULE = gql`
-  query GetSchedule($_gte: date!, $_lte: date!) {
-    scheduler(where: {date_on_calendar: {_gte: $_gte, _lte: $_lte}}, order_by: {date_on_calendar: asc}) {
-      id
-      start: date_on_calendar
-      startTime: time_on_calendar
-      title: notes
-      worker {
+query GetSchedule($_gte: date!, $_lte: date!) {
+  scheduler(where: {date_on_calendar: {_gte: $_gte, _lte: $_lte}}) {
+    id
+    start: date_on_calendar
+    startTime: time_on_calendar
+    title: notes
+    worker {
+      full_name
+    }
+    callout_id
+    callout {
+      property {
+        address
+        id
+      }
+      client_callout_email {
+        email
         full_name
       }
-      callout_id
-    }
+      category
+    }    
   }
+}
+`
+
+const UPDATE_CALLOUT = gql`
+mutation MyMutation($notes: String, $callout_id: Int, $callout_by_email: String, $category: String, $job_type: String, $scheduler_id: Int) {
+  update_scheduler(where: {id: {_eq: $scheduler_id}}, _set: {notes: $notes}) {
+    affected_rows
+  }
+  update_callout(where: {id: {_eq: $callout_id}}, _set: {callout_by_email: $callout_by_email, category: $category, job_type: $job_type}) {
+    affected_rows
+  }
+}
+`
+
+const DELETE_CALLOUT = gql`
+mutation MyMutation($callout_id: Int, $scheduler_id: Int) {
+  delete_scheduler(where: {id: {_eq: $scheduler_id}}) {
+    affected_rows
+  }
+  delete_callout(where: {id: {_eq: $callout_id}}) {
+    affected_rows
+  }
+}
 `
 
 const REQUEST_CALLOUT = gql`
@@ -105,12 +138,33 @@ const CalendarComponent = () => {
   //   return state.calendar
   // })
 
+  const [updateCallOut] = useMutation(UPDATE_CALLOUT)
+  const [deleteCallout] = useMutation(DELETE_CALLOUT)
+
   const selectedDates = useRef({
     _gte: new Date().toISOString().split('T')[0],
     _lte: new Date().toISOString().split('T')[0]
   }) //, setSelectedDates] = useState({
     
   const [selectedEvent, selectEvent] = useState({})
+
+  const updateEvent = (eventToUpdate) => {
+    updateCallOut({variables: {
+      notes: eventToUpdate.title, 
+      callout_id: eventToUpdate.callout_id, 
+      callout_by_email: eventToUpdate.extendedProps.clientEmail, 
+      category: eventToUpdate.extendedProps.category, 
+      job_type: eventToUpdate.extendedProps.category, 
+      scheduler_id: eventToUpdate.id
+    }})
+  }
+
+  const removeEvent = (id, callout_id) => {
+    deleteCallout({variables: {
+      callout_id, 
+      scheduler_id: id
+    }})
+  }
 
   // ** states
   const [addSidebarOpen, setAddSidebarOpen] = useState(false),
@@ -167,6 +221,7 @@ const CalendarComponent = () => {
     }
   )
 
+
   // ** refetchEvents
   const refetchEvents = () => {
     if (calendarApi !== null) {
@@ -184,7 +239,7 @@ const CalendarComponent = () => {
   }, [])
 
   const datesSet = (info) => {
-    console.log(info, new Date(info.start).toISOString().substring(0, 10), 'datesSet')
+    console.log(info)
     selectedDates.current = {
       _gte: info.start, //new Date(info.start).toISOString().substring(0, 10),
       _lte: info.end // new Date(info.end).toISOString().substring(0, 10)
@@ -199,20 +254,7 @@ const CalendarComponent = () => {
   return (
     <Fragment>
       <div className='app-calendar overflow-hidden border'>
-        <Row noGutters>
-          {/* <Col
-            id='app-calendar-sidebar'
-            className={classnames('col app-calendar-sidebar flex-grow-0 overflow-hidden d-flex flex-column', {
-              show: leftSidebarOpen
-            })}
-          >
-            <SidebarLeft
-              updateFilter={updateFilter}
-              toggleSidebar={toggleSidebar}
-              updateAllFilters={updateAllFilters}
-              handleAddEventSidebar={handleAddEventSidebar}
-            />
-          </Col> */}
+        <Row noGutters>        
           <Col className='position-relative'>
             <Calendar
               loading={loading || requestCalloutLoading}

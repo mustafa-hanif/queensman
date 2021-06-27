@@ -63,24 +63,37 @@ const Calendar = props => {
     datesSet,
     selectedEvent,
     eventDataTransform: (eventData => {
-      const { id, worker, callout_id, start, startTime, title } = eventData
-      // console.log({
-      //   allDay: false,
-      //   end: `${start}T${'00:00:00.000Z'}`,
-      //   id,
-      //   title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
-      //   start: `${start}T${startTime}`,
-      //   start, //: new Date(`${start} ${startTime}`).toISOString(),
-      //   extendedProps: {
-      //     callout_id
-      //   }
-      // })
+      console.log(events)
+      const { id, worker, callout_id, start, startTime, title, callout } = eventData
+      console.log({
+        allDay: false,
+        // end: `${start}T${'00:00:00.000Z'}`,
+        id,
+        title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
+        start: `${start}T${startTime}`,
+        workerName: worker?.full_name || 'No Worker name',
+        clientName: callout.client_callout_email?.full_name || 'No Client name',
+        category: callout?.category || "Uncategorized",
+        propertyName: callout.property?.address || 'No Porperty',
+        propertyId: callout.property?.id || 0,
+        // start: new Date(`${start} ${startTime}`).toISOString(),
+        // start,
+        extendedProps: {
+          callout_id
+        }
+      })
       return {
         allDay: false,
         // end: `${start}T${'00:00:00.000Z'}`,
         id,
         title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
         start: `${start}T${startTime}`,
+        workerName: worker?.full_name || 'No Worker name',
+        clientName: callout.client_callout_email?.full_name || 'No Client name',
+        clientEmail:callout.client_callout_email?.email || 'No Client email',
+        category: callout?.category || "Uncategorized",
+        propertyName: callout.property?.address || 'No Porperty',
+        propertyId: callout.property?.id || 0,
         // start: new Date(`${start} ${startTime}`).toISOString(),
         // start,
         extendedProps: {
@@ -135,9 +148,10 @@ const Calendar = props => {
     // },
 
     eventClick({ event: clickedEvent }) {
-      // console.log(clickedEvent, 'bonga')
+      console.log(clickedEvent, 'bonga')
       selectEvent(clickedEvent)
-      handleAddEventSidebar()
+        handleAddEventSidebar()
+      
 
       // * Only grab required field otherwise it goes in infinity loop
       // ! Always grab all fields rendered by form (even if it get `undefined`) otherwise due to Vue3/Composition API you might get: "object is not extensible"
