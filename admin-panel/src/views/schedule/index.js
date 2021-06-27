@@ -22,8 +22,8 @@ import {
   updateFilter,
   updateAllFilters,
   // selectEvent,
-  addEvent,
-  removeEvent
+  addEvent
+  // removeEvent
 } from './store/actions/index'
 
 // ** Styles
@@ -60,6 +60,28 @@ query GetSchedule($_gte: date!, $_lte: date!) {
       }
       category
     }    
+  }
+}
+`
+
+const UPDATE_CALLOUT = gql`
+mutation MyMutation($notes: String, $callout_id: Int, $callout_by_email: String, $category: String, $job_type: String, $scheduler_id: Int) {
+  update_scheduler(where: {id: {_eq: $scheduler_id}}, _set: {notes: $notes}) {
+    affected_rows
+  }
+  update_callout(where: {id: {_eq: $callout_id}}, _set: {callout_by_email: $callout_by_email, category: $category, job_type: $job_type}) {
+    affected_rows
+  }
+}
+`
+
+const DELETE_CALLOUT = gql`
+mutation MyMutation($callout_id: Int, $scheduler_id: Int) {
+  delete_scheduler(where: {id: {_eq: $scheduler_id}}) {
+    affected_rows
+  }
+  delete_callout(where: {id: {_eq: $callout_id}}) {
+    affected_rows
   }
 }
 `
@@ -116,14 +138,32 @@ const CalendarComponent = () => {
   //   return state.calendar
   // })
 
+  const [updateCallOut] = useMutation(UPDATE_CALLOUT)
+  const [deleteCallout] = useMutation(DELETE_CALLOUT)
+
   const selectedDates = useRef({
     _gte: new Date().toISOString().split('T')[0],
     _lte: new Date().toISOString().split('T')[0]
   }) //, setSelectedDates] = useState({
     
   const [selectedEvent, selectEvent] = useState({})
+
   const updateEvent = (eventToUpdate) => {
-console.log(eventToUpdate)
+    updateCallOut({variables: {
+      notes: eventToUpdate.title, 
+      callout_id: eventToUpdate.callout_id, 
+      callout_by_email: eventToUpdate.extendedProps.clientEmail, 
+      category: eventToUpdate.extendedProps.category, 
+      job_type: eventToUpdate.extendedProps.category, 
+      scheduler_id: eventToUpdate.id
+    }})
+  }
+
+  const removeEvent = (id, callout_id) => {
+    deleteCallout({variables: {
+      callout_id, 
+      scheduler_id: id
+    }})
   }
 
   // ** states
@@ -180,6 +220,7 @@ console.log(eventToUpdate)
       ]
     }
   )
+
 
   // ** refetchEvents
   const refetchEvents = () => {

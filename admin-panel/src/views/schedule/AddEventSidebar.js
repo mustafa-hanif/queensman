@@ -143,6 +143,8 @@ const AddEventSidebar = props => {
   const { register, errors, handleSubmit } = useForm()
 
   // ** States
+  const [contentLoading, setContentLoading] = useState(true)
+
   const [url, setUrl] = useState(selectedEvent.url || '')
   const [desc, setDesc] = useState(selectedEvent.extendedProps?.description || '')
   const [title, setTitle] = useState(selectedEvent.title || false)
@@ -151,7 +153,7 @@ const AddEventSidebar = props => {
   const [location, setLocation] = useState(selectedEvent.extendedProps?.location || '')
   const [startPicker, setStartPicker] = useState(new Date(selectedEvent.start) || '')
   const [clientName, setClientName] = useState(selectedEvent.extendedProps?.clientName || '')
-  const [clientEmail, setClientEmail] = useState(selectedEvent.extendedProps?.clientEmail || '')
+  const [clientEmail, setClientEmail] = useState(selectedEvent.extendedProps?.clientEmail || 'No client')
   const [clientId, setClientId] = useState(selectedEvent.extendedProps?.clientId)
   const [propertyName, setPropertyName] = useState(selectedEvent.extendedProps?.propertyName  || '')
   const [propertyId, setPropertyId] = useState(selectedEvent.extendedProps?.propertyId  || 9999)
@@ -253,6 +255,7 @@ const AddEventSidebar = props => {
   // ** Reset Input Values on Close
   const handleResetInputValues = () => {
     selectEvent({})
+    setContentLoading(true)  
     setTitle('')
     setAllDay(false)
     setUrl('')
@@ -269,10 +272,14 @@ const AddEventSidebar = props => {
 
   // ** Set sidebar fields
   const handleSelectedEvent = () => {
+  
   // console.log(allClients)
   // console.log(allProperty?.property_owned.map(a => a.property))
   // console.log((selectedEvent))
     if (Object.keys(selectedEvent ?? {}).length) {
+      setTimeout(() => {
+        setContentLoading(false)  
+      }, 100)
       const calendar = selectedEvent?.extendedProps?.calendar
 
       const resolveLabel = () => {
@@ -282,9 +289,10 @@ const AddEventSidebar = props => {
           return { value: 'Water Leakage', label: 'Water Leakage', color: 'primary' }
         }
       }
-      setTitle(selectedEvent.title)
+      setTitle(selectedEvent.title.split('by')[0])
       setWorkerName(selectedEvent.extendedProps.workerName)
       setClientName(selectedEvent.extendedProps.clientName)
+      setClientEmail(selectedEvent.extendedProps.clientEmail)
       setPropertyName(selectedEvent.extendedProps.propertyName || propertyName)
       setValue([selectedEvent.category])
       setAllDay(selectedEvent.allDay || allDay)
@@ -328,10 +336,12 @@ const AddEventSidebar = props => {
   const handleUpdateEvent = () => {
     const eventToUpdate = {
       id: selectedEvent.id,
-      title,
+      callout_id: selectedEvent.extendedProps.callout_id,
+      title: title.split('by')[0],
       start: startPicker,
       extendedProps: {
         clientName,
+        clientEmail,
         category: 'Uncategorized',
         propertyName,
         workerName,
@@ -339,8 +349,8 @@ const AddEventSidebar = props => {
       }
     }
 
-    const propsToUpdate = ['start', 'title']
-    const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'propertyId']
+    const propsToUpdate = ['start', 'title', 'callout_id']
+    const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'propertyId', 'clientEmail']
 
     updateEvent(eventToUpdate)
     updateEventInCalendar(eventToUpdate, propsToUpdate, extendedPropsToUpdate)
@@ -357,7 +367,7 @@ const AddEventSidebar = props => {
     calendarApi.getEventById(eventId).remove()
   }
   const handleDeleteEvent = () => {
-    removeEvent(selectedEvent.id)
+    removeEvent(selectedEvent.id, selectedEvent.extendedProps.callout_id)
     removeEventInCalendar(selectedEvent.id)
     handleAddEventSidebar()
     toast.error(<ToastComponent title='Event Removed' color='danger' icon={<Trash />} />, {
@@ -425,7 +435,7 @@ const AddEventSidebar = props => {
            {selectedEvent?.title}
          </h5>
        </ModalHeader>
-       {title ? <ModalBody className='flex-grow-1 pb-sm-0 pb-3'>
+       {!contentLoading ? <ModalBody className='flex-grow-1 pb-sm-0 pb-3'>
        <Form
           onSubmit={handleSubmit(data => {
             if (isObjEmpty(errors)) {
@@ -635,7 +645,7 @@ const AddEventSidebar = props => {
             <EventActions />
           </FormGroup>
            </Form>
-       </ModalBody> : <Spinner />}
+       </ModalBody> : <div style={{height: 300}}></div> }
     </Modal>
   )
 }

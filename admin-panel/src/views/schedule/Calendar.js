@@ -90,6 +90,7 @@ const Calendar = props => {
         start: `${start}T${startTime}`,
         workerName: worker?.full_name || 'No Worker name',
         clientName: callout.client_callout_email?.full_name || 'No Client name',
+        clientEmail:callout.client_callout_email?.email || 'No Client email',
         category: callout?.category || "Uncategorized",
         propertyName: callout.property?.address || 'No Porperty',
         propertyId: callout.property?.id || 0,
