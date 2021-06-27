@@ -641,6 +641,7 @@ const AddEventSidebar = props => {
                }}
              />
            </FormGroup> */}
+           {selectedEvent?.extendedProps?.videoUrl && <video width="458" controls src={selectedEvent?.extendedProps?.videoUrl} />}
            <FormGroup className='d-flex'>
             <EventActions />
           </FormGroup>

@@ -59,6 +59,7 @@ query GetSchedule($_gte: date!, $_lte: date!) {
         full_name
       }
       category
+      video
     }    
   }
 }
