@@ -1,45 +1,29 @@
 /* eslint-disable no-use-before-define */
 import React, { useRef, useEffect, useState } from "react";
-import { Video, AVPlaybackStatus } from "expo-av";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  Pressable,
-  Alert,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Dimensions,
-  ScrollView,
-  Image,
-} from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Pressable, Dimensions } from "react-native";
 
 import { Camera } from "expo-camera";
-import { Picker, ListItem, Row, Icon, Col, Button, Left } from "native-base";
+import { Audio } from "expo-av";
+import { Icon } from "native-base";
 
 const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
   const [hasPermission, setHasPermission] = useState(null);
   const [recording, setRecording] = useState(false);
-  const [type, setType] = useState(Camera.Constants.Type.back);
   const camera = useRef(null);
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestPermissionsAsync();
-      setHasPermission(status === "granted");
+      const { status: status2 } = await Audio.requestPermissionsAsync();
+      setHasPermission(status === "granted" && status2 === "granted");
     })();
   }, []);
 
-  const startRecording = async () => {
-    // setRecording(true);
-    const video = await camera.current.recordAsync(); // .then((video) => {
-    console.log(video);
-    //   setShowVideoScreen(false);
-    //   saveVideo(video);
-    // });
-    // saveVideo(video);
-    // setShowVideoScreen(false);
+  const startRecording = () => {
+    camera.current.recordAsync({ maxDuration: 30 }).then((video) => {
+      setShowVideoScreen(false);
+      saveVideo(video);
+    });
+    setRecording(true);
   };
 
   const stopRecording = () => {
@@ -57,7 +41,8 @@ const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
     <View style={styleCamera.container}>
       <Camera
         style={styleCamera.camera}
-        type={type}
+        type={Camera.Constants.Type.back}
+        useCamera2Api
         ref={(ref) => {
           camera.current = ref;
         }}
