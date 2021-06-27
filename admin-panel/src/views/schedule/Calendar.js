@@ -46,7 +46,8 @@ const Calendar = props => {
     blankEvent,
     toggleSidebar,
     selectEvent,
-    updateEvent
+    updateEvent,
+    updateEventDrag
   } = props
 
   // ** UseEffect checks for CalendarAPI Update
@@ -63,8 +64,8 @@ const Calendar = props => {
     datesSet,
     selectedEvent,
     eventDataTransform: (eventData => {
-      console.log(events)
-      const { id, worker, callout_id, start, startTime, title, callout } = eventData
+      // console.log(eventData)
+      const { id, worker, callout_id, start, startTime, title, callout, end, endTime } = eventData
       console.log({
         allDay: false,
         // end: `${start}T${'00:00:00.000Z'}`,
@@ -76,8 +77,7 @@ const Calendar = props => {
         category: callout?.category || "Uncategorized",
         propertyName: callout.property?.address || 'No Porperty',
         propertyId: callout.property?.id || 0,
-        // start: new Date(`${start} ${startTime}`).toISOString(),
-        // start,
+        start: new Date(`${start} ${startTime}`).toISOString(),
         extendedProps: {
           callout_id
         }
@@ -94,8 +94,7 @@ const Calendar = props => {
         category: callout?.category || "Uncategorized",
         propertyName: callout.property?.address || 'No Porperty',
         propertyId: callout.property?.id || 0,
-        // start: new Date(`${start} ${startTime}`).toISOString(),
-        // start,
+        start: new Date(`${start} ${startTime}`).toISOString(),
         extendedProps: {
           callout_id
         }
@@ -184,8 +183,8 @@ const Calendar = props => {
       ? Docs: https://fullcalendar.io/docs/eventDrop
       ? We can use `eventDragStop` but it doesn't return updated event so we have to use `eventDrop` which returns updated event
     */
-    eventDrop({ event: droppedEvent }) {
-      updateEvent(droppedEvent)
+    eventDrop({ event: droppedEvent}) {
+      updateEventDrag(droppedEvent)
       toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
         autoClose: 2000,
         hideProgressBar: true,
@@ -198,7 +197,7 @@ const Calendar = props => {
       ? Docs: https://fullcalendar.io/docs/eventResize
     */
     eventResize({ event: resizedEvent }) {
-      updateEvent(resizedEvent)
+      updateEventDrag(resizedEvent)
       toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
         autoClose: 2000,
         hideProgressBar: true,

@@ -65,7 +65,7 @@ query GetSchedule($_gte: date!, $_lte: date!) {
 `
 
 const UPDATE_CALLOUT = gql`
-mutation MyMutation($notes: String, $callout_id: Int, $callout_by_email: String, $category: String, $job_type: String, $scheduler_id: Int) {
+mutation UpdateCallout($notes: String, $callout_id: Int, $callout_by_email: String, $category: String, $job_type: String, $scheduler_id: Int) {
   update_scheduler(where: {id: {_eq: $scheduler_id}}, _set: {notes: $notes}) {
     affected_rows
   }
@@ -75,8 +75,16 @@ mutation MyMutation($notes: String, $callout_id: Int, $callout_by_email: String,
 }
 `
 
+const UPDATE_CALLOUT_DRAG = gql`
+mutation UpdateCalloutDrag($scheduler_id: Int, $date_on_calendar: date, $time_on_calendar: time) {
+  update_scheduler(where: {id: {_eq: $scheduler_id}}, _set: {date_on_calendar: $date_on_calendar, time_on_calendar: $time_on_calendar}) {
+    affected_rows
+  }
+}
+`
+
 const DELETE_CALLOUT = gql`
-mutation MyMutation($callout_id: Int, $scheduler_id: Int) {
+mutation DeleteCallout($callout_id: Int, $scheduler_id: Int) {
   delete_scheduler(where: {id: {_eq: $scheduler_id}}) {
     affected_rows
   }
@@ -139,6 +147,7 @@ const CalendarComponent = () => {
   // })
 
   const [updateCallOut] = useMutation(UPDATE_CALLOUT)
+  const [updateCallOutDrag] = useMutation(UPDATE_CALLOUT_DRAG)
   const [deleteCallout] = useMutation(DELETE_CALLOUT)
 
   const selectedDates = useRef({
@@ -155,6 +164,18 @@ const CalendarComponent = () => {
       callout_by_email: eventToUpdate.extendedProps.clientEmail, 
       category: eventToUpdate.extendedProps.category, 
       job_type: eventToUpdate.extendedProps.category, 
+      scheduler_id: eventToUpdate.id
+    }})
+  }
+  const updateEventDrag = (eventToUpdate) => {
+    updateCallOutDrag({variables: {
+      date_on_calendar: eventToUpdate.startStr.split('T')[0],
+      time_on_calendar:eventToUpdate.startStr.split('T')[1].substr(0, 8),
+      scheduler_id: eventToUpdate.id
+    }})
+    console.log({variables: {
+      date_on_calendar: eventToUpdate.startStr.split('T')[0],
+      time_on_calendar:eventToUpdate.startStr.split('T')[1].substr(0, 8),
       scheduler_id: eventToUpdate.id
     }})
   }
@@ -271,6 +292,7 @@ const CalendarComponent = () => {
               toggleSidebar={toggleSidebar}
               calendarsColor={calendarsColor}
               setCalendarApi={setCalendarApi}
+              updateEventDrag={updateEventDrag}
               handleAddEventSidebar={handleAddEventSidebar}
             />
           </Col>
