@@ -77,7 +77,7 @@ const Calendar = props => {
         category: callout?.category || "Uncategorized",
         propertyName: callout.property?.address || 'No Porperty',
         propertyId: callout.property?.id || 0,
-        start: new Date(`${start} ${startTime}`).toISOString(),
+        start: new Date(`${start || ''} ${startTime || ''}`).toISOString() || '', 
         videoUrl: callout.video,
         // start: new Date(`${start} ${startTime}`).toISOString(),
         // start,
