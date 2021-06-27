@@ -39,6 +39,7 @@ import SettingPasswordChange from "./src/Component/SettingPasswordChange";
 import ForgotPassword from "./src/Login/ForgotPassword";
 import SelectSchedule from "./src/CallOut/SelectSchedule";
 import Notification from "./src/Notification";
+import VideoScreen from "./src/VideoScreen";
 
 import getTheme from "./native-base-theme/components";
 import commonColor from "./native-base-theme/variables/commonColor";
@@ -225,6 +226,12 @@ const HomeScreenStackNavigator = createStackNavigator(
         headerTitleStyle: {
           fontFamily: "Helvetica",
         },
+      }),
+    },
+    VideoScreen: {
+      screen: VideoScreen,
+      navigationOptions: ({ navigation }) => ({
+        headerShown: false,
       }),
     },
     RequestCallOut: {
