@@ -16,15 +16,19 @@ export default class AuthLogin extends React.Component {
   }
 
   async componentDidMount() {
-    const user = await AsyncStorage.getItem("QueensUser");
-    // const email = auth?.currentSession?.session?.user.email;
-    const email = user && JSON.parse(user.email);
-    console.log({ email });
-    console.log("In AuthLogin", { email });
-    if (email) {
-      this.props.navigation.navigate("AppDrawer");
-    } else {
-      this.props.navigation.navigate("Login");
+    try {
+      const user = await AsyncStorage.getItem("QueensUser");
+      // const email = auth?.currentSession?.session?.user.email;
+      const email = user && JSON.parse(user).email;
+      console.log({ email });
+      console.log("In AuthLogin", { email });
+      if (email) {
+        this.props.navigation.navigate("AppDrawer");
+      } else {
+        this.props.navigation.navigate("Login");
+      }
+    } catch (error) {
+      console.error(error);
     }
 
     //Login  ko hata kar  AppDrawer kardana kud home kulay ga

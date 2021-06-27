@@ -123,7 +123,6 @@ export default class PostJob extends React.Component {
     }
     UploadImage = () => {
         if (this.state.Pic1 != 'link') {
-ls
             if (this.state.Pic1 != "link") {
                 this.urlToUPLOAD(this.state.Pic1, link)
 
