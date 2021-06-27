@@ -123,7 +123,7 @@ export default class PostJob extends React.Component {
     }
     UploadImage = () => {
         if (this.state.Pic1 != 'link') {
-            link = "https://www.queensman.com/phase_2/queens_worker_Apis/uploadPostPicture_a.php"
+ls
             if (this.state.Pic1 != "link") {
                 this.urlToUPLOAD(this.state.Pic1, link)
 
@@ -243,6 +243,7 @@ export default class PostJob extends React.Component {
             console.log(result.data);
         })
     }
+    
     RemoveImages = () => {
         if (this.state.selectedNo == 1) {
             this.setState({
