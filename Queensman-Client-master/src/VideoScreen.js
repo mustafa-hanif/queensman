@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 /* eslint-disable no-use-before-define */
 import React, { useRef, useEffect, useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity, Pressable, Dimensions } from "react-native";
@@ -10,6 +11,7 @@ const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
   const [hasPermission, setHasPermission] = useState(null);
   const [recording, setRecording] = useState(false);
   const camera = useRef(null);
+
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestPermissionsAsync();
@@ -19,10 +21,15 @@ const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
   }, []);
 
   const startRecording = () => {
-    camera.current.recordAsync({ maxDuration: 30 }).then((video) => {
-      setShowVideoScreen(false);
-      saveVideo(video);
-    });
+    camera.current
+      .recordAsync({ maxDuration: 30 })
+      .then((video) => {
+        setShowVideoScreen(false);
+        saveVideo(video);
+      })
+      .catch((e) => {
+        alert(JSON.stringify(e));
+      });
     setRecording(true);
   };
 
@@ -42,48 +49,50 @@ const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
       <Camera
         style={styleCamera.camera}
         type={Camera.Constants.Type.back}
+        quality={Camera.Constants.VideoQuality["720p"]}
         useCamera2Api
         ref={(ref) => {
           camera.current = ref;
         }}
-      />
-      <View style={{ flex: 1 }}>
-        <View style={styleCamera.buttonContainer}>
-          <TouchableOpacity
-            style={styleCamera.button}
-            onPress={() => {
-              setShowVideoScreen(false);
-            }}
-          >
-            <Icon name="close-circle-outline" style={{ fontSize: 32, color: "red", marginLeft: "auto" }} />
-          </TouchableOpacity>
+      >
+        <View style={{ flex: 1 }}>
+          <View style={styleCamera.buttonContainer}>
+            <TouchableOpacity
+              style={styleCamera.button}
+              onPress={() => {
+                setShowVideoScreen(false);
+              }}
+            >
+              <Icon name="close-circle-outline" style={{ fontSize: 32, color: "red", marginLeft: "auto" }} />
+            </TouchableOpacity>
+          </View>
+          {recording ? (
+            <View style={styleCamera.recordButtonContainer}>
+              <Icon name="square-outline" style={styleCamera.recordButtonOutline} />
+              <Pressable
+                style={styleCamera.recordButtonButton}
+                onPress={() => {
+                  stopRecording();
+                }}
+              >
+                <Icon name="square" style={styleCamera.recordButton} />
+              </Pressable>
+            </View>
+          ) : (
+            <View style={styleCamera.recordButtonContainer}>
+              <Icon name="ellipse-outline" style={styleCamera.recordButtonOutline} />
+              <Pressable
+                style={styleCamera.recordButtonButton}
+                onPress={() => {
+                  startRecording();
+                }}
+              >
+                <Icon name="ellipse" style={styleCamera.recordButton} />
+              </Pressable>
+            </View>
+          )}
         </View>
-        {recording ? (
-          <View style={styleCamera.recordButtonContainer}>
-            <Icon name="square-outline" style={styleCamera.recordButtonOutline} />
-            <Pressable
-              style={styleCamera.recordButtonButton}
-              onPress={() => {
-                stopRecording();
-              }}
-            >
-              <Icon name="square" style={styleCamera.recordButton} />
-            </Pressable>
-          </View>
-        ) : (
-          <View style={styleCamera.recordButtonContainer}>
-            <Icon name="ellipse-outline" style={styleCamera.recordButtonOutline} />
-            <Pressable
-              style={styleCamera.recordButtonButton}
-              onPress={() => {
-                startRecording();
-              }}
-            >
-              <Icon name="ellipse" style={styleCamera.recordButton} />
-            </Pressable>
-          </View>
-        )}
-      </View>
+      </Camera>
     </View>
   );
 };
