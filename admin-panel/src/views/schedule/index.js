@@ -61,6 +61,18 @@ query GetSchedule($_gte: date!, $_lte: date!) {
       category
       video
     }    
+    job_tickets {
+      name
+      description
+      id
+      notes
+      pictures
+      type
+      worker {
+        full_name
+        id
+      }
+    }
   }
 }
 `
@@ -174,11 +186,6 @@ const CalendarComponent = () => {
       time_on_calendar:eventToUpdate.startStr.split('T')[1].substr(0, 8),
       scheduler_id: eventToUpdate.id
     }})
-    console.log({variables: {
-      date_on_calendar: eventToUpdate.startStr.split('T')[0],
-      time_on_calendar:eventToUpdate.startStr.split('T')[1].substr(0, 8),
-      scheduler_id: eventToUpdate.id
-    }})
   }
 
   const removeEvent = (id, callout_id) => {
@@ -261,7 +268,7 @@ const CalendarComponent = () => {
   }, [])
 
   const datesSet = (info) => {
-    console.log(info)
+    // console.log(info)
     selectedDates.current = {
       _gte: info.start, //new Date(info.start).toISOString().substring(0, 10),
       _lte: info.end // new Date(info.end).toISOString().substring(0, 10)
@@ -272,6 +279,8 @@ const CalendarComponent = () => {
     }})
     // console.log(data)
   }
+    // const data2 = [...data?.scheduler ?? [], data?.job_tickets ?? ]
+    // console.log(data)
 
   return (
     <Fragment>

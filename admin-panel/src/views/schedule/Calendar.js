@@ -62,10 +62,11 @@ const Calendar = props => {
     events,
     // initialDate: '2020-08-01',
     datesSet,
-    selectedEvent,
+    // selectedEvent,
     eventDataTransform: (eventData => {
-      // console.log(eventData)
-      const { id, worker, callout_id, start, startTime, title, callout, end, endTime } = eventData
+      // console.log(events)
+      const { id, worker, callout_id, start, startTime, title, callout, end, endTime, job_tickets } = eventData
+      const length = job_tickets?.length
       console.log({
         allDay: false,
         // end: `${start}T${'00:00:00.000Z'}`,
@@ -81,15 +82,15 @@ const Calendar = props => {
         videoUrl: callout.video,
         // start: new Date(`${start} ${startTime}`).toISOString(),
         // start,
-        extendedProps: {
-          callout_id
-        }
+        job_tickets,
+        
+        callout_id
       })
       return {
         allDay: false,
         // end: `${start}T${'00:00:00.000Z'}`,
         id,
-        title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
+        title: worker?.full_name ? `${title} by ${worker?.full_name}${length > 0 ? `; ${length} job ticket ${length > 1 ? 's' : ''}` : ''}` : 'No Title',
         start: `${start}T${startTime}`,
         workerName: worker?.full_name || 'No Worker name',
         clientName: callout.client_callout_email?.full_name || 'No Client name',
@@ -100,9 +101,9 @@ const Calendar = props => {
         videoUrl: callout.video,
         // start: new Date(`${start} ${startTime}`).toISOString(),
         // start,
-        extendedProps: {
-          callout_id
-        }
+        job_tickets,
+        hasJobs: job_tickets.length,
+        callout_id
       }
     }),
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
@@ -141,15 +142,15 @@ const Calendar = props => {
     */
     navLinks: true,
 
-    // eventClassNames({ event: calendarEvent }) {
-    //   // eslint-disable-next-line no-underscore-dangle
-    //   const colorName = calendarsColor[calendarEvent._def.extendedProps.calendar]
+    eventClassNames({ event: calendarEvent }) {
+      // eslint-disable-next-line no-underscore-dangle
+      const colorName = calendarEvent.extendedProps?.hasJobs ? 'info' : 'success'
 
-    //   return [
-    //     // Background Color
-    //     `bg-light-${colorName}`
-    //   ]
-    // },
+      return [
+        // Background Color
+        `bg-${colorName}`
+      ]
+    },
 
     eventClick({ event: clickedEvent }) {
       console.log(clickedEvent, 'bonga')
