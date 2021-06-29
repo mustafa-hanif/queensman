@@ -15,141 +15,85 @@ import { Button, FormGroup, Label, FormText, Form, Input } from 'reactstrap'
 // ** Store & Actions
 import { useDispatch } from 'react-redux'
 
-const SidebarNewUsers = ({ open, toggleSidebar }) => {
-  // ** States
-  const [role, setRole] = useState('subscriber')
-  const [plan, setPlan] = useState('basic')
+import { gql, useMutation } from '@apollo/client'
 
-  // ** Store Vars
-  const dispatch = useDispatch()
-
-  // ** Vars
-  const { register, errors, handleSubmit } = useForm()
-
-  // ** Function to handle form submit
-  const onSubmit = values => {
-    if (isObjEmpty(errors)) {
-      toggleSidebar()
-      dispatch(
-        addUser({
-          fullName: values['full-name'],
-          company: values.company,
-          role,
-          username: values.username,
-          country: values.country,
-          contact: values.contact,
-          email: values.email,
-          currentPlan: plan,
-          status: 'active',
-          avatar: ''
-        })
-      )
-    }
+const ADD_CLIENT = gql`
+mutation AddClient($full_name: String!, $email: String!, $phone: String!) {
+  insert_client_one(full_name: $full_name, email: $email, phone: $phone) {  
+    full_name
+    email
+    phone
   }
+}
+`
+
+const AddClient = ({ open, toggleSidebar }) => {
+  let input
+  const [insert_client_one, { data }] = useMutation(ADD_CLIENT)
 
   return (
     <Sidebar
       size='lg'
       open={open}
-      title='New User'
+      title='Add New Client'
       headerClassName='mb-1'
       contentClassName='pt-0'
       toggleSidebar={toggleSidebar}
     >
-      <Form onSubmit={handleSubmit(onSubmit)}>
+      <Form onSubmit={e => {
+          e.preventDefault()
+          console.log(input.value)
+          insert_client_one({ variables: 
+            
+            { 
+              full_name : input.value,
+              email : input.value,
+              phone : input.value
+
+            } 
+          
+          })
+        
+          input.value = ''
+          input.value = ''
+          input.value = ''
+
+
+        }}
+      >
         <FormGroup>
           <Label for='full-name'>
             Full Name <span className='text-danger'>*</span>
           </Label>
           <Input
-            name='full-name'
-            id='full-name'
-            placeholder='John Doe'
-            innerRef={register({ required: true })}
-            className={classnames({ 'is-invalid': errors['full-name'] })}
-          />
+          ref={node => {
+            input = node
+          }}
+        />
         </FormGroup>
+
         <FormGroup>
-          <Label for='username'>
-            Username <span className='text-danger'>*</span>
-          </Label>
-          <Input
-            name='username'
-            id='username'
-            placeholder='johnDoe99'
-            innerRef={register({ required: true })}
-            className={classnames({ 'is-invalid': errors['username'] })}
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label for='email'>
+          <Label for='full-name'>
             Email <span className='text-danger'>*</span>
           </Label>
           <Input
-            type='email'
-            name='email'
-            id='email'
-            placeholder='john.doe@example.com'
-            innerRef={register({ required: true })}
-            className={classnames({ 'is-invalid': errors['email'] })}
-          />
-          <FormText color='muted'>You can use letters, numbers & periods</FormText>
+          ref={node => {
+            input = node
+          }}
+        />
         </FormGroup>
+
         <FormGroup>
-          <Label for='company'>
-            Company <span className='text-danger'>*</span>
+          <Label for='full-name'>
+            Phone <span className='text-danger'>*</span>
           </Label>
           <Input
-            name='company'
-            id='company'
-            placeholder='Company Pvt Ltd'
-            innerRef={register({ required: true })}
-            className={classnames({ 'is-invalid': errors['company'] })}
-          />
+          ref={node => {
+            input = node
+          }}
+        />
         </FormGroup>
-        <FormGroup>
-          <Label for='country'>
-            Country <span className='text-danger'>*</span>
-          </Label>
-          <Input
-            name='country'
-            id='country'
-            placeholder='Australia'
-            innerRef={register({ required: true })}
-            className={classnames({ 'is-invalid': errors['country'] })}
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label for='contact'>
-            Contact <span className='text-danger'>*</span>
-          </Label>
-          <Input
-            name='contact'
-            id='contact'
-            placeholder='(397) 294-5153'
-            innerRef={register({ required: true })}
-            className={classnames({ 'is-invalid': errors['contact'] })}
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label for='user-role'>User Role</Label>
-          <Input type='select' id='user-role' name='user-role' value={role} onChange={e => setRole(e.target.value)}>
-            <option value='subscriber'>Subscriber</option>
-            <option value='editor'>Editor</option>
-            <option value='maintainer'>Maintainer</option>
-            <option value='author'>Author</option>
-            <option value='admin'>Admin</option>
-          </Input>
-        </FormGroup>
-        <FormGroup className='mb-2' value={plan} onChange={e => setPlan(e.target.value)}>
-          <Label for='select-plan'>Select Plan</Label>
-          <Input type='select' id='select-plan' name='select-plan'>
-            <option value='basic'>Basic</option>
-            <option value='enterprise'>Enterprise</option>
-            <option value='company'>Company</option>
-            <option value='team'>Team</option>
-          </Input>
-        </FormGroup>
+       
         <Button type='submit' className='mr-1' color='primary'>
           Submit
         </Button>
@@ -161,4 +105,5 @@ const SidebarNewUsers = ({ open, toggleSidebar }) => {
   )
 }
 
-export default SidebarNewUsers
+
+export default AddClient

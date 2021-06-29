@@ -43,6 +43,7 @@ const REQUEST_CALLOUT = gql`
     $picture2: String
     $picture3: String
     $picture4: String
+    $video: String
     $request_time: timestamp
     $urgency_level: String
   ) {
@@ -61,6 +62,7 @@ const REQUEST_CALLOUT = gql`
             picture2: $picture2
             picture3: $picture3
             picture4: $picture4
+            video: $video
             active: 1
           }
         }
@@ -166,6 +168,7 @@ export default function SelectSchedule(props) {
         status: "Requested",
         request_time: current.toLocaleDateString(),
         urgency_level: "Medium",
+        video: state.videoUrl,
         ...pictures,
       },
     })

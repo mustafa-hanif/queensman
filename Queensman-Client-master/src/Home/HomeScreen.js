@@ -112,8 +112,7 @@ const registerForPushNotificationsAsync = async () => {
 };
 
 const requestCallOutPress = (navigation) => {
-  // navigation.navigate("RequestCallOut");
-  navigation.navigate("VideoScreen");
+  navigation.navigate("RequestCallOut");
 };
 
 const onGoingCallOutPress = (navigation) => {
