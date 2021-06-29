@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,9 +7,11 @@ import {
   ActivityIndicator,
   FlatList,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
+
 import commonColor from "../../native-base-theme/variables/commonColor";
-import { gql, useQuery, useMutation } from "@apollo/client";
+import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 
 const GET_JOB_TICKETS = gql`
   query MyQuery($callout_id: Int!) {
@@ -27,11 +29,39 @@ export default function TicketListing(props) {
     {}
   );
 
-  const { loading, data, error } = useQuery(GET_JOB_TICKETS, {
-    variables: {
-      callout_id: Number(id),
-    },
-  });
+  const [refresh, setrefresh] = useState(
+    props.navigation.getParam("refresh", false)
+  );
+
+  const [fetchTickets, { loading, data, error }] = useLazyQuery(
+    GET_JOB_TICKETS,
+    {
+      variables: {
+        callout_id: Number(id),
+      },
+    }
+  );
+
+  //   useEffect(() => {
+  //     fetchTickets();
+  //     return () => {
+  //       setrefresh(false);
+  //     };
+  //   }, []);
+
+  useEffect(() => {
+    const { navigation } = props;
+    const focusListener = navigation.addListener("didFocus", () => {
+      fetchTickets();
+      // The screen is focused
+      // Call any action
+    });
+
+    return () => {
+      focusListener.remove();
+      return focusListener;
+    };
+  }, []);
 
   console.log({ loading, data, error });
 
@@ -105,7 +135,7 @@ export default function TicketListing(props) {
     return (
       <TouchableOpacity
         onPress={() => {
-          props.navigation.navigate("CreateTicket");
+          props.navigation.navigate("CreateTicket", { callout_id: Number(id) });
         }}
         style={{
           borderWidth: 2,
@@ -122,7 +152,7 @@ export default function TicketListing(props) {
   };
 
   return (
-    <View style={{ margin: "3%" }}>
+    <ScrollView showsVerticalScrollIndicator={false} style={{ margin: "3%" }}>
       <CreateTicketCard></CreateTicketCard>
       <TicketDetails></TicketDetails>
 
@@ -130,20 +160,16 @@ export default function TicketListing(props) {
         {loading ? (
           <ActivityIndicator size="large" color="#FFCA5D" />
         ) : (
-          <FlatList
-            data={data?.job_tickets}
-            keyExtractor={(item, index) => `${index}`}
-            renderItem={({ item }) => (
-              <TicketCard
-                Checked={true}
-                description={item.description}
-                ticketType={item.name}
-              ></TicketCard>
-            )}
-          ></FlatList>
+          data?.job_tickets.map((item) => (
+            <TicketCard
+              Checked={true}
+              description={item.description}
+              ticketType={item.name}
+            ></TicketCard>
+          ))
         )}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
