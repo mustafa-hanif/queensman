@@ -51,54 +51,9 @@ function Clients() {
     <Fragment>
       <Breadcrumbs breadCrumbTitle='Clients' breadCrumbParent='Home' breadCrumbActive='Clients List' />
       <Row>
-      <table name="client"  class="table">
-  <thead>
-    <tr>
-      <th scope="col">ID</th>
-      <th scope="col">Name</th>
-      <th scope="col">Email</th>
-      <th scope="col">Pasword</th>
-      <th scope="col">Phone</th>
-      <th scope="col">Description</th>
-      <th scope="col">Active/Inactive</th>
-
-
-    </tr>
-  </thead>
-  <tbody>
-  {data.client.map(client => (
-      <tr>
-  
-        <td key={client.id} value={client.full_name}>
-          {client.full_name}
-        </td>
-        <td key={client.id} value={client.email}>
-          {client.email}
-        </td>
-        <td key={client.id} value={client.password}>
-          {client.password}
-        </td>
-        <td key={client.id} value={client.phone}>
-          {client.phone}
-        </td>
-        <td key={client.id} value={client.account_type}>
-          {client.account_type}
-        </td>
-        <td key={client.id} value={client.active}>
-          {client.active}
-        </td>
-        <td>
-
-        </td>
-        <td>
-          
-        </td>
-          </tr>
-
-      ))}
-         
-  </tbody>
-</table>
+      <Col sm='12'>
+          <TableZeroConfig />
+        </Col>
         {/* <Col sm='12'>
           <TableWithButtons />
         </Col>
