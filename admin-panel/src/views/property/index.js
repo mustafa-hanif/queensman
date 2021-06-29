@@ -23,7 +23,7 @@ import '@styles/react/libs/tables/react-dataTable-component.scss'
 import { gql, useLazyQuery, useQuery } from "@apollo/client"
 
 const GET_CLIENT = gql`
-query MyQuery {
+query GetClient {
   client {
     email
     full_name

@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable no-alert */
 /* eslint-disable no-console */
 /* eslint-disable no-use-before-define */
@@ -7,6 +8,7 @@
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
+import { Video } from "expo-av";
 import {
   StyleSheet,
   Text,
@@ -16,14 +18,14 @@ import {
   Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
-  ScrollView,
+  Button,
   Image,
 } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 
-import { Picker, ListItem, Row, Icon, Col, Button, Left } from "native-base";
+import { Picker, Icon } from "native-base";
 import Toast from "react-native-whc-toast";
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
 
@@ -33,10 +35,10 @@ import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
 import { LinearGradient } from "expo-linear-gradient";
-import moment from "moment";
-
 import Modal from "react-native-modal";
-import { auth } from "../utils/nhost";
+import { auth, storage } from "../utils/nhost";
+
+import VideoScreen from "../VideoScreen";
 
 const styles = StyleSheet.create({
   container: {
@@ -148,6 +150,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  disabledButton: {
+    backgroundColor: "#eee",
+    color: "#ccc",
+  },
   SubmitCallout: {
     height: 38,
     width: "100%",
@@ -218,6 +224,8 @@ const RequestCallOut = (props) => {
     picture2: "",
     picture3: "",
     picture4: "",
+    video: "",
+    videoUrl: "",
     customerEmail: "",
     PropertyID: "",
     Email: "",
@@ -231,6 +239,9 @@ const RequestCallOut = (props) => {
     selectedPic: "",
     selectedNo: 0,
   });
+
+  const [videoSaving, setVideoSaving] = useState(false);
+  const [showVideoScreen, setShowVideoScreen] = useState(false);
 
   const onValueChange = (value) => {
     setState((state) => ({
@@ -538,7 +549,7 @@ const RequestCallOut = (props) => {
 
   const CameraSnap = async () => {
     if (Constants.platform.ios) {
-      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
       if (status !== "granted") {
         alert("Sorry, we need camera roll permissions to make this work!");
       }
@@ -557,6 +568,52 @@ const RequestCallOut = (props) => {
     }
   };
 
+  const showVideoScreenCallback = () => {
+    setShowVideoScreen(true);
+  };
+
+  const saveVideo = ({ uri }) => {
+    setState({ ...state, video: uri });
+  };
+
+  const [videoPlayScreen, setVideoPlayScreen] = useState(false);
+  const showPlayVideoScreen = () => {
+    setVideoPlayScreen(true);
+  };
+
+  const expoFileToFormFile = (url, mimeType = "image") => {
+    const localUri = url;
+    const filename = localUri.split("/").pop();
+
+    const match = /\.(\w+)$/.exec(filename);
+    const type = match ? `${mimeType}/${match[1]}` : mimeType;
+    return { uri: localUri, name: filename, type };
+  };
+
+  const saveVideoCloud = () => {
+    const file = expoFileToFormFile(state.video, "video");
+    console.log(`/callout_videos/${file.name}`);
+    setVideoSaving(true);
+    storage
+      .put(`/callout_videos/${file.name}`, file)
+      .then(() => {
+        setVideoSaving(false);
+      })
+      .catch(console.error);
+    setState({
+      ...state,
+      videoUrl: `https://backend-8106d23e.nhost.app/storage/o/callout_videos/${file.name}`,
+    });
+  };
+
+  if (videoPlayScreen) {
+    console.log("will return video play screen");
+    return <VideoPlayScreen setVideoPlayScreen={setVideoPlayScreen} video={state.video} />;
+  }
+
+  if (showVideoScreen) {
+    return <VideoScreen setShowVideoScreen={setShowVideoScreen} saveVideo={saveVideo} />;
+  }
   return (
     <KeyboardAvoidingView style={{ flex: 1, justifyContent: "space-between" }} behavior="padding" enabled>
       <Toast
@@ -690,6 +747,33 @@ const RequestCallOut = (props) => {
             <TouchableOpacity style={styles.ImageSelectStyle} onPress={selectFromGallery}>
               <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}> Select Images From Gallery </Text>
             </TouchableOpacity>
+            {state.video ? (
+              !videoSaving ? (
+                <View>
+                  <TouchableOpacity
+                    style={[styles.ImageSelectStyle, { marginBottom: 10 }]}
+                    onPress={showPlayVideoScreen}
+                  >
+                    <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>Play Video</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    disabled={state.videoUrl.length}
+                    style={[styles.ImageSelectStyle, state.videoUrl.length ? styles.disabledButton : null]}
+                    onPress={saveVideoCloud}
+                  >
+                    <Text style={[styles.TextFam, { color: state.videoUrl.length ? "#bbb" : "#000E1E", fontSize: 10 }]}>
+                      Save Video
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <ActivityIndicator size="large" color="#000" style={{ alignSelf: "center" }} />
+              )
+            ) : (
+              <TouchableOpacity style={styles.ImageSelectStyle} onPress={showVideoScreenCallback}>
+                <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>Add video</Text>
+              </TouchableOpacity>
+            )}
           </View>
           <View style={{ height: "2%" }} />
           <View
@@ -884,5 +968,51 @@ const RequestCallOut = (props) => {
     </KeyboardAvoidingView>
   );
 };
+
+const VideoPlayScreen = ({ setVideoPlayScreen, video: uri }) => {
+  const video = React.useRef(null);
+  const [status, setStatus] = React.useState({});
+  return (
+    <View style={videoPlayStyles.container}>
+      <Video
+        ref={video}
+        style={videoPlayStyles.video}
+        source={{
+          uri,
+        }}
+        useNativeControls
+        resizeMode="contain"
+        isLooping
+        onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+      />
+      <View style={videoPlayStyles.buttons}>
+        <Button
+          title={status.isPlaying ? "Pause" : "Play"}
+          color="#FFCA5D"
+          style={{ marginRight: 20 }}
+          onPress={() => (status.isPlaying ? video.current.pauseAsync() : video.current.playAsync())}
+        />
+        <Button color="#FFCA5D" title="Close" onPress={() => setVideoPlayScreen(false)} />
+      </View>
+    </View>
+  );
+};
+
+const videoPlayStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#000",
+  },
+  video: {
+    width: 1280,
+    height: 600,
+  },
+  buttons: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+});
 
 export default RequestCallOut;
