@@ -1,6 +1,7 @@
 // ** React Imports
 import { Fragment, useState } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import Cleave from 'cleave.js/react'
 import { gql, useLazyQuery, useQuery } from "@apollo/client"
 
 // ** Custom Components
@@ -13,7 +14,7 @@ import Flatpickr from 'react-flatpickr'
 import { X, Check, Trash } from 'react-feather'
 import Select, { components } from 'react-select'
 import { useForm, Controller } from 'react-hook-form'
-import { Button, Modal, ModalHeader, ModalBody, Card, ListGroup, ListGroupItem, FormGroup, Label, CustomInput, Input, Form, Spinner, Badge  } from 'reactstrap'
+import { Button, Modal, ModalHeader, ModalBody, Card, ListGroup, ListGroupItem, FormGroup, Label, CustomInput, Input, Form, Spinner, Badge, CardBody, CardHeader, CardTitle, Row, Col  } from 'reactstrap'
 import AutoComplete from '@components/autocomplete'
 
 // ** Utils
@@ -157,7 +158,8 @@ const AddEventSidebar = props => {
   const [clientId, setClientId] = useState(selectedEvent.extendedProps?.clientId)
   const [propertyName, setPropertyName] = useState(selectedEvent.extendedProps?.propertyName  || '')
   const [propertyId, setPropertyId] = useState(selectedEvent.extendedProps?.propertyId  || 9999)
-  const [workerName, setWorkerName] = useState(selectedEvent.extendedProps?.workerName || '') 
+  const [workerName, setWorkerName] = useState(selectedEvent.extendedProps?.workerName || '')
+  const [jobTickets, setJobTickets] = useState([])
 
   // const [workerId, setWorkerId] = useState(1)
   const [value, setValue] = useState([{value: selectedEvent.category}] || [{ value: 'Water Leakage', label: 'Water Leakage', color: 'primary' }])
@@ -179,6 +181,11 @@ const AddEventSidebar = props => {
     {value:"AC Services Request", label: "AC Services Request", color: 'primary'},
     {value:"AC not cooling", label: "AC not cooling", color: 'primary'},
     {value:"AC Thermostat not functioning", label: "AC Thermostat not functioning", color: 'primary'}
+  ]
+  
+  const jobTypeOptions = [
+    {value:"Water Leakage", label: "Water Leakage", color: 'primary'},
+    {value:"Pumps problem (pressure low)", label: "Pumps problem (pressure low)", color: 'primary'}
   ]
   
   const guestsOptions = [
@@ -252,6 +259,10 @@ const AddEventSidebar = props => {
     })
   }
 
+  const handleJobAddEvent = () => {
+    setJobTickets([...jobTickets, {name: "", description: "", notes: [""], pictures: [""], type: "", worker_email: null}])
+  }
+
   // ** Reset Input Values on Close
   const handleResetInputValues = () => {
     selectEvent({})
@@ -267,6 +278,7 @@ const AddEventSidebar = props => {
     setPropertyName('')
     setWorkerName('')
     setStartPicker(new Date())
+    setJobTickets([])
     // setEndPicker(new Date())
   }
 
@@ -301,6 +313,7 @@ const AddEventSidebar = props => {
       setDesc(selectedEvent.extendedProps.description || desc)
       setGuests(selectedEvent.extendedProps.guests || guests)
       setStartPicker(new Date(selectedEvent.start))
+      setJobTickets(selectedEvent.extendedProps?.job_tickets || jobTickets)
       // setEndPicker(selectedEvent.allDay ? new Date(selectedEvent.start) : new Date(selectedEvent.end))
       setValue([resolveLabel()])
     }
@@ -336,7 +349,7 @@ const AddEventSidebar = props => {
   const handleUpdateEvent = () => {
     const eventToUpdate = {
       id: selectedEvent.id,
-      callout_id: selectedEvent.extendedProps.callout_id,
+      callout_id: selectedEvent.callout_id,
       title: title.split('by')[0],
       start: startPicker,
       extendedProps: {
@@ -361,13 +374,30 @@ const AddEventSidebar = props => {
       closeButton: false
     })
   }
+  
+  const handleJobUpdateEvent = (id) => {
 
+  }
+
+  const handleWorkChange = (index, full_name, id, e) => {
+    const jobTicket = [...jobTickets]
+    jobTicket[index].worker.full_name = full_name
+    jobTicket[index].worker.id = id
+    setJobTickets(jobTicket)
+  }
+
+  const handleChange = (index, e) => {
+    const jobTicket = [...jobTickets]
+    jobTicket[index][e.target.name] = e.target.value
+    setJobTickets(jobTicket)
+  }
+  
   // ** (UI) removeEventInCalendar
   const removeEventInCalendar = eventId => {
     calendarApi.getEventById(eventId).remove()
   }
   const handleDeleteEvent = () => {
-    removeEvent(selectedEvent.id, selectedEvent.extendedProps.callout_id)
+    removeEvent(selectedEvent.id, selectedEvent.callout_id)
     removeEventInCalendar(selectedEvent.id)
     handleAddEventSidebar()
     toast.error(<ToastComponent title='Event Removed' color='danger' icon={<Trash />} />, {
@@ -376,6 +406,21 @@ const AddEventSidebar = props => {
       closeButton: false
     })
   }
+
+  const handleJobDeleteEvent = (index) => {
+    // removeEvent(selectedEvent.id, selectedEvent.callout_id)
+    // removeEventInCalendar(selectedEvent.id)
+    // jobTickets.splice(index - 1, 1);
+    console.log(jobTickets.filter((job, i) => i !== index))
+    setJobTickets(jobTickets.filter((job, i) => i !== index))
+    // handleAddEventSidebar()
+    toast.error(<ToastComponent title='Job Ticket Removed' color='danger' icon={<Trash />} />, {
+      autoClose: 2000,
+      hideProgressBar: true,
+      closeButton: false
+    })
+  }
+
 
   // ** Event Action buttons
   const EventActions = () => {
@@ -409,9 +454,9 @@ const AddEventSidebar = props => {
   }
   const { loading, data, error, refetch } = useQuery(GET_CALLOUT, {
     variables: {
-      id: selectedEvent?.extendedProps?.callout_id
+      id: selectedEvent?.callout_id
     },
-    skip: !selectedEvent?.extendedProps?.callout_id
+    skip: !selectedEvent?.callout_id
   })
   // console.log(selectedEvent?.extendedProps?.callout_id)
   if (!loading) {
@@ -525,7 +570,7 @@ const AddEventSidebar = props => {
             </li>
           )}
          />
-          ) : <Input type='text' id='disabledInput' disabled placeholder='Client Name' />}
+          ) : <Input type='text' disabled placeholder='Client Name' />}
         </FormGroup>
 
 
@@ -564,7 +609,7 @@ const AddEventSidebar = props => {
              </li>
            )}
          />
-          ) : <Input type='text' id='disabledInput' disabled placeholder='Property Name' value={propertyName} />}
+          ) : <Input type='text' disabled placeholder='Property Name' value={propertyName} />}
         </FormGroup>
 
         <FormGroup>
@@ -624,7 +669,114 @@ const AddEventSidebar = props => {
                }}
              />
            </FormGroup>
-
+               {jobTickets && jobTickets.map((job, index) => (
+                <Card className='card-payment' key={index} >
+      <CardHeader>
+        <CardTitle tag='h4'>{job.name}</CardTitle>
+      </CardHeader>
+      <CardBody>
+          <Row>
+          <Col sm='12'>
+              <FormGroup className='mb-2'>
+                <Label for='job-name'>Job Name</Label>
+                <Input type="input" placeholder='Job Name' id='job-name' name="name" value={job.name} onChange={(e) => handleChange(index, e)}/>
+              </FormGroup>
+            </Col>
+            <Col sm='12'>
+            <FormGroup className='mb-2'>
+                <Label for='worker-name'>Worker Name</Label>
+                {allWorkers?.worker && !workerLoading ? (
+           <AutoComplete
+           suggestions={allWorkers.worker}
+           className='form-control'
+           filterKey='full_name'
+           name="full_name"
+           placeholder="Search Worker Name"
+           value={job?.worker?.full_name}
+           customRender={(
+            suggestion,
+            i,
+            filteredData,
+            activeSuggestion,
+            onSuggestionItemClick,
+            onSuggestionItemHover
+          ) => (
+            <li
+              className={classnames('suggestion-item', {
+                active: filteredData.indexOf(suggestion) === activeSuggestion
+              })}
+              key={i}
+              onMouseEnter={() => onSuggestionItemHover(filteredData.indexOf(suggestion))
+              }
+              onClick={e => {
+                onSuggestionItemClick(null, e)
+                handleWorkChange(index, suggestion.full_name, suggestion.id)          
+              }}
+            >
+            <span>{suggestion.full_name}{'     '}</span>
+               
+               {/* <Badge color='light-secondary'>
+                {suggestion.email}
+                </Badge> */}
+            </li>
+          )}
+         />
+          ) : <Input type='text' id='disabledInput' disabled placeholder='Worker Name' />}
+              </FormGroup>
+            </Col>
+            <Col sm='12'>
+              <FormGroup className='mb-2'>
+                <Label for='jobtype'>Job Type</Label>
+                <Select
+               id='jobtype'
+               value={job.type}
+               options={jobTypeOptions}
+               theme={selectThemeColors}
+               className='react-select'
+               classNamePrefix='select'
+               isClearable={false}
+               onChange={data => setValue([data])}
+               components={{
+                 Option: OptionComponent
+               }}
+             />
+              </FormGroup>
+            </Col>
+            <Col sm='12'>
+              <FormGroup className='mb-2'>
+                <Label for='job-description'>Job Description Name</Label>
+                <Input type="text-area" placeholder='Curtis Stone' id='job-description' name="description" value={job.description} onChange={(e) => { const jobTicket = [...jobTickets]; jobTicket[index][e.target.name] = e.target.value; setJobTickets(jobTicket) }}/>
+              </FormGroup>
+            </Col>
+            <Col sm='12'>
+            <FormGroup className='d-flex justify-content-center'>
+            <Fragment>
+          <Button.Ripple
+            className='mr-1'
+            color='primary'
+            onClick={handleJobUpdateEvent}
+          >
+            Update
+          </Button.Ripple>
+          <Button.Ripple color='danger' onClick={() => handleJobDeleteEvent(index)} outline>
+            Delete
+          </Button.Ripple>
+        </Fragment>
+            </FormGroup>
+            </Col>
+          </Row>
+      </CardBody>
+    </Card>
+               ))}
+           <FormGroup>
+           <Button.Ripple
+               className='mr-1'
+               color='info'
+               onClick={handleJobAddEvent}
+             >
+               Add New Job Ticket
+             </Button.Ripple>
+           </FormGroup>
            {/* <FormGroup>
              <Label for='endDate'>End Date</Label>
              <Flatpickr
