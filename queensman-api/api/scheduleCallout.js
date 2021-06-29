@@ -1,8 +1,8 @@
 'use strict';
-var updateScheduleWithWoker = require('../lib/graphql').updateScheduleWithWoker;
-var getWorker = require('../lib/graphql').getWorker;
-var getCallout = require('../lib/graphql').getCallout;
-var getRelevantWoker = require('../lib/graphql').getRelevantWoker;
+const updateScheduleWithWoker = require('../lib/graphql').updateScheduleWithWoker;
+const getWorker = require('../lib/graphql').getWorker;
+const getCallout = require('../lib/graphql').getCallout;
+const getRelevantWoker = require('../lib/graphql').getRelevantWoker;
 
 const scheduleCallout = async (event) => {
   const { event: { data: { new: query } } } = JSON.parse(event.body);

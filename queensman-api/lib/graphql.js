@@ -8,18 +8,18 @@ Add these to your `package.json`:
 */
 // serverless invoke local --function sendNotification --data '{"type":"client", "email":"azamkhan"}'
 // Node doesn't implement fetch so we have to import it
-var fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
-async function fetchGraphQL(operationsDoc, operationName, variables) {
+async function fetchGraphQL (operationsDoc, operationName, variables) {
   console.log(JSON.stringify({
     query: operationsDoc,
     variables: variables,
     operationName: operationName
   }))
   const result = await fetch(
-    "https://hasura-8106d23e.nhost.app/v1/graphql",
+    'https://hasura-8106d23e.nhost.app/v1/graphql',
     {
-      method: "POST",
+      method: 'POST',
       headers: {
         'x-hasura-admin-secret': 'd71e216c844d298d91fbae2407698b22'
       },
@@ -42,16 +42,16 @@ const expoQuery = type => `
   }
 `;
 
-function fetchMyQuery({ type, email }) {
+function fetchMyQuery ({ type, email }) {
   return fetchGraphQL(
     expoQuery(type),
-    "FetchExpoToken",
-    {"email": email}
+    'FetchExpoToken',
+    { email: email }
   );
 }
 
 // Exportable functions
-async function fetchExpoToken({ type, email }) {
+async function fetchExpoToken ({ type, email }) {
   const { errors, data } = await fetchMyQuery({ type, email });
 
   if (errors) {
@@ -64,7 +64,7 @@ async function fetchExpoToken({ type, email }) {
   return data;
 }
 
-async function updateScheduleWithWoker({ id, worker_id, callout_id, worker_email }) {
+async function updateScheduleWithWoker ({ id, worker_id, callout_id, worker_email }) {
   const { errors, data } = await fetchGraphQL(`mutation UpdateSchedulerWithWorker($worker_id: Int!, $id: Int!, $callout_id: Int!, $worker_email: String!) {
     update_scheduler(where: {id: {_eq: $id}}, _set: {worker_id: $worker_id}) {
       returning {
@@ -96,7 +96,7 @@ async function updateScheduleWithWoker({ id, worker_id, callout_id, worker_email
   return data;
 }
 
-async function getWorker({ worker_id }) {
+async function getWorker ({ worker_id }) {
   const { errors, data } = await fetchGraphQL(`query GetWorker($id: Int!) {
     worker_by_pk(id: $id) {
       email
@@ -114,7 +114,7 @@ async function getWorker({ worker_id }) {
   return data.worker_by_pk;
 }
 
-async function getCallout({ callout_id }) {
+async function getCallout ({ callout_id }) {
   const { errors, data } = await fetchGraphQL(`query GetCallout($callout_id: Int!) {
     callout_by_pk(id: $callout_id) {
       urgency_level
@@ -135,7 +135,7 @@ async function getCallout({ callout_id }) {
   return data.callout_by_pk;
 }
 
-async function getRelevantWoker({ callout }) {
+async function getRelevantWoker ({ callout }) {
   // get callout type - Emergency or schedule
   // if emergency - get the emergency team worker
   // Find their next available slot

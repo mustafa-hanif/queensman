@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const everyFiveMinute = async (event) => {
   console.log(event);
@@ -7,12 +7,12 @@ const everyFiveMinute = async (event) => {
       statusCode: 200,
       body: JSON.stringify(
         {
-          message: 'Go Serverless v1.0! Your function executed successfully!',
+          message: 'Go Serverless v1.0! Your function executed successfully!'
         },
         null,
         2
-      ),
-    };
+      )
+    }
   } catch (e) {
     console.log(e)
     return {
@@ -20,13 +20,13 @@ const everyFiveMinute = async (event) => {
       body: JSON.stringify(
         {
           error: e,
-          input: event,
+          input: event
         },
         null,
         2
-      ),
-    };
+      )
+    }
   }
-};
+}
 
 module.exports = { everyFiveMinute }
