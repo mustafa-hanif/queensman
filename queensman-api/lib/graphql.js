@@ -114,4 +114,42 @@ async function getWorker({ worker_id }) {
   return data.worker_by_pk;
 }
 
-module.exports = { fetchExpoToken, updateScheduleWithWoker, getWorker };
+async function getCallout({ callout_id }) {
+  const { errors, data } = await fetchGraphQL(`query GetCallout($callout_id: Int!) {
+    callout_by_pk(id: $callout_id) {
+      urgency_level
+      status
+      job_type
+    }
+  }
+    
+  `, 'GetCallout', { id: callout_id });
+
+  if (errors) {
+    // handle those errors like a pro
+    console.error(errors);
+  }
+
+  // do something great with this precious data
+  // console.log(data.worker_by_pk);
+  return data.callout_by_pk;
+}
+
+async function getRelevantWoker({ callout }) {
+  // get callout type - Emergency or schedule
+  // if emergency - get the emergency team worker
+  // Find their next available slot
+  //  - Get all schedule by this worker sorted by date
+  //  - find the last slot today filled by him
+  //  - if plus 3 hours from now is inside working hour
+  //  - return last slot + 1 hour
+  //  - else first slot tomorow morning
+  // return slot and worker id
+
+  // If schedule
+  // Get category of callout
+  // Get all workers that fit the category
+  // return worker id
+}
+
+module.exports = { fetchExpoToken, updateScheduleWithWoker, getWorker, getCallout, getRelevantWoker };
