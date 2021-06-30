@@ -3,9 +3,6 @@ import { useState, Fragment } from 'react'
 import Popup from './Popup'
 import "./styles.css"
 
-// ** Custom Components
-import Breadcrumbs from '@components/breadcrumbs'
-
 // ** Third Party Components
 import { Row, Col } from 'reactstrap'
 
