@@ -51,6 +51,7 @@ function Clients() {
     <Fragment>
       <Breadcrumbs breadCrumbTitle='Clients' breadCrumbParent='Home' breadCrumbActive='Clients List' />
       <Row>
+<<<<<<< HEAD
       <Tabs>
     <TabList>
       <Tab>Owned</Tab>
@@ -71,6 +72,19 @@ function Clients() {
       <th scope="col">Comments</th>
       <th scope="col">Active/Inactive</th>
       <th scope="col"> Details</th>
+=======
+      <table name="client"  class="table">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Name</th>
+      <th scope="col">Email</th>
+      <th scope="col">Pasword</th>
+      <th scope="col">Phone</th>
+      <th scope="col">Description</th>
+      <th scope="col">Active/Inactive</th>
+
+>>>>>>> 85716132b8812cf0dfaa75f03f130b54f5f4cd3a
 
     </tr>
   </thead>
@@ -93,8 +107,13 @@ function Clients() {
         <td key={client.id} value={client.account_type}>
           {client.account_type}
         </td>
+<<<<<<< HEAD
         <td>
 
+=======
+        <td key={client.id} value={client.active}>
+          {client.active}
+>>>>>>> 85716132b8812cf0dfaa75f03f130b54f5f4cd3a
         </td>
         <td>
 
@@ -102,6 +121,7 @@ function Clients() {
         <td>
           
         </td>
+<<<<<<< HEAD
         <td key={client.id} value={client.active}>
           {client.active}
         </td>
@@ -164,12 +184,15 @@ function Clients() {
       handleClose={togglePopup}
     />}        </td>
      
+=======
+>>>>>>> 85716132b8812cf0dfaa75f03f130b54f5f4cd3a
           </tr>
 
       ))}
          
   </tbody>
 </table>
+<<<<<<< HEAD
     </TabPanel>
     <TabPanel>
     <Col sm='12'>
@@ -178,6 +201,8 @@ function Clients() {
     </TabPanel>
   </Tabs>
      
+=======
+>>>>>>> 85716132b8812cf0dfaa75f03f130b54f5f4cd3a
         {/* <Col sm='12'>
           <TableWithButtons />
         </Col>

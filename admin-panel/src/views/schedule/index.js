@@ -8,7 +8,7 @@ import { Row, Col } from 'reactstrap'
 
 // ** Calendar App Component Imports
 import Calendar from './Calendar'
-import SidebarLeft from './SidebarLeft'
+// import SidebarLeft from './SidebarLeft'
 import AddEventSidebar from './AddEventSidebar'
 
 // ** Custom Hooks

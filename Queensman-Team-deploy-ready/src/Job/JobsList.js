@@ -174,9 +174,13 @@ const JobsList = (props) => {
   }
 
   const passItem = (item) => {
-    props.navigation.navigate("Job", {
+  props.navigation.navigate("TicketListing", {
       it: item,
     });
+
+    // props.navigation.navigate("Job", {
+    //   it: item,
+    // });
   };
 
   useEffect(() => {

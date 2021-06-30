@@ -36,6 +36,9 @@ import JobsList from "./src/Job/JobsList";
 import JobsSteps from "./src/Job/JobsSteps";
 import PostJob from "./src/Job/PostJob";
 import PreJob from "./src/Job/PreJob";
+import TicketListing from "./src/Job/TicketListing";
+import CreateTicket from "./src/Job/CreateTicket";
+import ImagePicker from "./src/Job/ImagePicker";
 import Settings from "./src/Components/Settings";
 import ServicesHistory from "./src/Components/ServicesHistory";
 import AuthLogin from "./src/Auth/AuthLogin";
@@ -352,6 +355,50 @@ const HomeScreenStackNavigator = createStackNavigator(
       screen: JobsList,
       navigationOptions: ({ navigation }) => ({
         title: "Assigned Services",
+        //headerTransparent: true,
+        headerStyle: {
+          backgroundColor: "#000E1E",
+        },
+        headerTintColor: "#fff",
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }),
+    },
+    TicketListing: {
+      screen: TicketListing,
+      navigationOptions: ({ navigation }) => ({
+        title: "Job Tickets",
+        //headerTransparent: true,
+        headerStyle: {
+          backgroundColor: "#000E1E",
+        },
+        headerTintColor: "#fff",
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }),
+    },
+    ImagePicker: {
+      screen: ImagePicker,
+      navigationOptions: ({ navigation }) => ({
+        title: "Select Images",
+        //headerTransparent: true,
+        headerShown: false,
+        headerStyle: {
+          backgroundColor: "#000E1E",
+        },
+        headerTintColor: "#fff",
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }),
+    },
+    CreateTicket: {
+      screen: CreateTicket,
+      navigationOptions: ({ navigation }) => ({
+        title: "Create A Ticket ",
+
         //headerTransparent: true,
         headerStyle: {
           backgroundColor: "#000E1E",

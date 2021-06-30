@@ -13,6 +13,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 
 // ** Tables
+<<<<<<< HEAD
 // import TableExpandable from './TableExpandable'
 import TableZeroConfig from './TableZeroConfig'
 // import TableWithButtons from './TableWithButtons'
@@ -47,10 +48,15 @@ function Clients() {
 
   if (loading) return 'Loading...'
   if (error) return `Error!-+ ${error.message}`
+=======
+import TableAdvSearch from './TableAdvSearch'
+
+const Tables = () => {
+>>>>>>> 85716132b8812cf0dfaa75f03f130b54f5f4cd3a
   return (
     <Fragment>
-      <Breadcrumbs breadCrumbTitle='Clients' breadCrumbParent='Home' breadCrumbActive='Clients List' />
       <Row>
+<<<<<<< HEAD
     
     <table name="client"  class="table">
   <thead>
@@ -164,6 +170,11 @@ function Clients() {
         <Col sm='12'>
           <TableMultilingual />
         </Col> */}
+=======
+        <Col sm='12'>
+          <TableAdvSearch />
+        </Col>
+>>>>>>> 85716132b8812cf0dfaa75f03f130b54f5f4cd3a
       </Row>
     </Fragment>
   )
