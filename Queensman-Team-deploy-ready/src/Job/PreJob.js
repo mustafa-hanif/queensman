@@ -23,13 +23,44 @@ import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Modal from "react-native-modal";
-
+import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { Content, Icon } from "native-base";
+import { auth, storage } from "../utils/nhost";
+
+const GET_NOTES = gql`
+  query JobNotes($callout_id: Int!) {
+    job_notes(where: { callout_id: { _eq: $callout_id } }) {
+      note
+    }
+  }
+`;
+
+const ADD_NOTE = gql`
+  mutation InsertJobNote($callout_id: Int!, $note: String!) {
+    insert_job_notes_one(object: { callout_id: $callout_id, note: $note }) {
+      note
+    }
+  }
+`;
+
+const DELETE_NOTE = gql`
+  mutation DeleteJobNote($callout_id: Int!, $note: String!) {
+    delete_job_notes(
+      where: { callout_id: { _eq: $callout_id }, note: { _eq: $note } }
+    ) {
+      affected_rows
+    }
+  }
+`;
 
 const PreJob = (props) => {
-  const pics = Object.fromEntries([...Array(10)].map((_, index) => {
-    return [`Pic${index}`, 'link'];
-  }));
+  const pics = Object.fromEntries(
+    [...Array(10)].map((_, index) => {
+      return [`Pic${index}`, "link"];
+    })
+  );
+
+  const CallOutIdFromParams = props.navigation.getParam("QJobID", null);
 
   const [state, setState] = useState({
     Note: "",
@@ -41,7 +72,7 @@ const PreJob = (props) => {
       "https://en.wikipedia.org/wiki/Art#/media/File:Art-portrait-collage_2.jpg",
     isPicvisible: false, //veiw image app kay lia
     picturename: "",
-    CallOutID: props.navigation.getParam("QJobID", null),
+    CallOutID: CallOutIdFromParams,
     IsImageuploaded: false,
     selectedNo: 0,
     NoteItem: {
@@ -49,33 +80,25 @@ const PreJob = (props) => {
     },
   });
 
+  const [addJobNote, { loading: addJobNoteLoading, error: mutationError }] =
+    useMutation(ADD_NOTE);
+
+  const [deleteJobNote, { loading: delNoteLoading, error: delNoteError }] =
+    useMutation(DELETE_NOTE);
+
+  const [fetchNotes, { loading, data }] = useLazyQuery(GET_NOTES, {
+    variables: {
+      callout_id: CallOutIdFromParams,
+    },
+  });
+
   useEffect(() => {
-    // link =
-    //   "https://www.queensman.com/phase_2/queens_worker_Apis/fetchOngoingJobPrePictures.php?ID=" +
-    //   state.CallOutID;
-    // console.log(link);
-   
-    FetchUpdateNotes();
+    fetchNotes();
   }, []);
-    
-  const FetchUpdateNotes = () => {
-    const link =
-      "https://www.queensman.com/phase_2/queens_worker_Apis/fetchJobNotes.php?ID=" +
-      state.CallOutID;
-    console.log(link);
-    axios.get(link).then((result) => {
-      console.log(result.data);
-      if (result.data.server_response != -1) {
-        setState({ ...state, 
-          Notes: result.data.server_response,
-        });
-      }
-      console.log(state.Notes);
-    });
-  }
 
   const toggleGalleryEventModal = (vale, no) => {
-    setState({ ...state, 
+    setState({
+      ...state,
       isPicvisible: !state.isPicvisible,
       selectedPic: vale,
       selectedNo: no,
@@ -139,25 +162,45 @@ const PreJob = (props) => {
   };
 
   const UploadImage = () => {
+    const pictures = Object.fromEntries(
+      [...Array(10)]
+        .map((_, i) => {
+          const _statePic = state[`Pic${i}`];
+          if (_statePic !== "link") {
+            const file = expoFileToFormFile(_statePic);
+            storage
+              .put(`/callout_pics/${file.name}`, file)
+              .then(console.log)
+              .catch(console.error);
+            return [
+              `Pic${i}`,
+              `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`,
+            ];
+          }
+          return null;
+        })
+        .filter(Boolean)
+    );
+    console.log({ pictures });
+    if (Object.keys(pictures).length > 0) {
+      setState({ ...state, IsImageuploaded: true });
+    }else{
+      alert('Please Select an Image First')
+    }
 
-    // expoFileToFormFile(state.Pic1);
-    //   setState({ ...state,  IsImageuploaded: true });
-    // } else {
-    //   alert("Please select atleast 1 image!");
-    // }
+    return pictures;
   };
 
   const _uploadImage = (uri) => {
+    console.log("chalra");
     for (let i = 0; i < 10; i++) {
       if (state[`Pic${i}`] === "link") {
-        setState({ ...state, 
-          ...state,
-          [`Pic${i}`]: uri,
-        });
+        setState({ ...state, ...state, [`Pic${i}`]: uri });
         break;
       }
     }
   };
+
   const urlToUPLOAD = async (url, link) => {
     let localUri = url;
     let filename = localUri.split("/").pop();
@@ -171,9 +214,7 @@ const PreJob = (props) => {
       console.log(result.data);
     });
     console.log(filename);
-    setState({ ...state, 
-      picturename: filename,
-    });
+    setState({ ...state, picturename: filename });
     let match = /\.(\w+)$/.exec(filename);
     let type = match ? `image/${match[1]}` : `image`;
 
@@ -191,21 +232,23 @@ const PreJob = (props) => {
       console.log(result.data);
     });
   };
+
   const addNote = () => {
-    const link =
-      "https://www.queensman.com/phase_2/queens_worker_Apis/insertJobNotes.php?ID=" +
-      state.CallOutID +
-      "&note=" +
-      state.Note;
-    console.log(link);
-    axios.get(link).then((result) => {
-      console.log(result.data);
-      setState({ ...state, 
-        Note: "",
+    addJobNote({
+      variables: {
+        callout_id: CallOutIdFromParams,
+        note: state.Note,
+      },
+    })
+      .then((res) => {
+        setState({ ...state, Note: "" });
+        fetchNotes();
+      })
+      .catch((err) => {
+        console.log(err);
       });
-      FetchUpdateNotes();
-    });
   };
+
   const RemoveNotesAlert = (item) => {
     Alert.alert(
       "Remove Note.",
@@ -222,62 +265,42 @@ const PreJob = (props) => {
     );
   };
   const RemoveNotes = (item) => {
-    const link =
-      "https://www.queensman.com/phase_2/queens_worker_Apis/deleteJobNotes.php?ID=" +
-      state.CallOutID +
-      "&note=" +
-      item.note;
-    console.log(link);
-    axios.get(link).then((result) => {
-      console.log(result.data);
-
-      FetchUpdateNotes();
+    deleteJobNote({
+      variables: {
+        callout_id: state.CallOutID,
+        note: item.note,
+      },
+    }).then((res) => {
+      console.log("delete ====>", { res });
+      fetchNotes();
     });
   };
+
   const RemoveImages = () => {
     if (state.selectedNo == 1) {
-      setState({ ...state, 
-        Pic1: "link",
-      });
+      setState({ ...state, Pic1: "link" });
     } else if (state.selectedNo == 2) {
-      setState({ ...state, 
-        Pic2: "link",
-      });
+      setState({ ...state, Pic2: "link" });
     } else if (state.selectedNo == 3) {
-      setState({ ...state, 
-        Pic3: "link",
-      });
+      setState({ ...state, Pic3: "link" });
     } else if (state.selectedNo == 4) {
-      setState({ ...state, 
-        Pic4: "link",
-      });
+      setState({ ...state, Pic4: "link" });
     } else if (state.selectedNo == 5) {
-      setState({ ...state, 
-        Pic5: "link",
-      });
+      setState({ ...state, Pic5: "link" });
     } else if (state.selectedNo == 6) {
-      setState({ ...state, 
-        Pic6: "link",
-      });
+      setState({ ...state, Pic6: "link" });
     } else if (state.selectedNo == 7) {
-      setState({ ...state, 
-        Pic7: "link",
-      });
+      setState({ ...state, Pic7: "link" });
     } else if (state.selectedNo == 8) {
-      setState({ ...state, 
-        Pic8: "link",
-      });
+      setState({ ...state, Pic8: "link" });
     } else if (state.selectedNo == 9) {
-      setState({ ...state, 
-        Pic9: "link",
-      });
+      setState({ ...state, Pic9: "link" });
     } else if (state.selectedNo == 10) {
-      setState({ ...state, 
-        Pic10: "link",
-      });
+      setState({ ...state, Pic10: "link" });
     }
-    setState({ ...state,  isPicvisible: false });
+    setState({ ...state, isPicvisible: false });
   };
+
   const CameraSnap = async () => {
     if (Constants.platform.ios) {
       const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
@@ -299,7 +322,6 @@ const PreJob = (props) => {
     }
   };
 
-  
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled>
       <ScrollView style={styles.container}>
@@ -370,8 +392,16 @@ const PreJob = (props) => {
             opacity: state.IsImageuploaded ? 0.3 : 1,
           }}
         >
-          {[...Array(10)].map((_, i)=> {
-            return <PictureLink key={`Picture ${i}`} label={`Picture ${i}`} picture={state[`Pic${i}`]} toggleGalleryEventModal={toggleGalleryEventModal} index={i} />
+          {[...Array(10)].map((_, i) => {
+            return (
+              <PictureLink
+                key={`Picture ${i}`}
+                label={`Picture ${i}`}
+                picture={state[`Pic${i}`]}
+                toggleGalleryEventModal={toggleGalleryEventModal}
+                index={i}
+              />
+            );
           })}
         </View>
         <View style={{ height: "3%" }}></View>
@@ -394,7 +424,7 @@ const PreJob = (props) => {
         </Text>
         <View style={{ heigh: "30%", width: "100%" }}>
           <FlatList
-            data={state.Notes}
+            data={data?.job_notes || []}
             keyExtractor={(item, index) => `${index}`}
             renderItem={({ item }) => (
               <View
@@ -445,7 +475,7 @@ const PreJob = (props) => {
             placeholderTextColor="#000E1E"
             underlineColorAndroid="transparent"
             onChangeText={(Note) => {
-              setState({ ...state,  Note });
+              setState({ ...state, Note });
             }} //email set
           />
           <TouchableOpacity onPress={addNote}>
@@ -464,24 +494,18 @@ const PreJob = (props) => {
           }}
         ></View>
         <View style={{ height: "3%" }}></View>
-        <Button
-          onPress={AlertPreJobHandler}
-          title="NEXT"
-          color="#FFCA5D"
-        />
+        <Button onPress={AlertPreJobHandler} title="NEXT" color="#FFCA5D" />
 
         <View style={{ height: 30 }}></View>
         <Button title="" color="#fff" />
 
         <Modal
           isVisible={state.isPicvisible}
-          onSwipeComplete={() => setState({ ...state,  isPicvisible: false })}
+          onSwipeComplete={() => setState({ ...state, isPicvisible: false })}
           swipeDirection={["left", "right", "down"]}
-          onBackdropPress={() => setState({ ...state,  isPicvisible: false })}
+          onBackdropPress={() => setState({ ...state, isPicvisible: false })}
         >
-          <View
-            style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}
-          >
+          <View style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}>
             <Image
               style={{ width: "80%", height: "80%", alignSelf: "center" }}
               source={{ uri: state.selectedPic }}
@@ -497,7 +521,7 @@ const PreJob = (props) => {
             <Text> </Text>
             <Text> </Text>
             <Button
-              onPress={() => setState({ ...state,  isPicvisible: false })}
+              onPress={() => setState({ ...state, isPicvisible: false })}
               title="CLOSE"
               color="#FFCA5D"
             />
@@ -506,7 +530,7 @@ const PreJob = (props) => {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -538,37 +562,39 @@ const styles = StyleSheet.create({
 });
 
 const PictureLink = ({ toggleGalleryEventModal, picture, label, index }) => {
-  return <TouchableOpacity
-    onPress={() => toggleGalleryEventModal(picture, index)}
-    disabled={picture == "link" ? true : false}
-  >
-    <View
-      style={{
-        flexDirection: "row",
-        width: "100%",
-        alignItems: "center",
-      }}
+  return (
+    <TouchableOpacity
+      onPress={() => toggleGalleryEventModal(picture, index)}
+      disabled={picture == "link" ? true : false}
     >
-      <Icon
-        name="link"
+      <View
         style={{
-          fontSize: 20,
-          color: picture == "link" ? "#aaa" : "#000E1E",
-          paddingRight: "3%",
-        }}
-      ></Icon>
-      <Text
-        style={{
-          fontSize: 13,
-          marginBottom: "1%",
-          color: picture == "link" ? "#aaa" : "#000E1E",
+          flexDirection: "row",
+          width: "100%",
+          alignItems: "center",
         }}
       >
-        {label}
-      </Text>
-    </View>
-  </TouchableOpacity>
-}
+        <Icon
+          name="link"
+          style={{
+            fontSize: 20,
+            color: picture == "link" ? "#aaa" : "#000E1E",
+            paddingRight: "3%",
+          }}
+        ></Icon>
+        <Text
+          style={{
+            fontSize: 13,
+            marginBottom: "1%",
+            color: picture == "link" ? "#aaa" : "#000E1E",
+          }}
+        >
+          {label}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+};
 const expoFileToFormFile = (url) => {
   const localUri = url;
   const filename = localUri.split("/").pop();

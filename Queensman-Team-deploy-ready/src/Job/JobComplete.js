@@ -143,7 +143,6 @@ export default class JobComplete extends React.Component {
 
 
     render() {
-
         return (
             <Content scrollEnabled={true} contentContainerStyle={styles.container}>
                 <Text style={{ fontSize: 15, fontWeight: '500', color: '#FFCA5D', marginBottom: '1.5%' }}>Rating</Text>
