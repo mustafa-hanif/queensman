@@ -3,8 +3,6 @@ import { useState, Fragment } from 'react'
 import Popup from './Popup'
 import "./styles.css"
 
-// ** Custom Components
-import Breadcrumbs from '@components/breadcrumbs6'
 
 // ** Third Party Components
 import { Row, Col } from 'reactstrap'
@@ -49,7 +47,6 @@ function Clients() {
   if (error) return `Error!-+ ${error.message}`
   return (
     <Fragment>
-      <Breadcrumbs breadCrumbTitle='Clients' breadCrumbParent='Home' breadCrumbActive='Clients List' />
       <Row>
       <table name="client"  class="table">
   <thead>
