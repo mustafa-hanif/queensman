@@ -21,9 +21,7 @@ const Tables = () => {
     <Fragment>
       <Breadcrumbs breadCrumbTitle='Clients' breadCrumbParent='Home' breadCrumbActive='Clients List' />
       <Row>
-      <Col sm='12'>
-          <TableZeroConfig />
-        </Col>
+       
         {/* <Col sm='12'>
           <TableWithButtons />
         </Col>

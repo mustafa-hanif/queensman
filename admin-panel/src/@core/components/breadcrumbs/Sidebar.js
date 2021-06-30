@@ -14,22 +14,8 @@ import { Button, FormGroup, Label, FormText, Form, Input } from 'reactstrap'
 
 // ** Store & Actions
 import { useDispatch } from 'react-redux'
-
-import { gql, useMutation } from '@apollo/client'
-
-const ADD_CLIENT = gql`
-mutation AddClient($full_name: String!, $email: String!, $phone: String!) {
-  insert_client_one(full_name: $full_name, email: $email, phone: $phone}) {  
-    full_name
-    email
-    phone
-  }
-}
-`
-
 const AddClient = ({ open, toggleSidebar }) => {
   let input
-  const [insert_client_one, { data }] = useMutation(ADD_CLIENT)
 
   return (
     <Sidebar
