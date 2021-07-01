@@ -5,7 +5,6 @@ import "./styles.css"
 
 
 // ** Third Party Components
-import { Row, Col } from 'reactstrap'
 
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
@@ -15,6 +14,7 @@ import 'react-tabs/style/react-tabs.css'
 import TableZeroConfig from './TableZeroConfig'
 // import TableWithButtons from './TableWithButtons'
 // import TableMultilingual from './TableMultilingual'
+import { Card, CardHeader, CardTitle, CardBody, Input, Row, Col, Label, CustomInput, Button } from 'reactstrap'
 
 // ** Styles
 import '@styles/react/libs/tables/react-dataTable-component.scss'
@@ -46,7 +46,56 @@ function Clients() {
   if (loading) return 'Loading...'
   if (error) return `Error!-+ ${error.message}`
   return (
+    
     <Fragment>
+          <Card>
+        <CardHeader>
+          <CardTitle tag='h4'>View Properties</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <Row>
+            <Col md='4'>
+            
+            <Input
+            placeholder="Search Property Here"
+              className='ml-10 w-100'
+              type='text'
+            />
+            </Col>
+           
+
+            <Col md='2'>
+            
+            <Button.Ripple className="col-md-10" color='primary'>
+            Add New Property
+          </Button.Ripple>
+            </Col>
+           
+
+            <Col md='2'>
+            
+            <Button.Ripple className="col-md-10" color='primary'>
+            Modify
+          </Button.Ripple>
+            </Col>
+
+            <Col md='2'>
+            
+            <Button.Ripple className="col-md-10" color='primary'>
+            Delete
+          </Button.Ripple>
+            </Col>
+
+            <Col md='2'>
+            
+            <Button.Ripple className="col-md-10" color='primary'>
+            Assign New Property
+          </Button.Ripple>
+            </Col>
+           
+          </Row>
+        </CardBody>
+      </Card>
       <Row>
       <Tabs>
     <TabList>

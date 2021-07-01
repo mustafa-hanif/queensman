@@ -1,18 +1,15 @@
 // ** React Imports
 import { useState, Fragment } from 'react'
-import Popup from './Popup'
-import "./styles.css"
 
 // ** Third Party Components
-import { Row, Col } from 'reactstrap'
+import { Card, CardHeader, CardTitle, CardBody, Input, Row, Col, Label, CustomInput, Button } from 'reactstrap'
 
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
+import TableAdvSearch from './TableAdvSearch'
 
 // ** Tables
-<<<<<<< HEAD
 // import TableExpandable from './TableExpandable'
-import TableZeroConfig from './TableZeroConfig'
 // import TableWithButtons from './TableWithButtons'
 // import TableMultilingual from './TableMultilingual'
 
@@ -45,15 +42,76 @@ function Clients() {
 
   if (loading) return 'Loading...'
   if (error) return `Error!-+ ${error.message}`
-=======
-import TableAdvSearch from './TableAdvSearch'
 
-const Tables = () => {
->>>>>>> 85716132b8812cf0dfaa75f03f130b54f5f4cd3a
   return (
     <Fragment>
+        <Card>
+        <CardHeader>
+          <CardTitle tag='h4'>View Clients</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <Row>
+            <Col md='4'>
+            
+            <Input
+            placeholder="Search Clients Here"
+              className='ml-10 w-100'
+              type='text'
+            />
+            </Col>
+           
+
+            <Col md='2'>
+            
+            <Button.Ripple className="col-md-10" color='primary'>
+            Add New Client
+          </Button.Ripple>
+            </Col>
+           
+
+            <Col md='2'>
+            
+            <Button.Ripple className="col-md-10" color='primary'>
+            Modify
+          </Button.Ripple>
+            </Col>
+
+            <Col md='2'>
+            
+            <Button.Ripple className="col-md-10" color='primary'>
+            Delete
+          </Button.Ripple>
+            </Col>
+           
+          </Row>
+        </CardBody>
+      </Card>
+
+         <Row>
+        <Col xl='6' className='d-flex align-items-center p-0'>
+          <div className='d-flex align-items-center w-100'>
+            <Label for='rows-per-page'>Show</Label>
+            <CustomInput
+              className='form-control mx-50'
+              type='select'
+              
+            
+              style={{
+                width: '5rem',
+                padding: '0 0.8rem',
+                backgroundPosition: 'calc(100% - 3px) 11px, calc(100% - 20px) 13px, 100% 0'
+              }}
+            >
+              <option value='10'>10</option>
+              <option value='25'>25</option>
+              <option value='50'>50</option>
+            </CustomInput>
+            <Label for='rows-per-page'>Entries</Label>
+          </div>
+        </Col>
+      
+      </Row>
       <Row>
-<<<<<<< HEAD
     
     <table name="client"  class="table">
   <thead>
@@ -95,6 +153,7 @@ const Tables = () => {
         <td>
         <input class="btn"
       type="button"
+      color='primary'
       value="View Details"
       onClick={togglePopup}
     />
@@ -167,14 +226,13 @@ const Tables = () => {
         <Col sm='12'>
           <TableMultilingual />
         </Col> */}
-=======
         <Col sm='12'>
           <TableAdvSearch />
         </Col>
->>>>>>> 85716132b8812cf0dfaa75f03f130b54f5f4cd3a
       </Row>
     </Fragment>
   )
 }
+
 
 export default Clients
