@@ -2,21 +2,20 @@
 import { useState, Fragment, forwardRef } from 'react'
 
 // ** Third Party Components
-import Flatpickr from 'react-flatpickr'
 import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
-import { MoreVertical, Edit, ChevronDown, Plus, Trash } from 'react-feather'
-import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap'
+import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff } from 'react-feather'
+import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 
 // ** Bootstrap Checkbox Component
-const BootstrapCheckbox = forwardRef(({ onClick, ...rest }, ref) => {
-    return (
-<div className='custom-control custom-checkbox'>
-    <input type='checkbox' className='custom-control-input' ref={ref} {...rest} />
-    <label className='custom-control-label' onClick={onClick} />
-  </div>
-    )
-})
+// const BootstrapCheckbox = forwardRef(({ onClick, ...rest }, ref) => {
+//     return (
+// <div className='custom-control custom-checkbox'>
+//     <input type='checkbox' className='custom-control-input' ref={ref} {...rest} />
+//     <label className='custom-control-label' onClick={onClick} />
+//   </div>
+//     )
+// })
 
 // ** Styles
 import '@styles/react/libs/flatpickr/flatpickr.scss'
@@ -25,7 +24,7 @@ import AddNewModal from './AddNewModal'
 
 const GET_CLIENT = gql`
 query GetClient {
-    client(order_by: {id: asc}) {
+    client(order_by: {id: desc}) {
       id
       email
       full_name
@@ -33,22 +32,41 @@ query GetClient {
       occupation
       organization
       phone
+      password
     }
   }  
 `
 
 const UPDATE_CLIENT = gql`
-mutation UpdateClient($id: Int!, $email: String, $full_name: String, $gender: String, $occupation: String, $organization: String) {
-    update_client_by_pk(pk_columns: {id: $id}, _set: {email: $email, full_name: $full_name, gender: $gender, occupation: $occupation, organization: $organization}) {
+mutation UpdateClient($id: Int!, $email: String, $full_name: String, $gender: String, $occupation: String, $organization: String, $phone: String) {
+    update_client_by_pk(pk_columns: {id: $id}, _set: {email: $email, full_name: $full_name, gender: $gender, occupation: $occupation, organization: $organization, phone: $phone}) {
       id
     }
   }
   `
+const ADD_CLIENT = gql`
+mutation AddClient($full_name: String, $gender: String, $email: String, $occupation: String, $organization: String, $phone: String) {
+  insert_client_one(object: {full_name: $full_name, gender: $gender, email: $email, occupation: $occupation, organization: $organization, phone: $phone}) {
+    id
+  }
+}
+`
+
+const DELETE_CLIENT = gql
+`mutation DeleteClient($id: Int!) {
+  delete_client_by_pk(id: $id) {
+    id
+  }
+}
+`
+
 const DataTableAdvSearch = () => {
 
         // ** States
   const { loading, data, error } = useQuery(GET_CLIENT)
   const [updateClient, {loading: clientLoading}] = useMutation(UPDATE_CLIENT, {refetchQueries:[{query: GET_CLIENT}]})
+  const [addClient, {loading: addClientLoading}] = useMutation(ADD_CLIENT, {refetchQueries:[{query: GET_CLIENT}]})
+  const [deleteClient, {loading: deleteClientLoading}] = useMutation(DELETE_CLIENT, {refetchQueries:[{query: GET_CLIENT}]})
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState('')
   const [searchOccupation, setSearchOccupation] = useState('')
@@ -58,8 +76,21 @@ const DataTableAdvSearch = () => {
   const [searchPhone, setSearchPhone] = useState('')
   const [searchGender, setSearchGender] = useState('')
   const [filteredData, setFilteredData] = useState([])
+  const [toAddNewRecord, setToAddNewRecord] = useState(false)
   const [row, setRow] = useState(null)
+  const [rowId, setRowId] = useState(null)
 
+  const [modalAlert, setModalAlert] = useState(null)
+
+  const toggleModal = () => {
+      setModalAlert(!modalAlert)
+  }
+
+  const openModalAlert = (id) => {
+    setRowId(id)
+    setModalAlert(true)
+  }
+  
     const closeModal = () => {
         setModal(!modal)
     }
@@ -70,6 +101,7 @@ const DataTableAdvSearch = () => {
       setTimeout(() => {
         setModal(!modal) 
       }, 200)
+      setToAddNewRecord(false)
     }
 
   // ** Function to handle Pagination
@@ -78,7 +110,7 @@ const DataTableAdvSearch = () => {
     // ** Table Columns
 const advSearchColumns = [
     {
-      name: 'id',
+      name: 'Id',
       selector: 'id',
       sortable: true,
       minWidth: '10px'
@@ -121,6 +153,23 @@ const advSearchColumns = [
       minWidth: '200px'
     },
     {
+      name: 'Password',
+      minWidth: '150px',
+      cell: row => {
+        const [eye, setEye] = useState(true)
+        return (
+        <>
+            {row?.password !== 'null' && row?.password &&  
+            <div className='d-flex w-100 justify-content-between'>
+            {eye ? <span>{row?.password.split('').map(value => "*")}</span> : <span>{row.password}</span>}
+            {eye ? <Eye size={15} onClick={() => { setEye(!eye) }}/> : <EyeOff size={15} onClick={() => { setEye(!eye) }} />}
+            </div>
+            }
+        </>
+        )
+      }
+    },
+    {
       name: 'Actions',
       allowOverflow: true,
       cell: row => {
@@ -131,7 +180,7 @@ const advSearchColumns = [
                 <MoreVertical size={15} />
               </DropdownToggle>
               <DropdownMenu right>
-                <DropdownItem tag='a' href='/' className='w-100' onClick={e => e.preventDefault()}>
+                <DropdownItem className='w-100' onClick={() => { openModalAlert(row.id) }} >
                   <Trash size={15} />
                   <span className='align-middle ml-50'>Delete</span>
                 </DropdownItem>
@@ -162,13 +211,6 @@ const advSearchColumns = [
 
   const handleUpdate = (updatedRow) => {
     console.log(updatedRow)
-    const newData = data.client.map((client => { 
-        if (client.id === updatedRow.id) {
-            return updatedRow 
-        } else {
-            return client
-        }       
-    }))
 
     updateClient({variables: {
         id: updatedRow.id,
@@ -176,7 +218,9 @@ const advSearchColumns = [
         full_name: updatedRow.full_name, 
         occupation: updatedRow.occupation, 
         organization: updatedRow.organization, 
-        gender: updatedRow.gender
+        gender: updatedRow.gender,
+        phone: updatedRow.phone,
+        password: updatedRow.password
       }})
       dataToRender()
       console.log(clientLoading)
@@ -184,9 +228,58 @@ const advSearchColumns = [
           
         setModal(!modal)
       }
-      
-    
-}
+  }
+
+  const addClientRecord = () => {
+    setToAddNewRecord(true)
+    setRow({
+      full_name: "",
+      email:"",
+      occupation:"",
+      organization:"",
+      gender:"",
+      phone:"",
+      password:""
+    })
+    setTimeout(() => {
+      setModal(!modal) 
+    }, 200)
+  }
+
+
+  const handleAddRecord = (newRow) => {
+    console.log(newRow)
+
+    addClient({variables: {
+        email: newRow.email, 
+        full_name: newRow.full_name, 
+        occupation: newRow.occupation, 
+        organization: newRow.organization, 
+        gender: newRow.gender,
+        phone: newRow.phone,
+        password: newRow.password
+      }})
+      dataToRender()
+      console.log(addClientLoading)
+      if (!addClientLoading) {
+        setModal(!modal)
+      }
+  }
+
+  const handleDeleteRecord = (id) => {
+    console.log(id)
+
+    deleteClient({variables: {
+        id
+      }})
+      dataToRender()
+      console.log(deleteClientLoading)
+      if (!deleteClientLoading) {
+        toggleModal()
+      }
+  }
+
+
   // ** Custom Pagination
   const CustomPagination = () => (
     <ReactPaginate
@@ -396,7 +489,7 @@ const advSearchColumns = [
         <CardHeader className='border-bottom'>
           <CardTitle tag='h4'>Advance Search</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
-            <Button className='ml-2' color='primary' onClick={handleModal}>
+            <Button className='ml-2' color='primary' onClick={addClientRecord}>
               <Plus size={15} />
               <span className='align-middle ml-50'>Add Record</span>
             </Button>
@@ -451,7 +544,7 @@ const advSearchColumns = [
         <DataTable
           noHeader
           pagination
-          selectableRows
+          // selectableRows
           columns={advSearchColumns}
           paginationPerPage={7}
           className='react-dataTable'
@@ -459,10 +552,40 @@ const advSearchColumns = [
           paginationDefaultPage={currentPage + 1}
           paginationComponent={CustomPagination}
           data={dataToRender()}
-          selectableRowsComponent={BootstrapCheckbox}
+          // selectableRowsComponent={BootstrapCheckbox}
         />
       </Card>
-      <AddNewModal open={modal} handleModal={handleModal} closeModal={closeModal} row={row} setRow={setRow} handleUpdate={handleUpdate}/>
+      <AddNewModal 
+      open={modal} 
+      handleModal={handleModal} 
+      handleAddRecord={handleAddRecord} 
+      toAddNewRecord={toAddNewRecord} 
+      closeModal={closeModal} 
+      row={row} 
+      setRow={setRow} 
+      handleUpdate={handleUpdate}
+      />
+      <div className='theme-modal-danger'>
+        <Modal
+          isOpen={modalAlert}
+          toggle={toggleModal}
+          className='modal-dialog-centered'
+          modalClassName="modal-danger"
+        >
+          <ModalHeader toggle={toggleModal}>Delete Record</ModalHeader>
+          <ModalBody>
+            Are you sure you want to delete?
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" onClick={() => { handleDeleteRecord(rowId) }} >
+              Delete
+            </Button>
+            <Button color='secondary' onClick={toggleModal} outline>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
+      </div>
     </Fragment>
   )
 }
