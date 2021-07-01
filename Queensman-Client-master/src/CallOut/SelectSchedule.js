@@ -87,6 +87,8 @@ export default function SelectSchedule(props) {
 
   const state = props.navigation.getParam("state", {});
 
+  console.log({state})
+
   const formatDate = (date) => {
     return moment(date).format("YYYY-MM-DD");
   };
@@ -155,6 +157,23 @@ export default function SelectSchedule(props) {
         })
         .filter(Boolean)
     );
+
+    console.log({
+      variables: {
+        property_id: state.PropertyID,
+        email: auth.user().email,
+        notes: state.Description,
+        time_on_calendar: current.toLocaleTimeString(),
+        date_on_calendar: selectedDate,
+        category,
+        job_type: state.JobType,
+        status: "Requested",
+        request_time: current.toLocaleDateString(),
+        urgency_level: "Medium",
+        video: state.videoUrl,
+        ...pictures,
+      },
+    });
 
     requestCalloutApiCall({
       variables: {
