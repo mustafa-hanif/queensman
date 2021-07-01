@@ -23,8 +23,7 @@ import '@styles/react/libs/flatpickr/flatpickr.scss'
 const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord}) => {
 
     // ** Custom close btn
-  const CloseBtn = <X className='cursor-pointer' size={15} onClick={closeModal} />
-   
+  const CloseBtn = <X className='cursor-pointer' size={15} onClick={closeModal} />   
 
   const handleChange = (e) => {
     if (toAddNewRecord) {

@@ -38,15 +38,15 @@ query GetClient {
 `
 
 const UPDATE_CLIENT = gql`
-mutation UpdateClient($id: Int!, $email: String, $full_name: String, $gender: String, $occupation: String, $organization: String, $phone: String) {
-    update_client_by_pk(pk_columns: {id: $id}, _set: {email: $email, full_name: $full_name, gender: $gender, occupation: $occupation, organization: $organization, phone: $phone}) {
+mutation UpdateClient($id: Int!, $email: String, $full_name: String, $gender: String, $occupation: String, $organization: String, $phone: String, $password: String) {
+    update_client_by_pk(pk_columns: {id: $id}, _set: {email: $email, full_name: $full_name, gender: $gender, occupation: $occupation, organization: $organization, phone: $phone, password: $password}) {
       id
     }
   }
   `
 const ADD_CLIENT = gql`
-mutation AddClient($full_name: String, $gender: String, $email: String, $occupation: String, $organization: String, $phone: String) {
-  insert_client_one(object: {full_name: $full_name, gender: $gender, email: $email, occupation: $occupation, organization: $organization, phone: $phone}) {
+mutation AddClient($full_name: String, $gender: String, $email: String, $occupation: String, $organization: String, $phone: String, $password: String) {
+  insert_client_one(object: {full_name: $full_name, gender: $gender, email: $email, occupation: $occupation, organization: $organization, phone: $phone, password: $password}) {
     id
   }
 }
@@ -210,8 +210,6 @@ const advSearchColumns = [
   }
 
   const handleUpdate = (updatedRow) => {
-    console.log(updatedRow)
-
     updateClient({variables: {
         id: updatedRow.id,
         email: updatedRow.email, 
@@ -223,7 +221,6 @@ const advSearchColumns = [
         password: updatedRow.password
       }})
       dataToRender()
-      console.log(clientLoading)
       if (!clientLoading) {
           
         setModal(!modal)
@@ -248,8 +245,6 @@ const advSearchColumns = [
 
 
   const handleAddRecord = (newRow) => {
-    console.log(newRow)
-
     addClient({variables: {
         email: newRow.email, 
         full_name: newRow.full_name, 
@@ -260,20 +255,16 @@ const advSearchColumns = [
         password: newRow.password
       }})
       dataToRender()
-      console.log(addClientLoading)
       if (!addClientLoading) {
         setModal(!modal)
       }
   }
 
   const handleDeleteRecord = (id) => {
-    console.log(id)
-
     deleteClient({variables: {
         id
       }})
       dataToRender()
-      console.log(deleteClientLoading)
       if (!deleteClientLoading) {
         toggleModal()
       }
