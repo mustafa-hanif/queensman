@@ -57,6 +57,10 @@ const Calendar = props => {
     }
   }, [calendarApi])
 
+  const addHours = (date, hours) => {
+    return new Date(new Date(date).setHours(new Date(date).getHours() + hours)).toISOString()
+  }
+
   // ** calendarOptions(Props)
   const calendarOptions = {
     events,
@@ -64,34 +68,34 @@ const Calendar = props => {
     datesSet,
     // selectedEvent,
     eventDataTransform: (eventData => {
-      // console.log(events)
-      const { id, worker, callout_id, start, startTime, title, callout, end, endTime, job_tickets } = eventData
+      console.log(events)
+      const { id, worker, callout_id, start, startTime, title, callout, job_tickets, end, endTime } = eventData
       const length = job_tickets?.length
-      console.log({
-        allDay: false,
-        // end: `${start}T${'00:00:00.000Z'}`,
-        id,
-        title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
-        start: `${start}T${startTime}`,
-        workerName: worker?.full_name || 'No Worker name',
-        clientName: callout.client_callout_email?.full_name || 'No Client name',
-        category: callout?.category || "Uncategorized",
-        propertyName: callout.property?.address || 'No Porperty',
-        propertyId: callout.property?.id || 0,
-        start: new Date(`${start || ''} ${startTime || ''}`).toISOString() || '', 
-        videoUrl: callout.video,
-        // start: new Date(`${start} ${startTime}`).toISOString(),
-        // start,
-        job_tickets,
+      // console.log({
+      //   allDay: false,
+      //   // end: `${start}T${'00:00:00.000Z'}`,
+      //   id,
+      //   title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
+      //   start: `${start}T${startTime}`,
+      //   // end: endTime ? `${start}T${endTime.}`
+      //   end: endTime ? `${end}T${endTime}` : addHours(`${start} ${startTime}`, 2),
+      //   workerName: worker?.full_name || 'No Worker name',
+      //   clientName: callout.client_callout_email?.full_name || 'No Client name',
+      //   category: callout?.category || "Uncategorized",
+      //   propertyName: callout.property?.address || 'No Porperty',
+      //   propertyId: callout.property?.id || 0,
+      //   videoUrl: callout.video,
+      //   job_tickets,
         
-        callout_id
-      })
+      //   callout_id
+      // })
       return {
         allDay: false,
         // end: `${start}T${'00:00:00.000Z'}`,
         id,
         title: worker?.full_name ? `${title} by ${worker?.full_name}${length > 0 ? `; ${length} job ticket ${length > 1 ? 's' : ''}` : ''}` : 'No Title',
         start: `${start}T${startTime}`,
+        end: endTime ? `${end}T${endTime}` : addHours(`${start} ${startTime}`, 2),
         workerName: worker?.full_name || 'No Worker name',
         clientName: callout.client_callout_email?.full_name || 'No Client name',
         clientEmail:callout.client_callout_email?.email || 'No Client email',
@@ -176,10 +180,13 @@ const Calendar = props => {
     },
 
     dateClick(info) {
-      // console.log(info)
+      console.log(info)
+      const time = new Date(info.dateStr).toTimeString().substr(0, 8)
+      const date = info.dateStr.substring(0, 10)
+      
       const ev = blankEvent
       ev.start = info.date
-      ev.end = info.date
+      ev.end = new Date(addHours(`${date} ${time}`, 2))
       selectEvent(ev)
       handleAddEventSidebar()
     },

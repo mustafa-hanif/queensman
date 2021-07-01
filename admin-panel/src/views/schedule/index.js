@@ -44,6 +44,8 @@ query GetSchedule($_gte: date!, $_lte: date!) {
     id
     start: date_on_calendar
     startTime: time_on_calendar
+    end: end_date_on_calendar
+    endTime: end_time_on_calendar
     title: notes
     worker {
       full_name
@@ -111,8 +113,10 @@ const REQUEST_CALLOUT = gql`
   mutation AddCallout(
     $property_id: Int
     $date_on_calendar: date
-    $notes: String
+    $end_date_on_calendar: date
     $time_on_calendar: time
+    $end_time_on_calendar: time
+    $notes: String
     $email: String
     $category: String
     $job_type: String
@@ -144,6 +148,8 @@ const REQUEST_CALLOUT = gql`
         }
         date_on_calendar: $date_on_calendar
         time_on_calendar: $time_on_calendar
+        end_date_on_calendar: $end_date_on_calendar
+        end_time_on_calendar : $end_time_on_calendar 
         notes: $notes
       }
     ) {
