@@ -152,4 +152,4 @@ async function getRelevantWoker ({ callout }) {
   // return worker id
 }
 
-module.exports = { fetchExpoToken, updateScheduleWithWoker, getWorker, getCallout, getRelevantWoker };
+module.exports = { fetchGraphQL, fetchExpoToken, updateScheduleWithWoker, getWorker, getCallout, getRelevantWoker };
