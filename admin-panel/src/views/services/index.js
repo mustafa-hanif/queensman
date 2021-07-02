@@ -2,12 +2,10 @@
 import { useState, Fragment } from 'react'
 import Popup from './Popup'
 import "./styles.css"
+import { Card, CardHeader, CardTitle, CardBody, Input, Row, Col, Label, CustomInput, Button } from 'reactstrap'
 
-// ** Custom Components
-import Breadcrumbs from '@components/breadcrumbs7'
 
 // ** Third Party Components
-import { Row, Col } from 'reactstrap'
 
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
@@ -49,7 +47,69 @@ function Clients() {
   if (error) return `Error!-+ ${error.message}`
   return (
     <Fragment>
-      <Breadcrumbs breadCrumbTitle='Clients' breadCrumbParent='Home' breadCrumbActive='Clients List' />
+
+<Card>
+        <CardHeader>
+          <CardTitle tag='h4'>View Services</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <Row>
+            <Col md='4'>
+            
+            <Input
+            placeholder="Search Here"
+              className='ml-10 w-100'
+              type='text'
+            />
+            </Col>
+           
+
+            <Col md='2'>
+            
+            <Button.Ripple className="col-md-10" color='primary'>
+            Assign Job
+          </Button.Ripple>
+            </Col>
+           
+
+            <Col md='2'>
+            
+            <Button.Ripple className="col-md-10" color='primary'>
+            Create Job
+          </Button.Ripple>
+            </Col>
+
+            <Col md='2'>
+            
+            <Button.Ripple className="col-md-10" color='primary'>
+            Modify
+          </Button.Ripple>
+            </Col>
+
+            
+          </Row>
+
+          <Row className="mt-2">
+        
+
+            <Col md='2'>
+            
+            <Button.Ripple className="col-md-10" color='primary'>
+            WithDraw
+          </Button.Ripple>
+            </Col>
+           
+
+            <Col md='2'>
+            
+            <Button.Ripple className="col-md-10" color='primary'>
+            Delete
+          </Button.Ripple>
+            </Col>       
+          </Row>
+        </CardBody>
+      </Card>
+  
       <Row>
       <Tabs>
     <TabList>

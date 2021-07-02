@@ -153,6 +153,7 @@ const AddEventSidebar = props => {
   const [allDay, setAllDay] = useState(selectedEvent.allDay || false)
   const [location, setLocation] = useState(selectedEvent.extendedProps?.location || '')
   const [startPicker, setStartPicker] = useState(new Date(selectedEvent.start) || '')
+  const [endPicker, setEndPicker] = useState(new Date(selectedEvent.end) || '')
   const [clientName, setClientName] = useState(selectedEvent.extendedProps?.clientName || '')
   const [clientEmail, setClientEmail] = useState(selectedEvent.extendedProps?.clientEmail || 'No client')
   const [clientId, setClientId] = useState(selectedEvent.extendedProps?.clientId)
@@ -226,7 +227,9 @@ const AddEventSidebar = props => {
         email: clientEmail,
         notes: title,
         time_on_calendar : startPicker.toTimeString().substr(0, 8), 
-        date_on_calendar : startPicker.toISOString().substring(0, 10), 
+        date_on_calendar : startPicker.toISOString().substring(0, 10),
+        end_date_on_calendar: endPicker.toISOString().substring(0, 10),
+        end_time_on_calendar : endPicker.toTimeString().substr(0, 8), 
         // category: value[0].value, 
         category: "Uncategorized", 
         job_type: value[0].value, 
@@ -242,7 +245,10 @@ const AddEventSidebar = props => {
         email: clientEmail,
         notes: title,
         time_on_calendar : startPicker.toTimeString().substr(0, 8), 
-        date_on_calendar : startPicker.toISOString().substring(0, 10), 
+        date_on_calendar : startPicker.toISOString().substring(0, 10),
+        end_date_on_calendar: endPicker.toISOString().substring(0, 10),
+        end_time_on_calendar : endPicker.toTimeString().substr(0, 8), 
+        // category: value[0].value, 
         category: "Uncategorized", 
         job_type: value[0].value, 
         status: "Requested",
@@ -279,7 +285,7 @@ const AddEventSidebar = props => {
     setWorkerName('')
     setStartPicker(new Date())
     setJobTickets([])
-    // setEndPicker(new Date())
+    setEndPicker(new Date())
   }
 
   // ** Set sidebar fields
@@ -287,7 +293,7 @@ const AddEventSidebar = props => {
   
   // console.log(allClients)
   // console.log(allProperty?.property_owned.map(a => a.property))
-  // console.log((selectedEvent))
+    console.log(selectedEvent)
     if (Object.keys(selectedEvent ?? {}).length) {
       setTimeout(() => {
         setContentLoading(false)  
@@ -313,8 +319,8 @@ const AddEventSidebar = props => {
       setDesc(selectedEvent.extendedProps.description || desc)
       setGuests(selectedEvent.extendedProps.guests || guests)
       setStartPicker(new Date(selectedEvent.start))
+      setEndPicker(new Date(selectedEvent.end))
       setJobTickets(selectedEvent.extendedProps?.job_tickets || jobTickets)
-      // setEndPicker(selectedEvent.allDay ? new Date(selectedEvent.start) : new Date(selectedEvent.end))
       setValue([resolveLabel()])
     }
   }
@@ -349,9 +355,10 @@ const AddEventSidebar = props => {
   const handleUpdateEvent = () => {
     const eventToUpdate = {
       id: selectedEvent.id,
-      callout_id: selectedEvent.callout_id,
+      callout_id: selectedEvent?.extendedProps?.callout_id,
       title: title.split('by')[0],
       start: startPicker,
+      end: endPicker,
       extendedProps: {
         clientName,
         clientEmail,
@@ -361,7 +368,6 @@ const AddEventSidebar = props => {
         propertyId
       }
     }
-
     const propsToUpdate = ['start', 'title', 'callout_id']
     const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'propertyId', 'clientEmail']
 
@@ -397,7 +403,7 @@ const AddEventSidebar = props => {
     calendarApi.getEventById(eventId).remove()
   }
   const handleDeleteEvent = () => {
-    removeEvent(selectedEvent.id, selectedEvent.callout_id)
+    removeEvent(selectedEvent.id, selectedEvent?.extendedProps?.callout_id)
     removeEventInCalendar(selectedEvent.id)
     handleAddEventSidebar()
     toast.error(<ToastComponent title='Event Removed' color='danger' icon={<Trash />} />, {
@@ -408,7 +414,7 @@ const AddEventSidebar = props => {
   }
 
   const handleJobDeleteEvent = (index) => {
-    // removeEvent(selectedEvent.id, selectedEvent.callout_id)
+    // removeEvent(selectedEvent.id, selectedEvent?.extendedProps?.callout_id)
     // removeEventInCalendar(selectedEvent.id)
     // jobTickets.splice(index - 1, 1);
     console.log(jobTickets.filter((job, i) => i !== index))
@@ -663,6 +669,24 @@ const AddEventSidebar = props => {
                className='form-control'
                onChange={date => setStartPicker(date[0])}
                value={startPicker}
+               options={{
+                 enableTime: allDay === false,
+                 dateFormat: 'Y-m-d H:i'
+               }}
+             />
+           </FormGroup>
+           <FormGroup>
+             <Label for='endDate'>End Date</Label>
+             <Flatpickr
+             style={{backgroundColor: '#efefef'}}
+              //  required
+               id='endDate'
+                //tag={Flatpickr}
+               name='endDate'
+               className='form-control'
+              //  onChange={date => setEndPicker(date[0])}
+               value={endPicker}
+               disabled
                options={{
                  enableTime: allDay === false,
                  dateFormat: 'Y-m-d H:i'
