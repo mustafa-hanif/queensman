@@ -390,21 +390,20 @@ const RequestCallOut = (props) => {
     if (state.Urgency === "medium") {
       return props.navigation.navigate("SelectSchedule", { state });
     }
-    return null;
 
-    // Alert.alert(
-    //   "Callout Request Confirmation.",
-    //   "Kindly click YES to submit this callout.",
-    //   [
-    //     {
-    //       text: "Cancel",
-    //       onPress: () => console.log("Cancel Pressed"),
-    //       style: "cancel",
-    //     },
-    //     { text: "Yes", onPress: () => submitCallout() },
-    //   ],
-    //   { cancelable: false }
-    // );
+    Alert.alert(
+      "Callout Request Confirmation.",
+      "Kindly click YES to submit this callout.",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "Yes", onPress: () => submitCallout() },
+      ],
+      { cancelable: false }
+    );
   };
 
   const SubmittedCalloutAlert = () => {
