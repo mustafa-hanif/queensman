@@ -3,10 +3,11 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-use-before-define */
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Modal, TouchableOpacity, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, Modal, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { Calendar, CalendarList, Agenda } from "react-native-calendars";
 import { Button } from "native-base";
 import moment from "moment";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 
@@ -81,6 +82,16 @@ export default function SelectSchedule(props) {
   const [modalVisible, setmodalVisible] = useState(false);
   const [markedDate, setmarkedDate] = useState({});
 
+  const [date, setDate] = useState(() => {
+    var now = new Date();
+    now.setHours(9);
+    now.setMinutes(0);
+    now.setMilliseconds(0);
+    return now;
+  });
+  const [show, setShow] = useState(false);
+  const [time, settime] = useState(null);
+
   const [requestCalloutApiCall, { loading: requestCalloutLoading, error: mutationError }] = useMutation(
     REQUEST_CALLOUT
   );
@@ -122,6 +133,14 @@ export default function SelectSchedule(props) {
     setmarkedDate(mark);
   };
 
+  const onChange = (event, selectedDate) => {
+    setShow(false);
+    setDate(selectedDate);
+    const currentTime = moment(selectedDate).format("hh:mm a");
+    settime(currentTime);
+    setmodalVisible(true);
+  };
+
   const expoFileToFormFile = (url) => {
     const localUri = url;
     const filename = localUri.split("/").pop();
@@ -161,7 +180,7 @@ export default function SelectSchedule(props) {
         property_id: state.PropertyID,
         email: auth.user().email,
         notes: state.Description,
-        time_on_calendar: current.toLocaleTimeString(),
+        time_on_calendar: time,
         date_on_calendar: selectedDate,
         category,
         job_type: state.JobType,
@@ -174,10 +193,27 @@ export default function SelectSchedule(props) {
     })
       .then((res) => {
         props.navigation.navigate("HomeNaviagtor");
+        setTimeout(() => {
+          SubmittedCalloutAlert();
+        }, 500);
       })
       .catch((err) => console.log({ err }));
   };
 
+  const SubmittedCalloutAlert = () => {
+    Alert.alert(
+      "Callout Request Submitted.",
+      "One of our team will be in touch shortly.",
+      [
+        {
+          text: "Ok",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+      ],
+      { cancelable: false }
+    );
+  };
   // console.log({ markedDate });
 
   const Confirmmodal = () => {
@@ -196,7 +232,9 @@ export default function SelectSchedule(props) {
             }}
           >
             <Text style={{ ...styles.heading }}>Schedule the service for</Text>
-            <Text style={{ ...styles.heading }}>{moment(selectedDate).format("Do MMMM, YYYY")}</Text>
+            <Text style={{ ...styles.heading }}>
+              {moment(selectedDate).format("Do MMMM, YYYY")} at {time}
+            </Text>
             <Button
               onPress={() => onConfirmButtonPress()}
               style={{ backgroundColor: colors.buttonPrimaryBg, marginVertical: 20 }}
@@ -236,18 +274,22 @@ export default function SelectSchedule(props) {
     return markedDates;
   };
 
+  const onDayPress = (day) => {
+    console.log({ day });
+    setselectedDate(day.dateString);
+    setMarkedDATE(day.dateString);
+    setShow(true);
+  };
+
+  console.log(show);
+
   return (
     <View style={{ flex: 1 }}>
       <CalendarList
         minDate={Date.now()}
         pastScrollRange={0}
         markedDates={getMarkedDates()}
-        onDayPress={(day) => {
-          // console.log({ day });
-          setselectedDate(day.dateString);
-          setMarkedDATE(day.dateString);
-          setmodalVisible(true);
-        }}
+        onDayPress={onDayPress}
         hideArrows
         hideExtraDays
         disableMonthChange
@@ -276,6 +318,7 @@ export default function SelectSchedule(props) {
         enableSwipeMonths={false}
       />
       <Confirmmodal />
+      {show && <DateTimePicker value={date} mode={"time"} is24Hour={false} display="default" onChange={onChange} />}
     </View>
   );
 }
