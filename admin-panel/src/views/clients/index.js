@@ -1,8 +1,6 @@
+
 // ** React Imports
 import { Fragment } from 'react'
-
-// ** Custom Components
-import Breadcrumbs from '@components/breadcrumbs'
 
 // ** Third Party Components
 import { Row, Col } from 'reactstrap'

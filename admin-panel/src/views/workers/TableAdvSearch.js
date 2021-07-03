@@ -40,96 +40,45 @@ import { gql, useMutation, useQuery } from '@apollo/client'
 import AddNewModal from './AddNewModal'
 import ButtonGroup from 'reactstrap/lib/ButtonGroup'
 import { months } from 'moment'
+import Badge from 'reactstrap/lib/Badge'
 
-const GET_CLIENT = gql`
-query GetClient {
-  client(order_by: {id: desc}) {
-    id
-    email
-    full_name
-    gender
-    occupation
-    organization
-    phone
-    password
-    hasPlan
-    property_owneds {
-      property_id
+const GET_WORKER = gql`
+query GetWorker {
+    worker(order_by: {id: desc}) {
+      active
+      description
+      email
+      full_name
+      id
+      isEmergency
+      team_id
+      role
+      phone
+      password
     }
   }
-}
+  
 `
 
-const UPDATE_CLIENT = gql`
-mutation UpdateClient($id: Int!, $email: String, $full_name: String, $gender: String, $occupation: String, $organization: String, $phone: String, $password: String) {
-    update_client_by_pk(pk_columns: {id: $id}, _set: {email: $email, full_name: $full_name, gender: $gender, occupation: $occupation, organization: $organization, phone: $phone, password: $password}) {
+const UPDATE_WORKER = gql`
+mutation UpdateWorker($id: Int!, $description: String, $email: String, $full_name: String, $isEmergency: Boolean, $password: String, $phone: String, $role: String, $team_id: Int, $active: smallint) {
+    update_worker_by_pk(pk_columns: {id: $id}, _set: {description: $description, email: $email, full_name: $full_name, password: $password, phone: $phone, role: $role, team_id: $team_id, isEmergency: $isEmergency, active: $active}) {
       id
     }
   }
-  `
-const ADD_CLIENT = gql`
-mutation AddClient($full_name: String, $gender: String, $email: String, $occupation: String, $organization: String, $phone: String, $password: String) {
-  insert_client_one(object: {full_name: $full_name, gender: $gender, email: $email, occupation: $occupation, organization: $organization, phone: $phone, password: $password}) {
-    id
-  }
-}
 `
-
-const DELETE_CLIENT = gql
-`mutation DeleteClient($id: Int!) {
-  delete_client_by_pk(id: $id) {
-    id
-  }
-}
-`
-const UPDATE_CLIENT_HASPLAN = gql
-`mutation UpdateHasPLan($id: Int!, $hasPlan: Boolean!) {
-  update_client_by_pk(pk_columns: {id: $id}, _set: {hasPlan: $hasPlan}) {
-    hasPlan
-  }
-}
-`
-const UPLOAD_PLAN = gql`
-  mutation AddCallout(
-    $date_on_calendar: date
-    $callout_by: Int
-    $notes: String
-    $time_on_calendar: time
-    $end_time_on_calendar: time
-    $end_date_on_calendar: date
-    $email: String
-    $property_id: Int
-  ) {
-    insert_scheduler_one(
-      object: {
-        callout: {
-          data: {
-            callout_by_email: $email
-            callout_by: $callout_by
-            property_id: $property_id 
-            category: "Uncategorized"
-            job_type: "Scheduled Services"
-            status: "Planned"
-            urgency_level: "Scheduled"
-            active: 1
-          }
-        }
-        date_on_calendar: $date_on_calendar
-        time_on_calendar: $time_on_calendar 
-        end_time_on_calendar: $end_time_on_calendar
-        end_date_on_calendar: $end_date_on_calendar
-        notes: "Scheduled Services"
-      }
-    ) {
-      date_on_calendar
+const ADD_WORKER = gql`
+mutation AddWorker($description: String, $email: String, $full_name: String, $isEmergency: Boolean, $password: String, $phone: String, $role: String, $team_id: Int, $active: smallint) {
+    insert_worker_one(object: {description: $description, email: $email, full_name: $full_name, isEmergency: $isEmergency, password: $password, phone: $phone, role: $role, team_id: $team_id, active: $active}) {
+      id
     }
   }
 `
 
-const DELETE_PLAN = gql`
-mutation MyMutation($email: String, $callout_id: Int!) {
-  delete_callout(where: {_or: {callout_by_email: {_eq: $email}}, callout_by: {_eq: $callout_id}}) {
-    affected_rows
+const DELETE_WORKER = gql
+`mutation DeleteWorker($id: Int!) {
+  delete_worker_by_pk(id: $id) {
+    id
   }
 }
 `
@@ -137,21 +86,16 @@ mutation MyMutation($email: String, $callout_id: Int!) {
 const DataTableAdvSearch = () => {
 
         // ** States
-  const { loading, data, error } = useQuery(GET_CLIENT)
-  const [updateClient, {loading: clientLoading}] = useMutation(UPDATE_CLIENT, {refetchQueries:[{query: GET_CLIENT}]})
-  const [addClient, {loading: addClientLoading}] = useMutation(ADD_CLIENT, {refetchQueries:[{query: GET_CLIENT}]})
-  const [deleteClient, {loading: deleteClientLoading}] = useMutation(DELETE_CLIENT, {refetchQueries:[{query: GET_CLIENT}]})
-  const [addPlan, {loading: addPlanLoading}] = useMutation(UPLOAD_PLAN)
-  const [deletePlan, {loading: deletePlanLoading}] = useMutation(DELETE_PLAN)
-  const [updateClientPlan] = useMutation(UPDATE_CLIENT_HASPLAN, {refetchQueries:[{query: GET_CLIENT}]})
+  const { loading, data, error } = useQuery(GET_WORKER)
+  const [updateWorker, {loading: workerLoading}] = useMutation(UPDATE_WORKER, {refetchQueries:[{query: GET_WORKER}]})
+  const [addWorker, {loading: addWorkerLoading}] = useMutation(ADD_WORKER, {refetchQueries:[{query: GET_WORKER}]})
+  const [deleteWorker, {loading: deleteWorkerLoading}] = useMutation(DELETE_WORKER, {refetchQueries:[{query: GET_WORKER}]})
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState('')
-  const [searchOccupation, setSearchOccupation] = useState('')
-  const [currentPage, setCurrentPage] = useState(0)
   const [searchEmail, setSearchEmail] = useState('')
-  const [searchOrganization, setSearchOrganization] = useState('')
   const [searchPhone, setSearchPhone] = useState('')
-  const [searchGender, setSearchGender] = useState('')
+  const [description, setDescription] = useState('')
+  const [currentPage, setCurrentPage] = useState(0)
   const [filteredData, setFilteredData] = useState([])
   const [toAddNewRecord, setToAddNewRecord] = useState(false)
   const [row, setRow] = useState(null)
@@ -174,100 +118,13 @@ const DataTableAdvSearch = () => {
 
   // ** Function to handle Modal toggle
   const handleModal = (row) => { 
+      console.log(row)
       setRow(row)
       setTimeout(() => {
         setModal(!modal) 
       }, 200)
       setToAddNewRecord(false)
     }
-
-  const addHours = (date, hours) => {
-    return new Date(new Date(date).setHours(new Date(date).getHours() + hours))
-  }
-
-  const handleAddPlan = async (row) => {
-    console.log("meow")
-    const currentDate = new Date().toISOString().split('T')[0].split('-')  //["2021", "07", "01"]
-    let year = parseInt(currentDate[0])
-    let month = parseInt(currentDate[1])
-    console.log(row)
-    for (let i = 0; i < 6; i++) {
-      if (month % 13 === 0) {
-        month = 1
-        year++
-      }
-      const date_on_calendar = `${year}-${month < 10 ? `0${month}` : month}-01`//new Date().getMonth()+1
-      const time_on_calendar = "10:00:00" //10:00:00
-      const end_time_on_calendar = addHours(`${date_on_calendar} ${time_on_calendar}`, 4).toTimeString().substr(0, 8)
-      const end_date_on_calendar = addHours(`${date_on_calendar} ${time_on_calendar}`, 4).toISOString().substr(0, 10)
-      console.log({
-        property_id: row.property_owneds[0]?.property_id,
-        callout_by: row.id,
-        email: row.email,
-        date_on_calendar,
-        time_on_calendar,
-        end_time_on_calendar,
-        end_date_on_calendar
-      })
-      await addPlan({
-        variables: {
-          property_id: row.property_owneds[0]?.property_id,
-          callout_by: row.id,
-          email: row.email,
-        date_on_calendar,
-        time_on_calendar,
-        end_time_on_calendar,
-        end_date_on_calendar
-        }
-      })
-      month += 2
-    }
-    if (!addPlanLoading) {
-      toast.success(<ToastComponent title='Plan Added' color='success' icon={<Check />} />, {
-        autoClose: 2000,
-        hideProgressBar: true,
-        closeButton: false
-      })
-      await updateClientPlan({
-        variables: {
-          id: row.id,
-          hasPlan: true
-        }
-      })
-    }
-    
-   
-  }
-
-  const handleDeletePlan = async (row) => {
-    console.log(row)
-      console.log({
-        email: row.email,
-        callout_id: row.id
-      })
-      await deletePlan({
-        variables: {
-          email: row.email,
-          callout_id: row.id
-        }
-      })
-      if (!deletePlanLoading) {
-        toast.error(<ToastComponent title='Plan Removed' color='danger' icon={<Trash />} />, {
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeButton: false
-        })
-        console.log('delete')
-        await updateClientPlan({
-          variables: {
-            id: row.id,
-            hasPlan: false
-          }
-        })
-      }
-   
-   
-  }
 
   // ** Function to handle Pagination
   const handlePagination = page => setCurrentPage(page.selected)
@@ -293,30 +150,60 @@ const advSearchColumns = [
       minWidth: '200px'
     },
     {
-      name: 'Gender',
-      selector: 'gender',
+      name: 'Phone',
+      selector: 'phone',
       sortable: true,
-      minWidth: '100px'
+      minWidth: '200px'
     },
     {
-      name: 'Occupation',
-      selector: 'occupation',
+      name: 'Description',
+      selector: 'description',
       sortable: true,
       minWidth: '250px'
     },
   
+    // {
+    //   name: 'Team Id',
+    //   selector: 'team_id',
+    //   sortable: true,
+    //   minWidth: '250px'
+    // },
     {
-      name: 'Organization',
-      selector: 'organization',
+      name: 'Active',
+      selector: 'active',
       sortable: true,
-      minWidth: '250px'
+      minWidth: '200px',
+      cell: row => {
+          if (row.active === 1) {
+            return (
+                <Badge color={'light-success'} pill>
+                    Active
+                </Badge>
+              )
+          } else {
+            return (
+                <Badge color={'light-danger'} pill>
+                    Unactive
+                </Badge>
+              )
+          }
+         
+        
+      }
     },
     {
-      name: 'Phone',
-      selector: 'Phone',
-      sortable: true,
-      minWidth: '200px'
-    },
+        name: 'Emergency',
+        selector: 'isEmergency',
+        sortable: true,
+        minWidth: '200px',
+        cell: row => {
+            return (
+                <>
+                {row.isEmergency ? <Badge color={'light-danger'} pill>Emergency</Badge> : <Badge color={'light-info'} pill>Not urgent</Badge>}
+                </>
+            )
+        }
+      },
     {
       name: 'Password',
       minWidth: '150px',
@@ -348,13 +235,6 @@ const advSearchColumns = [
                   <Button color='primary' className="btn-icon" size="sm">
                   <Edit size={15} onClick={() => handleModal(row)} />
                   </Button>
-                  {!row.hasPlan ? <Button color='seconday' outline className="btn" size="sm" onClick={() => { handleAddPlan(row) }} >
-                    {addPlanLoading ? <Loader size={15} /> : <Edit3 size={15} />}
-                    {addPlanLoading ? <span className='align-middle ml-25'>Loading</span> : <span className='align-middle ml-25'>Upload Plan</span>}
-                  </Button> : <Button color='danger' outline className="btn" size="sm" onClick={() => { handleDeletePlan(row) }} >
-                              <span className='align-middle ml-25'>Delete Plan</span>
-                          </Button>
-                }
                 </ButtonGroup>
                 
                 </div>
@@ -368,46 +248,48 @@ const advSearchColumns = [
   const dataToRender = () => {
     if (
       searchName.length ||
-      searchOccupation.length ||
+      description.length ||
       searchEmail.length ||
-      searchPhone.length ||
-      searchGender.length ||
-      searchOrganization.length
+      searchPhone.length    
     ) {
       return filteredData
     } else {
-      return data?.client
+      return data?.worker
     }
   }
 
   const handleUpdate = (updatedRow) => {
-    updateClient({variables: {
+    updateWorker({variables: {
+        active: updatedRow.active,
+        description: updatedRow.description,
+        email: updatedRow.email,
+        full_name: updatedRow.full_name,
         id: updatedRow.id,
-        email: updatedRow.email, 
-        full_name: updatedRow.full_name, 
-        occupation: updatedRow.occupation, 
-        organization: updatedRow.organization, 
-        gender: updatedRow.gender,
+        isEmergency: updatedRow.isEmergency,
+        team_id: updatedRow.team_id,
+        role: updatedRow.role,
         phone: updatedRow.phone,
         password: updatedRow.password
-      }})
+        }})
       dataToRender()
-      if (!clientLoading) {
+      if (!workerLoading) {
           
         setModal(!modal)
       }
   }
 
-  const addClientRecord = () => {
+  const addWorkerRecord = () => {
     setToAddNewRecord(true)
     setRow({
-      full_name: "",
-      email:"",
-      occupation:"",
-      organization:"",
-      gender:"",
-      phone:"",
-      password:""
+        active: 1,
+        description: "",
+        email: "",
+        full_name: "",
+        isEmergency: false,
+        team_id: null,
+        role: null,
+        phone: "",
+        password: ""
     })
     setTimeout(() => {
       setModal(!modal) 
@@ -416,27 +298,29 @@ const advSearchColumns = [
 
 
   const handleAddRecord = (newRow) => {
-    addClient({variables: {
-        email: newRow.email, 
-        full_name: newRow.full_name, 
-        occupation: newRow.occupation, 
-        organization: newRow.organization, 
-        gender: newRow.gender,
+    addWorker({variables: {
+        active: newRow.active,
+        description: newRow.description,
+        email: newRow.email,
+        full_name: newRow.full_name,
+        isEmergency: newRow.isEmergency,
+        team_id: newRow.team_id,
+        role: newRow.role,
         phone: newRow.phone,
         password: newRow.password
       }})
       dataToRender()
-      if (!addClientLoading) {
+      if (!addWorkerLoading) {
         setModal(!modal)
       }
   }
 
   const handleDeleteRecord = (id) => {
-    deleteClient({variables: {
+    deleteWorker({variables: {
         id
       }})
       dataToRender()
-      if (!deleteClientLoading) {
+      if (!deleteWorkerLoading) {
         toggleModal()
       }
   }
@@ -471,7 +355,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchOccupation.length || searchOrganization.length || searchPhone.length || searchGender.length) {
+        if (searchEmail.length || searchName.length || description.length || searchPhone.length)  {
         return filteredData
       } else {
         return data?.client
@@ -501,7 +385,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchOccupation.length || searchOrganization.length || searchPhone.length || searchGender.length) {
+        if (searchEmail.length || searchName.length || description.length || searchPhone.length) {
         return filteredData
       } else {
         return data?.client
@@ -527,18 +411,18 @@ const advSearchColumns = [
   }
 
   // ** Function to handle Occupation filter
-  const handleOccupationFilter = e => {
+  const handleDescriptionFilter = e => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchOccupation.length || searchOrganization.length || searchPhone.length || searchGender.length) {
+        if (searchEmail.length || searchName.length || description.length || searchPhone.length) {
         return filteredData
       } else {
         return data?.client
       }
     }
 
-    setSearchOccupation(value)
+    setDescription(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
         const startsWith = item.occupation?.toLowerCase().startsWith(value.toLowerCase())
@@ -552,37 +436,7 @@ const advSearchColumns = [
         } else return null
       })
       setFilteredData([...updatedData])
-      setSearchOccupation(value)
-    }
-  }
-
-  // ** Function to handle organization filter
-  const handleOrganizationFilter = e => {
-    const value = e.target.value
-    let updatedData = []
-    const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchOccupation.length || searchOrganization.length || searchPhone.length || searchGender.length) {
-        return filteredData
-      } else {
-        return data?.client
-      }
-    }
-
-    setSearchOrganization(value)
-    if (value.length) {
-      updatedData = dataToFilter().filter(item => {
-        const startsWith = item?.organization?.toLowerCase().startsWith(value.toLowerCase())
-
-        const includes = item?.organization?.toLowerCase().includes(value.toLowerCase())
-
-        if (startsWith) {
-          return startsWith
-        } else if (!startsWith && includes) {
-          return includes
-        } else return null
-      })
-      setFilteredData([...updatedData])
-      setSearchOrganization(value)
+      setDescription(value)
     }
   }
 
@@ -591,7 +445,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchOccupation.length || searchOrganization.length || searchPhone.length || searchGender.length) {
+        if (searchEmail.length || searchName.length || description.length || searchPhone.length) {
         return filteredData
       } else {
         return data?.client
@@ -616,42 +470,13 @@ const advSearchColumns = [
     }
   }
 
-  // ** Function to handle gender filter
-  const handleGenderFilter = e => {
-    const value = e.target.value
-    let updatedData = []
-    const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchOccupation.length || searchOrganization.length || searchPhone.length || searchGender.length) {
-        return filteredData
-      } else {
-        return data?.client
-      }
-    }
-
-    setSearchGender(value)
-    if (value.length) {
-      updatedData = dataToFilter().filter(item => {
-        const startsWith = item.gender?.toLowerCase().startsWith(value.toLowerCase())
-
-        const includes = item.gender?.toLowerCase().includes(value.toLowerCase())
-
-        if (startsWith) {
-          return startsWith
-        } else if (!startsWith && includes) {
-          return includes
-        } else return null
-      })
-      setFilteredData([...updatedData])
-      setSearchGender(value)
-    }
-  }
   return (
     <Fragment>
       <Card>
         <CardHeader className='border-bottom'>
           <CardTitle tag='h4'>Advance Search</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
-            <Button className='ml-2' color='primary' onClick={addClientRecord}>
+            <Button className='ml-2' color='primary' onClick={addWorkerRecord}>
               <Plus size={15} />
               <span className='align-middle ml-50'>Add Record</span>
             </Button>
@@ -679,26 +504,20 @@ const advSearchColumns = [
             </Col>
             <Col lg='4' md='6'>
               <FormGroup>
-                <Label for='occupation'>Occupation:</Label>
-                <Input id='occupation' placeholder='Web Designer' value={searchOccupation} onChange={handleOccupationFilter} />
+                <Label for='occupation'>Description:</Label>
+                <Input id='occupation' placeholder='Web Designer' value={description} onChange={handleDescriptionFilter} />
               </FormGroup>
             </Col>
-            <Col lg='4' md='6'>
+            {/* <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='organization'>Organization:</Label>
-                <Input id='organization' placeholder='San Diego' value={searchOrganization} onChange={handleOrganizationFilter} />
+                <Input id='organization' placeholder='San Diego' value={teamId} onChange={handleOrganizationFilter} />
               </FormGroup>
-            </Col>
+            </Col> */}
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='phone'>Phone:</Label>
                 <Input id='phone' placeholder='San Diego' value={searchPhone} onChange={handlePhoneFilter} />
-              </FormGroup>
-            </Col>
-            <Col lg='4' md='6'>
-              <FormGroup>
-                <Label for='gender'>Gender:</Label>
-                <Input id='gender' placeholder='Male' value={searchGender} onChange={handleGenderFilter} />
               </FormGroup>
             </Col>
           </Row>
@@ -715,7 +534,7 @@ const advSearchColumns = [
           paginationComponent={CustomPagination}
           data={dataToRender()}
           // selectableRowsComponent={BootstrapCheckbox}
-        /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Client information</h4>}
+        /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Worker information</h4>}
        
       </Card>
       <AddNewModal 
