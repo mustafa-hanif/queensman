@@ -2,8 +2,9 @@
 import { useState } from 'react'
 
 // ** Third Party Components
-import Flatpickr from 'react-flatpickr'
-import { User, Briefcase, Mail, Lock, X, Key, Phone} from 'react-feather'
+import { selectThemeColors } from '@utils'
+import Select from 'react-select'
+import { User, Briefcase, Mail, Lock, X, Info, Phone} from 'react-feather'
 import {
   Button,
   Modal,
@@ -25,14 +26,39 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
     // ** Custom close btn
   const CloseBtn = <X className='cursor-pointer' size={15} onClick={closeModal} />   
 
+  const activeOptions = [
+    { value: 1, label: 'Active'},
+    { value: 0, label: 'Not Active' }
+  ]
+
+  const emergencyOptions = [
+    { value: true, label: 'Emergency'},
+    { value: false, label: 'Not Urgent' }
+  ]
+
   const handleChange = (e) => {
       const rowValue = {...row}
       rowValue[e.target.name] = e.target.value
       setRow(rowValue)
   }
 
+  const handleActiveChange = (e) => {
+        const rowValue = {...row}
+        rowValue.active = e.value
+        // console.log(rowValue)
+        setRow(rowValue)
+  }
+
+  const handleEmergencyChange = (e) => {
+    const rowValue = {...row}
+    rowValue.isEmergency = e.value
+    // console.log(rowValue)
+    setRow(rowValue)
+}
+
   const handleSubmit = () => {
     // setRow(row)
+    console.log(row)
     if (toAddNewRecord) {
       handleAddRecord(row)
     } else {
@@ -77,38 +103,16 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
         </InputGroup>
       </FormGroup>
       <FormGroup>
-        <Label for='occupation'>Occupation</Label>
+        <Label for='description'>Description</Label>
         <InputGroup>
           <InputGroupAddon addonType='prepend'>
             <InputGroupText>
               <Briefcase size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input id='occupation' placeholder='Web Developer' name="occupation" value={row?.occupation} onChange={handleChange}/>
+          <Input id='description' placeholder='Web Developer' name="description" value={row?.description} onChange={handleChange}/>
         </InputGroup>
-      </FormGroup>
-      <FormGroup>
-        <Label for='organization'>Organization</Label>
-        <InputGroup>
-          <InputGroupAddon addonType='prepend'>
-            <InputGroupText>
-              <Briefcase size={15} />
-            </InputGroupText>
-          </InputGroupAddon>
-          <Input id='organization' placeholder='Etisilat' name="organization" value={row?.organization} onChange={handleChange}/>
-        </InputGroup>
-      </FormGroup>
-      <FormGroup>
-        <Label for='gender'>Gender</Label>
-        <InputGroup>
-          <InputGroupAddon addonType='prepend'>
-            <InputGroupText>
-              <Key size={15} />
-            </InputGroupText>
-          </InputGroupAddon>
-          <Input id='gender' placeholder='Male' name="gender" value={row?.gender} onChange={handleChange}/>
-        </InputGroup>
-      </FormGroup>    
+      </FormGroup>   
       <FormGroup>
         <Label for='phone'>Phone</Label>
         <InputGroup>
@@ -119,7 +123,31 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
           </InputGroupAddon>
           <Input id='phone' placeholder='Phone' name="phone" value={row?.phone} onChange={handleChange}/>
         </InputGroup>
-      </FormGroup> 
+      </FormGroup>
+      <FormGroup>
+        <Label>Active</Label>
+            <Select
+                onChange={(e) => { handleActiveChange(e) }}
+                theme={selectThemeColors}
+                className='react-select'
+                classNamePrefix='select'
+                defaultValue={{value: row?.active, label: row?.active === 1 ? "Active" : "Not Active"}}
+                options={activeOptions}
+                isClearable={false}
+            />
+      </FormGroup>
+      <FormGroup>
+        <Label>Emergency</Label>
+            <Select
+                onChange={(e) => { handleEmergencyChange(e) }}
+                theme={selectThemeColors}
+                className='react-select'
+                classNamePrefix='select'
+                defaultValue={{value: row?.isEmergency, label: row?.isEmergency ? "Emergency" : "Not Urgent"}}
+                options={emergencyOptions}
+                isClearable={false}
+            />
+      </FormGroup>
       <FormGroup>
         <Label for='password'>Password</Label>
         <InputGroup>

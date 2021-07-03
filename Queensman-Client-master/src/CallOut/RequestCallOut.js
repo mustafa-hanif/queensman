@@ -286,7 +286,9 @@ const RequestCallOut = (props) => {
   // Once we have a selected property - Load it in the local state
   // TODO: This is not necessary, we can use the selected property directly
   useEffect(() => {
+    console.log({ selectedProperty });
     if (selectedProperty) {
+      const propertyid = selectedProperty?.property_owned_by_pk?.id;
       const propertyDetails = selectedProperty?.property_owned_by_pk?.property;
       const { category, address, community, city, country } = propertyDetails;
       setState({ ...state, PropertyDetails: propertyDetails });
@@ -297,6 +299,7 @@ const RequestCallOut = (props) => {
         community,
         city,
         country,
+        PropertyID: propertyid,
         PropertyDetailLoading: false,
       }));
     }
@@ -387,21 +390,20 @@ const RequestCallOut = (props) => {
     if (state.Urgency === "medium") {
       return props.navigation.navigate("SelectSchedule", { state });
     }
-    return null;
 
-    // Alert.alert(
-    //   "Callout Request Confirmation.",
-    //   "Kindly click YES to submit this callout.",
-    //   [
-    //     {
-    //       text: "Cancel",
-    //       onPress: () => console.log("Cancel Pressed"),
-    //       style: "cancel",
-    //     },
-    //     { text: "Yes", onPress: () => submitCallout() },
-    //   ],
-    //   { cancelable: false }
-    // );
+    Alert.alert(
+      "Callout Request Confirmation.",
+      "Kindly click YES to submit this callout.",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "Yes", onPress: () => submitCallout() },
+      ],
+      { cancelable: false }
+    );
   };
 
   const SubmittedCalloutAlert = () => {
