@@ -7,7 +7,7 @@ const fetchGraphQL = require('./graphql');
 // if contains ?? and 10 mins passed - add notification to client to call someone
 
 function everyFiveMinute() { 
-
+  fetchGraphQL
 }
 
 module.exports = { everyFiveMinute };
