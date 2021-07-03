@@ -46,7 +46,7 @@ query GetSchedule($_gte: date!, $_lte: date!) {
     startTime: time_on_calendar
     end: end_date_on_calendar
     endTime: end_time_on_calendar
-    title: notes
+    notes
     worker {
       full_name
     }
@@ -73,6 +73,7 @@ query GetSchedule($_gte: date!, $_lte: date!) {
       worker {
         full_name
         id
+        color_code
       }
     }
   }
@@ -165,7 +166,17 @@ const CalendarComponent = () => {
   //   return state.calendar
   // })
 
-  const [updateCallOut] = useMutation(UPDATE_CALLOUT)
+  const [updateCallOut] = useMutation(UPDATE_CALLOUT,  {
+    refetchQueries: [
+      { 
+        query: GET_SCHEDULE,
+        variables: {
+          _gte: new Date().toISOString().split('T')[0],
+          _lte: new Date().toISOString().split('T')[0]
+        } 
+      }
+    ]
+  })
   const [updateCallOutDrag] = useMutation(UPDATE_CALLOUT_DRAG)
   const [deleteCallout] = useMutation(DELETE_CALLOUT)
 
