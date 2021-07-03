@@ -7,6 +7,7 @@ import { StyleSheet, Text, View, Modal, TouchableOpacity, ActivityIndicator } fr
 import { Calendar, CalendarList, Agenda } from "react-native-calendars";
 import { Button } from "native-base";
 import moment from "moment";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 
@@ -81,13 +82,15 @@ export default function SelectSchedule(props) {
   const [modalVisible, setmodalVisible] = useState(false);
   const [markedDate, setmarkedDate] = useState({});
 
+  const [date, setDate] = useState(new Date());
+  const [show, setShow] = useState(false);
+  const [time, settime] = useState(null);
+
   const [requestCalloutApiCall, { loading: requestCalloutLoading, error: mutationError }] = useMutation(
     REQUEST_CALLOUT
   );
 
   const state = props.navigation.getParam("state", {});
-
-  console.log({state})
 
   const formatDate = (date) => {
     return moment(date).format("YYYY-MM-DD");
@@ -122,6 +125,14 @@ export default function SelectSchedule(props) {
     mark[date] = { selected: true, marked: true };
     // console.log({ mark });
     setmarkedDate(mark);
+  };
+
+  const onChange = (event, selectedDate) => {
+    setShow(false);
+    setDate(selectedDate);
+    const currentTime = moment(selectedDate).format("hh:mm:ss a");
+    settime(currentTime);
+    setmodalVisible(true);
   };
 
   const expoFileToFormFile = (url) => {
@@ -163,7 +174,7 @@ export default function SelectSchedule(props) {
         property_id: state.PropertyID,
         email: auth.user().email,
         notes: state.Description,
-        time_on_calendar: current.toLocaleTimeString(),
+        time_on_calendar: time,
         date_on_calendar: selectedDate,
         category,
         job_type: state.JobType,
@@ -180,7 +191,7 @@ export default function SelectSchedule(props) {
         property_id: state.PropertyID,
         email: auth.user().email,
         notes: state.Description,
-        time_on_calendar: current.toLocaleTimeString(),
+        time_on_calendar: time,
         date_on_calendar: selectedDate,
         category,
         job_type: state.JobType,
@@ -215,7 +226,9 @@ export default function SelectSchedule(props) {
             }}
           >
             <Text style={{ ...styles.heading }}>Schedule the service for</Text>
-            <Text style={{ ...styles.heading }}>{moment(selectedDate).format("Do MMMM, YYYY")}</Text>
+            <Text style={{ ...styles.heading }}>
+              {moment(selectedDate).format("Do MMMM, YYYY")} at {time}
+            </Text>
             <Button
               onPress={() => onConfirmButtonPress()}
               style={{ backgroundColor: colors.buttonPrimaryBg, marginVertical: 20 }}
@@ -255,18 +268,22 @@ export default function SelectSchedule(props) {
     return markedDates;
   };
 
+  const onDayPress = (day) => {
+    console.log({ day });
+    setselectedDate(day.dateString);
+    setMarkedDATE(day.dateString);
+    setShow(true);
+  };
+
+  console.log(show);
+
   return (
     <View style={{ flex: 1 }}>
       <CalendarList
         minDate={Date.now()}
         pastScrollRange={0}
         markedDates={getMarkedDates()}
-        onDayPress={(day) => {
-          // console.log({ day });
-          setselectedDate(day.dateString);
-          setMarkedDATE(day.dateString);
-          setmodalVisible(true);
-        }}
+        onDayPress={onDayPress}
         hideArrows
         hideExtraDays
         disableMonthChange
@@ -295,6 +312,7 @@ export default function SelectSchedule(props) {
         enableSwipeMonths={false}
       />
       <Confirmmodal />
+      {show && <DateTimePicker value={date} mode={"time"} is24Hour={false} display="default" onChange={onChange} />}
     </View>
   );
 }
