@@ -1,8 +1,8 @@
 // ** React Imports
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import Cleave from 'cleave.js/react'
-import { gql, useLazyQuery, useQuery } from "@apollo/client"
+import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client"
 
 // ** Custom Components
 import Avatar from '@components/avatar'
@@ -11,7 +11,7 @@ import Avatar from '@components/avatar'
 import classnames from 'classnames'
 import { toast } from 'react-toastify'
 import Flatpickr from 'react-flatpickr'
-import { X, Check, Trash } from 'react-feather'
+import { X, Check, Trash, Info } from 'react-feather'
 import Select, { components } from 'react-select'
 import { useForm, Controller } from 'react-hook-form'
 import { Button, Modal, ModalHeader, ModalBody, Card, ListGroup, ListGroupItem, FormGroup, Label, CustomInput, Input, Form, Spinner, Badge, CardBody, CardHeader, CardTitle, Row, Col  } from 'reactstrap'
@@ -31,6 +31,7 @@ import img6 from '@src/assets/images/avatars/11-small.png'
 // ** Styles Imports
 import '@styles/react/libs/react-select/_react-select.scss'
 import '@styles/react/libs/flatpickr/flatpickr.scss'
+import { NoUnusedFragmentsRule } from 'graphql'
 
 // ** Toast Component
 const ToastComponent = ({ title, icon, color }) => (
@@ -81,6 +82,31 @@ const GET_WORKER = gql`
 query GetWorker {
   worker {
     full_name
+    id
+    email
+  }
+}
+`
+
+const UPDATE_JOB_TICKET = gql`
+mutation UpdateJob($id: Int!, $name: String, $worker_id: Int!, $worker_email: String, $type: String, $description: String) {
+  update_job_tickets_by_pk(pk_columns: {id: $id}, _set: {name: $name, worker_id: $worker_id, worker_email: $worker_email, type: $type, description: $description}) {
+    id
+  }
+}
+`
+
+const ADD_JOB_TICKET = gql`
+mutation InsertJobTickets($name: String, $description: String, $pictures: _text, $type: String, $notes: _text, $callout_id: Int!, $scheduler_id: Int!, $worker_id: Int!) {
+  insert_job_tickets(objects: {name: $name, description: $description, pictures: $pictures, type: $type, callout_id: $callout_id, notes: $notes, scheduler_id: $scheduler_id, worker_id: $worker_id}) {
+    affected_rows
+  }
+}
+`
+
+const DELETE_JOB_TICKET = gql`
+mutation deleteJobTicket($id: Int!) {
+  delete_job_tickets_by_pk(id: $id) {
     id
   }
 }
@@ -173,6 +199,11 @@ const AddEventSidebar = props => {
   const { workerLoading, data: allWorkers, workerError } = useQuery(GET_WORKER, {
     skip: !open
   })
+
+  const [addJobTicket] = useMutation(ADD_JOB_TICKET)
+  const [deleteJobTicket] = useMutation(DELETE_JOB_TICKET)
+
+  const [updateJobTicket] = useMutation(UPDATE_JOB_TICKET)
   // ** Select Options
   const options = [
     {value:"Water Leakage", label: "Water Leakage", color: 'primary'},
@@ -221,6 +252,7 @@ const AddEventSidebar = props => {
 
   // ** Adds New Event
   const handleAddEvent = () => {
+    console.log(startPicker)
     requestCalloutApiCall({
       variables: {
         property_id: propertyId,
@@ -239,23 +271,8 @@ const AddEventSidebar = props => {
         // ...pictures,
       }
     })
-      .catch((err) => console.log({ err }))
-      console.log({
-        property_id: propertyId,
-        email: clientEmail,
-        notes: title,
-        time_on_calendar : startPicker.toTimeString().substr(0, 8), 
-        date_on_calendar : startPicker.toISOString().substring(0, 10),
-        end_date_on_calendar: endPicker.toISOString().substring(0, 10),
-        end_time_on_calendar : endPicker.toTimeString().substr(0, 8), 
-        // category: value[0].value, 
-        category: "Uncategorized", 
-        job_type: value[0].value, 
-        status: "Requested",
-        request_time: new Date().toLocaleDateString(),
-        urgency_level: "Medium"
-        // ...pictures,
-      })
+      .catch((err) => console.log({ err }))   
+    
     refetchEvents()
     handleAddEventSidebar()
     toast.success(<ToastComponent title='Event Added' color='success' icon={<Check />} />, {
@@ -266,7 +283,8 @@ const AddEventSidebar = props => {
   }
 
   const handleJobAddEvent = () => {
-    setJobTickets([...jobTickets, {name: "", description: "", notes: [""], pictures: [""], type: "", worker_email: null}])
+    setJobTickets([...jobTickets, {name: "", description: "", notes: [""], pictures: [""], type: "", isSaved: false, newJob: true, worker: {color_code: null, full_name: null, id: null}}])
+    
   }
 
   // ** Reset Input Values on Close
@@ -353,42 +371,99 @@ const AddEventSidebar = props => {
 
   // ** Updates Event in Store
   const handleUpdateEvent = () => {
-    const eventToUpdate = {
-      id: selectedEvent.id,
-      callout_id: selectedEvent?.extendedProps?.callout_id,
-      title: title.split('by')[0],
-      start: startPicker,
-      end: endPicker,
-      extendedProps: {
-        clientName,
-        clientEmail,
-        category: 'Uncategorized',
-        propertyName,
-        workerName,
-        propertyId
+    let saved = true
+    console.log(jobTickets)
+    jobTickets.map(jobs => {
+      if (jobs.isSaved === false) {
+        console.log(saved)
+        saved = false
+        toast.error(<ToastComponent title='Job Ticket Not Saved' color='danger' icon={<Info />} />, {
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeButton: false
+        })
       }
-    }
-    const propsToUpdate = ['start', 'title', 'callout_id']
-    const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'propertyId', 'clientEmail']
-
-    updateEvent(eventToUpdate)
-    updateEventInCalendar(eventToUpdate, propsToUpdate, extendedPropsToUpdate)
-    handleAddEventSidebar()
-    toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
+    })
+    
+    if (saved) {
+      const eventToUpdate = {
+        id: selectedEvent.id,
+        callout_id: selectedEvent?.extendedProps?.callout_id,
+        title: title.split('by')[0],
+        start: startPicker,
+        end: endPicker,
+        extendedProps: {
+          clientName,
+          clientEmail,
+          category: 'Uncategorized',
+          propertyName,
+          workerName,
+          propertyId
+        }
+      }
+      console.log(eventToUpdate)
+      const propsToUpdate = ['start', 'title', 'callout_id']
+      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'propertyId', 'clientEmail']
+  
+      updateEvent(eventToUpdate)
+      updateEventInCalendar(eventToUpdate, propsToUpdate, extendedPropsToUpdate)
+      handleAddEventSidebar()
+      toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    }  
+  }
+  
+  const handleJobUpdateEvent = (index) => {
+    const jobTicket = jobTickets[index]
+    if (jobTicket?.newJob) {
+        addJobTicket({
+          variables: {
+            name: jobTicket.name,
+            description: jobTicket.description,
+            pictures: "{}",
+            type: jobTicket.type,
+            callout_id: selectedEvent?.extendedProps?.callout_id,
+            notes: "{}",
+            scheduler_id: parseInt(selectedEvent.id),
+            worker_id: jobTicket.worker.id
+          }
+        })
+        const jobTicket2 = [...jobTickets]
+        jobTicket2[index].isSaved = true
+        setJobTickets(jobTicket2)
+        toast.success(<ToastComponent title='Job Ticket Saved' color='success' icon={<Check />} />, {
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeButton: false
+        })
+    } else {
+   updateJobTicket({variables: {
+      id: jobTicket.id,
+      name: jobTicket.name,
+      worker_id: jobTicket.worker.id,
+      worker_email: jobTicket.worker.email,
+      type: jobTicket.type,
+      description: jobTicket.description
+    }})
+    console.log(jobTicket)
+    toast.success(<ToastComponent title='Job Ticket Updated' color='success' icon={<Check />} />, {
       autoClose: 2000,
       hideProgressBar: true,
       closeButton: false
     })
-  }
-  
-  const handleJobUpdateEvent = (id) => {
-
+    }
   }
 
-  const handleWorkChange = (index, full_name, id, e) => {
+  const handleWorkChange = (index, full_name, id, email, e) => {
     const jobTicket = [...jobTickets]
+    console.log(jobTicket)
     jobTicket[index].worker.full_name = full_name
     jobTicket[index].worker.id = id
+    jobTicket[index].worker.email = email
+    console.log(jobTicket)
     setJobTickets(jobTicket)
   }
 
@@ -414,10 +489,13 @@ const AddEventSidebar = props => {
   }
 
   const handleJobDeleteEvent = (index) => {
-    // removeEvent(selectedEvent.id, selectedEvent?.extendedProps?.callout_id)
-    // removeEventInCalendar(selectedEvent.id)
-    // jobTickets.splice(index - 1, 1);
-    console.log(jobTickets.filter((job, i) => i !== index))
+
+    if (!jobTickets[index].isSaved === false || jobTickets[index]?.isSaved === undefined) {
+      console.log('removed')
+      deleteJobTicket({variables: {
+        id: jobTickets[index].id
+      }})
+    }
     setJobTickets(jobTickets.filter((job, i) => i !== index))
     // handleAddEventSidebar()
     toast.error(<ToastComponent title='Job Ticket Removed' color='danger' icon={<Trash />} />, {
@@ -734,7 +812,7 @@ const AddEventSidebar = props => {
               }
               onClick={e => {
                 onSuggestionItemClick(null, e)
-                handleWorkChange(index, suggestion.full_name, suggestion.id)          
+                handleWorkChange(index, suggestion.full_name, suggestion.id, suggestion.email)          
               }}
             >
             <span>{suggestion.full_name}{'     '}</span>
@@ -778,9 +856,9 @@ const AddEventSidebar = props => {
           <Button.Ripple
             className='mr-1'
             color='primary'
-            onClick={handleJobUpdateEvent}
+            onClick={() => handleJobUpdateEvent(index)}
           >
-            Update
+            {job?.newJob ? 'Save' : 'Update'}
           </Button.Ripple>
           <Button.Ripple color='danger' onClick={() => handleJobDeleteEvent(index)} outline>
             Delete

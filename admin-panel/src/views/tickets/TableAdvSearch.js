@@ -1,65 +1,117 @@
 // ** React Imports
-import { useState, Fragment, forwardRef } from 'react'
+import { useState, Fragment, forwardRef, useContext } from 'react'
+
+
+// ** Custom Components
+import Avatar from '@components/avatar'
 
 // ** Third Party Components
-import Flatpickr from 'react-flatpickr'
 import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
-import { MoreVertical, Edit, ChevronDown, Plus, Trash } from 'react-feather'
-import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap'
+import { toast } from 'react-toastify'
+import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check } from 'react-feather'
+import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+
+// ** Toast Component
+const ToastComponent = ({ title, icon, color }) => (
+  <Fragment>
+    <div className='toastify-header pb-0'>
+      <div className='title-wrapper'>
+        <Avatar size='sm' color={color} icon={icon} />
+        <h6 className='toast-title'>{title}</h6>
+      </div>
+    </div>
+  </Fragment>
+)
 
 // ** Bootstrap Checkbox Component
-const BootstrapCheckbox = forwardRef(({ onClick, ...rest }, ref) => {
-    return (
-<div className='custom-control custom-checkbox'>
-    <input type='checkbox' className='custom-control-input' ref={ref} {...rest} />
-    <label className='custom-control-label' onClick={onClick} />
-  </div>
-    )
-})
+// const BootstrapCheckbox = forwardRef(({ onClick, ...rest }, ref) => {
+//     return (
+// <div className='custom-control custom-checkbox'>
+//     <input type='checkbox' className='custom-control-input' ref={ref} {...rest} />
+//     <label className='custom-control-label' onClick={onClick} />
+//   </div>
+//     )
+// })
 
 // ** Styles
 import '@styles/react/libs/flatpickr/flatpickr.scss'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import AddNewModal from './AddNewModal'
+import ButtonGroup from 'reactstrap/lib/ButtonGroup'
+import { months } from 'moment'
+import Badge from 'reactstrap/lib/Badge'
 
-const GET_CLIENT = gql`
-query GetClient {
-    client(order_by: {id: asc}) {
-      id
-      email
-      full_name
-      gender
-      occupation
-      organization
-      phone
-    }
-  }  
+const GET_JOB_TICKETS = gql`
+query getJobTickets {
+  job_tickets(order_by: {id: desc}) {
+    id
+    name
+    scheduler_id
+    callout_id
+    description
+    type
+    worker_email
+    worker_id
+  }
+}
 `
 
-const UPDATE_CLIENT = gql`
-mutation UpdateClient($id: Int!, $email: String, $full_name: String, $gender: String, $occupation: String, $organization: String) {
-    update_client_by_pk(pk_columns: {id: $id}, _set: {email: $email, full_name: $full_name, gender: $gender, occupation: $occupation, organization: $organization}) {
+const UPDATE_WORKER = gql`
+mutation UpdateWorker($id: Int!, $description: String, $emergencyId: Int!, $email: String, $full_name: String, $isEmergency: Boolean, $password: String, $phone: String, $role: String, $team_id: Int, $active: smallint, $color_code: String) {
+  abba_biryani: update_worker_by_pk(pk_columns: {id: $emergencyId}, _set: {isEmergency: false}) {
+     email
+   }
+   update_worker_by_pk(pk_columns: {id: $id}, _set: {description: $description, email: $email, full_name: $full_name, password: $password, phone: $phone, role: $role, team_id: $team_id, isEmergency: $isEmergency, active: $active,, color_code: $color_code}) {
+     id
+   }
+ }
+`
+const ADD_WORKER = gql`
+mutation AddWorker($description: String, $email: String, $full_name: String, $isEmergency: Boolean, $password: String, $phone: String, $role: String, $team_id: Int, $active: smallint, $color_code: String) {
+    insert_worker_one(object: {description: $description, email: $email, full_name: $full_name, isEmergency: $isEmergency, password: $password, phone: $phone, role: $role, team_id: $team_id, active: $active, color_code: $color_code}) {
       id
     }
   }
-  `
+`
+
+const DELETE_JOB_TICKET = gql`
+mutation deleteJobTicket($id: Int!) {
+  delete_job_tickets_by_pk(id: $id) {
+    id
+  }
+}
+`
+
 const DataTableAdvSearch = () => {
 
         // ** States
-  const { loading, data, error } = useQuery(GET_CLIENT)
-  const [updateClient, {loading: clientLoading}] = useMutation(UPDATE_CLIENT, {refetchQueries:[{query: GET_CLIENT}]})
+  const { loading, data, error } = useQuery(GET_JOB_TICKETS)
+  // const [updateWorker, {loading: workerLoading}] = useMutation(UPDATE_WORKER, {refetchQueries:[{query: GET_WORKER}]})
+  // const [addWorker, {loading: addWorkerLoading}] = useMutation(ADD_WORKER, {refetchQueries:[{query: GET_WORKER}]})
+  const [deleteJobTicket, {loading: deleteJobLoading}] = useMutation(DELETE_JOB_TICKET, {refetchQueries:[{query: GET_JOB_TICKETS}]})
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState('')
-  const [searchOccupation, setSearchOccupation] = useState('')
-  const [currentPage, setCurrentPage] = useState(0)
   const [searchEmail, setSearchEmail] = useState('')
-  const [searchOrganization, setSearchOrganization] = useState('')
-  const [searchPhone, setSearchPhone] = useState('')
-  const [searchGender, setSearchGender] = useState('')
+  const [searchType, setSearchType] = useState('')
+  const [description, setDescription] = useState('')
+  const [currentPage, setCurrentPage] = useState(0)
   const [filteredData, setFilteredData] = useState([])
+  const [toAddNewRecord, setToAddNewRecord] = useState(false)
   const [row, setRow] = useState(null)
+  const [rowId, setRowId] = useState(null)
 
+  const [modalAlert, setModalAlert] = useState(null)
+
+  const toggleModal = () => {
+      setModalAlert(!modalAlert)
+  }
+
+  const openModalAlert = (id) => {
+    setRowId(id)
+    setModalAlert(true)
+  }
+  
     const closeModal = () => {
         setModal(!modal)
     }
@@ -70,6 +122,7 @@ const DataTableAdvSearch = () => {
       setTimeout(() => {
         setModal(!modal) 
       }, 200)
+      setToAddNewRecord(false)
     }
 
   // ** Function to handle Pagination
@@ -78,67 +131,89 @@ const DataTableAdvSearch = () => {
     // ** Table Columns
 const advSearchColumns = [
     {
-      name: 'id',
+      name: 'Id',
       selector: 'id',
       sortable: true,
       minWidth: '10px'
     },
     {
       name: 'Email',
-      selector: 'email',
+      selector: 'worker_email',
       sortable: true,
       minWidth: '200px'
     },
     {
       name: 'Full Name',
-      selector: 'full_name',
+      selector: 'name',
       sortable: true,
       minWidth: '200px'
     },
     {
-      name: 'Gender',
-      selector: 'gender',
+      name: 'Type',
+      selector: 'type',
       sortable: true,
-      minWidth: '100px'
+      minWidth: '200px'
     },
     {
-      name: 'Occupation',
-      selector: 'occupation',
+      name: 'Description',
+      selector: 'description',
       sortable: true,
       minWidth: '250px'
+    },
+    {
+      name: 'Scheduler Id',
+      selector: 'scheduler_id',
+      sortable: true,
+      minWidth: '150px'
     },
   
-    {
-      name: 'Organization',
-      selector: 'organization',
-      sortable: true,
-      minWidth: '250px'
-    },
-    {
-      name: 'Phone',
-      selector: 'Phone',
-      sortable: true,
-      minWidth: '200px'
-    },
+    // {
+    //   name: 'Team Id',
+    //   selector: 'team_id',
+    //   sortable: true,
+    //   minWidth: '250px'
+    // },
+    // {
+    //   name: 'Active',
+    //   selector: 'active',
+    //   sortable: true,
+    //   minWidth: '200px',
+    //   cell: row => {
+    //       if (row.active === 1) {
+    //         return (
+    //             <Badge color={'light-success'} pill>
+    //                 Active
+    //             </Badge>
+    //           )
+    //       } else {
+    //         return (
+    //             <Badge color={'light-danger'} pill>
+    //                 Unactive
+    //             </Badge>
+    //           )
+    //       }
+         
+        
+    //   }
+    // },
     {
       name: 'Actions',
+      minWidth: '200px',
       allowOverflow: true,
       cell: row => {
         return (
-          <div className='d-flex'>
-            <UncontrolledDropdown>
-              <DropdownToggle className='pr-1' tag='span'>
-                <MoreVertical size={15} />
-              </DropdownToggle>
-              <DropdownMenu right>
-                <DropdownItem tag='a' href='/' className='w-100' onClick={e => e.preventDefault()}>
+                <div className="d-flex w-100 align-items-center">
+                  <ButtonGroup size="sm" >
+                  <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
                   <Trash size={15} />
-                  <span className='align-middle ml-50'>Delete</span>
-                </DropdownItem>
-              </DropdownMenu>
-            </UncontrolledDropdown>
-            <Edit size={15} onClick={() => handleModal(row)} />
-          </div>
+                  </Button>
+                  <Button color='primary' className="btn-icon" size="sm">
+                  <Edit size={15} onClick={() => handleModal(row)} />
+                  </Button>
+                </ButtonGroup>
+                
+                </div>
+          
         )
       }
     }
@@ -148,45 +223,99 @@ const advSearchColumns = [
   const dataToRender = () => {
     if (
       searchName.length ||
-      searchOccupation.length ||
+      description.length ||
       searchEmail.length ||
-      searchPhone.length ||
-      searchGender.length ||
-      searchOrganization.length
+      searchType.length    
     ) {
       return filteredData
     } else {
-      return data?.client
+      return data?.job_tickets
     }
   }
 
   const handleUpdate = (updatedRow) => {
-    console.log(updatedRow)
-    const newData = data.client.map((client => { 
-        if (client.id === updatedRow.id) {
-            return updatedRow 
-        } else {
-            return client
-        }       
-    }))
-
-    updateClient({variables: {
-        id: updatedRow.id,
-        email: updatedRow.email, 
-        full_name: updatedRow.full_name, 
-        occupation: updatedRow.occupation, 
-        organization: updatedRow.organization, 
-        gender: updatedRow.gender
-      }})
-      dataToRender()
-      console.log(clientLoading)
-      if (!clientLoading) {
+    // const emergencyId = data?.worker.filter(value => value.isEmergency === true)[0].id
+    // updateWorker({variables: {
+    //     active: updatedRow.active,
+    //     description: updatedRow.description,
+    //     email: updatedRow.email,
+    //     full_name: updatedRow.full_name,
+    //     id: updatedRow.id,
+    //     isEmergency: updatedRow.isEmergency,
+    //     team_id: updatedRow.team_id,
+    //     role: updatedRow.role,
+    //     phone: updatedRow.phone,
+    //     color_code: updatedRow.color_code,
+    //     password: updatedRow.password,
+    //     emergencyId
+    //     }})
+    //   dataToRender()
+    //   if (!workerLoading) {
           
-        setModal(!modal)
+    //     setModal(!modal)
+    //   }
+  }
+
+  const addWorkerRecord = () => {
+    // setToAddNewRecord(true)
+    // setRow({
+    //     active: 1,
+    //     description: "",
+    //     email: "",
+    //     full_name: "",
+    //     isEmergency: false,
+    //     team_id: null,
+    //     role: null,
+    //     phone: "",
+    //     color_code: null,
+    //     password: ""
+    // })
+    // setTimeout(() => {
+    //   setModal(!modal) 
+    // }, 200)
+  }
+
+
+  const handleAddRecord = (newRow) => {
+    // addWorker({variables: {
+    //     active: newRow.active,
+    //     description: newRow.description,
+    //     email: newRow.email,
+    //     full_name: newRow.full_name,
+    //     isEmergency: newRow.isEmergency,
+    //     team_id: newRow.team_id,
+    //     role: newRow.role,
+    //     phone: newRow.phone,
+    //     color_code: newRow.color_code,
+    //     password: newRow.password
+    //   }})
+    //   dataToRender()
+    //   if (!addWorkerLoading) {
+    //     setModal(!modal)
+    //   }
+  }
+
+  const handleDeleteRecord = (id) => {
+
+      deleteJobTicket({variables: {
+        id
+      }})
+    toast.error(<ToastComponent title='Job Ticket Removed' color='danger' icon={<Trash />} />, {
+      autoClose: 2000,
+      hideProgressBar: true,
+      closeButton: false
+    })
+    dataToRender()
+    // deleteWorker({variables: {
+    //     id
+    //   }})
+    //  
+      if (!deleteJobLoading) {
+        toggleModal()
       }
-      
-    
-}
+  }
+
+
   // ** Custom Pagination
   const CustomPagination = () => (
     <ReactPaginate
@@ -216,19 +345,19 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchOccupation.length || searchOrganization.length || searchPhone.length || searchGender.length) {
+        if (searchEmail.length || searchName.length || description.length || searchType.length)  {
         return filteredData
       } else {
-        return data?.client
+        return data?.job_tickets
       }
     }
 
     setSearchName(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.full_name?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item.name?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.full_name?.toLowerCase().includes(value.toLowerCase())
+        const includes = item.name?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -246,19 +375,19 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchOccupation.length || searchOrganization.length || searchPhone.length || searchGender.length) {
-        return filteredData
-      } else {
-        return data?.client
-      }
+      if (searchEmail.length || searchName.length || description.length || searchType.length)  {
+      return filteredData
+    } else {
+      return data?.job_tickets
     }
+  }
 
     setSearchEmail(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.email?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item.worker_email?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.email?.toLowerCase().includes(value.toLowerCase())
+        const includes = item.worker_email?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -272,23 +401,23 @@ const advSearchColumns = [
   }
 
   // ** Function to handle Occupation filter
-  const handleOccupationFilter = e => {
+  const handleDescriptionFilter = e => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchOccupation.length || searchOrganization.length || searchPhone.length || searchGender.length) {
+        if (searchEmail.length || searchName.length || description.length || searchType.length) {
         return filteredData
       } else {
-        return data?.client
+        return data?.job_tickets
       }
     }
 
-    setSearchOccupation(value)
+    setDescription(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.occupation?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item.description?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.occupation?.toLowerCase().includes(value.toLowerCase())
+        const includes = item.description?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -297,58 +426,28 @@ const advSearchColumns = [
         } else return null
       })
       setFilteredData([...updatedData])
-      setSearchOccupation(value)
-    }
-  }
-
-  // ** Function to handle organization filter
-  const handleOrganizationFilter = e => {
-    const value = e.target.value
-    let updatedData = []
-    const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchOccupation.length || searchOrganization.length || searchPhone.length || searchGender.length) {
-        return filteredData
-      } else {
-        return data?.client
-      }
-    }
-
-    setSearchOrganization(value)
-    if (value.length) {
-      updatedData = dataToFilter().filter(item => {
-        const startsWith = item?.organization?.toLowerCase().startsWith(value.toLowerCase())
-
-        const includes = item?.organization?.toLowerCase().includes(value.toLowerCase())
-
-        if (startsWith) {
-          return startsWith
-        } else if (!startsWith && includes) {
-          return includes
-        } else return null
-      })
-      setFilteredData([...updatedData])
-      setSearchOrganization(value)
+      setDescription(value)
     }
   }
 
   // ** Function to handle phone filter
-  const handlePhoneFilter = e => {
+  const handleTypeFilter = e => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchOccupation.length || searchOrganization.length || searchPhone.length || searchGender.length) {
-        return filteredData
-      } else {
-        return data?.client
-      }
+      if (searchEmail.length || searchName.length || description.length || searchType.length) {
+      return filteredData
+    } else {
+      return data?.job_tickets
     }
+  }
 
-    setSearchPhone(value)
+    setSearchType(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.phone?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item.type?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.phone?.toLowerCase().includes(value.toLowerCase())
+        const includes = item.type?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -357,46 +456,17 @@ const advSearchColumns = [
         } else return null
       })
       setFilteredData([...updatedData])
-      setSearchPhone(value)
+      setSearchType(value)
     }
   }
 
-  // ** Function to handle gender filter
-  const handleGenderFilter = e => {
-    const value = e.target.value
-    let updatedData = []
-    const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchOccupation.length || searchOrganization.length || searchPhone.length || searchGender.length) {
-        return filteredData
-      } else {
-        return data?.client
-      }
-    }
-
-    setSearchGender(value)
-    if (value.length) {
-      updatedData = dataToFilter().filter(item => {
-        const startsWith = item.gender?.toLowerCase().startsWith(value.toLowerCase())
-
-        const includes = item.gender?.toLowerCase().includes(value.toLowerCase())
-
-        if (startsWith) {
-          return startsWith
-        } else if (!startsWith && includes) {
-          return includes
-        } else return null
-      })
-      setFilteredData([...updatedData])
-      setSearchGender(value)
-    }
-  }
   return (
     <Fragment>
       <Card>
         <CardHeader className='border-bottom'>
           <CardTitle tag='h4'>Advance Search</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
-            <Button className='ml-2' color='primary' onClick={handleModal}>
+            <Button className='ml-2' color='primary' onClick={addWorkerRecord}>
               <Plus size={15} />
               <span className='align-middle ml-50'>Add Record</span>
             </Button>
@@ -424,34 +494,28 @@ const advSearchColumns = [
             </Col>
             <Col lg='4' md='6'>
               <FormGroup>
-                <Label for='occupation'>Occupation:</Label>
-                <Input id='occupation' placeholder='Web Designer' value={searchOccupation} onChange={handleOccupationFilter} />
+                <Label for='occupation'>Description:</Label>
+                <Input id='occupation' placeholder='Web Designer' value={description} onChange={handleDescriptionFilter} />
               </FormGroup>
             </Col>
-            <Col lg='4' md='6'>
+            {/* <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='organization'>Organization:</Label>
-                <Input id='organization' placeholder='San Diego' value={searchOrganization} onChange={handleOrganizationFilter} />
+                <Input id='organization' placeholder='San Diego' value={teamId} onChange={handleOrganizationFilter} />
               </FormGroup>
-            </Col>
+            </Col> */}
             <Col lg='4' md='6'>
               <FormGroup>
-                <Label for='phone'>Phone:</Label>
-                <Input id='phone' placeholder='San Diego' value={searchPhone} onChange={handlePhoneFilter} />
-              </FormGroup>
-            </Col>
-            <Col lg='4' md='6'>
-              <FormGroup>
-                <Label for='gender'>Gender:</Label>
-                <Input id='gender' placeholder='Male' value={searchGender} onChange={handleGenderFilter} />
+                <Label for='type'>Type:</Label>
+                <Input id='type' placeholder='San Diego' value={searchType} onChange={handleTypeFilter} />
               </FormGroup>
             </Col>
           </Row>
         </CardBody>
-        <DataTable
+        {!loading ?  <DataTable
           noHeader
           pagination
-          selectableRows
+          // selectableRows
           columns={advSearchColumns}
           paginationPerPage={7}
           className='react-dataTable'
@@ -459,10 +523,41 @@ const advSearchColumns = [
           paginationDefaultPage={currentPage + 1}
           paginationComponent={CustomPagination}
           data={dataToRender()}
-          selectableRowsComponent={BootstrapCheckbox}
-        />
+          // selectableRowsComponent={BootstrapCheckbox}
+        /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Job Ticket information</h4>}
+       
       </Card>
-      <AddNewModal open={modal} handleModal={handleModal} closeModal={closeModal} row={row} setRow={setRow} handleUpdate={handleUpdate}/>
+      <AddNewModal 
+      open={modal} 
+      handleModal={handleModal} 
+      handleAddRecord={handleAddRecord} 
+      toAddNewRecord={toAddNewRecord} 
+      closeModal={closeModal} 
+      row={row} 
+      setRow={setRow} 
+      handleUpdate={handleUpdate}
+      />
+      <div className='theme-modal-danger'>
+        <Modal
+          isOpen={modalAlert}
+          toggle={toggleModal}
+          className='modal-dialog-centered'
+          modalClassName="modal-danger"
+        >
+          <ModalHeader toggle={toggleModal}>Delete Record</ModalHeader>
+          <ModalBody>
+            Are you sure you want to delete?
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" onClick={() => { handleDeleteRecord(rowId) }} >
+              Delete
+            </Button>
+            <Button color='secondary' onClick={toggleModal} outline>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
+      </div>
     </Fragment>
   )
 }

@@ -69,7 +69,7 @@ const Calendar = props => {
     // selectedEvent,
     eventDataTransform: (eventData => {
       console.log(events)
-      const { id, worker, callout_id, start, startTime, title, callout, job_tickets, end, endTime } = eventData
+      const { id, worker, callout_id, start, startTime, notes, callout, job_tickets, end, endTime } = eventData
       const length = job_tickets?.length
       // console.log({
       //   allDay: false,
@@ -93,10 +93,11 @@ const Calendar = props => {
         allDay: false,
         // end: `${start}T${'00:00:00.000Z'}`,
         id,
-        title: worker?.full_name ? `${title} by ${worker?.full_name}${length > 0 ? `; ${length} job ticket ${length > 1 ? 's' : ''}` : ''}` : 'No Title',
+        title: `${worker?.full_name ? `${notes} by ${worker?.full_name}` : 'No Title'}${length > 0 ? `; ${length} job ticket ${length > 1 ? 's' : ''}` : ''}`, 
         start: `${start}T${startTime}`,
         end: endTime ? `${end}T${endTime}` : addHours(`${start} ${startTime}`, 2),
         workerName: worker?.full_name || 'No Worker name',
+        backgroundColor: `#${worker?.color_code || `ebcf34`}`,
         clientName: callout.client_callout_email?.full_name || 'No Client name',
         clientEmail:callout.client_callout_email?.email || 'No Client email',
         category: callout?.category || "Uncategorized",
@@ -146,15 +147,16 @@ const Calendar = props => {
     */
     navLinks: true,
 
-    eventClassNames({ event: calendarEvent }) {
-      // eslint-disable-next-line no-underscore-dangle
-      const colorName = calendarEvent.extendedProps?.hasJobs ? 'info' : 'success'
+    // eventClassNames({ event: calendarEvent }) {
+    //   // eslint-disable-next-line no-underscore-dangle
+    //   console.log(calendarEvent)
+    //   const colorName = calendarEvent.extendedProps?.color_code
 
-      return [
-        // Background Color
-        `bg-${colorName}`
-      ]
-    },
+    //   return [
+    //     // Background Color
+    //     `bg-${colorName}`
+    //   ]
+    // },
 
     eventClick({ event: clickedEvent }) {
       console.log(clickedEvent, 'bonga')

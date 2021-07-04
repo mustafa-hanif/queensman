@@ -3,7 +3,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-use-before-define */
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Modal, TouchableOpacity, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, Modal, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { Calendar, CalendarList, Agenda } from "react-native-calendars";
 import { Button } from "native-base";
 import moment from "moment";
@@ -82,7 +82,13 @@ export default function SelectSchedule(props) {
   const [modalVisible, setmodalVisible] = useState(false);
   const [markedDate, setmarkedDate] = useState({});
 
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(() => {
+    var now = new Date();
+    now.setHours(9);
+    now.setMinutes(0);
+    now.setMilliseconds(0);
+    return now;
+  });
   const [show, setShow] = useState(false);
   const [time, settime] = useState(null);
 
@@ -130,7 +136,7 @@ export default function SelectSchedule(props) {
   const onChange = (event, selectedDate) => {
     setShow(false);
     setDate(selectedDate);
-    const currentTime = moment(selectedDate).format("hh:mm:ss a");
+    const currentTime = moment(selectedDate).format("hh:mm a");
     settime(currentTime);
     setmodalVisible(true);
   };
@@ -169,23 +175,6 @@ export default function SelectSchedule(props) {
         .filter(Boolean)
     );
 
-    console.log({
-      variables: {
-        property_id: state.PropertyID,
-        email: auth.user().email,
-        notes: state.Description,
-        time_on_calendar: time,
-        date_on_calendar: selectedDate,
-        category,
-        job_type: state.JobType,
-        status: "Requested",
-        request_time: current.toLocaleDateString(),
-        urgency_level: "Medium",
-        video: state.videoUrl,
-        ...pictures,
-      },
-    });
-
     requestCalloutApiCall({
       variables: {
         property_id: state.PropertyID,
@@ -204,10 +193,27 @@ export default function SelectSchedule(props) {
     })
       .then((res) => {
         props.navigation.navigate("HomeNaviagtor");
+        setTimeout(() => {
+          SubmittedCalloutAlert();
+        }, 500);
       })
       .catch((err) => console.log({ err }));
   };
 
+  const SubmittedCalloutAlert = () => {
+    Alert.alert(
+      "Callout Request Submitted.",
+      "One of our team will be in touch shortly.",
+      [
+        {
+          text: "Ok",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+      ],
+      { cancelable: false }
+    );
+  };
   // console.log({ markedDate });
 
   const Confirmmodal = () => {
