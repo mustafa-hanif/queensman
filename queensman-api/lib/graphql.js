@@ -177,15 +177,20 @@ async function getRelevantWoker ({ callout }) {
       //  - return last slot + 1 hour
       return { lastWorker.time_on_calendar + 1, id }
     }
-  } else {
-    // If schedule
-    
+  } // If schedule
+  else {
+    // Get category of callout
+    const key = Object.keys(jobMatrix).find(jobItem => jobItem.includes(job_type));
+    // Get all workers that fit the category
+    const { errors: errors3, data: scheduleWorkers } = await fetchGraphQL(`query GetWorkerWithJobType($jobType: String!) {
+      worker(where: {expertise: {_eq: $jobType}}) {
+        id
+      }
+    }
+    `);
+    const scheduleWorker = scheduleWorkers[0];
+    return { scheduleWorker };
   }
-
-  // If schedule
-  // Get category of callout
-  // Get all workers that fit the category
-  // return worker id
 }
 
 module.exports = { fetchGraphQL, fetchExpoToken, updateScheduleWithWoker, getWorker, getCallout, getRelevantWoker };
