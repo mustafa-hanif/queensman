@@ -30,6 +30,19 @@ const GET_SCHEDULE = gql`
   }
 `;
 
+const UPDATE_CALLOUT = gql`
+  mutation UpdateSchedule($callout_id: Int!, $date_on_calendar: date = "", $time_on_calendar: time = "") {
+    update_scheduler(
+      where: { callout_id: { _eq: $callout_id } }
+      _set: { date_on_calendar: $date_on_calendar, time_on_calendar: $time_on_calendar }
+    ) {
+      returning {
+        date_on_calendar
+      }
+    }
+  }
+`;
+
 const REQUEST_CALLOUT = gql`
   mutation AddCallout(
     $property_id: Int
@@ -95,9 +108,12 @@ export default function SelectSchedule(props) {
   const [requestCalloutApiCall, { loading: requestCalloutLoading, error: mutationError }] = useMutation(
     REQUEST_CALLOUT
   );
+  const [updateCalloutApi, { loading: updateCalloutLoading, error: updatecalloutError }] = useMutation(UPDATE_CALLOUT);
 
   const state = props.navigation.getParam("state", {});
-
+  const commingFrom = props.navigation.getParam("commingFrom", "");
+  const callout_id_fromNotification = props.navigation.getParam("callout_id", null);
+  console.log({ commingFrom, callout_id_fromNotification });
   const formatDate = (date) => {
     return moment(date).format("YYYY-MM-DD");
   };
@@ -151,53 +167,70 @@ export default function SelectSchedule(props) {
   };
 
   const onConfirmButtonPress = async () => {
-    const property_id = await AsyncStorage.getItem("QueensPropertyID");
-    let category = "Uncategorized";
-    const current = new Date();
-    setmodalVisible(false);
-
-    if (state.property_type?.indexOf("AMC") >= 0 || state.property_type?.indexOf("Annual Maintenance Contract") >= 0) {
-      category = "AMC";
-    } else if (state.property_type?.indexOf("MTR") >= 0 || state.property_type?.indexOf("Metered") >= 0) {
-      category = "Metered Service";
-    }
-    const pictures = Object.fromEntries(
-      [...Array(4)]
-        .map((_, i) => {
-          const _statePic = state[`picture${i}`];
-          if (_statePic) {
-            const file = expoFileToFormFile(_statePic);
-            storage.put(`/callout_pics/${file.name}`, file).then(console.log).catch(console.error);
-            return [`picture${i}`, `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`];
-          }
-          return null;
-        })
-        .filter(Boolean)
-    );
-
-    requestCalloutApiCall({
-      variables: {
-        property_id: state.PropertyID,
-        email: auth.user().email,
-        notes: state.Description,
-        time_on_calendar: time,
-        date_on_calendar: selectedDate,
-        category,
-        job_type: state.JobType,
-        status: "Requested",
-        request_time: current.toLocaleDateString(),
-        urgency_level: "Medium",
-        video: state.videoUrl,
-        ...pictures,
-      },
-    })
-      .then((res) => {
-        props.navigation.navigate("HomeNaviagtor");
-        setTimeout(() => {
-          SubmittedCalloutAlert();
-        }, 500);
+    if (commingFrom === "Notification") {
+      updateCalloutApi({
+        variables: {
+          time_on_calendar: time,
+          date_on_calendar: selectedDate,
+          callout_id: callout_id_fromNotification,
+        },
       })
-      .catch((err) => console.log({ err }));
+        .then((res) => {
+          props.navigation.navigate("HomeNaviagtor");
+        })
+        .catch((err) => console.log({ err }));
+    } else {
+      const property_id = await AsyncStorage.getItem("QueensPropertyID");
+      let category = "Uncategorized";
+      const current = new Date();
+      setmodalVisible(false);
+
+      if (
+        state.property_type?.indexOf("AMC") >= 0 ||
+        state.property_type?.indexOf("Annual Maintenance Contract") >= 0
+      ) {
+        category = "AMC";
+      } else if (state.property_type?.indexOf("MTR") >= 0 || state.property_type?.indexOf("Metered") >= 0) {
+        category = "Metered Service";
+      }
+      const pictures = Object.fromEntries(
+        [...Array(4)]
+          .map((_, i) => {
+            const _statePic = state[`picture${i}`];
+            if (_statePic) {
+              const file = expoFileToFormFile(_statePic);
+              storage.put(`/callout_pics/${file.name}`, file).then(console.log).catch(console.error);
+              return [`picture${i}`, `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`];
+            }
+            return null;
+          })
+          .filter(Boolean)
+      );
+
+      requestCalloutApiCall({
+        variables: {
+          property_id: state.PropertyID,
+          email: auth.user().email,
+          notes: state.Description,
+          time_on_calendar: time,
+          date_on_calendar: selectedDate,
+          category,
+          job_type: state.JobType,
+          status: "Requested",
+          request_time: current.toLocaleDateString(),
+          urgency_level: "Medium",
+          video: state.videoUrl,
+          ...pictures,
+        },
+      })
+        .then((res) => {
+          props.navigation.navigate("HomeNaviagtor");
+          setTimeout(() => {
+            SubmittedCalloutAlert();
+          }, 500);
+        })
+        .catch((err) => console.log({ err }));
+    }
   };
 
   const SubmittedCalloutAlert = () => {
@@ -248,7 +281,7 @@ export default function SelectSchedule(props) {
     );
   };
 
-  if (requestCalloutLoading || loading) {
+  if (requestCalloutLoading || loading || updateCalloutLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator color={colors.brandPrimary} size="large" />

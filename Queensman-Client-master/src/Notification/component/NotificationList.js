@@ -1,10 +1,19 @@
+import { Button } from "native-base";
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from "react-native";
 
-export default function NotificationList({ item, viewStyle, textStyle, dotStyle }) {
+export default function NotificationList({
+  item,
+  viewStyle,
+  textStyle,
+  dotStyle,
+  onConfirmPress,
+  onNoButtonPress,
+  data,
+}) {
   return (
     <>
-      <TouchableOpacity onPress={() => {}}>
+      <View style={styles.container}>
         <View style={[styles.row, viewStyle]}>
           <View style={{ flex: 2 }}>
             <Text style={[[styles.text, textStyle, { fontWeight: "bold" }]]} numberOfLines={2}>
@@ -22,7 +31,27 @@ export default function NotificationList({ item, viewStyle, textStyle, dotStyle 
             </Text>
           </View>
         </View>
-      </TouchableOpacity>
+        {item?.type === "client_confirm" && (
+          <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
+            <TouchableOpacity
+              onPress={() => {
+                onConfirmPress && onConfirmPress(data);
+              }}
+              style={styles.buttonstyle}
+            >
+              <Text style={styles.buttonstyle}>Yes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                onNoButtonPress && onNoButtonPress(data);
+              }}
+              style={styles.buttonstyle}
+            >
+              <Text style={styles.buttonstyle}>No</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
       {/* {isPop && (
         <View style={styles.popUp}>
           <Text style={[[styles.text, textStyle, {fontWeight: 'bold'}]]}>
@@ -38,18 +67,21 @@ export default function NotificationList({ item, viewStyle, textStyle, dotStyle 
 }
 
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
+  container: {
+    marginBottom: 12,
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "lightgray",
     paddingTop: 16,
-    paddingBottom: 32,
+    paddingBottom: 16,
     paddingHorizontal: 16,
     width: "95%",
     borderRadius: 15,
-    backgroundColor: "#fff",
+  },
+  row: {
+    flexDirection: "row",
+
     alignSelf: "center",
-    marginBottom: 12,
   },
   text: {
     marginLeft: 1,
@@ -86,5 +118,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "absolute",
     backgroundColor: "#fff",
+  },
+  buttonstyle: {
+    backgroundColor: "#FFCA5D",
+    alignContent: "center",
+    justifyContent: "center",
+    // height: "7%",
+    padding: "1%",
+    paddingHorizontal: "2%",
+    alignSelf: "flex-start",
+    borderRadius: 6,
+  },
+  buttonTxt: {
+    color: "#000E1E",
+    fontSize: 14,
+    fontFamily: "Helvetica",
+    alignSelf: "center",
   },
 });
