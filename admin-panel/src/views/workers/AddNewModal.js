@@ -1,8 +1,10 @@
 // ** React Imports
-import { useState } from 'react'
+import { useState, useContext} from 'react'
 
 // ** Third Party Components
 import { selectThemeColors } from '@utils'
+import { ThemeColors } from '@src/utility/context/ThemeColors'
+
 import Select from 'react-select'
 import { User, Briefcase, Mail, Lock, X, Info, Phone} from 'react-feather'
 import {
@@ -24,6 +26,7 @@ import '@styles/react/libs/flatpickr/flatpickr.scss'
 const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord}) => {
 
     // ** Custom close btn
+    // const { colors } = useContext(ThemeColors)
   const CloseBtn = <X className='cursor-pointer' size={15} onClick={closeModal} />   
 
   const activeOptions = [
@@ -36,29 +39,28 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
     { value: false, label: 'Not Urgent' }
   ]
 
+  const colorOptions = [
+    {value: '34eb40', label: 'Green'},
+    {value: 'c21dd1', label: 'Purple'},
+    {value: 'ebcf34', label: 'Yellow'},
+    {value: '3440eb', label: 'Dark Blue'},
+    {value: 'd11d1d', label: 'Red'},
+    {value: 'info', label: 'Light Blue'}
+  ]
+
   const handleChange = (e) => {
       const rowValue = {...row}
       rowValue[e.target.name] = e.target.value
       setRow(rowValue)
   }
 
-  const handleActiveChange = (e) => {
-        const rowValue = {...row}
-        rowValue.active = e.value
-        // console.log(rowValue)
-        setRow(rowValue)
-  }
-
-  const handleEmergencyChange = (e) => {
+  const handleSelectedChange = (e, name) => {
     const rowValue = {...row}
-    rowValue.isEmergency = e.value
-    // console.log(rowValue)
+    rowValue[name] = e.value
     setRow(rowValue)
 }
 
   const handleSubmit = () => {
-    // setRow(row)
-    console.log(row)
     if (toAddNewRecord) {
       handleAddRecord(row)
     } else {
@@ -127,7 +129,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
       <FormGroup>
         <Label>Active</Label>
             <Select
-                onChange={(e) => { handleActiveChange(e) }}
+                onChange={ (e) => handleSelectedChange(e, 'active')}
                 theme={selectThemeColors}
                 className='react-select'
                 classNamePrefix='select'
@@ -139,12 +141,24 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
       <FormGroup>
         <Label>Emergency</Label>
             <Select
-                onChange={(e) => { handleEmergencyChange(e) }}
+                onChange={ (e) => handleSelectedChange(e, 'isEmergency')}
                 theme={selectThemeColors}
                 className='react-select'
                 classNamePrefix='select'
                 defaultValue={{value: row?.isEmergency, label: row?.isEmergency ? "Emergency" : "Not Urgent"}}
                 options={emergencyOptions}
+                isClearable={false}
+            />
+      </FormGroup>
+      <FormGroup>
+        <Label>Team</Label>
+            <Select
+                onChange={ (e) => handleSelectedChange(e, 'color_code')}
+                theme={selectThemeColors}
+                className='react-select'
+                classNamePrefix='select'
+                defaultValue={{value: row?.color_code, label: row?.color_code ? "Blue" : "Green"}}
+                options={colorOptions}
                 isClearable={false}
             />
       </FormGroup>

@@ -211,9 +211,9 @@ const DataTableAdvSearch = () => {
       })
       await addPlan({
         variables: {
-          property_id: row.property_owneds[0]?.property_id,
-          callout_by: row.id,
-          email: row.email,
+        property_id: row.property_owneds[0]?.property_id,
+        callout_by: row.id,
+        email: row.email,
         date_on_calendar,
         time_on_calendar,
         end_time_on_calendar,
@@ -348,7 +348,7 @@ const advSearchColumns = [
                   <Button color='primary' className="btn-icon" size="sm">
                   <Edit size={15} onClick={() => handleModal(row)} />
                   </Button>
-                  {!row.hasPlan ? <Button color='seconday' outline className="btn" size="sm" onClick={() => { handleAddPlan(row) }} >
+                  {!row.hasPlan ? <Button color='secondary' outline className="btn" size="sm" onClick={() => { handleAddPlan(row) }} >
                     {addPlanLoading ? <Loader size={15} /> : <Edit3 size={15} />}
                     {addPlanLoading ? <span className='align-middle ml-25'>Loading</span> : <span className='align-middle ml-25'>Upload Plan</span>}
                   </Button> : <Button color='danger' outline className="btn" size="sm" onClick={() => { handleDeletePlan(row) }} >

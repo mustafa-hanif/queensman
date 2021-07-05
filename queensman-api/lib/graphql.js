@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /*
 This is an example snippet - you should consider tailoring it
 to your service.
@@ -135,21 +136,61 @@ async function getCallout ({ callout_id }) {
   return data.callout_by_pk;
 }
 
+const jobMatrix = {
+  'AC': ['AC'],
+  'Plumbing': ['Plumbing']
+}
+
 async function getRelevantWoker ({ callout }) {
   // get callout type - Emergency or schedule
+  const { urgency_level, job_type } = callout;
   // if emergency - get the emergency team worker
-  // Find their next available slot
-  //  - Get all schedule by this worker sorted by date
-  //  - find the last slot today filled by him
-  //  - if plus 3 hours from now is inside working hour
-  //  - return last slot + 1 hour
-  //  - else first slot tomorow morning
-  // return slot and worker id
+  if (urgency_level === 'High') {
+    const { errors, data: emergencyWokers } = await fetchGraphQL(`query GetEmergency {
+      worker(where: {isEmergency: {_eq: true}}) {
+        email
+        id
+      }
+    }
+    `, 'GetEmergency');
 
-  // If schedule
-  // Get category of callout
-  // Get all workers that fit the category
-  // return worker id
+    const { email, id } = emergencyWokers[0];
+    // Find their next available slot
+    //  - Get all schedule by this worker sorted by date
+    const { errors: errors2, data: lastWorkers } = await fetchGraphQL(`query LastTimeofWorker($workerId: Int!, $today: date!) {
+      scheduler(where: {worker_id: {_eq: $workerId}, date_on_calendar: {_eq: $today}}, order_by: {time_on_calendar: desc}, limit: 1) {
+        time_on_calendar
+      }
+    }
+    `, 'LastTimeofWorker', {
+      workerId: id,
+      today: new Date().toISOString().substring(0, 10)
+    });
+    const lastWorker = lastWorkers[0];
+    //  - find the last slot today filled by him
+    lastWorker.time_on_calendar;
+    //  - if plus 3 hours from now is inside working hour
+    if (lastWorker.time_on_calendar + 3 >= '18:00:00'){
+      //  - else first slot tomorow morning
+      return { '09:00', id}
+    } else {
+      //  - return last slot + 1 hour
+      return { lastWorker.time_on_calendar + 1, id }
+    }
+  } // If schedule
+  else {
+    // Get category of callout
+    const key = Object.keys(jobMatrix).find(jobItem => jobItem.includes(job_type));
+    // Get all workers that fit the category
+    const { errors: errors3, data: scheduleWorkers } = await fetchGraphQL(`query GetWorkerWithJobType($jobType: String!) {
+      worker(where: {expertise: {_eq: $jobType}}) {
+        id
+      }
+    }
+    `);
+    const scheduleWorker = scheduleWorkers[0];
+    return { scheduleWorker };
+  }
 }
 
 module.exports = { fetchGraphQL, fetchExpoToken, updateScheduleWithWoker, getWorker, getCallout, getRelevantWoker };
