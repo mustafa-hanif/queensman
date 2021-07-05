@@ -1,3 +1,5 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-unused-vars */
 'use strict';
 const updateScheduleWithWoker = require('../lib/graphql').updateScheduleWithWoker;
 const getWorker = require('../lib/graphql').getWorker;
@@ -13,7 +15,7 @@ const scheduleCallout = async (event) => {
   const worker = await getWorker({ worker_id: nextWorker });
   const callout = await getCallout({ worker_id: calloutId });
   const nextWorker = await getRelevantWoker({ callout });
-  const data = await updateScheduleWithWoker({ id: schedulerId, worker_id: nextWorker, callout_id: calloutId, worker_email: worker.email});
+  const data = await updateScheduleWithWoker({ id: schedulerId, worker_id: nextWorker, callout_id: calloutId, worker_email: worker.email });
   console.log(data);
   try {
     return {

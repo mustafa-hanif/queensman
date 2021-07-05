@@ -1,3 +1,4 @@
+/* eslint-disable brace-style */
 /* eslint-disable no-unused-vars */
 /*
 This is an example snippet - you should consider tailoring it
@@ -137,8 +138,8 @@ async function getCallout ({ callout_id }) {
 }
 
 const jobMatrix = {
-  'AC': ['AC'],
-  'Plumbing': ['Plumbing']
+  AC: ['AC'],
+  Plumbing: ['Plumbing']
 }
 
 async function getRelevantWoker ({ callout }) {
@@ -168,14 +169,15 @@ async function getRelevantWoker ({ callout }) {
     });
     const lastWorker = lastWorkers[0];
     //  - find the last slot today filled by him
-    lastWorker.time_on_calendar;
     //  - if plus 3 hours from now is inside working hour
-    if (lastWorker.time_on_calendar + 3 >= '18:00:00'){
+    if (lastWorker.time_on_calendar + 3 >= '18:00:00') {
       //  - else first slot tomorow morning
-      return { '09:00', id}
+      // return { '09:00', id}
+      return { id };
     } else {
       //  - return last slot + 1 hour
-      return { lastWorker.time_on_calendar + 1, id }
+      // return { lastWorker.time_on_calendar + 1, id }
+      return { id };
     }
   } // If schedule
   else {

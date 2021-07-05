@@ -1,7 +1,8 @@
 'use strict'
+const everyFiveMinuteLib = require('./lib/everyFiveMinute').everyFiveMinute;
 
 const everyFiveMinute = async (event) => {
-  console.log(event);
+  everyFiveMinuteLib();
   try {
     return {
       statusCode: 200,
