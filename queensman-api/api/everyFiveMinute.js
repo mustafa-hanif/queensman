@@ -1,5 +1,5 @@
 'use strict'
-const everyFiveMinuteLib = require('./lib/everyFiveMinute').everyFiveMinute;
+const everyFiveMinuteLib = require('../lib/everyFiveMinute').everyFiveMinute;
 
 const everyFiveMinute = async (event) => {
   everyFiveMinuteLib();

@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "date-fns": "^2.22.1",
     "expo-server-sdk": "^3.6.0",
     "nhost-js-sdk": "^3.1.0",
     "node-fetch": "^2.6.1",

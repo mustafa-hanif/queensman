@@ -11,11 +11,17 @@ const scheduleCallout = async (event) => {
   const schedulerId = query.id;
   const calloutId = query.callout_id;
   const workerId = query.worker_id;
-  // const nextWorker = workerId ?? 1; // Math.ceil(Math.random() * 100) % 12;
+  const callout = await getCallout({ callout_id: calloutId });
+  const { id: releventWorker, time } = await getRelevantWoker({ callout });
+  const nextWorker = workerId ?? releventWorker;
   const worker = await getWorker({ worker_id: nextWorker });
-  const callout = await getCallout({ worker_id: calloutId });
-  const nextWorker = await getRelevantWoker({ callout });
-  const data = await updateScheduleWithWoker({ id: schedulerId, worker_id: nextWorker, callout_id: calloutId, worker_email: worker.email });
+
+  const data = await updateScheduleWithWoker({
+    id: schedulerId,
+    worker_id: nextWorker,
+    callout_id: calloutId,
+    worker_email: worker.email
+  });
   console.log(data);
   try {
     return {

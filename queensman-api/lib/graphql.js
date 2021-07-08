@@ -11,6 +11,7 @@ Add these to your `package.json`:
 // serverless invoke local --function sendNotification --data '{"type":"client", "email":"azamkhan"}'
 // Node doesn't implement fetch so we have to import it
 const fetch = require('node-fetch');
+const dateFns = require('date-fns');
 
 async function fetchGraphQL (operationsDoc, operationName, variables) {
   console.log(JSON.stringify({
@@ -155,7 +156,7 @@ async function getRelevantWoker ({ callout }) {
     }
     `, 'GetEmergency');
 
-    const { email, id } = emergencyWokers[0];
+    const { email, id } = emergencyWokers.worker[0];
     // Find their next available slot
     //  - Get all schedule by this worker sorted by date
     const { errors: errors2, data: lastWorkers } = await fetchGraphQL(`query LastTimeofWorker($workerId: Int!, $today: date!) {
@@ -167,17 +168,17 @@ async function getRelevantWoker ({ callout }) {
       workerId: id,
       today: new Date().toISOString().substring(0, 10)
     });
-    const lastWorker = lastWorkers[0];
+    const lastWorker = lastWorkers.scheduler[0];
     //  - find the last slot today filled by him
     //  - if plus 3 hours from now is inside working hour
     if (lastWorker.time_on_calendar + 3 >= '18:00:00') {
       //  - else first slot tomorow morning
       // return { '09:00', id}
-      return { id };
+      return { id, time: '09:00' };
     } else {
       //  - return last slot + 1 hour
       // return { lastWorker.time_on_calendar + 1, id }
-      return { id };
+      return { id, time: dateFns.format(dateFns.addHours(dateFns.parse(lastWorker.time_on_calendar, 'HH:mm', new Date()), 1), 'HH:mm') };
     }
   } // If schedule
   else {
@@ -190,8 +191,8 @@ async function getRelevantWoker ({ callout }) {
       }
     }
     `);
-    const scheduleWorker = scheduleWorkers[0];
-    return { scheduleWorker };
+    const scheduleWorker = scheduleWorkers.worker[0];
+    return { id: scheduleWorker.id, time: null };
   }
 }
 
