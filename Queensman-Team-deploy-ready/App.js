@@ -315,11 +315,11 @@ const HomeScreenStackNavigator = createStackNavigator(
       screen: Notification,
       navigationOptions: ({ navigation }) => ({
         title: "Notification",
-        headerTransparent: true,
+        headerTransparent: false,
         headerTintColor: "#FFCA5D",
-        headerTitleStyle: {
-          fontFamily: "Helvetica",
-        },
+        headerStyle: {
+          backgroundColor: '#000E1E'
+        }
       }),
     },
 

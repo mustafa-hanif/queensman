@@ -1,26 +1,63 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
+import call from 'react-native-phone-call'
+import { Icon } from 'native-base'
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from "react-native";
+import { gql, useMutation } from "@apollo/client";
+import FlashMessage, { showMessage } from "react-native-flash-message";
+import { formatDistance } from 'date-fns'
 
-export default function NotificationList({ item, viewStyle, textStyle, dotStyle }) {
-  console.log(item)
+
+const UPDATE_NOTIFICATIONS = gql`
+mutation UpdateNotifications($id: Int!) {
+  update_notifications_by_pk(pk_columns: {id: $id}, _set: {isRead: true}) {
+    id
+  }
+}
+`;
+
+export default function NotificationList({ item, viewStyle, textStyle, dotStyle, setNotifications, notifications, index }) {
+
+  const [updateNotifications] = useMutation(UPDATE_NOTIFICATIONS);
+
+  const markAsRead = (id) => {
+    showMessage({
+      message: "Notification marked as read",
+      type: "success",
+    });
+    const item = [...notifications]
+    item[index].isRead = true
+    setNotifications(item)
+    updateNotifications({variables:{
+      id
+    }})
+  }
   return (
     <>
-      <TouchableOpacity onPress={() => {}}>
+    <FlashMessage position="top" />
+      {!item?.isRead && <TouchableOpacity onLongPress={() => markAsRead(item.id)} onPress={() => {item.type === "call" && call({number: item.phone, prompt:true})}}>
         <View style={[styles.row, viewStyle]}>
           <View style={{ flex: 2 }}>
-            <Text style={[[styles.text, textStyle, { fontWeight: "bold" }]]} numberOfLines={2}>
-              {item.text}
+            <Text style={[[styles.text, textStyle, { fontWeight: "bold"}]]} numberOfLines={2}>
+              {/* {item.type ? JSON.parse(item.data)} */}
+              {item?.data?.type === "call" ? "Please it is an emergency!!! HELP THIS CLIENT NOW" : item.text}
             </Text>
           </View>
           <View style={[styles.time, dotStyle]}>
             <Text style={[styles.timeText, textStyle]} numberOfLines={2}>
-              {item.created_at}
+              {item?.data?.type === "call" ?
+                <Icon
+                  name="call"
+                  style={{ fontSize: 25, color: "blue", paddingRight: "4%" }}
+                />
+                :
+                formatDistance(new Date(), new Date(item.created_at), { includeSeconds: true }) + " ago"
+                }
             </Text>
           </View>
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity>}
       {/* {isPop && (
         <View style={styles.popUp}>
           <Text style={[[styles.text, textStyle, {fontWeight: 'bold'}]]}>
@@ -40,8 +77,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderBottomWidth: 1,
     borderBottomColor: "lightgray",
-    paddingTop: 16,
-    paddingBottom: 32,
+    paddingVertical: 32,
     paddingHorizontal: 16,
     width: "95%",
     borderRadius: 15,

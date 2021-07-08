@@ -1,17 +1,21 @@
 /* eslint-disable no-unused-vars */
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect } from "react";
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
-import { gql, useQuery } from "@apollo/client";
+import React, { useState, useEffect } from "react";
+import { View, Text, FlatList, ActivityIndicator, ScrollView, RefreshControl } from "react-native";
+import { gql, useQuery, useLazyQuery  } from "@apollo/client";
+import FlashMessage from "react-native-flash-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NotificationList from "./component/NotificationList";
 import { auth } from "../utils/nhost";
 
 const GET_NOTIFICATIONS = gql`
 query GetWorkerNotifications($worker_email: String!) {
-  notifications(where: {worker_email: {_eq: $worker_email}}) {
+  notifications(where: {worker_email: {_eq: $worker_email}, isRead: {_eq: false}, id: {_gte: 239}}, order_by: {id: desc}, limit: 10) {
     text
     created_at
+    data
+    id
+    isRead
   }
 }
 `;
@@ -19,35 +23,62 @@ query GetWorkerNotifications($worker_email: String!) {
 export default function index() {
   const email = auth?.currentSession?.session?.user.email;
 
-  console.log({ email: email ?? 'azamkhan@queensman.com' });
-  const { loading, data, error } = useQuery(GET_NOTIFICATIONS, {
-    variables: { worker_email: email ?? 'azamkhan@queensman.com' },
-  });
-  console.log(loading, data, error);
+  const [refreshing, setRefreshing] = useState(false);
+  const [notifications, setNotifications] = useState([])
+  const [getNotification, { loading, data, error }] = useLazyQuery(GET_NOTIFICATIONS, {onCompleted: (data) => {setNotifications(data?.notifications || []); setRefreshing(false)}});
+
+  const onRefresh = React.useCallback(() => {
+    setNotifications([])
+    setRefreshing(true)
+    getNotification({ variables: { worker_email: 'azamkhan@queensman.com' }})
+    console.log(error)
+  }, []);
+  
+
+  useEffect(() => {
+    if(!refreshing || loading) {
+      getNotification({ variables: { worker_email: 'azamkhan@queensman.com' }})
+    }
+    return () => {loading}
+  }, [])
   if (error) {
     return <View>
       <Text>Error</Text>
     </View>;
   }
-  if (loading) {
-    return <ActivityIndicator size="large" color="#FFCA5D" />;
-  }
-  
+  // console.log(notifications)
+  // console.log(data, "ASDASDASDASDAS")
+  const unReadNotif = notifications.filter(noti => noti.isRead == false || noti.isRead == undefined).length
   return (
-    <View>
-      <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
-      <View style={{ paddingHorizontal: 20, paddingVertical: 20, marginTop: 40 }}>
-        <FlatList data={data?.notifications} keyExtractor={(item, index) => `${index}`} renderItem={({item}) => <NotificationList
+    <ScrollView  refreshControl={
+      <RefreshControl
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+      />}>
+      {data?.notifications == undefined || loading ? <><Text style={{textAlign: 'center', marginVertical: 20, fontSize: 20, fontWeight: 'bold'}}>Loading</Text><ActivityIndicator size="large" color="#FFCA5D" /></> : <View>
+      {notifications.length >= 1 && !loading ? <Text style={{textAlign: 'center', marginTop: 20, fontSize: 20}}>You have <Text style={{color: "red", fontWeight: 'bold'}}>{unReadNotif} unread</Text> notifications</Text> : <Text style={{textAlign: 'center', marginTop: 20, fontSize: 20}}>You have no new Notification. Pull down to refresh</Text>}
+      {notifications.length >= 1 && <Text style={{fontSize: 15, textAlign: 'center', marginBottom: 20}}>Long press the notification to mark as read</Text>}
+      <View style={{ paddingHorizontal: 20, paddingBottom: 20, }}>
+         {notifications.map((item, i) => {
+         return (
+              <NotificationList
               item={item}
-            />} />
+              key={i}
+              index={i}
+              setNotifications={setNotifications} 
+              notifications={notifications}
+            />
+         )
+         })}
       </View>
-    </View>
+      </View>}
+    </ScrollView>
   );
 }
 
 const styles = {
   gradiantStyle: {
     width: "100%",
-    height: 120,
+    height: 120
   },
 };

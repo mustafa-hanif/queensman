@@ -57,22 +57,19 @@ query getJobTickets {
 }
 `
 
-const UPDATE_WORKER = gql`
-mutation UpdateWorker($id: Int!, $description: String, $emergencyId: Int!, $email: String, $full_name: String, $isEmergency: Boolean, $password: String, $phone: String, $role: String, $team_id: Int, $active: smallint, $color_code: String) {
-  abba_biryani: update_worker_by_pk(pk_columns: {id: $emergencyId}, _set: {isEmergency: false}) {
-     email
-   }
-   update_worker_by_pk(pk_columns: {id: $id}, _set: {description: $description, email: $email, full_name: $full_name, password: $password, phone: $phone, role: $role, team_id: $team_id, isEmergency: $isEmergency, active: $active,, color_code: $color_code}) {
-     id
-   }
- }
-`
-const ADD_WORKER = gql`
-mutation AddWorker($description: String, $email: String, $full_name: String, $isEmergency: Boolean, $password: String, $phone: String, $role: String, $team_id: Int, $active: smallint, $color_code: String) {
-    insert_worker_one(object: {description: $description, email: $email, full_name: $full_name, isEmergency: $isEmergency, password: $password, phone: $phone, role: $role, team_id: $team_id, active: $active, color_code: $color_code}) {
-      id
-    }
+const UPDATE_JOB_TICKET = gql`
+mutation UpdateJobTicket($id: Int!, $description: String, $name: String, $notes: _text, $worker_email: String, $type: String) {
+  update_job_tickets_by_pk(pk_columns: {id: $id}, _set: {description: $description, name: $name, worker_email: $worker_email, type: $type}) {
+    id
   }
+}
+`
+const ADD_JOB_TICKER = gql`
+mutation AddJobTicket($name: String, $description: String, $worker_email: String, $type: String) {
+  insert_job_tickets_one(object: {name: $name, description: $description, worker_email: $worker_email, type: $type}) {
+    id
+  }
+}
 `
 
 const DELETE_JOB_TICKET = gql`
@@ -87,8 +84,8 @@ const DataTableAdvSearch = () => {
 
         // ** States
   const { loading, data, error } = useQuery(GET_JOB_TICKETS)
-  // const [updateWorker, {loading: workerLoading}] = useMutation(UPDATE_WORKER, {refetchQueries:[{query: GET_WORKER}]})
-  // const [addWorker, {loading: addWorkerLoading}] = useMutation(ADD_WORKER, {refetchQueries:[{query: GET_WORKER}]})
+  const [updateJobTicket, {loading: updateJobTicketLoading}] = useMutation(UPDATE_JOB_TICKET, {refetchQueries:[{query: GET_JOB_TICKETS}]})
+  const [addJobTicket, {loading: addJobTicketLoading}] = useMutation(ADD_JOB_TICKER, {refetchQueries:[{query: GET_JOB_TICKETS}]})
   const [deleteJobTicket, {loading: deleteJobLoading}] = useMutation(DELETE_JOB_TICKET, {refetchQueries:[{query: GET_JOB_TICKETS}]})
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState('')
@@ -97,7 +94,7 @@ const DataTableAdvSearch = () => {
   const [description, setDescription] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
   const [filteredData, setFilteredData] = useState([])
-  const [toAddNewRecord, setToAddNewRecord] = useState(false)
+  const [toAddNewJobTicket, setToAddNewJobTicket] = useState(false)
   const [row, setRow] = useState(null)
   const [rowId, setRowId] = useState(null)
 
@@ -118,11 +115,12 @@ const DataTableAdvSearch = () => {
 
   // ** Function to handle Modal toggle
   const handleModal = (row) => { 
+    console.log(row)
       setRow(row)
       setTimeout(() => {
         setModal(!modal) 
       }, 200)
-      setToAddNewRecord(false)
+      setToAddNewJobTicket(false)
     }
 
   // ** Function to handle Pagination
@@ -160,12 +158,12 @@ const advSearchColumns = [
       sortable: true,
       minWidth: '250px'
     },
-    {
-      name: 'Scheduler Id',
-      selector: 'scheduler_id',
-      sortable: true,
-      minWidth: '150px'
-    },
+    // {
+    //   name: 'Scheduler Id',
+    //   selector: 'scheduler_id',
+    //   sortable: true,
+    //   minWidth: '150px'
+    // },
   
     // {
     //   name: 'Team Id',
@@ -234,68 +232,47 @@ const advSearchColumns = [
   }
 
   const handleUpdate = (updatedRow) => {
-    // const emergencyId = data?.worker.filter(value => value.isEmergency === true)[0].id
-    // updateWorker({variables: {
-    //     active: updatedRow.active,
-    //     description: updatedRow.description,
-    //     email: updatedRow.email,
-    //     full_name: updatedRow.full_name,
-    //     id: updatedRow.id,
-    //     isEmergency: updatedRow.isEmergency,
-    //     team_id: updatedRow.team_id,
-    //     role: updatedRow.role,
-    //     phone: updatedRow.phone,
-    //     color_code: updatedRow.color_code,
-    //     password: updatedRow.password,
-    //     emergencyId
-    //     }})
-    //   dataToRender()
-    //   if (!workerLoading) {
-          
-    //     setModal(!modal)
-    //   }
+    updateJobTicket({variables: {
+        description: updatedRow.description,
+        worker_email: updatedRow.worker_email,
+        name: updatedRow.name,
+        type: updatedRow.type,
+        id: updatedRow.id
+        }})
+      dataToRender()
+      if (!updateJobTicketLoading) {
+        setModal(!modal)
+      }
   }
 
-  const addWorkerRecord = () => {
-    // setToAddNewRecord(true)
-    // setRow({
-    //     active: 1,
-    //     description: "",
-    //     email: "",
-    //     full_name: "",
-    //     isEmergency: false,
-    //     team_id: null,
-    //     role: null,
-    //     phone: "",
-    //     color_code: null,
-    //     password: ""
-    // })
-    // setTimeout(() => {
-    //   setModal(!modal) 
-    // }, 200)
+  const addJobTicketRecord = () => {
+    setToAddNewJobTicket(true)
+    setRow({
+        description: "",
+        worker_email: "",
+        full_name: "",        
+        type: ""
+    })
+    setTimeout(() => {
+      setModal(!modal) 
+    }, 200)
   }
 
 
-  const handleAddRecord = (newRow) => {
-    // addWorker({variables: {
-    //     active: newRow.active,
-    //     description: newRow.description,
-    //     email: newRow.email,
-    //     full_name: newRow.full_name,
-    //     isEmergency: newRow.isEmergency,
-    //     team_id: newRow.team_id,
-    //     role: newRow.role,
-    //     phone: newRow.phone,
-    //     color_code: newRow.color_code,
-    //     password: newRow.password
-    //   }})
-    //   dataToRender()
-    //   if (!addWorkerLoading) {
-    //     setModal(!modal)
-    //   }
+  const handleAddJobTicket = (newRow) => {
+    addJobTicket({variables: {
+        description: newRow.description,
+        worker_email: newRow.worker_email,
+        name: newRow.name,
+        type: newRow.type
+      }})
+      dataToRender()
+      if (!addJobTicketLoading) {
+        setModal(!modal)
+      }
   }
 
-  const handleDeleteRecord = (id) => {
+  const handleDeleteJobTicket = (id) => {
 
       deleteJobTicket({variables: {
         id
@@ -306,10 +283,6 @@ const advSearchColumns = [
       closeButton: false
     })
     dataToRender()
-    // deleteWorker({variables: {
-    //     id
-    //   }})
-    //  
       if (!deleteJobLoading) {
         toggleModal()
       }
@@ -466,7 +439,7 @@ const advSearchColumns = [
         <CardHeader className='border-bottom'>
           <CardTitle tag='h4'>Advance Search</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
-            <Button className='ml-2' color='primary' onClick={addWorkerRecord}>
+            <Button className='ml-2' color='primary' onClick={addJobTicketRecord}>
               <Plus size={15} />
               <span className='align-middle ml-50'>Add Record</span>
             </Button>
@@ -530,8 +503,8 @@ const advSearchColumns = [
       <AddNewModal 
       open={modal} 
       handleModal={handleModal} 
-      handleAddRecord={handleAddRecord} 
-      toAddNewRecord={toAddNewRecord} 
+      handleAddJobTicket={handleAddJobTicket} 
+      toAddNewJobTicket={toAddNewJobTicket} 
       closeModal={closeModal} 
       row={row} 
       setRow={setRow} 
@@ -549,7 +522,7 @@ const advSearchColumns = [
             Are you sure you want to delete?
           </ModalBody>
           <ModalFooter>
-            <Button color="danger" onClick={() => { handleDeleteRecord(rowId) }} >
+            <Button color="danger" onClick={() => { handleDeleteJobTicket(rowId) }} >
               Delete
             </Button>
             <Button color='secondary' onClick={toggleModal} outline>

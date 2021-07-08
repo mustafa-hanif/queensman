@@ -138,18 +138,14 @@ const UPDATE_TOKEN = gql`
 `;
 
 const HomeScreen = ({ navigation }) => {
-  console.log(navigation)
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
   const [updateToken, { loading: mutationLoading, error: mutationError }] = useMutation(UPDATE_TOKEN);
-  console.log(mutationLoading, mutationError);
   useEffect(() => {
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-      console.log(notification);
     });
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener(async (response) => {
-      console.log(response);
     });
 
     Notifications.setNotificationHandler({
@@ -163,9 +159,7 @@ const HomeScreen = ({ navigation }) => {
       .then(async (token) => {
         const user = JSON.parse(await AsyncStorage.getItem("QueensUser"));
         const email = user?.user?.email;
-        console.log({ variables: { token, email } });
         updateToken({ variables: { token, email } });
-        console.log(token);
       })
       .catch(alert);
 
