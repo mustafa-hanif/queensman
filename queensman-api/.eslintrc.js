@@ -13,6 +13,7 @@ module.exports = {
   rules: {
     semi: 0,
     camelcase: 0,
-    'comma-dangle': 0
+    'comma-dangle': 0,
+    'space-before-function-paren': 0
   }
 }
