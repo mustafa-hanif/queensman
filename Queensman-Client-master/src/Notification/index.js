@@ -1,7 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect } from "react";
-import { View, Text, ScrollView } from "react-native";
-import { gql, useQuery, useMutation } from "@apollo/client";
+import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView, RefreshControl, ActivityIndicator } from "react-native";
+import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NotificationList from "./component/NotificationList";
 import { auth } from "../utils/nhost";
@@ -23,71 +23,77 @@ const ConfirmByClient = gql`
 `;
 
 const GET_NOTIFICATIONS = gql`
-  query MyQuery($email: String!) {
-    client(where: { email: { _eq: $email } }) {
-      client_notifications {
-        text
-        type
-        data
-      }
-    }
+query MyQuery($email: String!) {
+  notifications(where: {client_email: {_eq: $email}, isRead: {_eq: false}}, order_by: {id: desc}) {
+    id
+    data
+    created_at
+    text
+    isRead
+    type
   }
+}
 `;
-const CONFIRM_CALLOUT = gql`
-  mutation ConfirmCallout($callout_id: Int!) {
-    update_callout_by_pk(pk_columns: { id: $callout_id }, _set: { status: "Confirmed" }) {
-      id
-    }
-  }
-`;
+
 
 export default function Index(props) {
   const email = auth?.currentSession?.session?.user.email;
 
-  console.log({ email });
-  const { loading, data, error } = useQuery(GET_NOTIFICATIONS, {
-    variables: { email },
-  });
+  const [refreshing, setRefreshing] = useState(false);
+  const [notifications, setNotifications] = useState([])
+  const [getNotification, { loading, data, error }] = useLazyQuery(GET_NOTIFICATIONS, {onCompleted: (data) => {setNotifications(data?.notifications || []); setRefreshing(false)}});
 
-  const [confirmCalout, { loading: confirmCalloutLoading, error: confirmcalloutError }] = useMutation(CONFIRM_CALLOUT);
+  const onRefresh = React.useCallback(() => {
+    setNotifications([])
+    setRefreshing(true)
+    getNotification({ variables: {email}})
+    console.log(error)
+  }, []);
+  
+  console.log(data)
 
-  const onConfirmPress = (data) => {
-    confirmCalout({
-      variables: {
-        callout_id: data.callout_id,
-      },
-    })
-      .then((res) => console.log(res))
-      .catch(console.log);
-  };
+  useEffect(() => {
+    if(!refreshing || loading) {
+      getNotification({ variables: {email}})
+    }
+    return () => {loading}
+  }, [])
+  if (error) {
+    return <View>
+      <Text>Error</Text>
+    </View>;
+  }
+  
 
-  const onNoButtonPress = (data) => {
-    props.navigation.navigate("SelectSchedule", { commingFrom: "Notification", callout_id: data.callout_id });
+  const unReadNotif = notifications.filter(noti => noti.isRead == false || noti.isRead == undefined).length
+
+  const onNoButtonPress = (item) => {
+    props.navigation.navigate("SelectSchedule", { commingFrom: "Notification", callout_id: item.data.callout_id });
   };
 
   return (
-    <>
-      <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
-      <View style={{ flex: 1, paddingHorizontal: "5%", paddingVertical: "10%", marginTop: "15%" }}>
-        <ScrollView>
-          {data?.client[0]?.client_notifications?.map((val, index) => (
+    <ScrollView  refreshControl={
+      <RefreshControl
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+      />}>
+      {data?.notifications == undefined || loading ? <><Text style={{textAlign: 'center', marginVertical: 20, fontSize: 20, fontWeight: 'bold'}}>Loading</Text><ActivityIndicator size="large" color="#FFCA5D" /></> : <View>
+      {notifications.length >= 1 && !loading ? <Text style={{textAlign: 'center', marginTop: 20, fontSize: 20}}>You have <Text style={{color: "red", fontWeight: 'bold'}}>{unReadNotif} unread</Text> notifications</Text> : <Text style={{textAlign: 'center', marginTop: 20, fontSize: 20}}>You have no new Notification. Pull down to refresh</Text>}
+      {notifications.length >= 1 && <Text style={{fontSize: 15, textAlign: 'center', marginBottom: 20}}>Long press the notification to mark as read</Text>}
+      <View style={{ paddingHorizontal: 20, paddingBottom: 20, }}>
+          {data?.notifications?.map((item, i) => (
             <NotificationList
-              // eslint-disable-next-line react/no-array-index-key
-              key={index}
+              key={item.id}
               onNoButtonPress={onNoButtonPress}
-              onConfirmPress={onConfirmPress}
-              data={val.data}
-              item={{
-                title: val.text,
-                type: val.type,
-                // description: "test",
-                // date: "22-May-2019",
-              }}
+              item={item}
+              index={i}
+              notifications={notifications}
+              setNotifications={setNotifications}
             />
           ))}
-        </ScrollView>
-      </View>
-    </>
+          </View>
+      </View>}
+    </ScrollView>
   );
 }
 

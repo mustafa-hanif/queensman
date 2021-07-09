@@ -23,7 +23,7 @@ import {
 // ** Styles
 import '@styles/react/libs/flatpickr/flatpickr.scss'
 
-const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord}) => {
+const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewJobTicket, handleAddJobTicket}) => {
 
     // ** Custom close btn
     // const { colors } = useContext(ThemeColors)
@@ -61,8 +61,8 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
 }
 
   const handleSubmit = () => {
-    if (toAddNewRecord) {
-      handleAddRecord(row)
+    if (toAddNewJobTicket) {
+      handleAddJobTicket(row)
     } else {
       handleUpdate(row)
     }
@@ -79,29 +79,29 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
       contentClassName='pt-0'
     >
       <ModalHeader className='mb-3' toggle={handleModal} close={CloseBtn} tag='div'>
-        <h5 className='modal-title'>{toAddNewRecord ? 'New Record' : 'Update Record'}</h5>
+        <h5 className='modal-title'>{toAddNewJobTicket ? 'New Record' : 'Update Record'}</h5>
       </ModalHeader>
       <ModalBody className='flex-grow-1'>
       <FormGroup>
-        <Label for='full-name'>Full Name</Label>
+        <Label for='name'>Full Name</Label>
         <InputGroup>
           <InputGroupAddon addonType='prepend'>
             <InputGroupText>
               <User size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input id='full-name' placeholder='Bruce Wayne' name="full_name" value={row?.full_name} onChange={handleChange}/>
+          <Input id='name' placeholder='Bruce Wayne' name="name" value={row?.name} onChange={handleChange}/>
         </InputGroup>
       </FormGroup>
       <FormGroup>
-        <Label for='email'>Email</Label>
+        <Label for='worker_email'>Email</Label>
         <InputGroup>
           <InputGroupAddon addonType='prepend'>
             <InputGroupText>
               <Mail size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input type='email' name="email" id='email' placeholder='brucewayne@email.com' value={row?.email} onChange={handleChange}/>
+          <Input type='email' name="worker_email" id='worker_email' placeholder='brucewayne@email.com' value={row?.worker_email} onChange={handleChange}/>
         </InputGroup>
       </FormGroup>
       <FormGroup>
@@ -116,17 +116,17 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
         </InputGroup>
       </FormGroup>   
       <FormGroup>
-        <Label for='phone'>Phone</Label>
+        <Label for='type'>Type</Label>
         <InputGroup>
           <InputGroupAddon addonType='prepend'>
             <InputGroupText>
               <Phone size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input id='phone' placeholder='Phone' name="phone" value={row?.phone} onChange={handleChange}/>
+          <Input id='type' placeholder='Type' name="type" value={row?.type} onChange={handleChange}/>
         </InputGroup>
       </FormGroup>
-      <FormGroup>
+      {/* <FormGroup>
         <Label>Active</Label>
             <Select
                 onChange={ (e) => handleSelectedChange(e, 'active')}
@@ -172,9 +172,9 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
           </InputGroupAddon>
           <Input id='password' placeholder='Password' name="password" value={row?.password} onChange={handleChange}/>
         </InputGroup>
-      </FormGroup>     
+      </FormGroup>      */}
       <Button className='mr-1' color='primary' onClick={handleSubmit} >
-        {toAddNewRecord ? 'Submit' : 'Update'}
+        {toAddNewJobTicket ? 'Submit' : 'Update'}
       </Button>
       <Button color='secondary' onClick={closeModal} outline>
         Cancel

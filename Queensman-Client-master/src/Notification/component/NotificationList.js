@@ -1,41 +1,96 @@
-import { Button } from "native-base";
-import React, { useState } from "react";
+import { formatDistance } from 'date-fns'
+import React from "react";
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from "react-native";
+import FlashMessage, { showMessage } from "react-native-flash-message";
+import { gql, useMutation } from "@apollo/client";
+
+const UPDATE_NOTIFICATIONS = gql`
+mutation UpdateNotifications($id: Int!) {
+  update_notifications_by_pk(pk_columns: {id: $id}, _set: {isRead: true}) {
+    id
+  }
+}
+`;
+
+
+const CONFIRM_CALLOUT = gql`
+mutation ConfirmCallout($callout_id: Int!, $id: Int!) {
+  update_callout_by_pk(pk_columns: { id: $callout_id }, _set: { status: "Confirmed" }) {
+    id
+  }
+  update_notifications_by_pk(pk_columns: {id: $id}, _set: {isRead: true, type: "client"}) {
+    id
+  }
+}
+`;
 
 export default function NotificationList({
   item,
-  viewStyle,
-  textStyle,
-  dotStyle,
-  onConfirmPress,
   onNoButtonPress,
-  data,
+  setNotifications,
+  notifications,
+  viewStyle, 
+  index,
+  textStyle, 
+  dotStyle
 }) {
+
+  const [updateNotifications] = useMutation(UPDATE_NOTIFICATIONS);
+  const [confirmCalout, { loading: confirmCalloutLoading, error: confirmcalloutError }] = useMutation(CONFIRM_CALLOUT);
+
+  const onConfirmPress = (val) => {
+    showMessage({
+      message: "Notification marked as read",
+      type: "success",
+    });
+    const item = [...notifications]
+    item[index].isRead = true
+    setNotifications(item)
+    confirmCalout({
+      variables: {
+        callout_id: val.data.callout_id,
+        id: val.id
+      },
+    })
+      .then((res) => console.log(res))
+      .catch(console.log);
+  };
+
+  const markAsRead = (id) => {
+    showMessage({
+      message: "Notification marked as read",
+      type: "success",
+    });
+    const item = [...notifications]
+    item[index].isRead = true
+    setNotifications(item)
+    updateNotifications({variables:{
+      id
+    }})
+  }
+
   return (
     <>
+    <FlashMessage position="top" />
+    {!item?.isRead && <TouchableOpacity onLongPress={() => markAsRead(item.id)}>
       <View style={styles.container}>
         <View style={[styles.row, viewStyle]}>
           <View style={{ flex: 2 }}>
             <Text style={[[styles.text, textStyle, { fontWeight: "bold" }]]} numberOfLines={2}>
-              {item.title}
-            </Text>
-            <Text style={[[styles.text, textStyle]]} numberOfLines={2}>
-              {item.description}
+              {item.text}
             </Text>
           </View>
-          <Text> </Text>
-
           <View style={[styles.time, dotStyle]}>
             <Text style={[styles.timeText, textStyle]} numberOfLines={2}>
-              {item.date}
+              {formatDistance(new Date(), new Date(item.created_at), { includeSeconds: true }) + " ago"}
             </Text>
           </View>
         </View>
         {item?.type === "client_confirm" && (
-          <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 10 }}>
             <TouchableOpacity
               onPress={() => {
-                onConfirmPress && onConfirmPress(data);
+                onConfirmPress && onConfirmPress(item);
               }}
               style={styles.buttonstyle}
             >
@@ -43,7 +98,7 @@ export default function NotificationList({
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                onNoButtonPress && onNoButtonPress(data);
+                onNoButtonPress && onNoButtonPress(item);
               }}
               style={styles.buttonstyle}
             >
@@ -52,6 +107,7 @@ export default function NotificationList({
           </View>
         )}
       </View>
+      </TouchableOpacity>}
       {/* {isPop && (
         <View style={styles.popUp}>
           <Text style={[[styles.text, textStyle, {fontWeight: 'bold'}]]}>
