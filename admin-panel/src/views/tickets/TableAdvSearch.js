@@ -64,7 +64,7 @@ mutation UpdateJobTicket($id: Int!, $description: String, $name: String, $notes:
   }
 }
 `
-const ADD_JOB_TICKER = gql`
+const ADD_JOB_TICKET = gql`
 mutation AddJobTicket($name: String, $description: String, $worker_email: String, $type: String) {
   insert_job_tickets_one(object: {name: $name, description: $description, worker_email: $worker_email, type: $type}) {
     id
@@ -85,7 +85,7 @@ const DataTableAdvSearch = () => {
         // ** States
   const { loading, data, error } = useQuery(GET_JOB_TICKETS)
   const [updateJobTicket, {loading: updateJobTicketLoading}] = useMutation(UPDATE_JOB_TICKET, {refetchQueries:[{query: GET_JOB_TICKETS}]})
-  const [addJobTicket, {loading: addJobTicketLoading}] = useMutation(ADD_JOB_TICKER, {refetchQueries:[{query: GET_JOB_TICKETS}]})
+  const [addJobTicket, {loading: addJobTicketLoading}] = useMutation(ADD_JOB_TICKET, {refetchQueries:[{query: GET_JOB_TICKETS}]})
   const [deleteJobTicket, {loading: deleteJobLoading}] = useMutation(DELETE_JOB_TICKET, {refetchQueries:[{query: GET_JOB_TICKETS}]})
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState('')
@@ -141,7 +141,7 @@ const advSearchColumns = [
       minWidth: '200px'
     },
     {
-      name: 'Full Name',
+      name: 'Name',
       selector: 'name',
       sortable: true,
       minWidth: '200px'
@@ -250,8 +250,8 @@ const advSearchColumns = [
     setRow({
         description: "",
         worker_email: "",
-        full_name: "",        
-        type: ""
+        name: "",        
+        type: "Deferred"
     })
     setTimeout(() => {
       setModal(!modal) 
@@ -260,6 +260,7 @@ const advSearchColumns = [
 
 
   const handleAddJobTicket = (newRow) => {
+    console.log(newRow)
     addJobTicket({variables: {
         description: newRow.description,
         worker_email: newRow.worker_email,
