@@ -1,6 +1,8 @@
 /* eslint-disable react/no-string-refs */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
+import axios from "axios";
+
 import React, { useEffect, useState } from "react";
 
 import {
@@ -17,7 +19,6 @@ import {
   Image,
   ScrollView,
 } from "react-native";
-import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";

@@ -8,21 +8,23 @@ const getRelevantWoker = require('../lib/graphql').getRelevantWoker;
 
 const scheduleCallout = async (event) => {
   const { event: { data: { new: query } } } = JSON.parse(event.body);
+  console.log(query)
   const schedulerId = query.id;
   const calloutId = query.callout_id;
   const workerId = query.worker_id;
   const callout = await getCallout({ callout_id: calloutId });
   const { id: releventWorker, time } = await getRelevantWoker({ callout });
-  const nextWorker = workerId ?? releventWorker;
-  const worker = await getWorker({ worker_id: nextWorker });
+  console.log(releventWorker, time);
+  // const nextWorker = workerId ?? releventWorker;
+  // const worker = await getWorker({ worker_id: nextWorker });
 
-  const data = await updateScheduleWithWoker({
-    id: schedulerId,
-    worker_id: nextWorker,
-    callout_id: calloutId,
-    worker_email: worker.email
-  });
-  console.log(data);
+  // const data = await updateScheduleWithWoker({
+  //   id: schedulerId,
+  //   worker_id: nextWorker,
+  //   callout_id: calloutId,
+  //   worker_email: worker.email
+  // });
+  // console.log(data);
   try {
     return {
       statusCode: 200,

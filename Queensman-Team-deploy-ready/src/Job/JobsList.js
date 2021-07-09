@@ -174,7 +174,7 @@ const JobsList = (props) => {
   }
 
   const passItem = (item) => {
-  props.navigation.navigate("TicketListing", {
+    props.navigation.navigate("TicketListing", {
       it: item,
     });
 

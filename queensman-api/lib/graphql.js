@@ -126,7 +126,7 @@ async function getCallout ({ callout_id }) {
     }
   }
     
-  `, 'GetCallout', { id: callout_id });
+  `, 'GetCallout', { callout_id });
 
   if (errors) {
     // handle those errors like a pro
@@ -168,6 +168,7 @@ async function getRelevantWoker ({ callout }) {
       workerId: id,
       today: new Date().toISOString().substring(0, 10)
     });
+    console.log(emergencyWokers);
     const lastWorker = lastWorkers.scheduler[0];
     //  - find the last slot today filled by him
     //  - if plus 3 hours from now is inside working hour

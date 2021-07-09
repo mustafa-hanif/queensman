@@ -96,7 +96,7 @@ export default function SelectSchedule(props) {
   const [markedDate, setmarkedDate] = useState({});
 
   const [date, setDate] = useState(() => {
-    var now = new Date();
+    const now = new Date();
     now.setHours(9);
     now.setMinutes(0);
     now.setMilliseconds(0);
@@ -351,7 +351,7 @@ export default function SelectSchedule(props) {
         enableSwipeMonths={false}
       />
       <Confirmmodal />
-      {show && <DateTimePicker value={date} mode={"time"} is24Hour={false} display="default" onChange={onChange} />}
+      {show && <DateTimePicker value={date} mode="time" is24Hour={false} display="default" onChange={onChange} />}
     </View>
   );
 }

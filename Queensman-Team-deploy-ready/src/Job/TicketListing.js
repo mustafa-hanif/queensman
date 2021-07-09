@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
+/* eslint-disable react/prop-types */
 import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
@@ -140,7 +143,6 @@ export default function TicketListing(props) {
         style={{
           borderWidth: 2,
           marginBottom: 10,
-          borderWidth: 1,
           borderColor: commonColor.primaryGold,
         }}
       >
@@ -162,6 +164,7 @@ export default function TicketListing(props) {
         ) : (
           data?.job_tickets.map((item) => (
             <TicketCard
+              key={item.name}
               Checked={true}
               description={item.description}
               ticketType={item.name}
