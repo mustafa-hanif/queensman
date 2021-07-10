@@ -49,6 +49,8 @@ export default function Index(props) {
     variables: { email },
   });
 
+  console.log({ loading, data, error })
+
   const [confirmCalout, { loading: confirmCalloutLoading, error: confirmcalloutError }] = useMutation(CONFIRM_CALLOUT);
 
   const onConfirmPress = (data) => {
