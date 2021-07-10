@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, Modal, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { Calendar, CalendarList, Agenda } from "react-native-calendars";
-import { Button } from "native-base";
+import { Box, Button } from "native-base";
 import moment from "moment";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
@@ -110,9 +110,9 @@ export default function SelectSchedule(props) {
   );
   const [updateCalloutApi, { loading: updateCalloutLoading, error: updatecalloutError }] = useMutation(UPDATE_CALLOUT);
 
-  const state = props.navigation.getParam("state", {});
-  const commingFrom = props.navigation.getParam("commingFrom", "");
-  const callout_id_fromNotification = props.navigation.getParam("callout_id", null);
+  const state = props.route.params.state;
+  const commingFrom = props.route.params.commingFrom;
+  const callout_id_fromNotification = props.route.params.callout_id;
   console.log({ commingFrom, callout_id_fromNotification });
   const formatDate = (date) => {
     return moment(date).format("YYYY-MM-DD");
@@ -150,12 +150,16 @@ export default function SelectSchedule(props) {
   };
 
   const onChange = (event, selectedDate) => {
-    setShow(false);
     setDate(selectedDate);
     const currentTime = moment(selectedDate).format("hh:mm a");
     settime(currentTime);
-    setmodalVisible(true);
+    
   };
+
+  const onConfirmTime = () => {
+    setShow(false);
+    setmodalVisible(true);
+  }
 
   const expoFileToFormFile = (url) => {
     const localUri = url;
@@ -318,40 +322,56 @@ export default function SelectSchedule(props) {
 
   return (
     <View style={{ flex: 1 }}>
-      <CalendarList
-        minDate={Date.now()}
-        pastScrollRange={0}
-        markedDates={getMarkedDates()}
-        onDayPress={onDayPress}
-        hideArrows
-        hideExtraDays
-        disableMonthChange
-        firstDay={1}
-        hideDayNames
-        showWeekNumbers={false}
-        disableArrowLeft
-        disableArrowRight
-        disableAllTouchEventsForDisabledDays
-        renderHeader={(date) => {
-          const header = date.toString("MMMM yyyy");
-          const [month, year] = header.split(" ");
+      <View>
+        <CalendarList
+          minDate={Date.now()}
+          pastScrollRange={0}
+          markedDates={getMarkedDates()}
+          onDayPress={onDayPress}
+          hideArrows
+          hideExtraDays
+          disableMonthChange
+          firstDay={1}
+          hideDayNames
+          showWeekNumbers={false}
+          disableArrowLeft
+          disableArrowRight
+          disableAllTouchEventsForDisabledDays
+          renderHeader={(date) => {
+            const header = date.toString("MMMM yyyy");
+            const [month, year] = header.split(" ");
 
-          return (
-            <View
-              style={{
-                flexDirection: "row",
-                marginVertical: 10,
-              }}
-            >
-              <Text style={{ marginLeft: 5, ...styles.textStyle }}>{`${month}`}</Text>
-              <Text style={{ marginRight: 5, ...styles.textStyle }}>{year}</Text>
-            </View>
-          );
-        }}
-        enableSwipeMonths={false}
-      />
+            return (
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginVertical: 10,
+                }}
+              >
+                <Text style={{ marginLeft: 5, ...styles.textStyle }}>{`${month}`}</Text>
+                <Text style={{ marginRight: 5, ...styles.textStyle }}>{year}</Text>
+              </View>
+            );
+          }}
+          enableSwipeMonths={false}
+        />
+      </View>
       <Confirmmodal />
-      {show && <DateTimePicker value={date} mode="time" is24Hour={false} display="default" onChange={onChange} />}
+      {show && <Modal animationType="slide" transparent visible={show}>
+        <View style={{ backgroundColor: 'white', width:'100%', borderTopColor: "black",
+    borderTopWidth: StyleSheet.hairlineWidth, height: 320, flex: 0.25, position: 'absolute', bottom: 0 }}>
+          <DateTimePicker 
+          value={date}
+          mode="time" 
+          is24Hour={false} 
+          display="spinner" 
+          onChange={onChange} 
+        />
+        <Box p={4}>
+          <Button onPress={onConfirmTime}>Confirm Time</Button>
+        </Box>
+        </View>
+      </Modal>}
     </View>
   );
 }
