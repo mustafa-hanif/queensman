@@ -27,8 +27,10 @@
       "bundleIdentifier": "com.skynners.queensmanworker"
     },
     "android": {
-      "package": "com.skynners.queensmanworker"
+      "package": "com.skynners.queensmanworker",
+      "permissions": ["ACCESS_BACKGROUND_LOCATION"]
     },
     "description": ""
   }
 }
+

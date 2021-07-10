@@ -21,6 +21,7 @@ import Modal from "react-native-modal";
 
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { auth } from "../utils/nhost";
+import * as Location from "expo-location";
 
 const GET_JOB_WORKERS = gql`
   query FetchJobWorker($id: Int!) {
@@ -151,6 +152,20 @@ const Job = (props) => {
       id: calloutIdFromParam?.id,
     },
   });
+
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      console.log("Permission to access location was denied");
+      return null;
+    }
+
+    let location = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.High,
+    });
+
+    return JSON.stringify(location);
+  };
 
   useEffect(() => {
     const jobWorkers = data?.callout_by_pk?.job_worker;
