@@ -62,6 +62,7 @@ query GetSchedule($_gte: date!, $_lte: date!) {
       }
       category
       video
+      job_type
     }    
     job_tickets {
       name
@@ -193,7 +194,7 @@ const CalendarComponent = () => {
       callout_id: eventToUpdate.callout_id, 
       callout_by_email: eventToUpdate.extendedProps.clientEmail, 
       category: eventToUpdate.extendedProps.category, 
-      job_type: eventToUpdate.extendedProps.category, 
+      job_type: eventToUpdate.extendedProps.job_type, 
       scheduler_id: eventToUpdate.id
     }})
   }

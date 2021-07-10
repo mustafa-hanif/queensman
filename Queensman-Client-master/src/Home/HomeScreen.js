@@ -5,7 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { gql, useMutation } from "@apollo/client";
 import * as Notifications from "expo-notifications";
 import { LinearGradient } from "expo-linear-gradient";
-import Toast from "react-native-whc-toast";
+import FlashMessage from "react-native-flash-message";
 import Constants from "expo-constants";
 
 const deviceWidth = Dimensions.get("window").width;
@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingHorizontal: "5%",
+    marginHorizontal: "10%",
     paddingVertical: "10%",
     // justifyContent: 'center'
   },
@@ -111,8 +111,8 @@ const registerForPushNotificationsAsync = async () => {
   throw new Error("Must use physical device for Push Notifications");
 };
 
-const requestCallOutPress = (navigation) => {
-  navigation.navigate("RequestCallOut");
+const requestCallOutPress = (navigation, obj) => {
+  navigation.navigate("RequestCallOut", obj);
 };
 
 const onGoingCallOutPress = (navigation) => {
@@ -141,14 +141,11 @@ const HomeScreen = ({ navigation }) => {
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
   const [updateToken, { loading: mutationLoading, error: mutationError }] = useMutation(UPDATE_TOKEN);
-  console.log(mutationLoading, mutationError);
   useEffect(() => {
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-      console.log(notification);
     });
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener(async (response) => {
-      console.log(response);
     });
 
     Notifications.setNotificationHandler({
@@ -162,9 +159,7 @@ const HomeScreen = ({ navigation }) => {
       .then(async (token) => {
         const user = JSON.parse(await AsyncStorage.getItem("QueensUser"));
         const email = user?.user?.email;
-        console.log({ variables: { token, email } });
         updateToken({ variables: { token, email } });
-        console.log(token);
       })
       .catch(alert);
 
@@ -176,14 +171,7 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Toast
-        textStyle={{
-          color: "#fff",
-        }}
-        style={{
-          backgroundColor: "#FFCA5D",
-        }}
-      />
+      <FlashMessage position="center" />
       {/* background gradinet   */}
       <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
 
@@ -210,7 +198,7 @@ const HomeScreen = ({ navigation }) => {
       <View style={{ height: "10%" }} />
       <View animation="fadeInUpBig" iterationCount={1} duration={1000} style={{ flex: 1 }}>
         <View style={[styles.bottomView]}>
-          <TouchableOpacity style={{ flex: 1 }} onPress={() => requestCallOutPress(navigation)}>
+        <TouchableOpacity style={{ flex: 1 }} onPress={() => requestCallOutPress(navigation, {additionalServices: false})}>
             <View style={[styles.button]}>
               <Image
                 source={require("../../assets/Home/calloutHome.png")}
@@ -305,6 +293,30 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
+      <View style={{ height: "3%" }} />
+        <View style={[styles.bottomView]}>
+          <TouchableOpacity style={{ flex: 1 }} onPress={() => requestCallOutPress(navigation, {additionalServices: true})}>
+            <View style={styles.button}>
+              <Image
+                source={require("../../assets/Home/pendingHome.png")}
+                style={{ height: 40, width: 40, alignSelf: "center" }}
+              />
+              <Text
+                style={[
+                  {
+                    alignSelf: "center",
+                    fontSize: 12,
+                    color: "#000E1E",
+                    marginTop: "4%",
+                  },
+                  styles.TextStyles,
+                ]}
+              >
+                Request of Additional Services
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
     </View>
   );
 };

@@ -20,18 +20,10 @@ import AutoComplete from '@components/autocomplete'
 // ** Utils
 import { selectThemeColors, isObjEmpty } from '@utils'
 
-// ** Avatar Images
-import img1 from '@src/assets/images/avatars/1-small.png'
-import img2 from '@src/assets/images/avatars/3-small.png'
-import img3 from '@src/assets/images/avatars/5-small.png'
-import img4 from '@src/assets/images/avatars/7-small.png'
-import img5 from '@src/assets/images/avatars/9-small.png'
-import img6 from '@src/assets/images/avatars/11-small.png'
 
 // ** Styles Imports
 import '@styles/react/libs/react-select/_react-select.scss'
 import '@styles/react/libs/flatpickr/flatpickr.scss'
-import { NoUnusedFragmentsRule } from 'graphql'
 
 // ** Toast Component
 const ToastComponent = ({ title, icon, color }) => (
@@ -189,7 +181,7 @@ const AddEventSidebar = props => {
   const [jobTickets, setJobTickets] = useState([])
 
   // const [workerId, setWorkerId] = useState(1)
-  const [value, setValue] = useState([{value: selectedEvent.category}] || [{ value: 'Water Leakage', label: 'Water Leakage', color: 'primary' }])
+  const [value, setValue] = useState({value: selectedEvent.extendedProps?.job_type})
   const { clientLoading, data: allClients, clientError } = useQuery(GET_CLIENT, {
     skip: !open
   })
@@ -219,15 +211,6 @@ const AddEventSidebar = props => {
     {value:"Water Leakage", label: "Water Leakage", color: 'primary'},
     {value:"Pumps problem (pressure low)", label: "Pumps problem (pressure low)", color: 'primary'}
   ]
-  
-  const guestsOptions = [
-    { value: 'Donna Frank', label: 'Donna Frank', avatar: img1 },
-    { value: 'Jane Foster', label: 'Jane Foster', avatar: img2 },
-    { value: 'Gabrielle Robertson', label: 'Gabrielle Robertson', avatar: img3 },
-    { value: 'Lori Spears', label: 'Lori Spears', avatar: img4 },
-    { value: 'Sandy Vega', label: 'Sandy Vega', avatar: img5 },
-    { value: 'Cheryl May', label: 'Cheryl May', avatar: img6 }
-  ]
 
   // ** Custom select components
   const OptionComponent = ({ data, ...props }) => {
@@ -253,18 +236,19 @@ const AddEventSidebar = props => {
   // ** Adds New Event
   const handleAddEvent = () => {
     console.log(startPicker)
+    console.log(value.value)
     requestCalloutApiCall({
       variables: {
         property_id: propertyId,
         email: clientEmail,
         notes: title,
         time_on_calendar : startPicker.toTimeString().substr(0, 8), 
-        date_on_calendar : startPicker.toISOString().substring(0, 10),
-        end_date_on_calendar: endPicker.toISOString().substring(0, 10),
+        date_on_calendar : startPicker.toLocaleDateString(),
+        end_date_on_calendar: endPicker.toLocaleDateString(),
         end_time_on_calendar : endPicker.toTimeString().substr(0, 8), 
         // category: value[0].value, 
         category: "Uncategorized", 
-        job_type: value[0].value, 
+        job_type: value.value, 
         status: "Requested",
         request_time: new Date().toLocaleDateString(),
         urgency_level: "Medium"
@@ -297,7 +281,7 @@ const AddEventSidebar = props => {
     setLocation('')
     setDesc('')
     setGuests({})
-    setValue([{ value: 'Water Leakage', label: 'Water Leakage', color: 'primary' }])
+    setValue({})
     setClientName('')
     setPropertyName('')
     setWorkerName('')
@@ -330,7 +314,7 @@ const AddEventSidebar = props => {
       setClientName(selectedEvent.extendedProps.clientName)
       setClientEmail(selectedEvent.extendedProps.clientEmail)
       setPropertyName(selectedEvent.extendedProps.propertyName || propertyName)
-      setValue([selectedEvent.category])
+      setValue({value: selectedEvent.extendedProps?.job_type, label: selectedEvent.extendedProps?.job_type})
       setAllDay(selectedEvent.allDay || allDay)
       setUrl(selectedEvent.url || url)
       setLocation(selectedEvent.extendedProps.location || location)
@@ -339,7 +323,6 @@ const AddEventSidebar = props => {
       setStartPicker(new Date(selectedEvent.start))
       setEndPicker(new Date(selectedEvent.end))
       setJobTickets(selectedEvent.extendedProps?.job_tickets || jobTickets)
-      setValue([resolveLabel()])
     }
   }
 
@@ -385,6 +368,7 @@ const AddEventSidebar = props => {
       }
     })
     
+    console.log(value.value)
     if (saved) {
       const eventToUpdate = {
         id: selectedEvent.id,
@@ -396,6 +380,7 @@ const AddEventSidebar = props => {
           clientName,
           clientEmail,
           category: 'Uncategorized',
+          job_type: value.value,
           propertyName,
           workerName,
           propertyId
@@ -403,7 +388,7 @@ const AddEventSidebar = props => {
       }
       console.log(eventToUpdate)
       const propsToUpdate = ['start', 'title', 'callout_id']
-      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'propertyId', 'clientEmail']
+      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'propertyId', 'clientEmail', 'job_type']
   
       updateEvent(eventToUpdate)
       updateEventInCalendar(eventToUpdate, propsToUpdate, extendedPropsToUpdate)
@@ -418,7 +403,9 @@ const AddEventSidebar = props => {
   
   const handleJobUpdateEvent = (index) => {
     const jobTicket = jobTickets[index]
-    if (jobTicket?.newJob) {
+    console.log(selectedEvent?.extendedProps?.callout_id)
+    if (selectedEvent?.extendedProps?.callout_id) {
+      if (jobTicket?.newJob) {
         addJobTicket({
           variables: {
             name: jobTicket.name,
@@ -454,6 +441,13 @@ const AddEventSidebar = props => {
       hideProgressBar: true,
       closeButton: false
     })
+    }
+    } else {
+      toast.error(<ToastComponent title='Please add schedule first' color='danger' icon={<Trash />} />, {
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeButton: false
+      })
     }
   }
 
@@ -579,7 +573,7 @@ const AddEventSidebar = props => {
         >
            <FormGroup>
              <Label for='title'>
-               Title <span className='text-danger'>*</span>
+               Notes <span className='text-danger'>*</span>
              </Label>
             <Input
                id='title'
@@ -595,7 +589,8 @@ const AddEventSidebar = props => {
            </FormGroup>
 
            <FormGroup>
-             <Label for='label'>Label</Label>
+             {console.log(value.value)}
+             <Label for='label'>Job Type</Label>
              <Select
                id='label'
                value={value}
@@ -604,7 +599,7 @@ const AddEventSidebar = props => {
                className='react-select'
                classNamePrefix='select'
                isClearable={false}
-               onChange={data => setValue([data])}
+               onChange={(e) => setValue(e)}
                components={{
                  Option: OptionComponent
                }}

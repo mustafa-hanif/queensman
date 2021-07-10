@@ -23,30 +23,19 @@ import {
 // ** Styles
 import '@styles/react/libs/flatpickr/flatpickr.scss'
 
-const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord}) => {
+const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewJobTicket, handleAddJobTicket}) => {
 
     // ** Custom close btn
     // const { colors } = useContext(ThemeColors)
   const CloseBtn = <X className='cursor-pointer' size={15} onClick={closeModal} />   
 
-  const activeOptions = [
-    { value: 1, label: 'Active'},
-    { value: 0, label: 'Not Active' }
+  const options = [
+    {value: 'Deffered', label: 'Deffered'},
+    {value: 'Material Request', label: 'Material Request'},
+    {value: 'Patch Job', label: 'Patch Job'},
+    {value: 'Full Job', label: 'Full Job'}
   ]
 
-  const emergencyOptions = [
-    { value: true, label: 'Emergency'},
-    { value: false, label: 'Not Urgent' }
-  ]
-
-  const colorOptions = [
-    {value: '34eb40', label: 'Green'},
-    {value: 'c21dd1', label: 'Purple'},
-    {value: 'ebcf34', label: 'Yellow'},
-    {value: '3440eb', label: 'Dark Blue'},
-    {value: 'd11d1d', label: 'Red'},
-    {value: 'info', label: 'Light Blue'}
-  ]
 
   const handleChange = (e) => {
       const rowValue = {...row}
@@ -61,8 +50,8 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
 }
 
   const handleSubmit = () => {
-    if (toAddNewRecord) {
-      handleAddRecord(row)
+    if (toAddNewJobTicket) {
+      handleAddJobTicket(row)
     } else {
       handleUpdate(row)
     }
@@ -79,29 +68,29 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
       contentClassName='pt-0'
     >
       <ModalHeader className='mb-3' toggle={handleModal} close={CloseBtn} tag='div'>
-        <h5 className='modal-title'>{toAddNewRecord ? 'New Record' : 'Update Record'}</h5>
+        <h5 className='modal-title'>{toAddNewJobTicket ? 'New Record' : 'Update Record'}</h5>
       </ModalHeader>
       <ModalBody className='flex-grow-1'>
       <FormGroup>
-        <Label for='full-name'>Full Name</Label>
+        <Label for='name'>Full Name</Label>
         <InputGroup>
           <InputGroupAddon addonType='prepend'>
             <InputGroupText>
               <User size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input id='full-name' placeholder='Bruce Wayne' name="full_name" value={row?.full_name} onChange={handleChange}/>
+          <Input id='name' placeholder='Bruce Wayne' name="name" value={row?.name} onChange={handleChange}/>
         </InputGroup>
       </FormGroup>
       <FormGroup>
-        <Label for='email'>Email</Label>
+        <Label for='worker_email'>Email</Label>
         <InputGroup>
           <InputGroupAddon addonType='prepend'>
             <InputGroupText>
               <Mail size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input type='email' name="email" id='email' placeholder='brucewayne@email.com' value={row?.email} onChange={handleChange}/>
+          <Input type='email' name="worker_email" id='worker_email' placeholder='brucewayne@email.com' value={row?.worker_email} onChange={handleChange}/>
         </InputGroup>
       </FormGroup>
       <FormGroup>
@@ -116,17 +105,18 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
         </InputGroup>
       </FormGroup>   
       <FormGroup>
-        <Label for='phone'>Phone</Label>
-        <InputGroup>
-          <InputGroupAddon addonType='prepend'>
-            <InputGroupText>
-              <Phone size={15} />
-            </InputGroupText>
-          </InputGroupAddon>
-          <Input id='phone' placeholder='Phone' name="phone" value={row?.phone} onChange={handleChange}/>
-        </InputGroup>
+        <Label>Type</Label>
+            <Select
+                onChange={ (e) => handleSelectedChange(e, 'type')}
+                theme={selectThemeColors}
+                className='react-select'
+                classNamePrefix='select'
+                defaultValue={{value: row?.type, label: row?.type ? row.type : "Deffered"}}
+                options={options}
+                isClearable={false}
+            />
       </FormGroup>
-      <FormGroup>
+      {/* <FormGroup>
         <Label>Active</Label>
             <Select
                 onChange={ (e) => handleSelectedChange(e, 'active')}
@@ -172,9 +162,9 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
           </InputGroupAddon>
           <Input id='password' placeholder='Password' name="password" value={row?.password} onChange={handleChange}/>
         </InputGroup>
-      </FormGroup>     
+      </FormGroup>      */}
       <Button className='mr-1' color='primary' onClick={handleSubmit} >
-        {toAddNewRecord ? 'Submit' : 'Update'}
+        {toAddNewJobTicket ? 'Submit' : 'Update'}
       </Button>
       <Button color='secondary' onClick={closeModal} outline>
         Cancel

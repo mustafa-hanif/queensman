@@ -74,6 +74,22 @@ functions:
           method: post
           cors: true
 
+  everyFiveMinute:
+    handler: handler.everyFiveMinute
+    events:
+      - http:
+          path: /everyFiveMinute
+          method: post
+          cors: true
+
+  addJobTicketZoho:
+    handler: handler.addJobTicketZoho
+    events:
+      - http:
+          path: /addJobTicketZoho
+          method: post
+          cors: true
+
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details

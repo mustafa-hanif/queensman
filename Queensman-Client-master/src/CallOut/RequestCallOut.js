@@ -26,8 +26,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 
 import { Picker, Icon } from "native-base";
-import Toast from "react-native-whc-toast";
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import FlashMessage from "react-native-flash-message";
+import { showMessage, hideMessage } from "react-native-flash-message";
+import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 
 import axios from "axios";
 
@@ -201,6 +202,94 @@ const GET_PROPERTY_BY_ID = gql`
   }
 `;
 
+const ADD_CALLOUT = gql`
+  mutation AddCallOut(
+    $callout_by_email: String = ""
+    $picture1: String
+    $description: String
+    $picture2: String
+    $picture3: String
+    $picture4: String
+    $category: String
+    $job_type: String
+    $status: String
+    $urgency_level: String
+  ) {
+    insert_job_tickets_one(
+      object: {
+        callout: {
+          data: {
+            callout_by_email: $callout_by_email
+            description: $description
+            picture1: $picture1
+            picture2: $picture2
+            picture3: $picture3
+            picture4: $picture4
+            category: $category
+            job_type: $job_type
+            status: $status
+            active: 1
+            urgency_level: $urgency_level
+          }
+        }
+        name: "Request quotation"
+        description: $description
+        type: "Deffered"
+      }
+    ) {
+      id
+    }
+  }
+`;
+
+const REQUEST_CALLOUT = gql`
+  mutation AddCallout(
+    $property_id: Int
+    $date_on_calendar: date
+    $notes: String
+    $time_on_calendar: time
+    $email: String
+    $category: String
+    $job_type: String
+    $status: String
+    $picture1: String
+    $picture2: String
+    $picture3: String
+    $picture4: String
+    $video: String
+    $request_time: timestamp
+    $urgency_level: String
+  ) {
+    insert_scheduler_one(
+      object: {
+        callout: {
+          data: {
+            callout_by_email: $email
+            property_id: $property_id
+            category: $category
+            job_type: $job_type
+            status: $status
+            request_time: $request_time
+            urgency_level: $urgency_level
+            description: $notes
+            picture1: $picture1
+            picture2: $picture2
+            picture3: $picture3
+            picture4: $picture4
+            video: $video
+            active: 1
+          }
+        }
+        date_on_calendar: $date_on_calendar
+        time_on_calendar: $time_on_calendar
+        notes: $notes
+      }
+    ) {
+      date_on_calendar
+    }
+  }
+`;
+
 const RequestCallOut = (props) => {
   const [state, setState] = useState({
     PropertyDetails: [],
@@ -209,9 +298,9 @@ const RequestCallOut = (props) => {
     community: "",
     city: "",
     country: "",
-    JobType: "none",
+    JobType: props.navigation.state.params.additionalServices ? "Request for quotation" : "",
     OtherJobType: "",
-    Urgency: "",
+    Urgency: props.navigation.state.params.additionalServices ? "Medium" : "",
     Description: "",
     to: "aalvi@queensman.com",
     subject: "Callout from Queensman Spades",
@@ -252,13 +341,20 @@ const RequestCallOut = (props) => {
 
   const user = auth?.currentSession?.session?.user;
   const email = user?.email;
-  const { loading, data: allProperties, error } = useQuery(GET_PROPERTIES, {
+  const {
+    loading,
+    data: allProperties,
+    error,
+  } = useQuery(GET_PROPERTIES, {
     variables: { email },
   });
 
-  const [loadProperty, { loading: loadingSingleProperty, data: selectedProperty, error: propertyError }] = useLazyQuery(
-    GET_PROPERTY_BY_ID
-  );
+  const [loadProperty, { loading: loadingSingleProperty, data: selectedProperty, error: propertyError }] =
+    useLazyQuery(GET_PROPERTY_BY_ID);
+
+  const [addCalloutApiCall, { loading: addCalloutApiLoading, error: mutationError }] = useMutation(ADD_CALLOUT);
+
+  const [requestCalloutApiCall, { loading: requestCalloutLoading }] = useMutation(REQUEST_CALLOUT);
 
   // Did mount - Select the first property of the client, or use the one in async storage
   useEffect(() => {
@@ -286,7 +382,7 @@ const RequestCallOut = (props) => {
   // Once we have a selected property - Load it in the local state
   // TODO: This is not necessary, we can use the selected property directly
   useEffect(() => {
-    console.log({ selectedProperty });
+    // console.log({ selectedProperty });
     if (selectedProperty) {
       const propertyid = selectedProperty?.property_owned_by_pk?.id;
       const propertyDetails = selectedProperty?.property_owned_by_pk?.property;
@@ -323,19 +419,19 @@ const RequestCallOut = (props) => {
   };
 
   const _uploadImage = (uri) => {
-    console.log(`My:${uri}`);
+    // console.log(`My:${uri}`);
     if (state.picture1 === "") {
       setState({
         ...state,
         picture1: uri,
       });
-      console.log(state.picture1);
+      // console.log(state.picture1);
     } else if (state.picture2 === "") {
       setState({
         ...state,
         picture2: uri,
       });
-      console.log(state.picture2);
+      // console.log(state.picture2);
     } else if (state.picture3 === "") {
       setState({
         ...state,
@@ -349,25 +445,6 @@ const RequestCallOut = (props) => {
     } else {
       alert("Please select up to 4 images.");
     }
-  };
-
-  const urlToUPLOAD = async (url, link) => {
-    const localUri = url;
-    const filename = localUri.split("/").pop();
-
-    const match = /\.(\w+)$/.exec(filename);
-    const type = match ? `image/${match[1]}` : `image`;
-
-    const formData = new FormData();
-    formData.append("photo", { uri: localUri, name: filename, type });
-
-    await fetch(link, {
-      method: "POST",
-      body: formData,
-      header: {
-        "content-type": "multipart/form-data",
-      },
-    });
   };
 
   const toggleGalleryEventModal = (vale, no) => {
@@ -387,23 +464,27 @@ const RequestCallOut = (props) => {
       return alert("Kindly fill all the required details.");
     }
 
-    if (state.Urgency === "medium") {
-      return props.navigation.navigate("SelectSchedule", { state });
+    if (!props.navigation.state.params.additionalServices) {
+      if (state.Urgency === "medium") {
+        return props.navigation.navigate("SelectSchedule", { state });
+      } else {
+        Alert.alert(
+          "Callout Request Confirmation.",
+          "Kindly click YES to submit this callout.",
+          [
+            {
+              text: "Cancel",
+              onPress: () => console.log("Cancel Pressed"),
+              style: "cancel",
+            },
+            { text: "Yes", onPress: () => submitCallout() },
+          ],
+          { cancelable: false }
+        );
+      }
+    } else {
+      addJobTicket();
     }
-
-    Alert.alert(
-      "Callout Request Confirmation.",
-      "Kindly click YES to submit this callout.",
-      [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
-          style: "cancel",
-        },
-        { text: "Yes", onPress: () => submitCallout() },
-      ],
-      { cancelable: false }
-    );
   };
 
   const SubmittedCalloutAlert = () => {
@@ -422,106 +503,59 @@ const RequestCallOut = (props) => {
   };
 
   const submitCallout = async () => {
-    if (state.picture1 === "" || state.Urgency === "" || state.JobType === "none") {
-      alert("Kindly fill all the required details.");
-    } else {
-      NetInfo.fetch().then((isConnected) => {
-        if (isConnected) {
-          let JOBS = "";
-          if (state.OtherJobType === "") {
-            JOBS = state.JobType;
-          } else {
-            JOBS = `Other: ${state.OtherJobType}`;
+    console.log("meow");
+    let category = "Uncategorized";
+    const pictures = Object.fromEntries(
+      [...Array(4)]
+        .map((_, i) => {
+          const _statePic = state[`picture${i}`];
+          if (_statePic) {
+            const file = expoFileToFormFile(_statePic);
+            storage.put(`/callout_pics/${file.name}`, file).then(console.log).catch(console.error);
+            return [`picture${i}`, `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`];
           }
-          let pic1name = "";
-          let pic2name = "";
-          let pic3name = "";
-          let pic4name = "";
-
-          if (state.picture1 !== "") {
-            pic1name = state.picture1.split("/").pop();
-          }
-          if (state.picture1 !== "") {
-            pic2name = state.picture2.split("/").pop();
-          }
-          if (state.picture1 !== "") {
-            pic3name = state.picture3.split("/").pop();
-          }
-          if (state.picture1 !== "") {
-            pic4name = state.picture4.split("/").pop();
-          }
-
-          setState({ ...state, loading: true });
-          let link = `http://queensman.com/queens_client_Apis/submitCallOut.php?client_id=${state.customerID}&prop_id=${state.PropertyID}&job=${JOBS}&describe=${state.Description}&property_type=${state.property_type}&urg_lvl=${state.Urgency}&picture1=${pic1name}&picture2=${pic2name}&picture3=${pic3name}&picture4=${pic4name}`;
-          console.log(link);
-          axios
-            .get(link)
-            .then((result) => {
-              console.log(result.data.server_responce);
-
-              link = "http://queensman.com/queens_client_Apis/uploadPhoto.php";
-              if (state.picture1 !== "") {
-                urlToUPLOAD(state.picture1, link);
-              }
-              if (state.picture2 !== "") {
-                urlToUPLOAD(state.picture2, link);
-              }
-              if (state.picture3 !== "") {
-                urlToUPLOAD(state.picture3, link);
-              }
-              if (state.picture4 !== "") {
-                urlToUPLOAD(state.picture4, link);
-              }
-              setTimeout(() => {
-                link = `http://queensman.com/queens_client_Apis/fetchNewCalloutID.php?ID=${state.customerID}`;
-                console.log(link);
-                axios.get(link).then((result) => {
-                  console.log(result.data.server_response[0].id);
-                  setState({
-                    ...state,
-                    CalloutID: result.data.server_response[0].id,
-                  });
-                  setTimeout(() => {
-                    link = `http://queensman.com/queens_client_Apis/fetchClientProfile.php?ID=${state.customerID}`;
-                    console.log(link);
-
-                    axios.get(link).then((result) => {
-                      console.log(result.data.server_responce);
-                      setState({
-                        ...state,
-                        Email: result.data.server_responce.email,
-                        UserName: result.data.server_responce.full_name,
-                        Mobile: result.data.server_responce.phone,
-                      });
-                      link = `http://queensman.com/queens_client_Apis/sendEmail2.php?subject=${state.subject}&callout_id=${state.CalloutID}&client_id=${state.customerID}&client_name=${state.UserName}&client_email=${state.Email}&job=${JOBS}&description=${state.Description}&callout_urgency=${state.Urgency}&property_id=${state.PropertyID}&property_address=${state.address}&community=${state.community}&city=${state.city}&country=${state.country}&client_phone=${state.Mobile}`;
-                      console.log(link);
-                      axios
-                        .get(link)
-                        .then((result) => {
-                          console.log(result.data);
-                          SubmittedCalloutAlert();
-                          // refs.customToast.show('Callout Successfully Sent');
-                          setState({ ...state, loading: false });
-                          setTimeout(() => {
-                            props.navigation.navigate("HomeNaviagtor");
-                          }, 800);
-                        })
-                        .catch((error) => {
-                          console.log(error);
-                          alert(error);
-                          setState({ ...state, loading: false });
-                        });
-                    });
-                  }, 2000);
-                });
-              }, 2000);
-            })
-            .catch((error) => console.log(error));
-        } else {
-          alert("No Internet Connection Callout failed");
-        }
-      });
-    }
+          return null;
+        })
+        .filter(Boolean)
+    );
+    console.log(state.Description);
+    requestCalloutApiCall({
+      variables: {
+        property_id: state.PropertyID,
+        email: auth.user().email,
+        notes: state.Description,
+        time_on_calendar: null,
+        date_on_calendar: null,
+        category,
+        job_type: state.JobType,
+        status: "Requested",
+        request_time: new Date().toLocaleDateString(),
+        urgency_level: state.Urgency,
+        video: state.videoUrl,
+        ...pictures,
+      },
+    })
+      .then((res) => {
+        // SubmittedCalloutAlert();
+        props.navigation.navigate(
+          "HomeNaviagtor",
+          showMessage({
+            message: "Callout Request Submitted",
+            description: "One of our team will be in touch shortly",
+            type: "danger",
+            style: { height: "20%", flexDirection: "row", alignItems: "center" },
+            textStyle: { textAlignVertical: "center" },
+            duration: 3000,
+          })
+        );
+        // showMessage({
+        //   message: "Callout Request Submitted",
+        //   description: "One of our team will be in touch shortly",
+        //   type: "danger",
+        //   duration: 3000
+        // });
+      })
+      .catch((err) => console.log({ err }));
   };
 
   const RemoveImages = () => {
@@ -594,7 +628,7 @@ const RequestCallOut = (props) => {
 
   const saveVideoCloud = () => {
     const file = expoFileToFormFile(state.video, "video");
-    console.log(`/callout_videos/${file.name}`);
+    // console.log(`/callout_videos/${file.name}`);
     setVideoSaving(true);
     storage
       .put(`/callout_videos/${file.name}`, file)
@@ -608,6 +642,48 @@ const RequestCallOut = (props) => {
     });
   };
 
+  const addJobTicket = async () => {
+    let category = "Uncategorized";
+    const pictures = Object.fromEntries(
+      [...Array(4)]
+        .map((_, i) => {
+          const _statePic = state[`picture${i}`];
+          if (_statePic) {
+            const file = expoFileToFormFile(_statePic);
+            storage.put(`/callout_pics/${file.name}`, file).then(console.log).catch(console.error);
+            return [`picture${i}`, `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`];
+          }
+          return null;
+        })
+        .filter(Boolean)
+    );
+
+    addCalloutApiCall({
+      variables: {
+        callout_by_email: auth.user().email,
+        description: state.Description,
+        category,
+        job_type: state.JobType,
+        status: "Deferred",
+        urgency_level: "Medium",
+        ...pictures,
+      },
+    })
+      .then((res) => {
+        showMessage({
+          message: "Callout Request Submitted",
+          description: "One of our team will be in touch shortly",
+          type: "warning",
+          duration: 3000,
+        });
+        setTimeout(() => {
+          // SubmittedCalloutAlert();
+          props.navigation.navigate("HomeNaviagtor");
+        }, 3000);
+      })
+      .catch((err) => console.log({ err }));
+  };
+
   if (videoPlayScreen) {
     console.log("will return video play screen");
     return <VideoPlayScreen setVideoPlayScreen={setVideoPlayScreen} video={state.video} />;
@@ -618,16 +694,9 @@ const RequestCallOut = (props) => {
   }
   return (
     <KeyboardAvoidingView style={{ flex: 1, justifyContent: "space-between" }} behavior="padding" enabled>
-      <Toast
-        textStyle={{
-          color: "#fff",
-        }}
-        style={{
-          backgroundColor: "#000E1E",
-        }}
-      />
       <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
       <View style={{ paddingHorizontal: "10%", top: "13%" }}>
+        <FlashMessage position="top" />
         <Text style={[styles.TextFam, { color: "#FFCA5D", fontSize: 10 }]}>Callout Address</Text>
         {!state.PropertyDetailLoading ? (
           <View style={{}}>
@@ -646,26 +715,51 @@ const RequestCallOut = (props) => {
 
       <View style={styles.Card}>
         <View style={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>Job Type</Text>
+          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
+            {!props.navigation.state?.params.additionalServices ? "Job Type" : "Request Type"}
+          </Text>
 
           <View style={styles.PickerStyle}>
-            <Picker
-              note
-              mode="dialog"
-              onValueChange={onValueChange}
-              placeholderStyle={{ color: "#000" }}
-              selectedValue={state.JobType}
-              itemStyle={{ fontSize: 30 }}
-            >
-              <Picker.Item label="Select" value="none" />
-              <Picker.Item label="AC" value="AC" />
-              <Picker.Item label="Plumbing" value="Plumbing" />
-              <Picker.Item label="Electric" value="Electric" />
-              <Picker.Item label="Woodworks" value="Woodworks" />
-              <Picker.Item label="Paintworks" value="Paintworks" />
-              <Picker.Item label="Masonry" value="Masonry" />
-              <Picker.Item label="Other" value="other" />
-            </Picker>
+            {!props.navigation.state?.params.additionalServices ? (
+              <Picker
+                note
+                mode="dialog"
+                onValueChange={onValueChange}
+                placeholderStyle={{ color: "#000" }}
+                selectedValue={state.JobType}
+                itemStyle={{ fontSize: 30 }}
+              >
+                <Picker.Item label="Water Leakage" value="Water Leakage" />
+                <Picker.Item label="Pumps problem (pressure low)" value="Pumps problem (pressure low)" />
+                <Picker.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />
+                <Picker.Item
+                  label="Drains Blockage – Sinks, floor traps"
+                  value="Drains Blockage – Sinks, floor traps"
+                />
+                <Picker.Item label="AC Services Request" value="AC Services Request" />
+                <Picker.Item label="AC not cooling" value="AC not cooling" />
+                <Picker.Item label="AC Thermostat not functioning" value="AC Thermostat not functioning" />
+                <Picker.Item label="Other" value="other" />
+              </Picker>
+            ) : (
+              <Picker
+                note
+                mode="dialog"
+                onValueChange={onValueChange}
+                placeholderStyle={{ color: "#000" }}
+                selectedValue={state.JobType}
+                itemStyle={{ fontSize: 30 }}
+              >
+                <Picker.Item label="Request for quotation" value="Request for quotation" />
+                <Picker.Item label="AC" value="AC" />
+                <Picker.Item label="Plumbing" value="Plumbing" />
+                <Picker.Item label="Electric" value="Electric" />
+                <Picker.Item label="Woodworks" value="Woodworks" />
+                <Picker.Item label="Paintworks" value="Paintworks" />
+                <Picker.Item label="Masonry" value="Masonry" />
+                <Picker.Item label="Other" value="other" />
+              </Picker>
+            )}
           </View>
 
           {state.JobType === "other" ? (
@@ -683,34 +777,38 @@ const RequestCallOut = (props) => {
               </View>
             </View>
           ) : null}
-          <View style={{ height: "3%" }} />
-          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Urgency</Text>
-          <View style={{ height: "2%" }} />
-          <View
-            style={{
-              flexDirection: "row",
-              width: "100%",
-              paddingHorizontal: "5%",
-            }}
-          >
-            <TouchableOpacity
-              style={styles.circle}
-              onPress={() => setState({ ...state, Urgency: "high" })} // we set our value state to key
+          {!props.navigation.state?.params.additionalServices && <View style={{ height: "3%" }} />}
+          {!props.navigation.state?.params.additionalServices && (
+            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Urgency</Text>
+          )}
+          {!props.navigation.state?.params.additionalServices && <View style={{ height: "2%" }} />}
+          {!props.navigation.state?.params.additionalServices && (
+            <View
+              style={{
+                flexDirection: "row",
+                width: "100%",
+                paddingHorizontal: "5%",
+              }}
             >
-              {state.Urgency === "high" ? <View style={styles.checkedCircle} /> : null}
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.circle}
+                onPress={() => setState({ ...state, Urgency: "High" })} // we set our value state to key
+              >
+                {state.Urgency === "High" ? <View style={styles.checkedCircle} /> : null}
+              </TouchableOpacity>
 
-            <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "3%", fontSize: 14 }]}>High</Text>
-            <Icon name="flag" style={{ fontSize: 24, color: "red", paddingRight: "20%" }} />
-            <TouchableOpacity
-              style={styles.circle}
-              onPress={() => setState({ ...state, Urgency: "medium" })} // we set our value state to key
-            >
-              {state.Urgency === "medium" ? <View style={styles.checkedCircle} /> : null}
-            </TouchableOpacity>
-            <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "3%", fontSize: 14 }]}>Medium</Text>
-            <Icon name="flag" style={{ fontSize: 24, color: "#FFCA5D", paddingRight: "6%" }} />
-          </View>
+              <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "3%", fontSize: 14 }]}>High</Text>
+              <Icon name="flag" style={{ fontSize: 24, color: "red", paddingRight: "20%" }} />
+              <TouchableOpacity
+                style={styles.circle}
+                onPress={() => setState({ ...state, Urgency: "medium" })} // we set our value state to key
+              >
+                {state.Urgency === "medium" ? <View style={styles.checkedCircle} /> : null}
+              </TouchableOpacity>
+              <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "3%", fontSize: 14 }]}>Medium</Text>
+              <Icon name="flag" style={{ fontSize: 24, color: "#FFCA5D", paddingRight: "6%" }} />
+            </View>
+          )}
           <View style={{ height: "3%" }} />
           <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Description</Text>
           <View style={{ height: "2%" }} />
@@ -729,6 +827,7 @@ const RequestCallOut = (props) => {
               numberOfLines={1}
               underlineColorAndroid="transparent"
               onChangeText={(Description) => {
+                console.log(Description);
                 setState({ ...state, Description });
               }} // email set
             />
@@ -749,32 +848,38 @@ const RequestCallOut = (props) => {
             <TouchableOpacity style={styles.ImageSelectStyle} onPress={selectFromGallery}>
               <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}> Select Images From Gallery </Text>
             </TouchableOpacity>
-            {state.video ? (
-              !videoSaving ? (
-                <View>
-                  <TouchableOpacity
-                    style={[styles.ImageSelectStyle, { marginBottom: 10 }]}
-                    onPress={showPlayVideoScreen}
-                  >
-                    <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>Play Video</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    disabled={state.videoUrl.length}
-                    style={[styles.ImageSelectStyle, state.videoUrl.length ? styles.disabledButton : null]}
-                    onPress={saveVideoCloud}
-                  >
-                    <Text style={[styles.TextFam, { color: state.videoUrl.length ? "#bbb" : "#000E1E", fontSize: 10 }]}>
-                      Save Video
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+            {!props.navigation.state?.params.additionalServices ? (
+              state.video ? (
+                !videoSaving ? (
+                  <View>
+                    <TouchableOpacity
+                      style={[styles.ImageSelectStyle, { marginBottom: 10 }]}
+                      onPress={showPlayVideoScreen}
+                    >
+                      <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>Play Video</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      disabled={state.videoUrl.length}
+                      style={[styles.ImageSelectStyle, state.videoUrl.length ? styles.disabledButton : null]}
+                      onPress={saveVideoCloud}
+                    >
+                      <Text
+                        style={[styles.TextFam, { color: state.videoUrl.length ? "#bbb" : "#000E1E", fontSize: 10 }]}
+                      >
+                        Save Video
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <ActivityIndicator size="large" color="#000" style={{ alignSelf: "center" }} />
+                )
               ) : (
-                <ActivityIndicator size="large" color="#000" style={{ alignSelf: "center" }} />
+                <TouchableOpacity style={styles.ImageSelectStyle} onPress={showVideoScreenCallback}>
+                  <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>Add video</Text>
+                </TouchableOpacity>
               )
             ) : (
-              <TouchableOpacity style={styles.ImageSelectStyle} onPress={showVideoScreenCallback}>
-                <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>Add video</Text>
-              </TouchableOpacity>
+              <></>
             )}
           </View>
           <View style={{ height: "2%" }} />
@@ -930,7 +1035,11 @@ const RequestCallOut = (props) => {
                   alignSelf: "center",
                 }}
               >
-                {state.Urgency === "medium" ? "Select Date" : "Submit Callout"}
+                {state.Urgency === "medium"
+                  ? "Select Date"
+                  : !props.navigation.state?.params.additionalServices
+                  ? "Submit Callout"
+                  : "Make Request"}
               </Text>
             )}
           </TouchableOpacity>

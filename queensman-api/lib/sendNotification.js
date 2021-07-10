@@ -1,6 +1,6 @@
-var Expo = require('expo-server-sdk').Expo;
+const Expo = require('expo-server-sdk').Expo;
 
-let expo = new Expo();
+const expo = new Expo();
 
 const sendNotification = async ({ token, message }) => {
   if (!Expo.isExpoPushToken(token)) {
@@ -15,16 +15,16 @@ const sendNotification = async ({ token, message }) => {
     data: { withSome: 'data' },
   }]
 
-  let chunks = expo.chunkPushNotifications(push);
-  let tickets = [];
+  const chunks = expo.chunkPushNotifications(push);
+  const tickets = [];
 
   const send = async () => {
     // Send the chunks to the Expo push notification service. There are
     // different strategies you could use. A simple one is to send one chunk at a
     // time, which nicely spreads the load out over time:
-    for (let chunk of chunks) {
+    for (const chunk of chunks) {
       try {
-        let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+        const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
         console.log(ticketChunk);
         tickets.push(...ticketChunk);
         // NOTE: If a ticket contains an error code in ticket.details.error, you
@@ -38,8 +38,8 @@ const sendNotification = async ({ token, message }) => {
   };
   await send();
 
-  let receiptIds = [];
-  for (let ticket of tickets) {
+  const receiptIds = [];
+  for (const ticket of tickets) {
     // NOTE: Not all tickets have IDs; for example, tickets for notifications
     // that could not be enqueued will have error information and no receipt ID.
     if (ticket.id) {
@@ -47,21 +47,21 @@ const sendNotification = async ({ token, message }) => {
     }
   }
 
-  let receiptIdChunks = expo.chunkPushNotificationReceiptIds(receiptIds);
-  let _receipts = [];
+  const receiptIdChunks = expo.chunkPushNotificationReceiptIds(receiptIds);
+  const _receipts = [];
   const recieve = async () => {
     // Like sending notifications, there are different strategies you could use
     // to retrieve batches of receipts from the Expo service.
 
-    for (let chunk of receiptIdChunks) {
+    for (const chunk of receiptIdChunks) {
       try {
-        let receipts = await expo.getPushNotificationReceiptsAsync(chunk);
+        const receipts = await expo.getPushNotificationReceiptsAsync(chunk);
         console.log(receipts);
         _receipts.push(receipts)
         // The receipts specify whether Apple or Google successfully received the
         // notification and information about an error, if one occurred.
-        for (let receiptId in receipts) {
-          let { status, message, details } = receipts[receiptId];
+        for (const receiptId in receipts) {
+          const { status, message, details } = receipts[receiptId];
           if (status === 'ok') {
             continue;
           } else if (status === 'error') {
