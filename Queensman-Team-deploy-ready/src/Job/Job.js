@@ -71,20 +71,16 @@ const ADD_TICKET_NOTE = gql`
 `;
 
 const STOP_JOB = gql`
-  mutation MyMutation(
-    $id: Int!
-    $worker_email: String
-    $notes: jsonb
-    $notes1: jsonb
-  ) {
+  mutation CloseTicket($id: Int!, $worker_email: String!, $notes: jsonb!) {
     update_job_tickets_by_pk(
       pk_columns: { id: $id }
-      _set: { status: "Closed", notes: $notes1 }
+      _set: { status: "Closed" }
+      _append: { notes: $notes }
     ) {
       id
     }
     insert_job_tickets_one(
-      object: { type: "Deferred", worker_email: $worker_email, notes: $notes }
+      object: { type: "Deferred", worker_email: $worker_email, notes: [$notes] }
     ) {
       id
     }
@@ -136,6 +132,8 @@ const Job = (props) => {
   const [stopJobModalVisible, setstopJobModalVisible] = useState(false);
   const [addNote, { Notesdata, loading: addNoteLoading, error: addNoteError }] =
     useMutation(ADD_TICKET_NOTE);
+
+  console.log({ Notesdata, addNoteLoading, addNoteError });
 
   const [
     stopJob,
@@ -314,10 +312,12 @@ const Job = (props) => {
       id: ticket.id,
     };
 
+    console.log("calling api");
     addNote({
       variables: param,
     })
       .then((res) => {
+        console.log({ res });
         setnotes("");
         setticketNotesArray(res.data.update_job_tickets_by_pk.notes);
       })
@@ -382,17 +382,23 @@ const Job = (props) => {
   };
 
   const onFinalSubmitButton = () => {
-    // $id: Int!
-    // $worker_email: String
-    // $notes: jsonb
-    // $notes1: jsonb
+    if (closeJobNote === "") {
+      return alert("Please enter a note");
+    }
+
     stopJob({
       variables: {
         id: ticket.id,
         worker_email: auth.user().email,
         notes: closeJobNote,
       },
-    }).then((res) => console.log(res)).catch(console.log);
+    })
+      .then((res) => {
+        console.log({ res });
+        setstopJobModalVisible(false);
+        props.navigation.navigate("HomeNaviagtor");
+      })
+      .catch(console.log);
   };
   return (
     <ScrollView style={styles.container}>
@@ -412,7 +418,7 @@ const Job = (props) => {
           {RenderPictures(ticket.pictures)}
         </View>
         <Heading>Notes</Heading>
-        {ticketNotesArray.map((val, index) => {
+        {ticketNotesArray?.map((val, index) => {
           const { from, message } = val;
           return (
             <RenderComment
