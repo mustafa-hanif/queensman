@@ -26,13 +26,16 @@ import {
   Picker,
 } from "native-base";
 
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import { gql, useQuery } from "@apollo/client";
-import { auth } from '../utils/nhost';
+import { auth } from "../utils/nhost";
 
 const GET_JOBS_LIST = gql`
   query JobsList($email: String) {
-    callout(order_by: {request_time: desc}, where: {job_worker: {worker: {email: {_eq: $email}}}}) {
+    callout(
+      order_by: { request_time: desc }
+      where: { job_worker: { worker: { email: { _eq: $email } } } }
+    ) {
       id
       property_id
       job_type
@@ -45,7 +48,7 @@ const GET_JOBS_LIST = gql`
       picture3
       picture4
       urgency_level
-      client_id:callout_by
+      client_id: callout_by
       client: client_callout_email {
         full_name
         email
@@ -66,7 +69,6 @@ const GET_JOBS_LIST = gql`
 `;
 
 const JobsList = (props) => {
-  
   const [state, setState] = useState({
     assignedCallouts: [], //Ismain hayn saaray client ke ongoing callouts.
     Id: "",
@@ -79,132 +81,124 @@ const JobsList = (props) => {
 
   const { loading, data, error, refetch } = useQuery(GET_JOBS_LIST, {
     variables: {
-      email: auth?.currentSession?.session?.user.email
-    }
+      email: auth?.currentSession?.session?.user.email,
+    },
   });
 
   const onValueChange = (value) => {
-    setState(
-      {
-        ...state,
-        selected: value,
-      });
-
-      if (state.selected == "date") {
-        const myData = [].concat(state.assignedCallouts);
-        // console.log(myData);
-        setState({
-          ...state,
-          assignedCallouts: state.TotalData,
-        });
-      }
-
-      if (state.selected == "medium") {
-        const myData = [].concat(state.assignedCallouts);
-        // console.log(myData);
-        myData.sort(function (a, b) {
-          var idA = a.urgency_level;
-          var idB = b.urgency_level;
-          // console.log(idA);
-          // console.log(idB);
-          if (idA == "Medium" && idB != "Medium") {
-            return -1;
-          }
-          if (idA != "Medium" && idB == "Medium") {
-            return 1;
-          }
-
-          return 0;
-        });
-        setState(
-          {
-            ...state,
-            assignedCallouts: myData,
-          }
-        );
-      }
-
-      if (state.selected == "high") {
-        const myData = [].concat(state.assignedCallouts);
-        console.log(myData);
-        myData.sort(function (a, b) {
-          var idA = a.urgency_level;
-          var idB = b.urgency_level;
-          console.log(idA);
-          console.log(idB);
-          if (idA == "High" && idB != "High") {
-            return -1;
-          }
-          if (idA != "High" && idB == "High") {
-            return 1;
-          }
-
-          return 0;
-        });
-        console.log(myData);
-        setState({
-          ...state,
-          assignedCallouts: myData,
-        });
-      }
-
-      if (state.selected == "scheduled") {
-        const myData = [].concat(state.assignedCallouts);
-        console.log(myData);
-        myData.sort(function (a, b) {
-          var idA = a.urgency_level;
-          var idB = b.urgency_level;
-          console.log(idA);
-          console.log(idB);
-          if (idA == "Scheduled" && idB != "Scheduled") {
-            return -1;
-          }
-          if (idA != "Scheduled" && idB == "Scheduled") {
-            return 1;
-          }
-
-          return 0;
-        });
-        console.log(myData);
-        setState({
-          ...state,
-          assignedCallouts: myData,
-        });
-      }
-  }
-
-  const passItem = (item) => {
-  props.navigation.navigate("TicketListing", {
-      it: item,
+    setState({
+      ...state,
+      selected: value,
     });
 
-    // props.navigation.navigate("Job", {
-    //   it: item,
-    // });
+    if (state.selected == "date") {
+      const myData = [].concat(state.assignedCallouts);
+      // console.log(myData);
+      setState({
+        ...state,
+        assignedCallouts: state.TotalData,
+      });
+    }
+
+    if (state.selected == "medium") {
+      const myData = [].concat(state.assignedCallouts);
+      // console.log(myData);
+      myData.sort(function (a, b) {
+        var idA = a.urgency_level;
+        var idB = b.urgency_level;
+        // console.log(idA);
+        // console.log(idB);
+        if (idA == "Medium" && idB != "Medium") {
+          return -1;
+        }
+        if (idA != "Medium" && idB == "Medium") {
+          return 1;
+        }
+
+        return 0;
+      });
+      setState({
+        ...state,
+        assignedCallouts: myData,
+      });
+    }
+
+    if (state.selected == "high") {
+      const myData = [].concat(state.assignedCallouts);
+      console.log(myData);
+      myData.sort(function (a, b) {
+        var idA = a.urgency_level;
+        var idB = b.urgency_level;
+        console.log(idA);
+        console.log(idB);
+        if (idA == "High" && idB != "High") {
+          return -1;
+        }
+        if (idA != "High" && idB == "High") {
+          return 1;
+        }
+
+        return 0;
+      });
+      console.log(myData);
+      setState({
+        ...state,
+        assignedCallouts: myData,
+      });
+    }
+
+    if (state.selected == "scheduled") {
+      const myData = [].concat(state.assignedCallouts);
+      console.log(myData);
+      myData.sort(function (a, b) {
+        var idA = a.urgency_level;
+        var idB = b.urgency_level;
+        console.log(idA);
+        console.log(idB);
+        if (idA == "Scheduled" && idB != "Scheduled") {
+          return -1;
+        }
+        if (idA != "Scheduled" && idB == "Scheduled") {
+          return 1;
+        }
+
+        return 0;
+      });
+      console.log(myData);
+      setState({
+        ...state,
+        assignedCallouts: myData,
+      });
+    }
+  };
+
+  const passItem = (item) => {
+    props.navigation.navigate("TicketListing", {
+      it: item,
+    });
   };
 
   useEffect(() => {
     const workerEmail = auth?.currentSession?.session?.user.email;
     setState({ workerEmail });
-    
+
     if (data?.callout) {
-      console.log(data?.callout.length, "length")
-      setState(
-        {
-          ...state,
-          assignedCallouts: data?.callout,
-          dataAvaible: true,
-          TotalData: data?.callout,
-        }
-      );
+      console.log(data?.callout.length, "length");
+      setState({
+        ...state,
+        assignedCallouts: data?.callout,
+        dataAvaible: true,
+        TotalData: data?.callout,
+      });
     } else {
       setState({ ...state, dataAvaible: false });
     }
   }, [data?.callout]);
 
   if (error) {
-    return <View style={styles.container}>
-      <Text
+    return (
+      <View style={styles.container}>
+        <Text
           style={{
             fontSize: 20,
             fontWeight: "500",
@@ -214,7 +208,8 @@ const JobsList = (props) => {
         >
           Error
         </Text>
-    </View>
+      </View>
+    );
   }
   return (
     <View style={styles.container}>
@@ -257,7 +252,7 @@ const JobsList = (props) => {
         </Picker>
       </View>
       {loading && <ActivityIndicator size="large" color="#FFCA5D" />}
-      {!loading && data?.callout.length === 0 ?(
+      {!loading && data?.callout.length === 0 ? (
         <Text
           style={[
             styles.TextFam,
@@ -272,98 +267,101 @@ const JobsList = (props) => {
           No Assigned Services
         </Text>
       ) : (
-        !loading && data && <View>
-          <FlatList
-            data={state.assignedCallouts}
-            keyExtractor={(item, index) => `${index}`}
-            renderItem={({ item }) => (
-              <View>
-                <TouchableOpacity onPress={() => passItem(item)}>
-                  <View style={styles.Card}>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Text
-                        style={[
-                          styles.TextFam,
-                          { fontSize: 15, fontWeight: "bold" },
-                        ]}
-                      >
-                        Job type : {item.job_type}{" "}
-                      </Text>
-                      <Icon
-                        name="flag"
-                        style={{
-                          fontSize: 24,
-                          color:
-                            item.urgency_level == "High"
-                              ? "red"
-                              : item.urgency_level ==
-                                "Scheduled"
-                              ? "#aaa"
-                              : "#FFCA5D",
-                          paddingRight: "5%",
-                        }}
-                      ></Icon>
-                    </View>
-
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        flex: 1,
-                        paddingBottom: "5%",
-                      }}
-                    >
+        !loading &&
+        data && (
+          <View>
+            <FlatList
+              data={state.assignedCallouts}
+              keyExtractor={(item, index) => `${index}`}
+              renderItem={({ item }) => (
+                <View>
+                  <TouchableOpacity onPress={() => passItem(item)}>
+                    <View style={styles.Card}>
                       <View
                         style={{
                           flexDirection: "row",
-                          alignItems: "center",
+                          justifyContent: "space-between",
                         }}
                       >
-                        <Image
-                          // eslint-disable-next-line no-undef
-                          source={require("../../assets/Home/linehis.png")}
-                          style={{ height: 20, width: 20 }}
-                        ></Image>
-                        <View style={{ flexDirection: "column" }}>
-                          <Text style={[styles.TextFam, { fontSize: 10 }]}>
-                            Callout ID : {item.id}
-                          </Text>
-                          <Text style={[styles.TextFam, { fontSize: 10 }]}>
-                            Property ID : {item.property_id}
-                          </Text>
-                        </View>
+                        <Text
+                          style={[
+                            styles.TextFam,
+                            { fontSize: 15, fontWeight: "bold" },
+                          ]}
+                        >
+                          Job type : {item.job_type}{" "}
+                        </Text>
+                        <Icon
+                          name="flag"
+                          style={{
+                            fontSize: 24,
+                            color:
+                              item.urgency_level == "High"
+                                ? "red"
+                                : item.urgency_level == "Scheduled"
+                                ? "#aaa"
+                                : "#FFCA5D",
+                            paddingRight: "5%",
+                          }}
+                        ></Icon>
                       </View>
 
-                      <Text
-                        style={[
-                          styles.TextFam,
-                          {
-                            fontSize: 9,
-                            color: "#aaa",
-                            paddingRight: "5%",
-                            alignSelf: "center",
-                          },
-                        ]}
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          flex: 1,
+                          paddingBottom: "5%",
+                        }}
                       >
-                        Request time : {dayjs(item.request_time).format('DD/MM/YYYY')}
-                      </Text>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Image
+                            // eslint-disable-next-line no-undef
+                            source={require("../../assets/Home/linehis.png")}
+                            style={{ height: 20, width: 20 }}
+                          ></Image>
+                          <View style={{ flexDirection: "column" }}>
+                            <Text style={[styles.TextFam, { fontSize: 10 }]}>
+                              Callout ID : {item.id}
+                            </Text>
+                            <Text style={[styles.TextFam, { fontSize: 10 }]}>
+                              Property ID : {item.property_id}
+                            </Text>
+                          </View>
+                        </View>
+
+                        <Text
+                          style={[
+                            styles.TextFam,
+                            {
+                              fontSize: 9,
+                              color: "#aaa",
+                              paddingRight: "5%",
+                              alignSelf: "center",
+                            },
+                          ]}
+                        >
+                          Request time :{" "}
+                          {dayjs(item.request_time).format("DD/MM/YYYY")}
+                        </Text>
+                      </View>
                     </View>
-                  </View>
-                </TouchableOpacity>
-                <Text> </Text>
-              </View>
-            )}
-          />
-        </View>
+                  </TouchableOpacity>
+                  <Text> </Text>
+                </View>
+              )}
+            />
+          </View>
+        )
       )}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

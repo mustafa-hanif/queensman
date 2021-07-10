@@ -16,14 +16,16 @@ import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 const GET_JOB_TICKETS = gql`
   query MyQuery($callout_id: Int!) {
     job_tickets(where: { callout_id: { _eq: $callout_id } }) {
+      id
       name
       description
+      pictures
+      notes
     }
   }
 `;
 
 export default function TicketListing(props) {
-  //   console.log(props.navigation.getParam("it", {}));
   const { property_id, client, job_type, id } = props.navigation.getParam(
     "it",
     {}
@@ -88,7 +90,9 @@ export default function TicketListing(props) {
 
   const TicketCard = (props) => {
     return (
-      <View
+      <TouchableOpacity
+        onPress={props.onPress}
+        activeOpacity={0.8}
         style={{
           backgroundColor: "white",
           padding: "3%",
@@ -127,7 +131,7 @@ export default function TicketListing(props) {
           </View>
         </View>
         <Text style={{ fontSize: 13 }}>{props?.description}</Text>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -151,6 +155,13 @@ export default function TicketListing(props) {
     );
   };
 
+  const onTicketPress = (ticketDetails) => {
+    props.navigation.navigate("Job", {
+      it: props.navigation.getParam("it", {}),
+      ticketDetails,
+    });
+  };
+
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={{ margin: "3%" }}>
       <CreateTicketCard></CreateTicketCard>
@@ -160,8 +171,10 @@ export default function TicketListing(props) {
         {loading ? (
           <ActivityIndicator size="large" color="#FFCA5D" />
         ) : (
-          data?.job_tickets.map((item) => (
+          data?.job_tickets.map((item, index) => (
             <TicketCard
+              key={index}
+              onPress={() => onTicketPress(item)}
               Checked={true}
               description={item.description}
               ticketType={item.name}

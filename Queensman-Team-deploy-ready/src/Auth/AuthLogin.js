@@ -1,6 +1,12 @@
 /* eslint-disable react/prop-types */
 import React from "react";
-import { StyleSheet, View, ActivityIndicator, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  Dimensions,
+  LogBox,
+} from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
 import { auth } from "../utils/nhost";
@@ -12,6 +18,7 @@ let deviceHeight = Dimensions.get("window").height;
 export default class AuthLogin extends React.Component {
   constructor() {
     super();
+    LogBox.ignoreAllLogs(true);
     this.loadApp();
   }
 
