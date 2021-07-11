@@ -1,17 +1,15 @@
 import React from 'react';
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ActivityIndicator, FlatList, Linking } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient'
-import { Content, } from 'native-base';
+import { Box, Modal } from 'native-base';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import Modal from "react-native-modal";
-import Toast from 'react-native-whc-toast'
 import axios from 'axios';
 let deviceWidth = Dimensions.get('window').width
 let deviceHeight = Dimensions.get('window').height
 
 
-export default class GenerateReport extends React.Component {
+class GenerateReport extends React.Component {
   constructor(props) {
     super(props)
     this.state = ({
@@ -86,9 +84,6 @@ export default class GenerateReport extends React.Component {
 
   }
 
-
-
-
   renderReportModalContent = () => (
     <View style={styles.ReportModel}>
       {this.state.modeltype ?
@@ -122,15 +117,7 @@ export default class GenerateReport extends React.Component {
   render() {
     return (
       //content as view type  and touch exit
-      <Content scrollEnabled={false} contentContainerStyle={styles.container} >
-
-        <Toast ref='customToast'
-          textStyle={{
-            color: '#fff',
-          }}
-          style={{
-            backgroundColor: '#FFCA5D',
-          }} />
+      <Box mt={4}>
         {/* background gradinet   */}
         <LinearGradient
           colors={['#000E1E', '#001E2B', '#000E1E']}
@@ -178,12 +165,12 @@ export default class GenerateReport extends React.Component {
           swipeDirection={['left', 'right', 'down']}
           onBackdropPress={() => this.setState({ isReportModelVisible: false })}
         >
-
-          {this.renderReportModalContent()}
+          <Modal.Content>{this.renderReportModalContent()}</Modal.Content>
+          
 
         </Modal>
 
-      </Content>
+      </Box>
     );
   }
 }
@@ -220,3 +207,5 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0, 0, 0, 0.1)',
   }
 });
+
+export default GenerateReport;

@@ -24,8 +24,8 @@ export default class SignupChangePassword extends React.Component {
       code: "",
       showPassword: true,
 
-      OldPass: this.props.navigation.getParam("UserPassword", "Something"),
-      email: this.props.navigation.getParam("UserEmail", "Something"),
+      OldPass: this.props.route.params.UserPassword,
+      email: this.props.route.params.UserEmail,
     };
   }
 

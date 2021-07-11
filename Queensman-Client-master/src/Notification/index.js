@@ -41,7 +41,12 @@ export default function Index(props) {
 
   const [refreshing, setRefreshing] = useState(false);
   const [notifications, setNotifications] = useState([])
-  const [getNotification, { loading, data, error }] = useLazyQuery(GET_NOTIFICATIONS, {onCompleted: (data) => {setNotifications(data?.notifications || []); setRefreshing(false)}});
+  const [getNotification, { loading, data, error }] = useLazyQuery(GET_NOTIFICATIONS, {
+    onCompleted: (data) => {
+      setNotifications(data?.notifications || []); 
+      setRefreshing(false);
+    }
+  });
 
   const onRefresh = React.useCallback(() => {
     setNotifications([])

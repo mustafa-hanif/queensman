@@ -14,14 +14,14 @@ mutation UpdateNotifications($id: Int!) {
 
 
 const CONFIRM_CALLOUT = gql`
-mutation ConfirmCallout($callout_id: Int!, $id: Int!) {
-  update_callout_by_pk(pk_columns: { id: $callout_id }, _set: { status: "Confirmed" }) {
-    id
+  mutation ConfirmCallout($callout_id: Int!, $id: Int!) {
+    update_callout_by_pk(pk_columns: { id: $callout_id }, _set: { status: "Confirmed" }) {
+      id
+    }
+    update_notifications_by_pk(pk_columns: {id: $id}, _set: {isRead: true, type: "client"}) {
+      id
+    }
   }
-  update_notifications_by_pk(pk_columns: {id: $id}, _set: {isRead: true, type: "client"}) {
-    id
-  }
-}
 `;
 
 export default function NotificationList({
@@ -36,7 +36,10 @@ export default function NotificationList({
 }) {
 
   const [updateNotifications] = useMutation(UPDATE_NOTIFICATIONS);
-  const [confirmCalout, { loading: confirmCalloutLoading, error: confirmcalloutError }] = useMutation(CONFIRM_CALLOUT);
+  const [confirmCalout, { 
+    loading: confirmCalloutLoading, 
+    error: confirmcalloutError 
+  }] = useMutation(CONFIRM_CALLOUT);
 
   const onConfirmPress = (val) => {
     showMessage({

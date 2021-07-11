@@ -3,7 +3,7 @@
 /* eslint-disable no-use-before-define */
 import React, { PureComponent } from "react";
 import { Text, View, SafeAreaView, Image, TouchableOpacity, Linking } from "react-native";
-import { Icon, NativeBaseProvider } from "native-base";
+import { Icon, NativeBaseProvider, extendTheme } from "native-base";
 import AppLoading from "expo-app-loading";
 import * as Font from "expo-font";
 import { Asset } from "expo-asset";
@@ -58,10 +58,16 @@ export default class App extends PureComponent {
         />
       );
     }
+    const theme = extendTheme({
+      config: {
+        // Changing initialColorMode to 'dark'
+        initialColorMode: 'dark',
+      },
+    });
     return (
       <NhostAuthProvider auth={auth}>
         <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">
-          <NativeBaseProvider>
+          <NativeBaseProvider theme={theme}>
             <AppContainer />
           </NativeBaseProvider>
         </NhostApolloProvider>
@@ -169,14 +175,14 @@ const SettingStackNavigator = () => {
 /** HomeScreen Stack Naviagtor */
 const HomeScreenStack = createNativeStackNavigator();
 const HomeScreenStackNavigator = () => {
-  return <HomeScreenStack.Navigator screenOptions={{headerShown: false}}>
-    <HomeScreenStack.Screen name="HomeNaviagtor" component={HomeScreen} />
-    <HomeScreenStack.Screen options={{headerShown: true}} name="Notification" component={Notification} />
+  return <HomeScreenStack.Navigator>
+    <HomeScreenStack.Screen options={{headerShown: false}} name="HomeNaviagtor" component={HomeScreen} />
+    <HomeScreenStack.Screen name="Notification" component={Notification} />
     <HomeScreenStack.Screen name="VideoScreen" component={VideoScreen} />
-    <HomeScreenStack.Screen options={{headerShown: true}} name="RequestCallOut" component={RequestCallOut} />
-    <HomeScreenStack.Screen name="CalloutHistory" component={CalloutHistory} />
-    <HomeScreenStack.Screen name="CalloutOngoing" component={OngoingCallout} />
-    <HomeScreenStack.Screen options={{headerShown: true}} name="SelectSchedule" component={SelectSchedule} />
+    <HomeScreenStack.Screen name="RequestCallOut" component={RequestCallOut} />
+    <HomeScreenStack.Screen options={{title: 'Services History'}} name="CalloutHistory" component={CalloutHistory} />
+    <HomeScreenStack.Screen options={{title: 'Scheduled Services'}} name="CalloutOngoing" component={OngoingCallout} />
+    <HomeScreenStack.Screen name="SelectSchedule" component={SelectSchedule} />
     <HomeScreenStack.Screen name="OngoingcalloutItem" component={OngoingCalloutItem} />
     <HomeScreenStack.Screen name="CalloutHistoryItem" component={CallOutHistoryItem} />
     <HomeScreenStack.Screen name="CalloutReportItem" component={GenerateReport} />
@@ -327,19 +333,6 @@ const CustomDrawerComponent = (props) => (
     />
 
     <DrawerItemList {...props} />
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "flex-end",
-        paddingHorizontal: "8%",
-        marginVertical: "0.2%",
-      }}
-    >
-      <TouchableOpacity onPress={() => Linking.openURL("https://www.skynners.com")}>
-        <Image source={require("./assets/PartnerswithSkynners2.png")} style={{ height: 35, width: 150 }} />
-      </TouchableOpacity>
-      <Text> </Text>
-    </View>
   </DrawerContentScrollView>
 );
 
