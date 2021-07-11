@@ -1,0 +1,117 @@
+{
+    "resource": "/addJobTicketZoho",
+    "path": "/addJobTicketZoho",
+    "httpMethod": "POST",
+    "headers": {
+        "Accept": "*/*",
+        "Accept-Encoding": "gzip, deflate, br",
+        "CloudFront-Forwarded-Proto": "https",
+        "CloudFront-Is-Desktop-Viewer": "true",
+        "CloudFront-Is-Mobile-Viewer": "false",
+        "CloudFront-Is-SmartTV-Viewer": "false",
+        "CloudFront-Is-Tablet-Viewer": "false",
+        "CloudFront-Viewer-Country": "AE",
+        "Content-Type": "application/json",
+        "Host": "y8sr1kom3g.execute-api.us-east-1.amazonaws.com",
+        "Postman-Token": "574fd4e5-8782-46b3-86c4-220d92b23101",
+        "User-Agent": "PostmanRuntime/7.28.0",
+        "Via": "1.1 d761f6d12fd9cb2ef9a6358d934bb870.cloudfront.net (CloudFront)",
+        "X-Amz-Cf-Id": "hyu71-NhodcEerAaYnZtYdOhAEA4D7fZ8s8ewBfTDSfy8Oo7RHfXxA==",
+        "X-Amzn-Trace-Id": "Root=1-609c1abf-6929bc202b385ade4d5be694",
+        "X-Forwarded-For": "94.204.107.231, 52.46.55.88",
+        "X-Forwarded-Port": "443",
+        "X-Forwarded-Proto": "https"
+    },
+    "multiValueHeaders": {
+        "Accept": [
+            "*/*"
+        ],
+        "Accept-Encoding": [
+            "gzip, deflate, br"
+        ],
+        "CloudFront-Forwarded-Proto": [
+            "https"
+        ],
+        "CloudFront-Is-Desktop-Viewer": [
+            "true"
+        ],
+        "CloudFront-Is-Mobile-Viewer": [
+            "false"
+        ],
+        "CloudFront-Is-SmartTV-Viewer": [
+            "false"
+        ],
+        "CloudFront-Is-Tablet-Viewer": [
+            "false"
+        ],
+        "CloudFront-Viewer-Country": [
+            "AE"
+        ],
+        "Content-Type": [
+            "application/json"
+        ],
+        "Host": [
+            "y8sr1kom3g.execute-api.us-east-1.amazonaws.com"
+        ],
+        "Postman-Token": [
+            "574fd4e5-8782-46b3-86c4-220d92b23101"
+        ],
+        "User-Agent": [
+            "PostmanRuntime/7.28.0"
+        ],
+        "Via": [
+            "1.1 d761f6d12fd9cb2ef9a6358d934bb870.cloudfront.net (CloudFront)"
+        ],
+        "X-Amz-Cf-Id": [
+            "hyu71-NhodcEerAaYnZtYdOhAEA4D7fZ8s8ewBfTDSfy8Oo7RHfXxA=="
+        ],
+        "X-Amzn-Trace-Id": [
+            "Root=1-609c1abf-6929bc202b385ade4d5be694"
+        ],
+        "X-Forwarded-For": [
+            "94.204.107.231, 52.46.55.88"
+        ],
+        "X-Forwarded-Port": [
+            "443"
+        ],
+        "X-Forwarded-Proto": [
+            "https"
+        ]
+    },
+    "queryStringParameters": null,
+    "multiValueQueryStringParameters": null,
+    "pathParameters": null,
+    "stageVariables": null,
+    "requestContext": {
+        "resourceId": "7uc4h1",
+        "resourcePath": "/addJobTicketZoho",
+        "httpMethod": "POST",
+        "extendedRequestId": "fOkd-FbIIAMFzBg=",
+        "requestTime": "12/May/2021:18:13:19 +0000",
+        "path": "/dev/addJobTicketZoho",
+        "accountId": "366559116147",
+        "protocol": "HTTP/1.1",
+        "stage": "dev",
+        "domainPrefix": "y8sr1kom3g",
+        "requestTimeEpoch": 1620843199799,
+        "requestId": "977de262-92c7-4c64-82cf-bb9f6ac4d7da",
+        "identity": {
+            "cognitoIdentityPoolId": null,
+            "accountId": null,
+            "cognitoIdentityId": null,
+            "caller": null,
+            "sourceIp": "94.204.107.231",
+            "principalOrgId": null,
+            "accessKey": null,
+            "cognitoAuthenticationType": null,
+            "cognitoAuthenticationProvider": null,
+            "userArn": null,
+            "userAgent": "PostmanRuntime/7.28.0",
+            "user": null
+        },
+        "domainName": "y8sr1kom3g.execute-api.us-east-1.amazonaws.com",
+        "apiId": "y8sr1kom3g"
+    },
+    "body": "{\"event\":{\"session_variables\":{\"x-hasura-role\":\"user\",\"x-hasura-user-id\":\"f9828997-90a1-4c52-9ed8-6fb7d0a0de4c\"},\"op\":\"INSERT\",\"data\":{\"old\":null,\"new\":{\"name\":\"New Job\",\"description\":\"Nice job\", \"pictures\":null, \"type\":\"Deffered\", \"callout_id\":null, \"acknowledged\": null, \"worker_email\":\"azamkhan@queensman.com\",\"worker_id\":null, \"notes\":null}},\"trace_context\":{\"trace_id\":\"83d995284851b08b\",\"span_id\":\"23d5fd8d75c11584\"}},\"created_at\":\"2021-06-01T18:53:09.588867Z\",\"id\":\"ae1b9c97-d5c1-490c-968c-32ea46103c1f\",\"delivery_info\":{\"max_retries\":0,\"current_retry\":0},\"trigger\":{\"name\":\"job_tickets\"},\"table\":{\"schema\":\"public\",\"name\":\"job_tickets\"}}",
+    "isBase64Encoded": false
+  }

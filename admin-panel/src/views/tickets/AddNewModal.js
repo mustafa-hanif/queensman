@@ -29,24 +29,13 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
     // const { colors } = useContext(ThemeColors)
   const CloseBtn = <X className='cursor-pointer' size={15} onClick={closeModal} />   
 
-  const activeOptions = [
-    { value: 1, label: 'Active'},
-    { value: 0, label: 'Not Active' }
+  const options = [
+    {value: 'Deffered', label: 'Deffered'},
+    {value: 'Material Request', label: 'Material Request'},
+    {value: 'Patch Job', label: 'Patch Job'},
+    {value: 'Full Job', label: 'Full Job'}
   ]
 
-  const emergencyOptions = [
-    { value: true, label: 'Emergency'},
-    { value: false, label: 'Not Urgent' }
-  ]
-
-  const colorOptions = [
-    {value: '34eb40', label: 'Green'},
-    {value: 'c21dd1', label: 'Purple'},
-    {value: 'ebcf34', label: 'Yellow'},
-    {value: '3440eb', label: 'Dark Blue'},
-    {value: 'd11d1d', label: 'Red'},
-    {value: 'info', label: 'Light Blue'}
-  ]
 
   const handleChange = (e) => {
       const rowValue = {...row}
@@ -116,15 +105,16 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
         </InputGroup>
       </FormGroup>   
       <FormGroup>
-        <Label for='type'>Type</Label>
-        <InputGroup>
-          <InputGroupAddon addonType='prepend'>
-            <InputGroupText>
-              <Phone size={15} />
-            </InputGroupText>
-          </InputGroupAddon>
-          <Input id='type' placeholder='Type' name="type" value={row?.type} onChange={handleChange}/>
-        </InputGroup>
+        <Label>Type</Label>
+            <Select
+                onChange={ (e) => handleSelectedChange(e, 'type')}
+                theme={selectThemeColors}
+                className='react-select'
+                classNamePrefix='select'
+                defaultValue={{value: row?.type, label: row?.type ? row.type : "Deffered"}}
+                options={options}
+                isClearable={false}
+            />
       </FormGroup>
       {/* <FormGroup>
         <Label>Active</Label>

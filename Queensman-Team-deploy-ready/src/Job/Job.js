@@ -13,15 +13,15 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  TextInput,
 } from "react-native";
-import dayjs from 'dayjs';
+import { Icon } from "native-base";
+import dayjs from "dayjs";
 import Modal from "react-native-modal";
-
-import { Content, Icon } from "native-base";
-import content from "react-native-signature-canvas/h5/html";
 
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { auth } from "../utils/nhost";
+import * as Location from "expo-location";
 
 const GET_JOB_WORKERS = gql`
   query FetchJobWorker($id: Int!) {
@@ -60,6 +60,34 @@ const START_JOB = gql`
   }
 `;
 
+const ADD_TICKET_NOTE = gql`
+  mutation AddNote($notes: jsonb!, $id: Int!) {
+    update_job_tickets_by_pk(
+      pk_columns: { id: $id }
+      _append: { notes: $notes }
+    ) {
+      notes
+    }
+  }
+`;
+
+const STOP_JOB = gql`
+  mutation CloseTicket($id: Int!, $worker_email: String!, $notes: jsonb!) {
+    update_job_tickets_by_pk(
+      pk_columns: { id: $id }
+      _set: { status: "Closed" }
+      _append: { notes: $notes }
+    ) {
+      id
+    }
+    insert_job_tickets_one(
+      object: { type: "Deferred", worker_email: $worker_email, notes: [$notes] }
+    ) {
+      id
+    }
+  }
+`;
+
 const Job = (props) => {
   const [state, setState] = useState({
     Pic1: "photos/0690da3e-9c38-4a3f-ba45-8971697bd925.jpg",
@@ -87,12 +115,31 @@ const Job = (props) => {
     W3Email: "none",
   });
 
+  const [notes, setnotes] = useState("");
+  const [closeJobNote, setcloseJobNote] = useState("");
+
   const calloutIdFromParam = props.navigation.getParam("it", null);
+  const ticket = props.navigation.getParam("ticketDetails", {});
+  const [ticketNotesArray, setticketNotesArray] = useState(ticket.notes);
 
   // API
-  const [startJob, {  called: startJobCalled, loading: startJobLoading, error: startJobError }] = useMutation(START_JOB, {
+  const [
+    startJob,
+    { called: startJobCalled, loading: startJobLoading, error: startJobError },
+  ] = useMutation(START_JOB, {
     onError: (error) => alert(error),
   });
+
+  const [stopJobModalVisible, setstopJobModalVisible] = useState(false);
+  const [addNote, { Notesdata, loading: addNoteLoading, error: addNoteError }] =
+    useMutation(ADD_TICKET_NOTE);
+
+  console.log({ Notesdata, addNoteLoading, addNoteError });
+
+  const [
+    stopJob,
+    { stopJobData, loading: stopJobLoading, error: stopJobError },
+  ] = useMutation(STOP_JOB);
 
   if (startJobCalled && !startJobLoading) {
     props.navigation.navigate("PreJob", {
@@ -105,6 +152,20 @@ const Job = (props) => {
       id: calloutIdFromParam?.id,
     },
   });
+
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      console.log("Permission to access location was denied");
+      return null;
+    }
+
+    let location = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.High,
+    });
+
+    return JSON.stringify(location);
+  };
 
   useEffect(() => {
     const jobWorkers = data?.callout_by_pk?.job_worker;
@@ -150,6 +211,7 @@ const Job = (props) => {
       },
     });
   };
+
   const toggleGalleryEventModal = (value) => {
     setState({
       ...state,
@@ -162,51 +224,243 @@ const Job = (props) => {
   const client = state?.JobData?.client;
   const property = state?.JobData?.property;
 
-  console.log(state?.JobData)
   if (loading) {
     return <ActivityIndicator size="large" color="#FFCA5D" />;
   }
-  const pictureLinks = [...Array(4)].map((_, index) => {
-    const statePicture = state.JobData[`picture${index}`];
-    if (statePicture) {
-      return <TouchableOpacity
-      key={index}
-      onPress={() => toggleGalleryEventModal(statePicture)}
-      disabled={statePicture == "" ? true : false}
-    >
+
+  const RenderPictures = (arrayOfPics) => {
+    return arrayOfPics.map((val, index) => (
+      <TouchableOpacity
+        key={index}
+        onPress={() => toggleGalleryEventModal(val)}
+        // disabled={false}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            width: "100%",
+            alignItems: "center",
+          }}
+        >
+          <Icon
+            name="image"
+            style={{
+              fontSize: 20,
+              color: "#000E1E",
+              paddingRight: "3%",
+            }}
+          ></Icon>
+          <Text
+            style={{
+              fontSize: 13,
+              marginBottom: "1%",
+              color: "#000E1E",
+            }}
+          >
+            Picture {index + 1}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    ));
+  };
+
+  const pictureLinks = [...Array(4)]
+    .map((_, index) => {
+      const statePicture = state.JobData[`picture${index}`];
+      if (statePicture) {
+        return statePicture;
+      }
+      return null;
+    })
+    .filter(Boolean);
+
+  const Heading = (props) => {
+    return (
+      <Text
+        style={{
+          fontSize: 16,
+          fontWeight: "500",
+          color: "#FFCA5D",
+          marginBottom: "1.5%",
+          ...props.style,
+        }}
+      >
+        {props.children}
+      </Text>
+    );
+  };
+
+  const RenderComment = ({ from, message }) => {
+    return (
       <View
         style={{
           flexDirection: "row",
-          width: "100%",
+          alignItems: "flex-start",
+          marginBottom: "1%",
+        }}
+      >
+        <View style={{ flexDirection: "row" }}>
+          <Text
+            style={{
+              fontWeight: "bold",
+              textTransform: "capitalize",
+              fontStyle: "italic",
+              marginRight: 8,
+            }}
+          >
+            - {from} :
+          </Text>
+          <Text>{message}</Text>
+        </View>
+      </View>
+    );
+  };
+
+  const AddNoteApiCall = () => {
+    if (notes === "") {
+      return alert("Cannot add empty Note");
+    }
+    const { display_name } = auth.user();
+
+    const param = {
+      notes: { from: display_name, message: notes },
+      id: ticket.id,
+    };
+
+    console.log("calling api");
+    addNote({
+      variables: param,
+    })
+      .then((res) => {
+        console.log({ res });
+        setnotes("");
+        setticketNotesArray(res.data.update_job_tickets_by_pk.notes);
+      })
+      .catch(console.log);
+  };
+
+  const RenderAddNote = () => {
+    return (
+      <View
+        style={{
+          flexDirection: "row",
           alignItems: "center",
+          marginTop: 10,
         }}
       >
         <Icon
-          name="image"
-          style={{
-            fontSize: 20,
-            color: statePicture == "" ? "#aaa" : "#000E1E",
-            paddingRight: "3%",
-          }}
+          name="ios-newspaper-outline"
+          style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
         ></Icon>
-        <Text
+        <TextInput
           style={{
-            fontSize: 13,
-            marginBottom: "1%",
-            color: statePicture == "" ? "#aaa" : "#000E1E",
+            fontSize: 15,
+            color: "#000E1E",
+            width: "83%",
           }}
-        >
-          Picture {index}
-        </Text>
+          placeholder="Type note here..."
+          defaultValue={notes}
+          value={notes}
+          placeholderTextColor="#000E1E"
+          underlineColorAndroid="transparent"
+          onChangeText={(Note) => {
+            setnotes(Note.trimLeft());
+          }} //email set
+        />
+        <TouchableOpacity onPress={AddNoteApiCall}>
+          <Icon
+            name="add-circle"
+            style={{ fontSize: 25, color: "#000E1E" }}
+          ></Icon>
+        </TouchableOpacity>
       </View>
-    </TouchableOpacity>
+    );
+  };
+
+  const RenderValue = (props) => {
+    return (
+      <Text
+        style={{
+          fontSize: 14,
+          fontWeight: "800",
+          // fontFamily: 'serif',
+          marginBottom: "3%",
+        }}
+      >
+        {props.children}
+      </Text>
+    );
+  };
+
+  const onStopJobPress = () => {
+    setstopJobModalVisible(true);
+  };
+
+  const onFinalSubmitButton = () => {
+    if (closeJobNote === "") {
+      return alert("Please enter a note");
     }
-    return null;
-  }).filter(Boolean);
+
+    stopJob({
+      variables: {
+        id: ticket.id,
+        worker_email: auth.user().email,
+        notes: closeJobNote,
+      },
+    })
+      .then((res) => {
+        console.log({ res });
+        setstopJobModalVisible(false);
+        props.navigation.navigate("HomeNaviagtor");
+      })
+      .catch(console.log);
+  };
   return (
     <ScrollView style={styles.container}>
-      <View style={{ height: 20 }}></View>
-      <Text style={styles.HeadingStyle}>{dayjs(state.JobData.request_time).format('DD MMM YYYY')}</Text>
+      <View
+        style={{ borderBottomWidth: 1, marginVertical: 20, paddingBottom: 20 }}
+      >
+        <Heading style={{ fontSize: 20, alignSelf: "center", color: "black" }}>
+          Ticket Details
+        </Heading>
+        <Heading>Name</Heading>
+        <RenderValue>{ticket.name}</RenderValue>
+        <Heading>Description</Heading>
+        <RenderValue>{ticket.description}</RenderValue>
+
+        <Heading>Pictures</Heading>
+        <View style={{ marginVertical: 10 }}>
+          {RenderPictures(ticket.pictures)}
+        </View>
+        <Heading>Notes</Heading>
+        {ticketNotesArray?.map((val, index) => {
+          const { from, message } = val;
+          return (
+            <RenderComment
+              key={index}
+              from={from}
+              message={message}
+            ></RenderComment>
+          );
+        })}
+
+        {RenderAddNote()}
+      </View>
+      <Text style={[styles.HeadingStyle, { alignSelf: "center" }]}>
+        Overall Job Details
+      </Text>
+      <Text
+        style={{
+          fontSize: 15,
+          fontWeight: "800",
+          // fontFamily: 'serif',
+          marginBottom: "3%",
+          alignSelf: "center",
+        }}
+      >
+        {dayjs(state.JobData.request_time).format("DD MMM YYYY")}
+      </Text>
+
       <Text
         style={{
           fontSize: 17,
@@ -259,7 +513,8 @@ const Job = (props) => {
           Urgency Level: {state.JobData.urgency_level}
         </Text>
         <Text style={{ fontSize: 13, marginBottom: "3%" }}>
-          Request Time: {dayjs(state.JobData.request_time).format('DD MMM YYYY')}
+          Request Time:{" "}
+          {dayjs(state.JobData.request_time).format("DD MMM YYYY")}
         </Text>
       </View>
       <Text
@@ -300,24 +555,32 @@ const Job = (props) => {
         Callout Images
       </Text>
       <View style={{ width: "100%", paddingHorizontal: "5%", marginTop: "2%" }}>
-        {pictureLinks}
+        {RenderPictures(pictureLinks)}
       </View>
-      <View style={{ height: "3%" }}></View>
-      <Text
-        style={{
-          fontSize: 15,
-          fontWeight: "500",
-          color: "#FFCA5D",
-          marginBottom: "1.5%",
-        }}
-      >
-        Instructions from Admin
-      </Text>
-      <Text
-        style={{ fontSize: 13, marginBottom: "3%", paddingHorizontal: "5%" }}
-      >
-        {job?.instructions}
-      </Text>
+      <View style={{ height: "1%" }}></View>
+      {job?.instructions && (
+        <>
+          <Text
+            style={{
+              fontSize: 15,
+              fontWeight: "500",
+              color: "#FFCA5D",
+              marginBottom: "1.5%",
+            }}
+          >
+            Instructions from Admin
+          </Text>
+          <Text
+            style={{
+              fontSize: 13,
+              marginBottom: "3%",
+              paddingHorizontal: "5%",
+            }}
+          >
+            {job?.instructions}
+          </Text>
+        </>
+      )}
 
       <Text
         style={{
@@ -398,7 +661,15 @@ const Job = (props) => {
         title="Start Job"
         color="#FFCA5D"
       />
-      <View style={{ height: 80 }}></View>
+
+      <View style={{ marginTop: 20, marginBottom: 40 }}>
+        <Button
+          // style={{ width: "20%" }}
+          onPress={onStopJobPress}
+          title="Stop Job"
+          color="#cf142b"
+        />
+      </View>
 
       <Modal
         isVisible={state.isPicvisible}
@@ -409,11 +680,13 @@ const Job = (props) => {
         <View style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}>
           <Image
             style={{ width: "80%", height: "80%", alignSelf: "center" }}
-            onLoadStart={() => setState({...state, imageLoading: true})}
-            onLoadEnd={() => setState({...state, imageLoading: false})}
+            onLoadStart={() => setState({ ...state, imageLoading: true })}
+            onLoadEnd={() => setState({ ...state, imageLoading: false })}
             source={{ uri: state.selectedPic }}
           />
-          {state.imageLoading && <ActivityIndicator size="large" color="#FFCA5D" />}
+          {state.imageLoading && (
+            <ActivityIndicator size="large" color="#FFCA5D" />
+          )}
           <TouchableOpacity
             onPress={() => setState({ ...state, isPicvisible: false })}
           >
@@ -425,6 +698,49 @@ const Job = (props) => {
               </Text>
             </View>
           </TouchableOpacity>
+        </View>
+      </Modal>
+      <Modal
+        isVisible={stopJobModalVisible}
+        onBackdropPress={() => stopJobModalVisible(false)}
+      >
+        <View
+          style={{
+            width: "90%",
+
+            borderRadius: 10,
+            padding: 15,
+            backgroundColor: "white",
+            alignSelf: "center",
+          }}
+        >
+          <Text
+            style={{
+              alignSelf: "center",
+              fontSize: 18,
+              fontWeight: "bold",
+              marginBottom: 10,
+            }}
+          >
+            Why Are you closing this job?
+          </Text>
+          <TextInput
+            placeholder={"Write your reason here..."}
+            multiline={true}
+            onChangeText={(val) => {
+              setcloseJobNote(val.trimLeft());
+            }}
+            style={{
+              height: 80,
+              textAlignVertical: "top",
+              padding: 5,
+            }}
+          ></TextInput>
+          <Button
+            style={{ width: "20%" }}
+            onPress={onFinalSubmitButton}
+            title="Submit"
+          />
         </View>
       </Modal>
     </ScrollView>

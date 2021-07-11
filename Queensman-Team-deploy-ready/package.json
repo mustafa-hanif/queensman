@@ -25,6 +25,7 @@
     "expo-image-picker": "~10.1.4",
     "expo-image-picker-multiple": "^1.4.1",
     "expo-linear-gradient": "~9.1.0",
+    "expo-location": "~12.0.4",
     "expo-notifications": "~0.11.6",
     "expo-pixi": "^1.1.0",
     "hoist-non-react-statics": "*",
