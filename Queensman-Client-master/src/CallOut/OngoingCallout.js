@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity, Image } from "react-native";
-
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Icon } from "native-base";
 
@@ -22,7 +22,12 @@ const GET_CALLOUT = gql`
 `;
 
 const OngoingCallout = (props) => {
-  const { loading, data, error } = useQuery(GET_CALLOUT);
+  const email = auth?.currentSession?.session?.user.email;
+  const { loading, data, error } = useQuery(GET_CALLOUT, {
+    variables: {
+      callout_by_email: email
+    }
+  });
 
   passItem = (item) => {
     props.navigation.navigate("OngoingcalloutItem", {
@@ -32,9 +37,7 @@ const OngoingCallout = (props) => {
 
   return (
     <View style={styles.container}>
-      <Text style={{ paddingTop: "5%" }}> </Text>
-      <Text style={styles.HeadingStyle}>Scheduled Services</Text>
-      <Text> </Text>
+      <Text style={{ paddingTop: 5 }}> </Text>
       {!data?.callout ? (
         <Text
           style={[
@@ -70,11 +73,11 @@ const OngoingCallout = (props) => {
                           Job Type: {item.job_type}{" "}
                         </Text>
                         <Icon
+                          as={<Ionicons name="flag-sharp" />} 
                           name="flag"
                           style={{
                             fontSize: 24,
                             color: "#FFCA5D",
-                            paddingRight: "5%",
                           }}
                         ></Icon>
                       </View>

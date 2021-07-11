@@ -23,18 +23,17 @@ import {
 } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import NetInfo from "@react-native-community/netinfo";
+import { Ionicons } from "@expo/vector-icons";
 
-import { Picker, Icon } from "native-base";
+import { Select, Icon } from "native-base";
 import FlashMessage from "react-native-flash-message";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 
-import axios from "axios";
-
+import * as MediaLibrary from 'expo-media-library';
+import { Camera } from 'expo-camera';
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
-import * as Permissions from "expo-permissions";
 import { LinearGradient } from "expo-linear-gradient";
 import Modal from "react-native-modal";
 import { auth, storage } from "../utils/nhost";
@@ -298,9 +297,9 @@ const RequestCallOut = (props) => {
     community: "",
     city: "",
     country: "",
-    JobType: props.navigation.state.params.additionalServices ? "Request for quotation" : "",
+    JobType: props.route.params.additionalServices ? "Request for quotation" : "",
+    Urgency: props.route.params.additionalServices ? "Medium" : "",
     OtherJobType: "",
-    Urgency: props.navigation.state.params.additionalServices ? "Medium" : "",
     Description: "",
     to: "aalvi@queensman.com",
     subject: "Callout from Queensman Spades",
@@ -403,7 +402,7 @@ const RequestCallOut = (props) => {
 
   const selectFromGallery = async () => {
     if (Constants.platform.ios) {
-      const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
+      const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== "granted") {
         alert("Sorry, we need camera roll permissions to make this work!");
       }
@@ -464,7 +463,7 @@ const RequestCallOut = (props) => {
       return alert("Kindly fill all the required details.");
     }
 
-    if (!props.navigation.state.params.additionalServices) {
+    if (!props.route.params.additionalServices) {
       if (state.Urgency === "medium") {
         return props.navigation.navigate("SelectSchedule", { state });
       } else {
@@ -584,14 +583,13 @@ const RequestCallOut = (props) => {
   };
 
   const CameraSnap = async () => {
-    if (Constants.platform.ios) {
-      const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
-      if (status !== "granted") {
-        alert("Sorry, we need camera roll permissions to make this work!");
-      }
-    }
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    const { status } = await MediaLibrary.requestPermissionsAsync();
     if (status !== "granted") {
+      alert("Sorry, we need camera roll permissions to make this work!");
+    }
+    
+    const { status: status2 } = await Camera.requestCameraPermissionsAsync();
+    if (status2 !== "granted") {
       alert("Sorry, we need camera roll permissions to make this work!");
     }
     const result = await ImagePicker.launchCameraAsync({
@@ -721,7 +719,7 @@ const RequestCallOut = (props) => {
 
           <View style={styles.PickerStyle}>
             {!props.navigation.state?.params.additionalServices ? (
-              <Picker
+              <Select
                 note
                 mode="dialog"
                 onValueChange={onValueChange}
@@ -729,20 +727,20 @@ const RequestCallOut = (props) => {
                 selectedValue={state.JobType}
                 itemStyle={{ fontSize: 30 }}
               >
-                <Picker.Item label="Water Leakage" value="Water Leakage" />
-                <Picker.Item label="Pumps problem (pressure low)" value="Pumps problem (pressure low)" />
-                <Picker.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />
-                <Picker.Item
+                <Select.Item label="Water Leakage" value="Water Leakage" />
+                <Select.Item label="Pumps problem (pressure low)" value="Pumps problem (pressure low)" />
+                <Select.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />
+                <Select.Item
                   label="Drains Blockage – Sinks, floor traps"
                   value="Drains Blockage – Sinks, floor traps"
                 />
-                <Picker.Item label="AC Services Request" value="AC Services Request" />
-                <Picker.Item label="AC not cooling" value="AC not cooling" />
-                <Picker.Item label="AC Thermostat not functioning" value="AC Thermostat not functioning" />
-                <Picker.Item label="Other" value="other" />
-              </Picker>
+                <Select.Item label="AC Services Request" value="AC Services Request" />
+                <Select.Item label="AC not cooling" value="AC not cooling" />
+                <Select.Item label="AC Thermostat not functioning" value="AC Thermostat not functioning" />
+                <Select.Item label="Other" value="other" />
+              </Select>
             ) : (
-              <Picker
+              <Select
                 note
                 mode="dialog"
                 onValueChange={onValueChange}
@@ -750,15 +748,15 @@ const RequestCallOut = (props) => {
                 selectedValue={state.JobType}
                 itemStyle={{ fontSize: 30 }}
               >
-                <Picker.Item label="Request for quotation" value="Request for quotation" />
-                <Picker.Item label="AC" value="AC" />
-                <Picker.Item label="Plumbing" value="Plumbing" />
-                <Picker.Item label="Electric" value="Electric" />
-                <Picker.Item label="Woodworks" value="Woodworks" />
-                <Picker.Item label="Paintworks" value="Paintworks" />
-                <Picker.Item label="Masonry" value="Masonry" />
-                <Picker.Item label="Other" value="other" />
-              </Picker>
+                <Select.Item label="Request for quotation" value="Request for quotation" />
+                <Select.Item label="AC" value="AC" />
+                <Select.Item label="Plumbing" value="Plumbing" />
+                <Select.Item label="Electric" value="Electric" />
+                <Select.Item label="Woodworks" value="Woodworks" />
+                <Select.Item label="Paintworks" value="Paintworks" />
+                <Select.Item label="Masonry" value="Masonry" />
+                <Select.Item label="Other" value="other" />
+              </Select>
             )}
           </View>
 
@@ -797,8 +795,8 @@ const RequestCallOut = (props) => {
                 {state.Urgency === "High" ? <View style={styles.checkedCircle} /> : null}
               </TouchableOpacity>
 
-              <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "3%", fontSize: 14 }]}>High</Text>
-              <Icon name="flag" style={{ fontSize: 24, color: "red", paddingRight: "20%" }} />
+              <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "2%", fontSize: 14 }]}>High</Text>
+              <Icon name="flag" as={<Ionicons name="flag-sharp" />}  style={{ fontSize: 24, color: "red", paddingRight: "20%", marginTop: -6 }} />
               <TouchableOpacity
                 style={styles.circle}
                 onPress={() => setState({ ...state, Urgency: "medium" })} // we set our value state to key
@@ -806,7 +804,7 @@ const RequestCallOut = (props) => {
                 {state.Urgency === "medium" ? <View style={styles.checkedCircle} /> : null}
               </TouchableOpacity>
               <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "3%", fontSize: 14 }]}>Medium</Text>
-              <Icon name="flag" style={{ fontSize: 24, color: "#FFCA5D", paddingRight: "6%" }} />
+              <Icon name="flag" as={<Ionicons name="flag-sharp" />} style={{ fontSize: 24, color: "#FFCA5D", paddingRight: "6%", marginTop: -6 }} />
             </View>
           )}
           <View style={{ height: "3%" }} />
@@ -904,6 +902,7 @@ const RequestCallOut = (props) => {
               >
                 <Icon
                   name="link"
+                  as={<Ionicons name="link" />} 
                   style={{
                     fontSize: 20,
                     color: state.picture1 === "" ? "#aaa" : "#000E1E",
@@ -933,6 +932,7 @@ const RequestCallOut = (props) => {
                 }}
               >
                 <Icon
+                  as={<Ionicons name="link" />} 
                   name="link"
                   style={{
                     fontSize: 20,
@@ -973,6 +973,7 @@ const RequestCallOut = (props) => {
                 }}
               >
                 <Icon
+                  as={<Ionicons name="link" />} 
                   name="link"
                   style={{
                     fontSize: 20,
@@ -1003,6 +1004,7 @@ const RequestCallOut = (props) => {
                 }}
               >
                 <Icon
+                  as={<Ionicons name="link" />} 
                   name="link"
                   style={{
                     fontSize: 20,

@@ -19,7 +19,7 @@ export default class CallOutHistoryItem extends React.Component {
       FeedBack: '',
       status_update_list: [],
       WorkRate: null,
-      HistoryCallOutData: this.props.navigation.getParam('it', 'Something'),
+      HistoryCallOutData: this.props.route.params.it,
       link: "photos/0690da3e-9c38-4a3f-ba45-8971697bd925.jpg",
       selectedPic: "",
       isPicvisible: false, //veiw image app kay lia

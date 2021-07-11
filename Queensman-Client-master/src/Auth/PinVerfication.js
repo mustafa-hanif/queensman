@@ -41,7 +41,7 @@ export default class PinVerfication extends React.Component {
     super(props);
     this.state = {
       code: "",
-      email: this.props.navigation.getParam("UserEmail", "Something"),
+      email: this.props.route.params.UserEmail,
       pass: "",
     };
   }

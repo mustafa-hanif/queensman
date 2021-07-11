@@ -2,12 +2,8 @@
 /* eslint-disable import/order */
 /* eslint-disable no-use-before-define */
 import React, { PureComponent } from "react";
-import * as SplashScreen from "expo-splash-screen";
 import { Text, View, SafeAreaView, Image, TouchableOpacity, Linking } from "react-native";
-import { createSwitchNavigator, createAppContainer } from "react-navigation";
-import { createStackNavigator } from "react-navigation-stack";
-import { createDrawerNavigator, DrawerItems } from "react-navigation-drawer";
-import { Icon, StyleProvider } from "native-base";
+import { Icon, NativeBaseProvider, extendTheme } from "native-base";
 import AppLoading from "expo-app-loading";
 import * as Font from "expo-font";
 import { Asset } from "expo-asset";
@@ -15,6 +11,10 @@ import { Asset } from "expo-asset";
 import { NhostApolloProvider } from "@nhost/react-apollo";
 import { NhostAuthProvider } from "@nhost/react-auth";
 import { auth } from "./src/utils/nhost";
+
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItem, DrawerItemList } from '@react-navigation/drawer';
 
 // Classes import
 import LoginScreen from "./src/Login/LoginScreen";
@@ -41,15 +41,8 @@ import SelectSchedule from "./src/CallOut/SelectSchedule";
 import Notification from "./src/Notification";
 import VideoScreen from "./src/VideoScreen";
 
-import getTheme from "./native-base-theme/components";
-import commonColor from "./native-base-theme/variables/commonColor";
 
 /** App main loading */
-// Prevent native splash screen from autohiding before App component declaration
-SplashScreen.preventAutoHideAsync()
-  .then((result) => console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`))
-  .catch(console.warn); // it's good to explicitly catch and inspect any error
-
 export default class App extends PureComponent {
   state = {
     isReady: false,
@@ -65,13 +58,18 @@ export default class App extends PureComponent {
         />
       );
     }
-    SplashScreen.hideAsync();
+    const theme = extendTheme({
+      config: {
+        // Changing initialColorMode to 'dark'
+        initialColorMode: 'dark',
+      },
+    });
     return (
       <NhostAuthProvider auth={auth}>
         <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">
-          <StyleProvider style={getTheme(commonColor)}>
+          <NativeBaseProvider theme={theme}>
             <AppContainer />
-          </StyleProvider>
+          </NativeBaseProvider>
         </NhostApolloProvider>
       </NhostAuthProvider>
     );
@@ -119,213 +117,198 @@ async function _cacheResourcesAsync() {
 }
 
 /** Login Screen */
-const LoginStackNavigator = createStackNavigator(
-  {
-    Login: {
-      screen: LoginScreen,
-      navigationOptions: ({ navigation }) => ({
-        headerTransparent: true,
-      }),
-    },
-    PinVerify: {
-      screen: PinVerfication,
-      navigationOptions: ({ navigation }) => ({
-        headerTintColor: "#fff",
-        headerTransparent: true,
-      }),
-    },
-    SignUpChangePass: {
-      screen: SignupChangePassword,
-      navigationOptions: ({ navigation }) => ({
-        headerTintColor: "#fff",
-        headerTransparent: true,
-      }),
-    },
-    SignUpContectUs: {
-      screen: SignupContectUs,
-      navigationOptions: ({ navigation }) => ({
-        headerTintColor: "#fff",
-        headerTransparent: true,
-      }),
-    },
-    SelectProperty: {
-      screen: PropertyDetails,
-      navigationOptions: ({ navigation }) => ({
-        headerTintColor: "#fff",
-        headerTransparent: true,
-      }),
-    },
-    ForgotPassword: {
-      screen: ForgotPassword,
-      navigationOptions: ({ navigation }) => ({
-        headerTintColor: "#fff",
-        headerTransparent: true,
-      }),
-    },
-  },
-  {
-    initialRouteName: "Login",
-    // transitionConfig: () => fromTop(500),
-  }
-);
-createAppContainer(LoginStackNavigator);
+const LoginStack = createNativeStackNavigator();
+const LoginStackNavigator = () => {
+  return <LoginStack.Navigator screenOptions={{headerShown: false}}>
+    <LoginStack.Screen name="LoginScreen" component={LoginScreen} />
+    <LoginStack.Screen name="PinVerify" component={PinVerfication} />
+    <LoginStack.Screen name="SignUpChangePass" component={SignupChangePassword} />
+    <LoginStack.Screen name="SignUpContectUs" component={SignupContectUs} />
+    <LoginStack.Screen name="SelectProperty" component={PropertyDetails} />
+    <LoginStack.Screen name="ForgotPassword" component={ForgotPassword} />
+  </LoginStack.Navigator>;
+}
 
 /** Setting Screen */
-const SettingStackNavigator = createStackNavigator(
-  {
-    Settings: {
-      screen: Settings,
-      navigationOptions: ({ navigation }) => ({
-        title: "Settings",
-        headerTransparent: true,
-        headerTitleStyle: {
-          fontFamily: "Helvetica",
-        },
-        headerLeft: (
-          <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-            <View style={{ flexDirection: "row" }}>
-              <Text> </Text>
-              <Icon name="arrow-back" style={{ fontSize: 24, color: "#000" }} />
-            </View>
-          </TouchableOpacity>
-        ),
-      }),
-    },
-    SettingPasswordChange: {
-      screen: SettingPasswordChange,
-      navigationOptions: ({ navigation }) => ({
-        headerTintColor: "#fff",
-        headerTransparent: true,
-      }),
-    },
-  },
-  {
-    initialRouteName: "Settings",
-    // transitionConfig: () => fromTop(500),
-  }
-);
-createAppContainer(SettingStackNavigator);
+const SettingStack = createNativeStackNavigator();
+const SettingStackNavigator = () => {
+  return <SettingStack.Navigator>
+    <SettingStack.Screen name="Settings" component={Settings} />
+    <SettingStack.Screen name="SettingPasswordChange" component={SettingPasswordChange} />
+  </SettingStack.Navigator>
+}
+// const SettingStackNavigator = createStackNavigator(
+//   {
+//     Settings: {
+//       screen: Settings,
+//       navigationOptions: ({ navigation }) => ({
+//         title: "Settings",
+//         headerTransparent: true,
+//         headerTitleStyle: {
+//           fontFamily: "Helvetica",
+//         },
+//         headerLeft: (
+//           <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+//             <View style={{ flexDirection: "row" }}>
+//               <Text> </Text>
+//               <Icon name="arrow-back" style={{ fontSize: 24, color: "#000" }} />
+//             </View>
+//           </TouchableOpacity>
+//         ),
+//       }),
+//     },
+//     SettingPasswordChange: {
+//       screen: SettingPasswordChange,
+//       navigationOptions: ({ navigation }) => ({
+//         headerTintColor: "#fff",
+//         headerTransparent: true,
+//       }),
+//     },
+//   },
+//   {
+//     initialRouteName: "Settings",
+//     // transitionConfig: () => fromTop(500),
+//   }
+// );
+// createAppContainer(SettingStackNavigator);
 
 /** HomeScreen Stack Naviagtor */
-const HomeScreenStackNavigator = createStackNavigator(
-  {
-    HomeNaviagtor: {
-      screen: HomeScreen,
-      navigationOptions: ({ navigation }) => ({
-        //  title:'ABB',
+const HomeScreenStack = createNativeStackNavigator();
+const HomeScreenStackNavigator = () => {
+  return <HomeScreenStack.Navigator>
+    <HomeScreenStack.Screen options={{headerShown: false}} name="HomeNaviagtor" component={HomeScreen} />
+    <HomeScreenStack.Screen name="Notification" component={Notification} />
+    <HomeScreenStack.Screen name="VideoScreen" component={VideoScreen} />
+    <HomeScreenStack.Screen name="RequestCallOut" component={RequestCallOut} />
+    <HomeScreenStack.Screen options={{title: 'Services History'}} name="CalloutHistory" component={CalloutHistory} />
+    <HomeScreenStack.Screen options={{title: 'Scheduled Services'}} name="CalloutOngoing" component={OngoingCallout} />
+    <HomeScreenStack.Screen name="SelectSchedule" component={SelectSchedule} />
+    <HomeScreenStack.Screen name="OngoingcalloutItem" component={OngoingCalloutItem} />
+    <HomeScreenStack.Screen name="CalloutHistoryItem" component={CallOutHistoryItem} />
+    <HomeScreenStack.Screen name="CalloutReportItem" component={GenerateReport} />
+    <HomeScreenStack.Screen name="MonthlyStatsReport" component={MonthlyStatsReport} />
+    <HomeScreenStack.Screen name="MaterialWarrantyReport" component={MaterialWarrantyReport} />
+  </HomeScreenStack.Navigator>
+}
+// const HomeScreenStackNavigator = createStackNavigator(
+//   {
+//     HomeNaviagtor: {
+//       screen: HomeScreen,
+//       navigationOptions: ({ navigation }) => ({
+//         //  title:'ABB',
 
-        headerTransparent: true,
-      }),
-    },
-    Notification: {
-      screen: Notification,
-      navigationOptions: ({ navigation }) => ({
-        title: "Notification",
-        headerTransparent: false,
-        headerTintColor: "#FFCA5D",
-        headerStyle: {
-          backgroundColor: '#000E1E'
-        }
-      }),
-    },
-    VideoScreen: {
-      screen: VideoScreen,
-      navigationOptions: ({ navigation }) => ({
-        headerShown: false,
-      }),
-    },
-    RequestCallOut: {
-      screen: RequestCallOut,
-      navigationOptions: ({ navigation }) => ({
-        title: "Request Callout",
-        headerTransparent: true,
-        headerTintColor: "#FFCA5D",
-        headerTitleStyle: {
-          fontFamily: "Helvetica",
-        },
-      }),
-    },
-    CalloutHistory: {
-      screen: CalloutHistory,
-      navigationOptions: ({ navigation }) => ({
-        // title: 'Callout History',
-        headerTransparent: true,
-      }),
-    },
-    CalloutOngoing: {
-      screen: OngoingCallout,
-      navigationOptions: ({ navigation }) => ({
-        // title: 'Callout History',
-        headerTransparent: true,
-      }),
-    },
-    SelectSchedule: {
-      screen: SelectSchedule,
-      navigationOptions: ({ navigation }) => ({
-        title: "Select Schedule",
-        headerBackTitle: "Back",
-        headerStyle: {
-          backgroundColor: "#000E1E",
-        },
-        headerTintColor: "#FFCA5D",
+//         headerTransparent: true,
+//       }),
+//     },
+//     Notification: {
+//       screen: Notification,
+//       navigationOptions: ({ navigation }) => ({
+//         title: "Notification",
+//         headerTransparent: false,
+//         headerTintColor: "#FFCA5D",
+//         headerStyle: {
+//           backgroundColor: '#000E1E'
+//         }
+//       }),
+//     },
+//     VideoScreen: {
+//       screen: VideoScreen,
+//       navigationOptions: ({ navigation }) => ({
+//         headerShown: false,
+//       }),
+//     },
+//     RequestCallOut: {
+//       screen: RequestCallOut,
+//       navigationOptions: ({ navigation }) => ({
+//         title: "Request Callout",
+//         headerTransparent: true,
+//         headerTintColor: "#FFCA5D",
+//         headerTitleStyle: {
+//           fontFamily: "Helvetica",
+//         },
+//       }),
+//     },
+//     CalloutHistory: {
+//       screen: CalloutHistory,
+//       navigationOptions: ({ navigation }) => ({
+//         // title: 'Callout History',
+//         headerTransparent: true,
+//       }),
+//     },
+//     CalloutOngoing: {
+//       screen: OngoingCallout,
+//       navigationOptions: ({ navigation }) => ({
+//         // title: 'Callout History',
+//         headerTransparent: true,
+//       }),
+//     },
+//     SelectSchedule: {
+//       screen: SelectSchedule,
+//       navigationOptions: ({ navigation }) => ({
+//         title: "Select Schedule",
+//         headerBackTitle: "Back",
+//         headerStyle: {
+//           backgroundColor: "#000E1E",
+//         },
+//         headerTintColor: "#FFCA5D",
 
-        headerBackTitleStyle: {
-          color: "#FFCA5D",
-        },
+//         headerBackTitleStyle: {
+//           color: "#FFCA5D",
+//         },
 
-        headerTitleStyle: {
-          color: "#FFCA5D",
-          fontWeight: "bold",
-        },
-      }),
-    },
-    OngoingcalloutItem: {
-      screen: OngoingCalloutItem,
-      navigationOptions: ({ navigation }) => ({
-        headerTintColor: "#fff",
-        headerTransparent: true,
-      }),
-    },
-    CalloutHistoryItem: {
-      screen: CallOutHistoryItem,
-      navigationOptions: ({ navigation }) => ({
-        headerTintColor: "#fff",
-        headerTransparent: true,
-      }),
-    },
-    CalloutReportItem: {
-      screen: GenerateReport,
-      navigationOptions: ({ navigation }) => ({
-        headerTintColor: "#fff",
-        headerTransparent: true,
-      }),
-    },
-    MonthlyStatsReport: {
-      screen: MonthlyStatsReport,
-      navigationOptions: ({ navigation }) => ({
-        title: "Monthly Services Reports",
-        headerTintColor: "#fff",
-        headerTransparent: true,
-      }),
-    },
-    MaterialWarrantyReport: {
-      screen: MaterialWarrantyReport,
-      navigationOptions: ({ navigation }) => ({
-        title: "Material Warranty Reports",
-        headerTintColor: "#fff",
-        headerTransparent: true,
-      }),
-    },
-  },
-  {
-    initialRouteName: "HomeNaviagtor",
-  }
-);
-createAppContainer(HomeScreenStackNavigator);
+//         headerTitleStyle: {
+//           color: "#FFCA5D",
+//           fontWeight: "bold",
+//         },
+//       }),
+//     },
+//     OngoingcalloutItem: {
+//       screen: OngoingCalloutItem,
+//       navigationOptions: ({ navigation }) => ({
+//         headerTintColor: "#fff",
+//         headerTransparent: true,
+//       }),
+//     },
+//     CalloutHistoryItem: {
+//       screen: CallOutHistoryItem,
+//       navigationOptions: ({ navigation }) => ({
+//         headerTintColor: "#fff",
+//         headerTransparent: true,
+//       }),
+//     },
+//     CalloutReportItem: {
+//       screen: GenerateReport,
+//       navigationOptions: ({ navigation }) => ({
+//         headerTintColor: "#fff",
+//         headerTransparent: true,
+//       }),
+//     },
+//     MonthlyStatsReport: {
+//       screen: MonthlyStatsReport,
+//       navigationOptions: ({ navigation }) => ({
+//         title: "Monthly Services Reports",
+//         headerTintColor: "#fff",
+//         headerTransparent: true,
+//       }),
+//     },
+//     MaterialWarrantyReport: {
+//       screen: MaterialWarrantyReport,
+//       navigationOptions: ({ navigation }) => ({
+//         title: "Material Warranty Reports",
+//         headerTintColor: "#fff",
+//         headerTransparent: true,
+//       }),
+//     },
+//   },
+//   {
+//     initialRouteName: "HomeNaviagtor",
+//   }
+// );
+// createAppContainer(HomeScreenStackNavigator);
 
 /** Drawer navigation Conponent */
 const CustomDrawerComponent = (props) => (
-  <SafeAreaView style={{ flex: 1 }}>
+  <DrawerContentScrollView style={{ flex: 1 }}>
     <View
       style={{
         height: 150,
@@ -349,87 +332,88 @@ const CustomDrawerComponent = (props) => (
       }}
     />
 
-    <DrawerItems {...props} />
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "flex-end",
-        paddingHorizontal: "8%",
-        marginVertical: "0.2%",
-      }}
-    >
-      <TouchableOpacity onPress={() => Linking.openURL("https://www.skynners.com")}>
-        <Image source={require("./assets/PartnerswithSkynners2.png")} style={{ height: 35, width: 150 }} />
-      </TouchableOpacity>
-      <Text> </Text>
-    </View>
-  </SafeAreaView>
+    <DrawerItemList {...props} />
+  </DrawerContentScrollView>
 );
 
 /** Drawer Navigator */
-const AppDrawerNavigator = createDrawerNavigator(
-  {
-    Home: {
-      screen: HomeScreenStackNavigator /** TO HomeScreen Stack navigator */,
-      navigationOptions: {
-        drawerLabel: "Home",
-        labelStyle: { fontFamily: "Helvetica" },
-        drawerIcon: ({ tintColor }) => <Icon name="md-home" style={{ fontSize: 24, color: tintColor }} />,
-      },
-    },
-    PropertyDetails: {
-      screen: PropertyDetails /** TO Property Stack navigator */,
-      navigationOptions: (navigation) => ({
-        drawerLabel: "Property Details",
-        labelStyle: { fontFamily: "Helvetica" },
-        headerLeft: (
-          <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-            <View style={{ flexDirection: "row" }}>
-              <Text> </Text>
-              <Icon name="arrow-back" style={{ fontSize: 24, color: "#000" }} />
-            </View>
-          </TouchableOpacity>
-        ),
-        drawerIcon: ({ tintColor }) => <Icon name="business" style={{ fontSize: 24, color: tintColor }} />,
-      }),
-    },
-    ContactUs: {
-      screen: ContactUs,
-      navigationOptions: {
-        drawerLabel: "Contact Us Now",
-        labelStyle: { fontFamily: "Helvetica" },
-        drawerIcon: ({ tintColor }) => <Icon name="call" style={{ fontSize: 24, color: tintColor }} />,
-        headerTransparent: true,
-      },
-    },
-    Settings: {
-      screen: SettingStackNavigator,
-      navigationOptions: {
-        drawerLabel: "Settings",
-        labelStyle: { fontFamily: "Helvetica" },
-        drawerIcon: ({ tintColor }) => <Icon name="settings" style={{ fontSize: 24, color: tintColor }} />,
-      },
-    },
-  },
-  {
-    contentComponent: CustomDrawerComponent,
-    contentOptions: {
-      activeTintColor: "#FFCA5D",
-      labelStyle: {
-        fontFamily: "Helvetica",
-        fontWeight: "300",
-      },
-    },
-  }
-);
+// const AppDrawerNavigator = createDrawerNavigator(
+//   {
+//     Home: {
+//       screen: HomeScreenStackNavigator /** TO HomeScreen Stack navigator */,
+//       navigationOptions: {
+//         drawerLabel: "Home",
+//         labelStyle: { fontFamily: "Helvetica" },
+//         drawerIcon: ({ tintColor }) => <Icon name="md-home" style={{ fontSize: 24, color: tintColor }} />,
+//       },
+//     },
+//     PropertyDetails: {
+//       screen: PropertyDetails /** TO Property Stack navigator */,
+//       navigationOptions: (navigation) => ({
+//         drawerLabel: "Property Details",
+//         labelStyle: { fontFamily: "Helvetica" },
+//         headerLeft: (
+//           <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+//             <View style={{ flexDirection: "row" }}>
+//               <Text> </Text>
+//               <Icon name="arrow-back" style={{ fontSize: 24, color: "#000" }} />
+//             </View>
+//           </TouchableOpacity>
+//         ),
+//         drawerIcon: ({ tintColor }) => <Icon name="business" style={{ fontSize: 24, color: tintColor }} />,
+//       }),
+//     },
+//     ContactUs: {
+//       screen: ContactUs,
+//       navigationOptions: {
+//         drawerLabel: "Contact Us Now",
+//         labelStyle: { fontFamily: "Helvetica" },
+//         drawerIcon: ({ tintColor }) => <Icon name="call" style={{ fontSize: 24, color: tintColor }} />,
+//         headerTransparent: true,
+//       },
+//     },
+//     Settings: {
+//       screen: SettingStackNavigator,
+//       navigationOptions: {
+//         drawerLabel: "Settings",
+//         labelStyle: { fontFamily: "Helvetica" },
+//         drawerIcon: ({ tintColor }) => <Icon name="settings" style={{ fontSize: 24, color: tintColor }} />,
+//       },
+//     },
+//   },
+//   {
+//     contentComponent: CustomDrawerComponent,
+//     contentOptions: {
+//       activeTintColor: "#FFCA5D",
+//       labelStyle: {
+//         fontFamily: "Helvetica",
+//         fontWeight: "300",
+//       },
+//     },
+//   }
+// );
 
-createAppContainer(AppDrawerNavigator);
+// createAppContainer(AppDrawerNavigator);
+
+const AppDrawer = createDrawerNavigator();
+const AppDrawerNavigator = () => {
+  return <AppDrawer.Navigator screenOptions={{headerShown: false}} drawerContent={(props) => <CustomDrawerComponent {...props} />}>
+    <AppDrawer.Screen name="Home" component={HomeScreenStackNavigator} />
+    <AppDrawer.Screen name="PropertyDetails" component={PropertyDetails} />
+    <AppDrawer.Screen name="ContactUs" component={ContactUs} />
+    <AppDrawer.Screen name="Settings" component={SettingStackNavigator} />
+  </AppDrawer.Navigator>
+}
 
 /** App start Switch navigator */
-const SwithStartNavigator = createSwitchNavigator({
-  AuthLogin: AuthLoginCheck,
-  Login: LoginStackNavigator,
-  AppDrawer: AppDrawerNavigator,
-});
+const Stack = createNativeStackNavigator();
 
-const AppContainer = createAppContainer(SwithStartNavigator);
+const AppContainer = () => {
+  return <NavigationContainer>
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="AuthLogin" component={AuthLoginCheck} />
+      <Stack.Screen name="Login" component={LoginStackNavigator} />
+      <Stack.Screen name="AppDrawer" component={AppDrawerNavigator} />
+    </Stack.Navigator>
+  </NavigationContainer>
+}
