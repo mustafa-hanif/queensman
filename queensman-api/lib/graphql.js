@@ -63,11 +63,51 @@ async function fetchExpoToken ({ type, email }) {
   }
 
   // do something great with this precious data
-  console.log(data);
+  // console.log(data);
   return data;
 }
-
-async function updateScheduleWithWoker ({ id, worker_id, callout_id, worker_email }) {
+async function updateScheduleWithEmergencyWoker ({
+  id, worker_id, callout_id, phone, worker_email, callout_email, time, date
+}) {
+  const { errors, data } = await fetchGraphQL(`mutation UpdateSchedulerWithWorker($worker_id: Int!, $id: Int!, $callout_id: Int!, $worker_email: String!, $time: time!, $date: date!, $data: json!) {
+    update_scheduler(where: {
+      id: {_eq: $id}
+    }, _set: {
+      worker_id: $worker_id,
+      date_on_calendar: $date,
+      time_on_calendar: $time
+    }) {
+      returning {
+        worker_id
+      }
+    }
+    insert_job_worker_one(object: {callout_id: $callout_id, worker_id: $worker_id}) {
+      worker_id
+    }
+    insert_notifications_one(object: {
+      worker_email: $worker_email, 
+      text: "An emergency has just been posted, please call the client", 
+      type: "worker",
+      data: $data
+    }) {
+      text
+    }
+  }
+  `, 'UpdateSchedulerWithWorker', {
+    worker_id,
+    id,
+    callout_id,
+    worker_email,
+    callout_email,
+    time,
+    date,
+    data: { phone: phone, type: 'call' }
+  });
+  console.log(errors, data);
+}
+async function updateScheduleWithWoker ({
+  id, worker_id, callout_id, worker_email
+}) {
   const { errors, data } = await fetchGraphQL(`mutation UpdateSchedulerWithWorker($worker_id: Int!, $id: Int!, $callout_id: Int!, $worker_email: String!) {
     update_scheduler(where: {id: {_eq: $id}}, _set: {worker_id: $worker_id}) {
       returning {
@@ -123,6 +163,9 @@ async function getCallout ({ callout_id }) {
       urgency_level
       status
       job_type
+      client_callout_email {
+        phone
+      }
     }
   }
     
@@ -138,12 +181,7 @@ async function getCallout ({ callout_id }) {
   return data.callout_by_pk;
 }
 
-const jobMatrix = {
-  AC: ['AC'],
-  Plumbing: ['Plumbing']
-}
-
-async function getRelevantWoker ({ callout }) {
+async function getRelevantWoker ({ callout, date, time }) {
   // get callout type - Emergency or schedule
   const { urgency_level, job_type } = callout;
   // if emergency - get the emergency team worker
@@ -168,33 +206,71 @@ async function getRelevantWoker ({ callout }) {
       workerId: id,
       today: new Date().toISOString().substring(0, 10)
     });
-    console.log(emergencyWokers);
-    const lastWorker = lastWorkers.scheduler[0];
+    const lastWorker = lastWorkers.scheduler?.[0];
+    const workerTime = dateFns.parse(lastWorker.time_on_calendar, 'HH:mm:ss', new Date());
     //  - find the last slot today filled by him
     //  - if plus 3 hours from now is inside working hour
-    if (lastWorker.time_on_calendar + 3 >= '18:00:00') {
+    if (!lastWorker || dateFns.getHours(dateFns.addHours(workerTime, 3)) > 18) {
       //  - else first slot tomorow morning
       // return { '09:00', id}
-      return { id, time: '09:00' };
+      return { id, time: '09:00:00' };
     } else {
       //  - return last slot + 1 hour
       // return { lastWorker.time_on_calendar + 1, id }
-      return { id, time: dateFns.format(dateFns.addHours(dateFns.parse(lastWorker.time_on_calendar, 'HH:mm', new Date()), 1), 'HH:mm') };
+      return { id, time: dateFns.format(dateFns.addHours(workerTime, 3), 'HH:mm:ss') };
     }
   } // If schedule
   else {
     // Get category of callout
-    const key = Object.keys(jobMatrix).find(jobItem => jobItem.includes(job_type));
     // Get all workers that fit the category
-    const { errors: errors3, data: scheduleWorkers } = await fetchGraphQL(`query GetWorkerWithJobType($jobType: String!) {
-      worker(where: {expertise: {_eq: $jobType}}) {
-        id
+    let offset = 0;
+    let workerId = null;
+    while (offset < 4) {
+      const { errors: errorsTeams, data: teams } = await fetchGraphQL(`query GetTeams($_contains: jsonb!, $offset: Int = 0) {
+        teams(where: {team_expertise: {_contains: $_contains}}, offset: $offset) {
+          worker {
+            id
+          }
+        }
+      }
+      `, 'GetTeams', { _contains: job_type, offset });
+      workerId = teams.teams?.[0].worker?.id;
+
+      //  - Get all schedule by this worker sorted by date
+      const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
+      const { errors: errors2, data: lastWorkers } = await fetchGraphQL(`query LastTimeofWorker($workerId: Int!, $today: date!, $_gte: time!, $_lte: time!) {
+        scheduler(where: {
+          worker_id: {_eq: $workerId}, 
+          date_on_calendar: {_eq: $today},
+          time_on_calendar: { _gte: $_gte, _lte: $_lte }
+        }, order_by: {time_on_calendar: desc}, limit: 1) {
+          time_on_calendar
+        }
+      }
+      `, 'LastTimeofWorker', {
+        workerId: workerId,
+        today: new Date(date).toISOString().substring(0, 10),
+        _gte: dateFns.format(dateFns.subHours(selectedTime, 2), 'HH:mm:ss'),
+        _lte: dateFns.format(dateFns.addHours(selectedTime, 2), 'HH:mm:ss')
+      });
+      if (lastWorkers.scheduler.length === 0) {
+        offset = 0;
+        break;
+      } else {
+        ++offset;
       }
     }
-    `);
-    const scheduleWorker = scheduleWorkers.worker[0];
-    return { id: scheduleWorker.id, time: null };
+
+    return { id: workerId, time: null };
   }
 }
 
-module.exports = { fetchGraphQL, fetchExpoToken, updateScheduleWithWoker, getWorker, getCallout, getRelevantWoker };
+module.exports = {
+  fetchGraphQL,
+  fetchExpoToken,
+  updateScheduleWithWoker,
+  getWorker,
+  getCallout,
+  getRelevantWoker,
+  updateScheduleWithEmergencyWoker
+};

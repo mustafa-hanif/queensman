@@ -62,6 +62,7 @@ const HomeScreen = ({ navigation }) => {
                 source={require("../assets/Home/notifications.png")}
                 style={{ height: 25, width: 25 }}
               ></Image>
+              <Text style={{color: "#FFCA5D", marginTop: -19, fontSize: 10 }}>    1</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -301,72 +302,6 @@ const registerForPushNotificationsAsync = async () => {
   return token;
 };
 
-// class HomeScreen extends React.Component {
-//     Notifications.setNotificationHandler({
-//       handleNotification: async () => ({
-//         shouldShowAlert: true,
-//         shouldPlaySound: true,
-//         shouldSetBadge: false,
-//       }),
-//     });
-
-//     registerForPushNotificationsAsync().then(async (token) => {
-//       const user = JSON.parse(await AsyncStorage.getItem("QueensUser"));
-//       const email = user?.email;
-//       props.sendTokenToServer({ variables: { token, email } });
-//     });
-
-//     notificationListener = Notifications.addNotificationReceivedListener(
-//       (notification) => {
-//         // setNotification(notification);
-//         console.log({ notification });
-
-//         const { content } = notification.request;
-//         if (content.data.type === "alert") {
-//           showNotificationAlert(content);
-//         }
-//       }
-//     );
-
-//     responseListener =
-//       Notifications.addNotificationResponseReceivedListener(
-//         async (response) => {
-//           console.log(
-//             "from --- Notifications.addNotificationResponseReceivedListener",
-//             { response }
-//           );
-
-//           const { content } = response.notification.request;
-//           if (content.data.type === "alert") {
-//             showNotificationAlert(content);
-//           }
-//           // const { sound } = await Audio.Sound.createAsync(
-//           //   //THIS FILE DOES NOT EXIST RIGHT NOW
-//           //   // require("../assets/etest.mp3")
-//           // );
-
-//           //   console.log("Playing Sound");
-//           //   await sound.playAsync();
-//           //   let timeout = setTimeout(() => {
-//           //     sound.unloadAsync();
-//           //     clearTimeout(timeout);
-//           //   }, 60000);
-//         }
-//       );
-
-//     console.log("componentDidMount");
-//   }
-
-//   showNotificationAlert(content) {
-//     const { title, body } = content;
-//     Alert.alert(title, body);
-//   }
-
-//   componentWillUnmount() {
-//     Notifications.removeNotificationSubscription(notificationListener);
-//     Notifications.removeNotificationSubscription(responseListener);
-//   }
-
 const AssignCalloutHandler = (navigation) => {
   navigation.navigate("JobList");
 };
@@ -437,12 +372,65 @@ export default function HomeFunction(props) {
   const [updateToken, { loading: mutationLoading, error: mutationError }] =
     useMutation(UPDATE_TOKEN);
 
-  function sendTokenToServer(token) {
+  const user = auth?.currentSession?.session?.user;
+
+  function sendTokenToServer(variables) {
     console.log({ mutationLoading, mutationError });
-    updateToken(token)
+    updateToken(variables)
       .then((res) => console.log(res))
       .catch((err) => console.log("error", err));
   }
+
+  useEffect(() => {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
+      
+    registerForPushNotificationsAsync().then(async (token) => {
+      const email = user?.email;
+      sendTokenToServer({ variables: { token, email } });
+    });
+      
+    notificationListener = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        // setNotification(notification);
+        console.log({ notification });
+
+        const { content } = notification.request;
+        if (content.data.type === "alert") {
+          showNotificationAlert(content);
+        }
+      }
+    );
+      
+    responseListener =
+      Notifications.addNotificationResponseReceivedListener(
+        async (response) => {
+          console.log(
+            "from --- Notifications.addNotificationResponseReceivedListener",
+            { response }
+          );
+
+          const { content } = response.notification.request;
+          if (content.data.type === "alert") {
+            showNotificationAlert(content);
+          }
+        }
+      );
+      
+  function showNotificationAlert(content) {
+    const { title, body } = content;
+    Alert.alert(title, body);
+  }
+  return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+            Notifications.removeNotificationSubscription(responseListener);
+    }
+  }, []);
 
   return (
     <HomeScreen sendTokenToServer={sendTokenToServer} {...props}></HomeScreen>

@@ -127,12 +127,12 @@ export default function SelectSchedule(props) {
     return formatDate(new Date(new Date().setFullYear(new Date().getFullYear() + 1)));
   };
 
-  const { loading, data, error } = useQuery(GET_SCHEDULE, {
-    variables: {
-      _gte: GetCurrentDate(),
-      _lte: GetOneYearFromNow(),
-    },
-  });
+  // const { loading, data, error } = useQuery(GET_SCHEDULE, {
+  //   variables: {
+  //     _gte: GetCurrentDate(),
+  //     _lte: GetOneYearFromNow(),
+  //   },
+  // });
 
   // console.log({
   //   loading,
@@ -285,7 +285,7 @@ export default function SelectSchedule(props) {
     );
   };
 
-  if (requestCalloutLoading || loading || updateCalloutLoading) {
+  if (requestCalloutLoading || updateCalloutLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator color={colors.brandPrimary} size="large" />
@@ -303,9 +303,9 @@ export default function SelectSchedule(props) {
     };
 
     const markedDates = {};
-    data.scheduler.forEach((element) => {
-      markedDates[element.start] = disable;
-    });
+    // data.scheduler.forEach((element) => {
+    //   markedDates[element.start] = disable;
+    // });
     // console.log(markedDates);
 
     return markedDates;
