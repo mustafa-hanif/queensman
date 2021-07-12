@@ -38,6 +38,7 @@ export default class Login extends React.Component {
       clientID: "",
       showPassword: true,
       workerID: "",
+      user: {}
     };
   }
 
@@ -50,8 +51,9 @@ export default class Login extends React.Component {
     const { email, password } = this.state;
     auth
       .login({ email, password })
-      .then(async ({ user }) => {
-        // console.log(user);
+      .then(async (user) => {
+        this.setState({ user, loading: false });
+        console.log(user);
         this.setState({ loading: false });
         await AsyncStorage.setItem("QueensUser", JSON.stringify(user));
         this.props.navigation.navigate("AppDrawer");

@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Modal, Text, View, Image, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Content, List, ListItem, Row, Icon, Col, Left, Right } from "native-base";
+import { Content, List, Row, Icon, Col, Left, Right } from "native-base";
 
 export default class OngoingCalloutItem extends React.Component {
   constructor(props) {
@@ -35,8 +35,7 @@ export default class OngoingCalloutItem extends React.Component {
                   {this.state.OngoingCallOutData?.Client_property?.country}
                 </Text>
               </View>
-              <ListItem></ListItem>
-              <ListItem>
+              <List.Item>
                 <Row>
                   <Left>
                     <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Callout ID</Text>
@@ -45,9 +44,9 @@ export default class OngoingCalloutItem extends React.Component {
                     <Text style={styles.TextFam}>{this.state.OngoingCallOutData?.Client_property?.id}</Text>
                   </Right>
                 </Row>
-              </ListItem>
+              </List.Item>
 
-              <ListItem>
+              <List.Item>
                 <Row>
                   <Left>
                     <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Urgency Level</Text>
@@ -69,8 +68,8 @@ export default class OngoingCalloutItem extends React.Component {
                     ></Icon>
                   </View>
                 </Row>
-              </ListItem>
-              <ListItem>
+              </List.Item>
+              <List.Item>
                 <Row>
                   <Left>
                     <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Request Time</Text>
@@ -79,9 +78,9 @@ export default class OngoingCalloutItem extends React.Component {
                     {this.state.OngoingCallOutData?.Client_property?.request_time}
                   </Text>
                 </Row>
-              </ListItem>
+              </List.Item>
               {this.state.OngoingCallOutData?.Client_property?.status == "Planned" ? (
-                <ListItem>
+                <List.Item>
                   <Row>
                     <Left>
                       <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Planned Time</Text>
@@ -90,9 +89,9 @@ export default class OngoingCalloutItem extends React.Component {
                       {this.state.OngoingCallOutData?.Client_property?.planned_time}
                     </Text>
                   </Row>
-                </ListItem>
+                </List.Item>
               ) : null}
-              <ListItem>
+              <List.Item>
                 <Row>
                   <Left>
                     <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Status</Text>
@@ -101,14 +100,14 @@ export default class OngoingCalloutItem extends React.Component {
                     {this.state.OngoingCallOutData?.Client_property?.status}
                   </Text>
                 </Row>
-              </ListItem>
-              <ListItem>
+              </List.Item>
+              <List.Item>
                 <Col>
                   <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Description</Text>
                   <Text style={styles.TextFam}>{this.state.OngoingCallOutData?.Client_property?.description}</Text>
                 </Col>
-              </ListItem>
-              <ListItem>
+              </List.Item>
+              <List.Item>
                 <Col>
                   <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Pictures</Text>
                   <Text> </Text>
@@ -166,7 +165,7 @@ export default class OngoingCalloutItem extends React.Component {
                     <Text> </Text>
                   </Row>
                 </Col>
-              </ListItem>
+              </List.Item>
             </List>
           </Content>
         </View>

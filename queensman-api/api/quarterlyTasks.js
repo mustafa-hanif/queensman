@@ -9,11 +9,18 @@ var FormData = require('form-data');
 // const getCallout = require('../lib/graphql').getCallout;
 // const getRelevantWoker = require('../lib/graphql').getRelevantWoker;
 
-const addJobTicketZoho = async (event) => {
-  const { event: { data: { new: query } } } = JSON.parse(event.body);  
-  const description = query.description;
-  const type = query.type;
-  const worker_email = query.worker_email;
+const quarterlyTasks = async (event) => {
+  console.log(JSON.parse(event.body))
+  let query = JSON.parse(event.body)
+  const Subject = query.Subject
+  const Description = query.Description
+  const Status = query.Status
+  const Due_Date = query.Due_Date
+  const email = query.email
+  // const { event: { data: { new: query } } } = JSON.parse(event.body);  
+  // const description = query.description;
+  // const type = query.type;
+  // console.log(query)
 //   const calloutId = query.callout_id;
 //   const workerId = query.worker_id;
 //   const callout = await getCallout({ callout_id: calloutId });
@@ -29,14 +36,15 @@ const addJobTicketZoho = async (event) => {
 //   });
 const form = new FormData()
 form.append("arguments", JSON.stringify({
-  "Subject":"Task from Hasura",
-  "Description":`${description}`,
-  "Status":`${type}`,
-  "email": `${worker_email}`
+  "Subject":Subject,
+  "Description": Description,
+  "Status": Status,
+  "Due_Date": Due_Date,
+  "email" : email
 }))
 
 const result = await fetch(
-  'https://www.zohoapis.com/crm/v2/functions/createtask/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf',
+  'https://www.zohoapis.com/crm/v2/functions/quarterlytasks/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf',
   {
     method: 'POST',
     headers: {
@@ -68,4 +76,4 @@ const result = await fetch(
   }
 };
 
-module.exports = { addJobTicketZoho }
+module.exports = { quarterlyTasks }

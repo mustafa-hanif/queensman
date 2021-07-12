@@ -21,7 +21,7 @@ query GetWorkerNotifications($worker_email: String!) {
 `;
 
 export default function index() {
-  const email = auth?.currentSession?.session?.user.email;
+  const email = auth?.currentSession?.session?.user.email.toLowerCase()
 
   const [refreshing, setRefreshing] = useState(false);
   const [notifications, setNotifications] = useState([])
@@ -30,14 +30,14 @@ export default function index() {
   const onRefresh = React.useCallback(() => {
     setNotifications([])
     setRefreshing(true)
-    getNotification({ variables: { worker_email: 'azamkhan@queensman.com' }})
+    getNotification({ variables: { worker_email: email }})
     console.log(error)
   }, []);
   
 
   useEffect(() => {
     if(!refreshing || loading) {
-      getNotification({ variables: { worker_email: 'azamkhan@queensman.com' }})
+      getNotification({ variables: { worker_email: email }})
     }
     return () => {loading}
   }, [])

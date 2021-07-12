@@ -3,33 +3,34 @@ import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity, 
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Icon } from "native-base";
+import { auth } from "../utils/nhost";
 
 import { gql, useQuery } from "@apollo/client";
 import PTRView from "react-native-pull-to-refresh";
 
 const GET_CALLOUT = gql`
-  query GetCallout($callout_by_email: String_comparison_exp = { _eq: "azamkhan@queensman.com" }) {
-    callout(where: { callout_by_email: $callout_by_email }) {
-      job_type
-      description
-      schedulers {
-        date_on_calendar
-        time_on_calendar
-        id
-      }
-    }
+query GetCallout($callout_by_email: String!) {
+  callout(where: {callout_by_email: {_eq: $callout_by_email}}) {
+  job_type
+  description
+  schedulers {
+    date_on_calendar
+    time_on_calendar
+    id
   }
+}
+}
 `;
 
 const OngoingCallout = (props) => {
   const email = auth?.currentSession?.session?.user.email;
-  const { loading, data, error } = useQuery(GET_CALLOUT, {
-    variables: {
-      callout_by_email: email
-    }
-  });
+    const { loading, data, error } = useQuery(GET_CALLOUT, {
+      variables: {
+        callout_by_email: email
+      }
+    });
 
-  passItem = (item) => {
+  const passItem = (item) => {
     props.navigation.navigate("OngoingcalloutItem", {
       it: item,
     });

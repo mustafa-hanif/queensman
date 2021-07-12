@@ -297,7 +297,7 @@ const RequestCallOut = (props) => {
     community: "",
     city: "",
     country: "",
-    JobType: props.route.params.additionalServices ? "Request for quotation" : "",
+    JobType: props.route.params.additionalServices ? "Request for quotation" : "Water Leakage",
     Urgency: props.route.params.additionalServices ? "Medium" : "",
     OtherJobType: "",
     Description: "",
@@ -714,11 +714,11 @@ const RequestCallOut = (props) => {
       <View style={styles.Card}>
         <View style={styles.container} showsVerticalScrollIndicator={false}>
           <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
-            {!props.navigation.state?.params.additionalServices ? "Job Type" : "Request Type"}
+            {!props.route.params.additionalServices ? "Job Type" : "Request Type"}
           </Text>
 
           <View style={styles.PickerStyle}>
-            {!props.navigation.state?.params.additionalServices ? (
+            {!props.route.params.additionalServices ? (
               <Select
                 note
                 mode="dialog"
@@ -775,12 +775,12 @@ const RequestCallOut = (props) => {
               </View>
             </View>
           ) : null}
-          {!props.navigation.state?.params.additionalServices && <View style={{ height: "3%" }} />}
-          {!props.navigation.state?.params.additionalServices && (
+          {!props.route.params.additionalServices && <View style={{ height: "3%" }} />}
+          {!props.route.params.additionalServices && (
             <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Urgency</Text>
           )}
-          {!props.navigation.state?.params.additionalServices && <View style={{ height: "2%" }} />}
-          {!props.navigation.state?.params.additionalServices && (
+          {!props.route.params.additionalServices && <View style={{ height: "2%" }} />}
+          {!props.route.params.additionalServices && (
             <View
               style={{
                 flexDirection: "row",
@@ -846,7 +846,7 @@ const RequestCallOut = (props) => {
             <TouchableOpacity style={styles.ImageSelectStyle} onPress={selectFromGallery}>
               <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}> Select Images From Gallery </Text>
             </TouchableOpacity>
-            {!props.navigation.state?.params.additionalServices ? (
+            {!props.route.params.additionalServices ? (
               state.video ? (
                 !videoSaving ? (
                   <View>
@@ -1039,7 +1039,7 @@ const RequestCallOut = (props) => {
               >
                 {state.Urgency === "medium"
                   ? "Select Date"
-                  : !props.navigation.state?.params.additionalServices
+                  : !props.route.params.additionalServices
                   ? "Submit Callout"
                   : "Make Request"}
               </Text>
