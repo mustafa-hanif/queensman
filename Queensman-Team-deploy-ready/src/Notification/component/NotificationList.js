@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import call from 'react-native-phone-call'
 import { Icon } from 'native-base'
-import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ViewStyle, TouchableOpacity, Pressable } from "react-native";
 import { gql, useMutation } from "@apollo/client";
 import FlashMessage, { showMessage } from "react-native-flash-message";
 import { formatDistance } from 'date-fns'
@@ -17,31 +17,29 @@ mutation UpdateNotifications($id: Int!) {
 }
 `;
 
-export default function NotificationList({ item, viewStyle, textStyle, dotStyle, setNotifications, notifications, index }) {
+export default function NotificationList({ item, updateNotifications: reloadNotification, viewStyle, textStyle, dotStyle, setNotifications, notifications, index }) {
 
-  const [updateNotifications] = useMutation(UPDATE_NOTIFICATIONS);
+  const [updateNotifications] = useMutation(UPDATE_NOTIFICATIONS, {
+    onCompleted: () => {
+      reloadNotification();
+    }
+  });
 
   const markAsRead = (id) => {
-    showMessage({
-      message: "Notification marked as read",
-      type: "success",
-    });
-    const item = [...notifications]
-    item[index].isRead = true
-    setNotifications(item)
     updateNotifications({variables:{
       id
     }})
   }
   return (
     <>
-    <FlashMessage position="top" />
-      {!item?.isRead && <TouchableOpacity onLongPress={() => markAsRead(item.id)} onPress={() => {item.type === "call" && call({number: item.phone, prompt:true})}}>
+      {!item?.isRead && <View><View style={{flex: 0.9}}><TouchableOpacity 
+        onPress={() => {
+          item.data.type === "call" && call({number: item.data.phone, prompt:true})
+        }}>
         <View style={[styles.row, viewStyle]}>
           <View style={{ flex: 2 }}>
             <Text style={[[styles.text, textStyle, { fontWeight: "bold"}]]} numberOfLines={2}>
-              {/* {item.type ? JSON.parse(item.data)} */}
-              {item?.data?.type === "call" ? "Please it is an emergency!!! HELP THIS CLIENT NOW" : item.text}
+              {item.text}
             </Text>
           </View>
           <View style={[styles.time, dotStyle]}>
@@ -57,7 +55,13 @@ export default function NotificationList({ item, viewStyle, textStyle, dotStyle,
             </Text>
           </View>
         </View>
-      </TouchableOpacity>}
+      </TouchableOpacity>
+      </View>
+      <View style={{flex: 0.1}}>
+        <Pressable onPress={()=>markAsRead(item.id)}>
+          <Text style={{color: 'red'}}>Dismiss</Text>
+        </Pressable>
+      </View></View>}
       {/* {isPop && (
         <View style={styles.popUp}>
           <Text style={[[styles.text, textStyle, {fontWeight: 'bold'}]]}>
