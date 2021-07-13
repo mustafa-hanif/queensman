@@ -115,32 +115,6 @@ query GetProperty($ownerId: Int) {
 }
 `
 
-const params = {
-  slidesPerView: 5,
-  spaceBetween: 50,
-  pagination: {
-    clickable: true
-  },
-  breakpoints: {
-    1024: {
-      slidesPerView: 4,
-      spaceBetween: 40
-    },
-    768: {
-      slidesPerView: 3,
-      spaceBetween: 30
-    },
-    640: {
-      slidesPerView: 2,
-      spaceBetween: 20
-    },
-    320: {
-      slidesPerView: 1,
-      spaceBetween: 10
-    }
-  }
-}
-
 const AddEventSidebar = props => {
   // ** Props
   const {
@@ -149,7 +123,6 @@ const AddEventSidebar = props => {
     calendarsColor,
     calendarApi,
     refetchEvents,
-    addEvent,
     requestCalloutApiCall,
     selectEvent,
     selectedEvent,
@@ -181,7 +154,7 @@ const AddEventSidebar = props => {
   const [jobTickets, setJobTickets] = useState([])
 
   // const [workerId, setWorkerId] = useState(1)
-  const [value, setValue] = useState({value: selectedEvent.extendedProps?.job_type})
+  const [calloutJobType, setcalloutJobType] = useState({value: selectedEvent.extendedProps?.job_type || "Select...", label: selectedEvent.extendedProps?.job_type || "Select..."})
   const { clientLoading, data: allClients, clientError } = useQuery(GET_CLIENT, {
     skip: !open
   })
@@ -196,20 +169,23 @@ const AddEventSidebar = props => {
   const [deleteJobTicket] = useMutation(DELETE_JOB_TICKET)
 
   const [updateJobTicket] = useMutation(UPDATE_JOB_TICKET)
-  // ** Select Options
-  const options = [
-    {value:"Water Leakage", label: "Water Leakage", color: 'primary'},
-    {value:"Pumps problem (pressure low)", label: "Pumps problem (pressure low)", color: 'primary'},
-    {value:"Drains blockage- WCs", label: "Drains blockage- WCs", color: 'primary'},
-    {value:"Drains Blockage – Sinks, floor traps", label: "Drains Blockage – Sinks, floor traps", color: 'primary'},
-    {value:"AC Services Request", label: "AC Services Request", color: 'primary'},
-    {value:"AC not cooling", label: "AC not cooling", color: 'primary'},
-    {value:"AC Thermostat not functioning", label: "AC Thermostat not functioning", color: 'primary'}
+
+  // ** Select callout jobtype
+  const calloutJobTypeOptions = [
+    {value:"Water Leakage", label: "Water Leakage"},
+    {value:"Pumps problem (pressure low)", label: "Pumps problem (pressure low)"},
+    {value:"Drains blockage- WCs", label: "Drains blockage- WCs"},
+    {value:"Drains Blockage – Sinks, floor traps", label: "Drains Blockage – Sinks, floor traps"},
+    {value:"AC Services Request", label: "AC Services Request"},
+    {value:"AC not cooling", label: "AC not cooling"},
+    {value:"AC Thermostat not functioning", label: "AC Thermostat not functioning"}
   ]
   
   const jobTypeOptions = [
-    {value:"Water Leakage", label: "Water Leakage", color: 'primary'},
-    {value:"Pumps problem (pressure low)", label: "Pumps problem (pressure low)", color: 'primary'}
+    {value: 'Deffered', label: 'Deffered'},
+    {value: 'Material Request', label: 'Material Request'},
+    {value: 'Patch Job', label: 'Patch Job'},
+    {value: 'Full Job', label: 'Full Job'}
   ]
 
   // ** Custom select components
@@ -222,21 +198,8 @@ const AddEventSidebar = props => {
     )
   }
 
-  const GuestsComponent = ({ data, ...props }) => {
-    return (
-      <components.Option {...props}>
-        <div className='d-flex flex-wrap align-items-center'>
-          <Avatar className='my-0 mr-1' size='sm' img={data.avatar} />
-          <div>{data.label}</div>
-        </div>
-      </components.Option>
-    )
-  }
-
   // ** Adds New Event
   const handleAddEvent = () => {
-    console.log(startPicker)
-    console.log(value.value)
     requestCalloutApiCall({
       variables: {
         property_id: propertyId,
@@ -267,7 +230,7 @@ const AddEventSidebar = props => {
   }
 
   const handleJobAddEvent = () => {
-    setJobTickets([...jobTickets, {name: "", description: "", notes: [""], pictures: [""], type: "", isSaved: false, newJob: true, worker: {color_code: null, full_name: null, id: null}}])
+    setJobTickets([...jobTickets, {name: "", description: "", notes: [""], pictures: [""], type: "Select...", isSaved: false, newJob: true, worker: {color_code: null, full_name: null, id: null}}])
     
   }
 
@@ -281,7 +244,7 @@ const AddEventSidebar = props => {
     setLocation('')
     setDesc('')
     setGuests({})
-    setValue({})
+    setcalloutJobType({})
     setClientName('')
     setPropertyName('')
     setWorkerName('')
@@ -292,9 +255,6 @@ const AddEventSidebar = props => {
 
   // ** Set sidebar fields
   const handleSelectedEvent = () => {
-  
-  // console.log(allClients)
-  // console.log(allProperty?.property_owned.map(a => a.property))
     console.log(selectedEvent)
     if (Object.keys(selectedEvent ?? {}).length) {
       setTimeout(() => {
@@ -302,19 +262,12 @@ const AddEventSidebar = props => {
       }, 100)
       const calendar = selectedEvent?.extendedProps?.calendar
 
-      const resolveLabel = () => {
-        if (calendar?.length) {
-          return { label: calendar, value: calendar, color: calendarsColor[calendar] }
-        } else {
-          return { value: 'Water Leakage', label: 'Water Leakage', color: 'primary' }
-        }
-      }
       setTitle(selectedEvent.title.split('by')[0])
       setWorkerName(selectedEvent.extendedProps.workerName)
       setClientName(selectedEvent.extendedProps.clientName)
       setClientEmail(selectedEvent.extendedProps.clientEmail)
       setPropertyName(selectedEvent.extendedProps.propertyName || propertyName)
-      setValue({value: selectedEvent.extendedProps?.job_type, label: selectedEvent.extendedProps?.job_type})
+      setcalloutJobType({value: selectedEvent.extendedProps?.job_type || "Select...", label: selectedEvent.extendedProps?.job_type || "Select..."})
       setAllDay(selectedEvent.allDay || allDay)
       setUrl(selectedEvent.url || url)
       setLocation(selectedEvent.extendedProps.location || location)
@@ -355,10 +308,8 @@ const AddEventSidebar = props => {
   // ** Updates Event in Store
   const handleUpdateEvent = () => {
     let saved = true
-    console.log(jobTickets)
     jobTickets.map(jobs => {
       if (jobs.isSaved === false) {
-        console.log(saved)
         saved = false
         toast.error(<ToastComponent title='Job Ticket Not Saved' color='danger' icon={<Info />} />, {
           autoClose: 2000,
@@ -368,7 +319,6 @@ const AddEventSidebar = props => {
       }
     })
     
-    console.log(value.value)
     if (saved) {
       const eventToUpdate = {
         id: selectedEvent.id,
@@ -386,7 +336,6 @@ const AddEventSidebar = props => {
           propertyId
         }
       }
-      console.log(eventToUpdate)
       const propsToUpdate = ['start', 'title', 'callout_id']
       const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'propertyId', 'clientEmail', 'job_type']
   
@@ -403,7 +352,6 @@ const AddEventSidebar = props => {
   
   const handleJobUpdateEvent = (index) => {
     const jobTicket = jobTickets[index]
-    console.log(selectedEvent?.extendedProps?.callout_id)
     if (selectedEvent?.extendedProps?.callout_id) {
       if (jobTicket?.newJob) {
         addJobTicket({
@@ -435,7 +383,6 @@ const AddEventSidebar = props => {
       type: jobTicket.type,
       description: jobTicket.description
     }})
-    console.log(jobTicket)
     toast.success(<ToastComponent title='Job Ticket Updated' color='success' icon={<Check />} />, {
       autoClose: 2000,
       hideProgressBar: true,
@@ -453,11 +400,9 @@ const AddEventSidebar = props => {
 
   const handleWorkChange = (index, full_name, id, email, e) => {
     const jobTicket = [...jobTickets]
-    console.log(jobTicket)
     jobTicket[index].worker.full_name = full_name
     jobTicket[index].worker.id = id
     jobTicket[index].worker.email = email
-    console.log(jobTicket)
     setJobTickets(jobTicket)
   }
 
@@ -485,7 +430,6 @@ const AddEventSidebar = props => {
   const handleJobDeleteEvent = (index) => {
 
     if (!jobTickets[index].isSaved === false || jobTickets[index]?.isSaved === undefined) {
-      console.log('removed')
       deleteJobTicket({variables: {
         id: jobTickets[index].id
       }})
@@ -536,14 +480,7 @@ const AddEventSidebar = props => {
     },
     skip: !selectedEvent?.callout_id
   })
-  // console.log(selectedEvent?.extendedProps?.callout_id)
-  if (!loading) {
-    // console.log(data?.extendedProps)
-  }
-  if (error) {
-    console.log(selectedEvent)
-  }
-
+  
   // ** Close BTN
   const CloseBtn = <X className='cursor-pointer' size={15} onClick={handleAddEventSidebar} />
   return (
@@ -589,17 +526,16 @@ const AddEventSidebar = props => {
            </FormGroup>
 
            <FormGroup>
-             {console.log(value.value)}
              <Label for='label'>Job Type</Label>
              <Select
                id='label'
-               value={value}
-               options={options}
+               defaultValue={{value:calloutJobType.value, label:calloutJobType.label}}
+               options={calloutJobTypeOptions}
                theme={selectThemeColors}
                className='react-select'
                classNamePrefix='select'
                isClearable={false}
-               onChange={(e) => setValue(e)}
+               onChange={(e) => setcalloutJobType({value: e.value, label: e.value})}
                components={{
                  Option: OptionComponent
                }}
@@ -637,7 +573,6 @@ const AddEventSidebar = props => {
                 setClientEmail(suggestion.email)
                 setClientId(suggestion.id)
                 getProperty()
-                console.log(allProperty)
                 
               }}
             >
@@ -826,13 +761,13 @@ const AddEventSidebar = props => {
                 <Label for='jobtype'>Job Type</Label>
                 <Select
                id='jobtype'
-               value={job.type}
+               defaultValue={{value:job?.type, label: job?.type}}
                options={jobTypeOptions}
                theme={selectThemeColors}
                className='react-select'
                classNamePrefix='select'
                isClearable={false}
-               onChange={data => setValue([data])}
+               onChange={(e) => { const jobTicket = [...jobTickets]; jobTicket[index].type = e.value; setJobTickets(jobTicket) }}
                components={{
                  Option: OptionComponent
                }}

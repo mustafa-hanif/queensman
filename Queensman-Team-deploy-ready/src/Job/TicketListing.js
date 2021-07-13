@@ -18,7 +18,7 @@ import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 
 const GET_JOB_TICKETS = gql`
   query MyQuery($callout_id: Int!) {
-    job_tickets(where: { callout_id: { _eq: $callout_id } }) {
+    job_tickets(where: {callout_id: {_eq: $callout_id}, status: {_neq: "Closed"}}) {
       id
       name
       description
@@ -33,7 +33,7 @@ export default function TicketListing(props) {
     "it",
     {}
   );
-
+    console.log(id)
   const [refresh, setrefresh] = useState(
     props.navigation.getParam("refresh", false)
   );
@@ -170,7 +170,7 @@ export default function TicketListing(props) {
       <TicketDetails></TicketDetails>
 
       <View style={{ marginTop: "2%" }}>
-        {loading ? (
+        {!loading ? (
           <ActivityIndicator size="large" color="#FFCA5D" />
         ) : (
           data?.job_tickets.map((item, index) => (

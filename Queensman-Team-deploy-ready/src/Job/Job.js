@@ -400,6 +400,11 @@ const Job = (props) => {
     if (closeJobNote === "") {
       return alert("Please enter a note");
     }
+    console.log({
+      id: ticket.id,
+      worker_email: auth.user().email,
+      notes: closeJobNote,
+    })
 
     stopJob({
       variables: {
