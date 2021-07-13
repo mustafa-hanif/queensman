@@ -112,6 +112,6 @@
       "domainName": "y8sr1kom3g.execute-api.us-east-1.amazonaws.com",
       "apiId": "y8sr1kom3g"
   },
-  "body": "{\"event\":{\"session_variables\":{\"x-hasura-role\":\"user\",\"x-hasura-user-id\":\"f9828997-90a1-4c52-9ed8-6fb7d0a0de4c\"},\"op\":\"INSERT\",\"data\":{\"old\":null,\"new\":{\"worker_id\":16,\"date_on_calendar\":\"2021-07-11\",\"id\":324,\"notes\":\"A\",\"callout_id\":3043,\"time_on_calendar\":\"11:00:00\"}},\"trace_context\":{\"trace_id\":\"83d995284851b08b\",\"span_id\":\"23d5fd8d75c11584\"}},\"created_at\":\"2021-06-01T18:53:09.588867Z\",\"id\":\"ae1b9c97-d5c1-490c-968c-32ea46103c1f\",\"delivery_info\":{\"max_retries\":0,\"current_retry\":0},\"trigger\":{\"name\":\"schedule_callout\"},\"table\":{\"schema\":\"public\",\"name\":\"scheduler\"}}",
+  "body": "{\"event\":{\"session_variables\":{\"x-hasura-role\":\"user\",\"x-hasura-user-id\":\"f9828997-90a1-4c52-9ed8-6fb7d0a0de4c\"},\"op\":\"INSERT\",\"data\":{\"old\":null,\"new\":{\"worker_id\":16,\"date_on_calendar\":\"2021-07-13\",\"id\":324,\"notes\":\"A\",\"callout_id\":3043,\"time_on_calendar\":\"11:00:00\"}},\"trace_context\":{\"trace_id\":\"83d995284851b08b\",\"span_id\":\"23d5fd8d75c11584\"}},\"created_at\":\"2021-06-01T18:53:09.588867Z\",\"id\":\"ae1b9c97-d5c1-490c-968c-32ea46103c1f\",\"delivery_info\":{\"max_retries\":0,\"current_retry\":0},\"trigger\":{\"name\":\"schedule_callout\"},\"table\":{\"schema\":\"public\",\"name\":\"scheduler\"}}",
   "isBase64Encoded": false
 }

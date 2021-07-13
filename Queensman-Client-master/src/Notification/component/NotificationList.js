@@ -79,7 +79,7 @@ export default function NotificationList({
       <View style={styles.container}>
         <View style={[styles.row, viewStyle]}>
           <View style={{ flex: 2 }}>
-            <Text style={[[styles.text, textStyle, { fontWeight: "bold" }]]} numberOfLines={2}>
+            <Text style={[[styles.text, textStyle, { fontWeight: "bold" }]]} numberOfLines={3}>
               {item.text}
             </Text>
           </View>

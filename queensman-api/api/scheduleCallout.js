@@ -14,7 +14,11 @@ const scheduleCallout = async (event) => {
   const calloutId = query.callout_id;
   const workerId = query.worker_id;
   const callout = await getCallout({ callout_id: calloutId });
-  const { id: releventWorker, time } = await getRelevantWoker({ callout, date: query.date_on_calendar, time: query.time_on_calendar });
+  const { id: releventWorker, time } = await getRelevantWoker({
+    callout,
+    date: query.date_on_calendar,
+    time: query.time_on_calendar
+  });
   console.log({ releventWorker, time });
   const nextWorker = workerId ?? releventWorker;
   const worker = await getWorker({ worker_id: nextWorker });
@@ -29,6 +33,7 @@ const scheduleCallout = async (event) => {
       phone: callout.client_callout_email?.phone,
       worker_email: worker.email,
       time,
+      timestamp: new Date().toISOString(),
       date: new Date(),
     });
   } else {
