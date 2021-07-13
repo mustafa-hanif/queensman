@@ -150,10 +150,14 @@ export default function SelectSchedule(props) {
   };
 
   const onChange = (event, selectedDate) => {
+    if (selectedDate === undefined) {
+      setShow(false);
+      return;
+    }
     setDate(selectedDate);
     const currentTime = moment(selectedDate).format("hh:mm a");
     settime(currentTime);
-    
+    onConfirmTime();
   };
 
   const onConfirmTime = () => {
@@ -318,7 +322,7 @@ export default function SelectSchedule(props) {
     setShow(true);
   };
 
-  console.log(show);
+  console.log({ show });
 
   return (
     <View style={{ flex: 1 }}>
@@ -357,21 +361,32 @@ export default function SelectSchedule(props) {
         />
       </View>
       <Confirmmodal />
-      {show && <Modal animationType="slide" transparent visible={show}>
+      {React.useMemo(() => {
+        return show && <DateTimePicker
+          value={date}
+          mode="time" 
+          is24Hour={false} 
+          display="default" 
+          disabled={!show}
+          onChange={onChange} 
+        />
+      }, [show])}
+      {time && <Modal animationType="slide" transparent visible={time}>
         <View style={{ backgroundColor: 'white', width:'100%', borderTopColor: "black",
-    borderTopWidth: StyleSheet.hairlineWidth, height: 320, flex: 0.25, position: 'absolute', bottom: 0 }}>
-          <DateTimePicker 
+    borderTopWidth: StyleSheet.hairlineWidth, height: 220, flex: 0.25, position: 'absolute', bottom: 0 }}>
+        {/* <DateTimePicker 
           value={date}
           mode="time" 
           is24Hour={false} 
           display="spinner" 
           onChange={onChange} 
-        />
-        <Box p={4}>
+        /> */}
+        <Box pt={4}>
           <Button onPress={onConfirmTime}>Confirm Time</Button>
         </Box>
         </View>
-      </Modal>}
+      </Modal>
+      }
     </View>
   );
 }
