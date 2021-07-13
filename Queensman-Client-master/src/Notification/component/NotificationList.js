@@ -14,11 +14,8 @@ mutation UpdateNotifications($id: Int!) {
 
 
 const CONFIRM_CALLOUT = gql`
-  mutation ConfirmCallout($callout_id: Int!, $id: Int!) {
-    update_callout_by_pk(pk_columns: { id: $callout_id }, _set: { status: "Confirmed" }) {
-      id
-    }
-    update_notifications_by_pk(pk_columns: {id: $id}, _set: {isRead: true, type: "client"}) {
+  mutation ConfirmCallout($scheduler_id: Int!) {
+    update_scheduler_by_pk(pk_columns: { id: $scheduler_id }, _set: { confirmed: true }) {
       id
     }
   }
@@ -28,6 +25,7 @@ export default function NotificationList({
   item,
   onNoButtonPress,
   setNotifications,
+  reloadNotification,
   notifications,
   viewStyle, 
   index,
@@ -35,24 +33,23 @@ export default function NotificationList({
   dotStyle
 }) {
 
-  const [updateNotifications] = useMutation(UPDATE_NOTIFICATIONS);
+  const [updateNotifications] = useMutation(UPDATE_NOTIFICATIONS, {
+    onCompleted: () => {
+      reloadNotification();
+    }
+  });
   const [confirmCalout, { 
     loading: confirmCalloutLoading, 
     error: confirmcalloutError 
   }] = useMutation(CONFIRM_CALLOUT);
 
   const onConfirmPress = (val) => {
-    showMessage({
-      message: "Notification marked as read",
-      type: "success",
-    });
-    const item = [...notifications]
-    item[index].isRead = true
-    setNotifications(item)
+    updateNotifications({variables:{
+      id: val.id
+    }});
     confirmCalout({
       variables: {
-        callout_id: val.data.callout_id,
-        id: val.id
+        scheduler_id: val.data.scheduler_id,
       },
     })
       .then((res) => console.log(res))
@@ -71,7 +68,7 @@ export default function NotificationList({
       id
     }})
   }
-
+  console.log(item?.data.type === "client_confirm")
   return (
     <>
     <FlashMessage position="top" />
@@ -89,8 +86,9 @@ export default function NotificationList({
             </Text>
           </View>
         </View>
-        {item?.type === "client_confirm" && (
+        {item?.data.type === "client_confirm" && (
           <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 10 }}>
+            <Text>Do you confirm?</Text>
             <TouchableOpacity
               onPress={() => {
                 onConfirmPress && onConfirmPress(item);
@@ -99,13 +97,14 @@ export default function NotificationList({
             >
               <Text style={styles.buttonstyle}>Yes</Text>
             </TouchableOpacity>
+            <Text>Do you want to reschedule?</Text>
             <TouchableOpacity
               onPress={() => {
                 onNoButtonPress && onNoButtonPress(item);
               }}
               style={styles.buttonstyle}
             >
-              <Text style={styles.buttonstyle}>No</Text>
+              <Text style={styles.buttonstyle}>Yes</Text>
             </TouchableOpacity>
           </View>
         )}

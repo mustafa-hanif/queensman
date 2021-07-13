@@ -30,7 +30,6 @@ const GET_NOTIFICATIONS = gql`
       created_at
       text
       isRead
-      type
     }
   }
 `;
@@ -110,6 +109,7 @@ export default function Index(props) {
                 onNoButtonPress={onNoButtonPress}
                 item={item}
                 index={i}
+                reloadNotification={() => getNotification({ variables: { email } })}
                 notifications={notifications}
                 setNotifications={setNotifications}
               />
