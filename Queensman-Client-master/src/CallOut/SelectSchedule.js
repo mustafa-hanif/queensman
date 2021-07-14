@@ -78,6 +78,14 @@ const REQUEST_CALLOUT = gql`
             picture4: $picture4
             video: $video
             active: 1
+            {
+              job_tickets: {
+                data: {
+                  name: $notes
+                  status: "Open"
+                }
+              }
+            }
           }
         }
         date_on_calendar: $date_on_calendar

@@ -1,3 +1,7 @@
+/* eslint-disable react/display-name */
+/* eslint-disable react/prop-types */
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 import React, { PureComponent } from "react";
 // import * as SplashScreen from "expo-splash-screen";
 import {
@@ -527,24 +531,6 @@ const CustomDrawerComponent = (props) => (
     ></View>
 
     <DrawerItems {...props}></DrawerItems>
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "flex-end",
-        paddingHorizontal: "8%",
-        marginVertical: "0.2%",
-      }}
-    >
-      <TouchableOpacity
-        onPress={() => Linking.openURL("http://www.skynners.com")}
-      >
-        <Image
-          source={require("./assets/icon.png")}
-          style={{ height: 35, width: 150 }}
-        ></Image>
-      </TouchableOpacity>
-      <Text> </Text>
-    </View>
   </SafeAreaView>
 );
 
