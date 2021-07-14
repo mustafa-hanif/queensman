@@ -12,30 +12,20 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-
+import { Icon } from 'native-base';
 import commonColor from "../../native-base-theme/variables/commonColor";
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 
 const GET_JOB_TICKETS = gql`
   query MyQuery($callout_id: Int!) {
-    null_ticket: job_tickets(where: {
-        callout_id: {_eq: $callout_id}, 
-        status: {_is_null: true}, 
-        }) {
+    job_tickets(where: {callout_id: {_eq: $callout_id}}, order_by: {created_at: desc}) {
       id
       name
       description
       pictures
       notes
       status
-    }
-    job_tickets(where: {callout_id: {_eq: $callout_id}, status: {_neq: "Closed"}}) {
-      id
-      name
-      description
-      pictures
-      notes
-      status
+      type
     }
   }
 `;
@@ -133,19 +123,17 @@ export default function TicketListing(props) {
         >
           <View>
             <Text style={{ fontWeight: "bold" }}>
-              Ticket Type : {props.ticketType}
+              {props.name}
             </Text>
           </View>
           <View>
-            {props.Checked && (
-              <Image
-                style={{ width: 20, height: 20 }}
-                source={require("../../assets/checkicon.png")}
-              ></Image>
-            )}
+            {props.Checked ? (
+              <Icon name='flag' style={{ fontSize: 24, color: 'green'}}></Icon>
+            ) : <Icon name='flag' style={{ fontSize: 24, color: 'red'}}></Icon>}
           </View>
         </View>
         <Text style={{ fontSize: 13 }}>{props?.description}</Text>
+        <Text style={{ fontSize: 12 }}>Ticket type: {props?.type}</Text>
       </TouchableOpacity>
     );
   };
@@ -189,9 +177,8 @@ export default function TicketListing(props) {
             <TicketCard
               key={item.name}
               onPress={() => onTicketPress(item)}
-              Checked={true}
-              description={item.description}
-              ticketType={item.name}
+              Checked={item.status === 'Opened'}
+              {...item}
             ></TicketCard>
           ))
         )}

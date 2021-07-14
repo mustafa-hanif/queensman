@@ -72,7 +72,13 @@ const ADD_TICKET_NOTE = gql`
 `;
 
 const STOP_JOB = gql`
-  mutation CloseTicket($id: Int!, $worker_email: String!, $notes: jsonb!) {
+  mutation CloseTicket($id: Int!, 
+    $callout_id: Int!, 
+    $worker_email: String!,
+    $name: String!,
+    $desc: String!,
+    $notes: jsonb!
+  ) {
     update_job_tickets_by_pk(
       pk_columns: { id: $id }
       _set: { status: "Closed" }
@@ -81,7 +87,15 @@ const STOP_JOB = gql`
       id
     }
     insert_job_tickets_one(
-      object: { type: "Deferred", worker_email: $worker_email, notes: [$notes] }
+      object: {
+        name: $name,
+        description: $desc,
+        callout_id: $callout_id, 
+        type: "Deferred", 
+        worker_email: $worker_email, 
+        notes: [$notes], 
+        status: "Opened" 
+      }
     ) {
       id
     }
@@ -404,20 +418,24 @@ const Job = (props) => {
     console.log({
       id: ticket.id,
       worker_email: auth.user().email,
+      callout_id: state.JobData.id,
       notes: closeJobNote,
     })
 
     stopJob({
       variables: {
+        name: `Defer Ticket of ${ticket.id}`,
+        desc: closeJobNote,
         id: ticket.id,
         worker_email: auth.user().email,
-        notes: closeJobNote,
+        callout_id: state.JobData.id,
+        notes: {from: auth.user().display_name, message: closeJobNote},
       },
     })
       .then((res) => {
         console.log({ res });
         setstopJobModalVisible(false);
-        props.navigation.navigate("HomeNaviagtor");
+        props.navigation.navigate("TicketListing");
       })
       .catch(console.log);
   };
@@ -436,7 +454,7 @@ const Job = (props) => {
 
         <Heading>Pictures</Heading>
         <View style={{ marginVertical: 10 }}>
-          {RenderPictures(ticket.pictures)}
+          {ticket?.pictures?.length > 0 && RenderPictures(ticket.pictures)}
         </View>
         <Heading>Notes</Heading>
         {ticketNotesArray?.map((val, index) => {
@@ -449,8 +467,8 @@ const Job = (props) => {
             ></RenderComment>
           );
         })}
-
-        {RenderAddNote()}
+        {addNoteLoading && <ActivityIndicator size="small" color="#aaa" />}
+        {!addNoteLoading && RenderAddNote()}
       </View>
       <Text style={[styles.HeadingStyle, { alignSelf: "center" }]}>
         Overall Job Details
