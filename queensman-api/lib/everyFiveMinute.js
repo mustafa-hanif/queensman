@@ -2,6 +2,8 @@
 const fetchGraphQL = require('./graphql').fetchGraphQL;
 const differenceInMinutes = require('date-fns/differenceInMinutes');
 const subMonths = require('date-fns/subMonths');
+const format = require('date-fns/format');
+const addHours = require('date-fns/addHours');
 const subWeeks = require('date-fns/subWeeks');
 const parseJSON = require('date-fns/parseJSON');
 
@@ -13,6 +15,66 @@ const parseJSON = require('date-fns/parseJSON');
 async function everyFiveMinute() {
   await respondToEmergencies();
   await notifyScheduledTasks();
+
+  await notifyTeamisComing();
+}
+
+async function notifyTeamisComing() {
+  const { errors, data } = await fetchGraphQL(`
+  query GetJobDue($today: date!) {
+    scheduler(where: {
+      date_on_calendar: {_eq: $today}, 
+      confirmed: {_eq: true}, 
+    }) {
+        date_on_calendar
+        time_on_calendar
+        worker_id
+        callout {
+          client_callout_email {
+            email
+          }
+        }
+      }
+    }`, 'GetJobDue', {
+    today: new Date(),
+  });
+
+  data.scheduler.forEach(async item => {
+    const clientEmail = item?.callout?.client_callout_email?.email;
+    const jobTime = new Date(`${item.date_on_calendar}T${item.time_on_calendar}`);
+    const diffWithNow = differenceInMinutes(jobTime, new Date());
+
+    if (diffWithNow >= 55 && diffWithNow <= 60) {
+      await addNotification(clientEmail, 'The team is on the way', 'client', {});
+    }
+    // If team is running late
+    const { errors, data } = await fetchGraphQL(`query GetJobDue($updater_id: Int!) {
+      job_history(where: {updater_id: {_eq: $updater_id}}, order_by: {time: desc}, limit: 1) {
+        status_update
+        time
+      }
+    }`, 'GetJobDue', {
+      updater_id: item.worker_id
+    });
+
+    if (data?.job_history[0]?.status_update === 'In Progress') {
+      const lastJobWorkerTime = new Date(data?.job_history[0]?.time);
+      const diff = differenceInMinutes(jobTime, lastJobWorkerTime);
+      if (diff >= 40 && diff <= 45) {
+        await addNotification(clientEmail, 'Sorry the team is running late on the previous job. The coordinator will be in contact shortly', 'client', {});
+      }
+    }
+
+    if (data?.job_history[0]?.status_update === 'Closed') {
+      const lastJobWorkerTime = new Date(data?.job_history[0]?.time);
+      const diff = differenceInMinutes(jobTime, lastJobWorkerTime);
+      if (diff >= 65 && diff <= 70) {
+        await addNotification(clientEmail, 'Hi. We’re running to plan – our team will be with you as scheduled', 'client', {});
+      } else if (diff >= 80 && diff <= 70) {
+        await addNotification(clientEmail, 'Our team is a little ahead of time, expect them within an hour.', 'client', {});
+      }
+    }
+  })
 }
 
 async function notifyScheduledTasks() {
@@ -22,6 +84,11 @@ async function notifyScheduledTasks() {
         notes
         id
         date_on_calendar
+        job_worker {
+          worker {
+            full_name
+          }
+        }
         callout {
           id
           client_callout_email {
@@ -37,9 +104,10 @@ async function notifyScheduledTasks() {
   console.log(errors, data);
   data.scheduler.forEach(item => {
     const email = item?.callout?.client_callout_email?.email;
+    const name = item?.callout?.job_worker?.worker?.full_name;
     const scheduler_id = item?.id;
     const callout_id = item?.callout?.id;
-    addNotification(email, `You have scheduled service "${item.notes}" is due in 2 weeks`, 'client', { callout_id, scheduler_id, type: 'client_confirm' });
+    addNotification(email, `You have scheduled service "${item.notes}" is due in 2 weeks, ${name} will come to you`, 'client', { callout_id, scheduler_id, type: 'client_confirm' });
   })
 }
 
