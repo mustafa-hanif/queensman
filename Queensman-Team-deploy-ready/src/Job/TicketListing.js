@@ -18,12 +18,24 @@ import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 
 const GET_JOB_TICKETS = gql`
   query MyQuery($callout_id: Int!) {
+    null_ticket: job_tickets(where: {
+        callout_id: {_eq: $callout_id}, 
+        status: {_is_null: true}, 
+        }) {
+      id
+      name
+      description
+      pictures
+      notes
+      status
+    }
     job_tickets(where: {callout_id: {_eq: $callout_id}, status: {_neq: "Closed"}}) {
       id
       name
       description
       pictures
       notes
+      status
     }
   }
 `;
@@ -163,17 +175,17 @@ export default function TicketListing(props) {
       ticketDetails,
     });
   };
-
+  const _tickets = [...(data?.job_tickets ?? []), ...(data?.null_ticket ?? [])];
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={{ margin: "3%" }}>
       <CreateTicketCard></CreateTicketCard>
       <TicketDetails></TicketDetails>
 
       <View style={{ marginTop: "2%" }}>
-        {!loading ? (
+        {loading ? (
           <ActivityIndicator size="large" color="#FFCA5D" />
         ) : (
-          data?.job_tickets.map((item, index) => (
+          _tickets.map((item, index) => (
             <TicketCard
               key={item.name}
               onPress={() => onTicketPress(item)}

@@ -320,6 +320,7 @@ const Job = (props) => {
     if (notes === "") {
       return alert("Cannot add empty Note");
     }
+    console.log(auth.user())
     const { display_name } = auth.user();
 
     const param = {
@@ -327,7 +328,7 @@ const Job = (props) => {
       id: ticket.id,
     };
 
-    console.log("calling api");
+    console.log("calling api", param);
     addNote({
       variables: param,
     })

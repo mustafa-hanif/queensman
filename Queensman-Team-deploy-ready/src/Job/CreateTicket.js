@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
@@ -32,6 +35,8 @@ const CREATE_TICKET = gql`
         pictures: $pictures
         worker_email: $worker_email
         type: $type
+        status: "Open"
+        notes: []
       }
     ) {
       callout_id
