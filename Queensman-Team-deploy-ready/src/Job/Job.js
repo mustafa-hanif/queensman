@@ -39,11 +39,14 @@ const GET_JOB_WORKERS = gql`
 `;
 
 const START_JOB = gql`
-  mutation StartJob($callout_id: Int!, $time: timestamp!, $updater_id: Int!) {
+  mutation StartJob($callout_id: Int!, $ticket_id: Int!, $time: timestamp!, $updater_id: Int!) {
     update_callout_by_pk(
       pk_columns: { id: $callout_id }
       _set: { status: "In Progress" }
     ) {
+      status
+    }
+    update_job_tickets_by_pk(pk_columns: {id: $ticket_id}, _set: {status: "In Progress"}) {
       status
     }
     insert_job_history_one(
@@ -219,6 +222,7 @@ const Job = (props) => {
   const StartJobHandler = () => {
     startJob({
       variables: {
+        ticket_id: ticket.id,
         callout_id: state.JobData.id,
         updater_id: state.workerID,
         time: new Date().toJSON(),
