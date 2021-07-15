@@ -18,6 +18,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  SafeAreaView
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
@@ -62,7 +63,6 @@ const PreJob = (props) => {
   );
 
   const CallOutIdFromParams = props.navigation.getParam("QJobID", null);
-
   const [state, setState] = useState({
     Note: "",
     Notes: [{ note: "" }],
@@ -74,7 +74,7 @@ const PreJob = (props) => {
     isPicvisible: false, //veiw image app kay lia
     picturename: "",
     CallOutID: CallOutIdFromParams,
-    IsImageuploaded: false,
+    IsImageuploaded: true,
     selectedNo: 0,
     NoteItem: {
       key: "hay",
@@ -125,6 +125,9 @@ const PreJob = (props) => {
     if (state.IsImageuploaded) {
       props.navigation.navigate("PostJob", {
         QJobID: state.CallOutID,
+        it: props.navigation.getParam("it", {}),
+        ticketDetails: props.navigation.getParam("ticketDetails", {}),
+        ticketCount: props.navigation.getParam('ticketCount', {}),
       });
     } else {
       alert("Please upload pre job images first!");
@@ -302,7 +305,7 @@ const PreJob = (props) => {
     setState({ ...state, isPicvisible: false });
   };
 
-  const CameraSnap = async () => {
+  const cameraSnap = async () => {
     if (Constants.platform.ios) {
       const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
       if (status !== "granted") {
@@ -325,7 +328,7 @@ const PreJob = (props) => {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled>
-      <ScrollView style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <Text
           style={{
             fontSize: 15,
@@ -347,7 +350,7 @@ const PreJob = (props) => {
           }}
           pointerEvents={state.IsImageuploaded ? "none" : "auto"}
         >
-          <TouchableOpacity onPress={CameraSnap}>
+          <TouchableOpacity onPress={cameraSnap}>
             <View
               style={{
                 flexDirection: "row",
@@ -423,7 +426,7 @@ const PreJob = (props) => {
         >
           Notes:{" "}
         </Text>
-        <View style={{ heigh: "30%", width: "100%" }}>
+        <View  style={{ heigh: "30%", width: "100%" }}>
           <FlatList
             data={data?.job_notes || []}
             keyExtractor={(item, index) => `${index}`}
@@ -498,7 +501,6 @@ const PreJob = (props) => {
         <Button onPress={AlertPreJobHandler} title="NEXT" color="#FFCA5D" />
 
         <View style={{ height: 30 }}></View>
-        <Button title="" color="#fff" />
 
         <Modal
           isVisible={state.isPicvisible}
@@ -528,7 +530,7 @@ const PreJob = (props) => {
             />
           </View>
         </Modal>
-      </ScrollView>
+      </SafeAreaView>
     </KeyboardAvoidingView>
   );
 };

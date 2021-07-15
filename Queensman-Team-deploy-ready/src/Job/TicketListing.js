@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { Icon } from 'native-base';
+import { Icon, CheckIcon } from 'native-base';
 import commonColor from "../../native-base-theme/variables/commonColor";
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 
@@ -26,8 +26,18 @@ const GET_JOB_TICKETS = gql`
       notes
       status
       type
+      isVerified
     }
   }
+`;
+
+const GET_JOB_TICKETS_CLOSED = gql`
+query MyQuery($callout_id: Int!) {
+  job_tickets(where: {callout_id: {_eq: $callout_id}, status: {_neq: "Closed"}}, order_by: {created_at: desc}) {
+    id
+  }
+}
+
 `;
 
 export default function TicketListing(props) {
@@ -35,7 +45,6 @@ export default function TicketListing(props) {
     "it",
     {}
   );
-    console.log(id)
   const [refresh, setrefresh] = useState(
     props.navigation.getParam("refresh", false)
   );
@@ -49,29 +58,28 @@ export default function TicketListing(props) {
     }
   );
 
-  //   useEffect(() => {
-  //     fetchTickets();
-  //     return () => {
-  //       setrefresh(false);
-  //     };
-  //   }, []);
+  const [getClosedTickets, { loading: allTicketsLoading, data: allTickets, error: allTicketsError }] = useLazyQuery(
+    GET_JOB_TICKETS_CLOSED,
+    {
+      variables: {
+        callout_id: Number(id),
+      },
+    }
+  );
 
   useEffect(() => {
     const { navigation } = props;
     const focusListener = navigation.addListener("didFocus", () => {
       fetchTickets();
+      getClosedTickets();
       // The screen is focused
       // Call any action
     });
-
     return () => {
       focusListener.remove();
       return focusListener;
     };
   }, []);
-
-  console.log({ loading, data, error });
-
   const TicketDetails = () => {
     return (
       <View style={{ borderWidth: 1 }}>
@@ -108,16 +116,18 @@ export default function TicketListing(props) {
             height: 2,
           },
           shadowOpacity: 0.23,
-          shadowRadius: 2.62,
-
+          shadowRadius: 10,
+          borderRadius: 10,
           elevation: 4,
         }}
       >
         <View
           style={{
+            flex: 1,
             flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
+            paddingVertical: "2%"
             //   borderWidth: 1,
           }}
         >
@@ -125,15 +135,17 @@ export default function TicketListing(props) {
             <Text style={{ fontWeight: "bold" }}>
               {props.name}
             </Text>
+            <Text style={{ fontSize: 13 }}>{props?.description}</Text>
+        <Text style={{ fontSize: 12 }}>Ticket type: {props?.type}</Text>
+        <Text style={{ fontSize: 12 }}>Status: <Text style={ props?.status == "Closed" && {color: 'red'}}>{props?.status}</Text></Text>
           </View>
           <View>
             {props.Checked ? (
-              <Icon name='flag' style={{ fontSize: 24, color: 'green'}}></Icon>
-            ) : <Icon name='flag' style={{ fontSize: 24, color: 'red'}}></Icon>}
+              <Icon name='flag' style={{ fontSize: 20, color: 'green', marginBottom: 10}}></Icon>
+            ) : <Icon name='flag' style={{ fontSize: 20, color: 'red', marginBottom: 10}}></Icon>}
+            {props.isVerified && <Icon type="FontAwesome" name="check" style={{fontSize: 20, color: '#539bf5'}}/>}
           </View>
         </View>
-        <Text style={{ fontSize: 13 }}>{props?.description}</Text>
-        <Text style={{ fontSize: 12 }}>Ticket type: {props?.type}</Text>
       </TouchableOpacity>
     );
   };
@@ -161,6 +173,7 @@ export default function TicketListing(props) {
     props.navigation.navigate("Job", {
       it: props.navigation.getParam("it", {}),
       ticketDetails,
+      ticketCount: allTickets?.job_tickets.length
     });
   };
   const _tickets = [...(data?.job_tickets ?? []), ...(data?.null_ticket ?? [])];

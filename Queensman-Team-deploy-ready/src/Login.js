@@ -30,8 +30,8 @@ export default class Login extends React.Component {
     super(props);
 
     this.state = {
-      email: "",
-      password: "",
+      email: "antony@queensman.com",
+      password: "123456789",
       phoneno: "97148721301",
       passwordcheck: "",
       loading: false, //put true to start loading  false to end loading
@@ -111,6 +111,7 @@ export default class Login extends React.Component {
               }}
               placeholder="Email"
               autoCapitalize="none"
+              value={this.state.email}
               underlineColorAndroid="transparent"
               onChangeText={(email) => {
                 this.setState({ email });
@@ -143,6 +144,7 @@ export default class Login extends React.Component {
               placeholder="Password"
               autoCapitalize="none"
               secureTextEntry={this.state.showPassword}
+              value={this.state.password}
               underlineColorAndroid="transparent"
               onChangeText={(password) => {
                 this.setState({ password });

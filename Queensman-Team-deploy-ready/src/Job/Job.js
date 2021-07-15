@@ -22,6 +22,7 @@ import Modal from "react-native-modal";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { auth } from "../utils/nhost";
 import * as Location from "expo-location";
+import { createNativeWrapper } from "react-native-gesture-handler";
 
 const GET_JOB_WORKERS = gql`
   query FetchJobWorker($id: Int!) {
@@ -74,6 +75,17 @@ const ADD_TICKET_NOTE = gql`
   }
 `;
 
+const UPDATE_TICKET_VERIFICATION = gql`
+  mutation UpdateVerificaiton($isVerified: Boolean, $id: Int!) {
+    update_job_tickets_by_pk(
+      pk_columns: { id: $id }
+      _set: { isVerified: $isVerified }
+    ) {
+      isVerified
+    }
+  }
+`;
+
 const STOP_JOB = gql`
   mutation CloseTicket($id: Int!, 
     $callout_id: Int!, 
@@ -106,6 +118,8 @@ const STOP_JOB = gql`
 `;
 
 const Job = (props) => {
+  // console.log(props.navigation.getParam("ticketDetails"), " ASKJFDHASLDIHASFKAHSKDI")
+  const worker_email = auth.user().email
   const [state, setState] = useState({
     Pic1: "photos/0690da3e-9c38-4a3f-ba45-8971697bd925.jpg",
     Pic2: "link",
@@ -137,6 +151,8 @@ const Job = (props) => {
 
   const calloutIdFromParam = props.navigation.getParam("it", null);
   const ticket = props.navigation.getParam("ticketDetails", {});
+  console.log(ticket.id)
+  console.log(calloutIdFromParam.id)
   const [ticketNotesArray, setticketNotesArray] = useState(ticket.notes);
 
   // API
@@ -151,7 +167,10 @@ const Job = (props) => {
   const [addNote, { Notesdata, loading: addNoteLoading, error: addNoteError }] =
     useMutation(ADD_TICKET_NOTE);
 
-  console.log({ Notesdata, addNoteLoading, addNoteError });
+  // console.log({ Notesdata, addNoteLoading, addNoteError });
+  const [isVerified, setIsVerified] = useState(ticket.isVerified)
+  const [updateVerification, { data: verificationData }] = useMutation(UPDATE_TICKET_VERIFICATION);
+
 
   const [
     stopJob,
@@ -161,6 +180,9 @@ const Job = (props) => {
   if (startJobCalled && !startJobLoading) {
     props.navigation.navigate("PreJob", {
       QJobID: state.JobData.id,
+      it: props.navigation.getParam("it", {}),
+      ticketDetails: props.navigation.getParam("ticketDetails", {}),
+      ticketCount: props.navigation.getParam('ticketCount', {}),
     });
   }
 
@@ -219,6 +241,15 @@ const Job = (props) => {
       { cancelable: false }
     );
   };
+
+  const markAsVerified = (isVerified) => {
+    updateVerification({variables: {
+      id: ticket.id,
+      isVerified
+    }})
+    setIsVerified(isVerified)
+  }
+
   const StartJobHandler = () => {
     startJob({
       variables: {
@@ -346,12 +377,12 @@ const Job = (props) => {
       id: ticket.id,
     };
 
-    console.log("calling api", param);
+    // console.log("calling api", param);
     addNote({
       variables: param,
     })
       .then((res) => {
-        console.log({ res });
+        // console.log({ res });
         setnotes("");
         setticketNotesArray(res.data.update_job_tickets_by_pk.notes);
       })
@@ -451,6 +482,7 @@ const Job = (props) => {
         <Heading style={{ fontSize: 20, alignSelf: "center", color: "black" }}>
           Ticket Details
         </Heading>
+        <Text style={{ fontSize: 12, alignSelf: "center" }}>Status: <Text style={ ticket?.status == "Closed" && {color: 'red'}}>{ticket?.status}</Text></Text>
         <Heading>Name</Heading>
         <RenderValue>{ticket.name}</RenderValue>
         <Heading>Description</Heading>
@@ -474,7 +506,39 @@ const Job = (props) => {
         {addNoteLoading && <ActivityIndicator size="small" color="#aaa" />}
         {!addNoteLoading && RenderAddNote()}
       </View>
-      <Text style={[styles.HeadingStyle, { alignSelf: "center" }]}>
+      {worker_email == "opscord@queensman.com" && <>
+      {isVerified ? <View>
+        <Button
+        style={{ width: "20%"}}
+        onPress={() => {markAsVerified(!isVerified)}}
+        title="Mark it as unverified"
+        color="#D2054E"
+      />
+       <Button
+        style={{ width: "20%"}}
+        title="Verified"
+        color="#539bf5"
+        disabled
+      />
+      </View> : 
+      <View>
+      <Button
+      style={{ width: "20%"}}
+      onPress={() => {markAsVerified(!isVerified)}}
+      title="Mark it as verified"
+      color="#539bf5"
+    />
+     <Button
+      style={{ width: "20%"}}
+      title="Unverified"
+      color="#539bf5"
+      disabled
+    />
+    </View>
+      }
+      </>}
+     
+      <Text style={[styles.HeadingStyle, { alignSelf: "center", marginTop: 10 }]}>
         Overall Job Details
       </Text>
       <Text
@@ -682,8 +746,8 @@ const Job = (props) => {
       >
         Email: {state.W3Email}
       </Text>
-
-      <Button
+        {ticket.status != "Closed" && <View>
+        <Button
         style={{ width: "20%" }}
         onPress={AlertStartJob}
         title="Start Job"
@@ -698,6 +762,7 @@ const Job = (props) => {
           color="#cf142b"
         />
       </View>
+          </View>}
 
       <Modal
         isVisible={state.isPicvisible}

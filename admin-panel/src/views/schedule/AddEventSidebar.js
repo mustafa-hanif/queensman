@@ -200,6 +200,7 @@ const AddEventSidebar = props => {
 
   // ** Adds New Event
   const handleAddEvent = () => {
+    console.log(calloutJobType)
     requestCalloutApiCall({
       variables: {
         property_id: propertyId,
@@ -211,7 +212,7 @@ const AddEventSidebar = props => {
         end_time_on_calendar : endPicker.toTimeString().substr(0, 8), 
         // category: value[0].value, 
         category: "Uncategorized", 
-        job_type: value.value, 
+        job_type: calloutJobType.value, 
         status: "Requested",
         request_time: new Date().toLocaleDateString(),
         urgency_level: "Medium"
@@ -330,7 +331,7 @@ const AddEventSidebar = props => {
           clientName,
           clientEmail,
           category: 'Uncategorized',
-          job_type: value.value,
+          job_type: calloutJobType.value,
           propertyName,
           workerName,
           propertyId

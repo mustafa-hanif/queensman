@@ -53,6 +53,7 @@ query getJobTickets {
     type
     worker_email
     worker_id
+    status
   }
 }
 `
@@ -134,12 +135,12 @@ const advSearchColumns = [
       sortable: true,
       minWidth: '10px'
     },
-    {
-      name: 'Email',
-      selector: 'worker_email',
-      sortable: true,
-      minWidth: '200px'
-    },
+    // {
+    //   name: 'Email',
+    //   selector: 'worker_email',
+    //   sortable: true,
+    //   minWidth: '200px'
+    // },
     {
       name: 'Name',
       selector: 'name',
@@ -164,7 +165,12 @@ const advSearchColumns = [
     //   sortable: true,
     //   minWidth: '150px'
     // },
-  
+   {
+      name: 'Status',
+      selector: 'status',
+      sortable: true,
+      minWidth: '150px'
+    },
     // {
     //   name: 'Team Id',
     //   selector: 'team_id',

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState, useEffect, useRef} from "react";
 import {
   StyleSheet,
   Text,
@@ -12,80 +12,105 @@ import {
   Image,
 } from "react-native";
 import StarRating from "react-native-star-rating";
+import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
+import { auth } from "../utils/nhost";
 
 import { Content, Icon } from "native-base";
 // import { takeSnapshotAsync } from "expo";
 import { captureRef as takeSnapshotAsync } from "react-native-view-shot";
-import axios from "axios";
-import * as ExpoPixi from "expo-pixi";
+// import ExpoPixi from "expo-pixi";
 
-const isAndroid = Platform.OS === "android";
-function uuidv4() {
-  //https://stackoverflow.com/a/2117523/4047926
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    var r = (Math.random() * 16) | 0,
-      v = c == "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
+const GET_CURRENT_JOB_WORKER = gql
+`query GetJobWorkerId($email: String) {
+  worker(where: {email: {_eq: $email}}) {
+    id
+  }
 }
-
-export default class JobComplete extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      starCount: null,
-      feedback: "",
-      signature: null,
-      image: null,
-      strokeColor: 0,
-      appState: AppState.currentState,
-      SignatureUrl: null,
-      CallOutID: this.props.navigation.getParam("QJobID", "Something"),
-      WorkerID: this.props.navigation.getParam("workerId", "Something"),
-      Solution: this.props.navigation.getParam("Sol", "Something"),
-    };
+`
+const FINISH_JOB = gql
+`mutation FinishFinalJob($id: Int!, $updater_id: Int!, $callout_id: Int!, $feedback: String!, $rating: Int!, $solution: String!, $signature: String!) {
+  insert_job_history_one(object: {callout_id: $callout_id, updater_id: $updater_id, updated_by: "Ops Team", status_update: "Closed"}) {
+    time
   }
-  handleAppStateChangeAsync = (nextAppState) => {
-    if (
-      this.state.appState.match(/inactive|background/) &&
-      nextAppState === "active"
-    ) {
-      if (isAndroid && this.sketch) {
-        this.setState({
-          appState: nextAppState,
-          id: uuidv4(),
-          lines: this.sketch.lines,
-        });
-        return;
-      }
+  update_callout_by_pk(pk_columns: {id: $callout_id}, _set: {status: "Closed"}) {
+    status
+  }
+  update_job(where: {callout_id: {_eq: $callout_id}}, _set: {solution: $solution, rating: $rating, signature: $signature, feedback: $feedback}) {
+    returning {
+      solution
     }
-    this.setState({ appState: nextAppState });
-  };
+  }
+  update_job_tickets_by_pk(
+    pk_columns: { id: $id }
+    _set: { status: "Closed" }
+  ) {
+    id
+  }
+}`
 
-  componentDidMount() {
-    AppState.addEventListener("change", this.handleAppStateChangeAsync);
+const FINISH_JOB_SINGLE = gql `
+mutation UpdateJobAndJobTicket ($id: Int!, $callout_id: Int!, $feedback: String!, $rating: Int!, $solution: String!, $signature: String!) {
+  update_job(where: {callout_id: {_eq: $callout_id}}, _set: {solution: $solution, rating: $rating, signature: $signature, feedback: $feedback}) {
+    returning {
+      solution
+    }
   }
 
-  componentWillUnmount() {
-    AppState.removeEventListener("change", this.handleAppStateChangeAsync);
+  update_job_tickets_by_pk(
+      pk_columns: { id: $id }
+      _set: { status: "Closed" }
+    ) {
+      id
+    }
+}
+`
+const JobComplete = (props) => {
+  const {loading: workerLoading, data, error: workerError} = useQuery(GET_CURRENT_JOB_WORKER, {variables: {
+    email: auth.user().email,
+  }})
+
+  const ticketCount = props.navigation.getParam('ticketCount', {})
+  console.log( props.navigation.getParam('ticketCount', {}), "TICKER OCUINT")
+  const ticketId = props.navigation.getParam('ticketDetails', {}).id
+  const signatureCanvas =  useRef();
+  const [state, setState] = useState({
+    starCount: null,
+    feedback: "",
+    signature: null,
+    image: null,
+    strokeColor: 0,
+    SignatureUrl: null,
+    CallOutID: props.navigation.getParam("QJobID", "Something"),
+    Solution: props.navigation.getParam("Sol", "Something")
+  })
+
+  const [finishJob, { loading, error }] =
+    useMutation(FINISH_JOB);
+
+  const [finishJobSingle] = useMutation(FINISH_JOB_SINGLE)
+  
+  // const saveCanvas = async ({ width, height }) => {
+  //   const options = {
+  //     format: "png", /// PNG because the view has a clear background
+  //     quality: 0.1, /// Low quality works because it's just a line
+  //     result: "tmpfile",
+  //     height,
+  //     width,
+  //   };
+  //   /// Using 'Expo.takeSnapShotAsync', and our view 'this.sketch' we can get a uri of the image
+  //   const uri = await signatureCanvas.takeSnapshotAsync(sketch, options);
+  //   console.log(uri);
+  //   setState({
+  //     SignatureUrl: uri,
+  //   });
+  //   console.log(SignatureUrl);
+  // };
+
+  const onStarRatingPress = (rating) => {
+    setState({...state, starCount: rating});
   }
 
-  onReady = () => {
-    console.log("ready!");
-  };
-
-  onStarRatingPress(rating) {
-    this.setState(
-      {
-        starCount: rating,
-      },
-      () => {
-        console.log(this.state.starCount + " " + rating);
-      }
-    );
-  }
-
-  AlertJobDone = () => {
+  const AlertJobDone = () => {
     Alert.alert(
       "Job Completion.",
       "Are you sure you want to finish the job?",
@@ -95,79 +120,62 @@ export default class JobComplete extends React.Component {
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
-        { text: "Yes", onPress: () => this.DoneJob() },
+        { text: "Yes", onPress: () => doneJob() },
       ],
       { cancelable: false }
     );
   };
 
-  DoneJob = async () => {
-    let localUri = this.state.SignatureUrl;
-    let filename = localUri.split("/").pop();
-    let match = /\.(\w+)$/.exec(filename);
-    let type = match ? `image/${match[1]}` : `image`;
-
-    let formData = new FormData();
-    formData.append("photo", { uri: localUri, name: filename, type });
-    console.log(formData);
-    link =
-      "https://www.queensman.com/phase_2/queens_worker_Apis/finishJob.php?callout_id=" +
-      this.state.CallOutID +
-      "&worker_id=" +
-      this.state.WorkerID +
-      "&solution=" +
-      this.state.Solution;
-    console.log(link);
-    axios.get(link).then((result) => {
-      console.log(result.data);
-    });
-    link =
-      "https://www.queensman.com/phase_2/queens_worker_Apis/recordCustomerFeedback.php?callout_id=" +
-      this.state.CallOutID +
-      "&rating=" +
-      this.state.starCount +
-      "&feedback=" +
-      this.state.feedback +
-      "&signature=" +
-      filename;
-    console.log(link);
-    axios.get(link).then((result) => {
-      console.log(result.data);
-      alert("Service has been successfully completed. Great Job!");
-      this.props.navigation.navigate("HomeNaviagtor");
-    });
-    link =
-      "https://www.queensman.com/phase_2/queens_worker_Apis/uploadSignature.php";
-    console.log(link);
-    return await fetch(link, {
-      method: "POST",
-      body: formData,
-      header: {
-        "content-type": "multipart/form-data",
-      },
-    }).then((result) => {
-      console.log(result.data);
-    });
+  const doneJob = async () => {
+      // saveCanvas()
+      console.log(ticketCount)
+      if(ticketCount == 1) {
+        console.log("One Job")
+        console.log({
+          id: ticketId,
+          updater_id: data?.worker[0].id,
+          callout_id: state.CallOutID,
+          feedback: state.feedback,
+          rating: state.starCount,
+          solution: state.Solution,
+          signature: auth.user().email
+        })
+        try {
+          await finishJob({variables: {
+            id: ticketId,
+            updater_id: data?.worker[0].id,
+            callout_id: state.CallOutID,
+            feedback: state.feedback,
+            rating: state.starCount,
+            solution: state.Solution,
+            signature: auth.user().email
+          }})
+          alert("Service has been successfully completed. Great Job!");
+          props.navigation.navigate("HomeNaviagtor");
+        } catch (e) {
+          console.log(e)
+          alert("Could not submit Job!");
+        }
+      } else {
+        console.log("Many job")
+        try {
+          await finishJobSingle({variables: {
+            id: ticketId,
+            callout_id: state.CallOutID,
+            feedback: state.feedback,
+            rating: state.starCount,
+            solution: state.Solution,
+            signature: auth.user().email
+          }})
+          alert("Service has been successfully completed. Great Job!");
+          props.navigation.navigate("HomeNaviagtor");
+        } catch (e) {
+          console.log(e)
+          alert("Could not submit Job!");
+        }
+      }
   };
 
-  onChange = async ({ width, height }) => {
-    const options = {
-      format: "png", /// PNG because the view has a clear background
-      quality: 0.1, /// Low quality works because it's just a line
-      result: "tmpfile",
-      height,
-      width,
-    };
-    /// Using 'Expo.takeSnapShotAsync', and our view 'this.sketch' we can get a uri of the image
-    const uri = await takeSnapshotAsync(this.sketch, options);
-    console.log(uri);
-    this.setState({
-      SignatureUrl: uri,
-    });
-    console.log(this.state.SignatureUrl);
-  };
-
-  render() {
     return (
       <ScrollView scrollEnabled={true} contentContainerStyle={styles.container}>
         <Text
@@ -196,8 +204,8 @@ export default class JobComplete extends React.Component {
             disabled={false}
             maxStars={5}
             fullStarColor={"#001E2B"}
-            rating={this.state.starCount}
-            selectedStar={(rating) => this.onStarRatingPress(rating)}
+            rating={state.starCount}
+            selectedStar={(rating) => onStarRatingPress(rating)}
           />
         </View>
         <View style={{ height: "4%" }}></View>
@@ -219,14 +227,14 @@ export default class JobComplete extends React.Component {
             style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput
-            ref="textInputMobile"
+            // ref="textInputMobile"
             style={{ fontSize: 15, color: "#000E1E", width: "83%" }}
             placeholder="Please type your valuable feedback here.."
-            defaultValue={this.state.feedback}
+            defaultValue={state.feedback}
             placeholderTextColor="#000E1E"
             underlineColorAndroid="transparent"
             onChangeText={(feedback) => {
-              this.setState({ feedback });
+              setState({ ...state, feedback });
             }} //email set
           />
         </View>
@@ -239,7 +247,7 @@ export default class JobComplete extends React.Component {
           }}
         ></View>
         <View style={{ height: "4%" }}></View>
-        <Text
+        {/* <Text
           style={{
             fontSize: 15,
             fontWeight: "500",
@@ -252,33 +260,31 @@ export default class JobComplete extends React.Component {
 
         <View style={styles.sketchContainer}>
           <ExpoPixi.Signature
-            ref={(ref) => (this.sketch = ref)}
+            ref={signatureCanvas}
             style={styles.sketch}
             strokeColor={"#000E1E"}
             strokeAlpha={1}
-            onReady={this.onReady}
-            onChange={this.onChange}
+            strokeWidth={3}
           />
-        </View>
+        </View> */}
         <View style={{ height: "4%" }}></View>
         <Button
           color="#FFCA5D"
           title="CLEAR"
           style={styles.button}
           onPress={() => {
-            this.sketch.clear();
+            signatureCanvas.clear()
           }}
         />
         <View style={{ height: "4%" }}></View>
         <Button
-          onPress={this.AlertJobDone}
+          onPress={AlertJobDone}
           title="FINISH THE JOB"
           color="#FFCA5D"
         />
       </ScrollView>
     );
   }
-}
 
 const styles = StyleSheet.create({
   container: {
@@ -295,3 +301,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#f1f1f1",
   },
 });
+
+export default JobComplete

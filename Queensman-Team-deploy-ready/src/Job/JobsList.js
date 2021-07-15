@@ -27,14 +27,14 @@ import {
 } from "native-base";
 
 import dayjs from "dayjs";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import { auth } from "../utils/nhost";
 
 const GET_JOBS_LIST = gql`
   query JobsList($email: String) {
     callout(
-      order_by: { request_time: desc }
-      where: { job_worker: { worker: { email: { _eq: $email } } } }
+      order_by: { request_time: desc },
+      where: {job_worker: {worker: {email: {_eq: $email}}}, status: {_neq: "Closed"}}
     ) {
       id
       property_id
@@ -68,6 +68,41 @@ const GET_JOBS_LIST = gql`
   }
 `;
 
+const GET_JOBS_LIST_ALL = gql`
+query JobsList($email: String) {
+  callout(order_by: {request_time: desc}, limit: 10) {
+    id
+    property_id
+    job_type
+    description
+    status
+    request_time
+    planned_time
+    picture1
+    picture2
+    picture3
+    picture4
+    urgency_level
+    client_id: callout_by
+    client: client_callout_email {
+      full_name
+      email
+      phone
+    }
+    job: callout_job {
+      instructions
+    }
+    property {
+      id
+      address
+      community
+      country
+      city
+    }
+  }
+}
+`;
+
 const JobsList = (props) => {
   const [state, setState] = useState({
     assignedCallouts: [], //Ismain hayn saaray client ke ongoing callouts.
@@ -79,11 +114,13 @@ const JobsList = (props) => {
     TotalData: [],
   });
 
-  const { loading, data, error, refetch } = useQuery(GET_JOBS_LIST, {
+  const [getJobsFromEmail, { loading, data, error, refetch }] = useLazyQuery(GET_JOBS_LIST, {
     variables: {
       email: auth?.currentSession?.session?.user.email,
     },
   });
+
+  const [getAllJobs, { loading: allLoading, data: allData, error: allError }] = useLazyQuery(GET_JOBS_LIST_ALL);
 
   const onValueChange = (value) => {
     setState({
@@ -125,12 +162,12 @@ const JobsList = (props) => {
 
     if (state.selected == "high") {
       const myData = [].concat(state.assignedCallouts);
-      console.log(myData);
+      // console.log(myData);
       myData.sort(function (a, b) {
         var idA = a.urgency_level;
         var idB = b.urgency_level;
-        console.log(idA);
-        console.log(idB);
+        // console.log(idA);
+        // console.log(idB);
         if (idA == "High" && idB != "High") {
           return -1;
         }
@@ -140,7 +177,7 @@ const JobsList = (props) => {
 
         return 0;
       });
-      console.log(myData);
+      // console.log(myData);
       setState({
         ...state,
         assignedCallouts: myData,
@@ -149,12 +186,12 @@ const JobsList = (props) => {
 
     if (state.selected == "scheduled") {
       const myData = [].concat(state.assignedCallouts);
-      console.log(myData);
+      // console.log(myData);
       myData.sort(function (a, b) {
         var idA = a.urgency_level;
         var idB = b.urgency_level;
-        console.log(idA);
-        console.log(idB);
+        // console.log(idA);
+        // console.log(idB);
         if (idA == "Scheduled" && idB != "Scheduled") {
           return -1;
         }
@@ -181,9 +218,20 @@ const JobsList = (props) => {
   useEffect(() => {
     const workerEmail = auth?.currentSession?.session?.user.email;
     setState({ workerEmail });
+    if(auth?.currentSession?.session?.user.email == "opscord@queensman.com") {
+      getAllJobs()
+    } else {
+      getJobsFromEmail()
+    }
 
-    if (data?.callout) {
-      console.log(data?.callout.length, "length");
+    if(allData?.callout) {
+      setState({
+        ...state,
+        assignedCallouts: allData.callout,
+        dataAvaible: true,
+        TotalData: allData.callout,
+      });
+    } else if(data?.callout) {
       setState({
         ...state,
         assignedCallouts: data?.callout,
@@ -193,7 +241,7 @@ const JobsList = (props) => {
     } else {
       setState({ ...state, dataAvaible: false });
     }
-  }, [data?.callout]);
+  }, [data?.callout, allData?.callout]);
 
   if (error) {
     return (
@@ -251,8 +299,8 @@ const JobsList = (props) => {
           <Picker.Item label="Urgency Level:Scheduled" value="scheduled" />
         </Picker>
       </View>
-      {loading && <ActivityIndicator size="large" color="#FFCA5D" />}
-      {!loading && data?.callout.length === 0 ? (
+      {(loading || allLoading) && <ActivityIndicator size="large" color="#FFCA5D" />}
+      {(!loading || !allLoading) && (data?.callout.length || allData?.callout.length) === 0 ? (
         <Text
           style={[
             styles.TextFam,
@@ -267,8 +315,8 @@ const JobsList = (props) => {
           No Assigned Services
         </Text>
       ) : (
-        !loading &&
-        data && (
+        (!loading || !allLoading )&&
+        (data || allData) && (
           <View>
             <FlatList
               data={state.assignedCallouts}
@@ -331,6 +379,9 @@ const JobsList = (props) => {
                             </Text>
                             <Text style={[styles.TextFam, { fontSize: 10 }]}>
                               Property ID : {item.property_id}
+                            </Text>
+                            <Text style={[styles.TextFam, { fontSize: 10 }]}>
+                              Status : {item.status}
                             </Text>
                           </View>
                         </View>
