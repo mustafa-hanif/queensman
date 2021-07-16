@@ -44,58 +44,56 @@ const UPDATE_CALLOUT = gql`
 `;
 
 const REQUEST_CALLOUT = gql`
-  mutation AddCallout(
-    $property_id: Int
-    $date_on_calendar: date
-    $notes: String
-    $time_on_calendar: time
-    $email: String
-    $category: String
-    $job_type: String
-    $status: String
-    $picture1: String
-    $picture2: String
-    $picture3: String
-    $picture4: String
-    $video: String
-    $request_time: timestamp
-    $urgency_level: String
-  ) {
-    insert_scheduler_one(
-      object: {
-        callout: {
-          data: {
-            callout_by_email: $email
-            property_id: $property_id
-            category: $category
-            job_type: $job_type
-            status: $status
-            request_time: $request_time
-            urgency_level: $urgency_level
-            picture1: $picture1
-            picture2: $picture2
-            picture3: $picture3
-            picture4: $picture4
-            video: $video
-            active: 1
-            {
-              job_tickets: {
-                data: {
-                  name: $notes
-                  status: "Open"
-                }
-              }
-            }
+mutation AddCallout(
+  $property_id: Int
+  $date_on_calendar: date
+  $notes: String
+  $time_on_calendar: time
+  $email: String
+  $category: String
+  $job_type: String
+  $status: String
+  $picture1: String
+  $picture2: String
+  $picture3: String
+  $picture4: String
+  $video: String
+  $request_time: timestamp
+  $urgency_level: String
+) {
+  insert_scheduler_one(
+    object: {
+      callout: {
+        data: {
+          callout_by_email: $email
+          property_id: $property_id
+          category: $category
+          job_type: $job_type
+          status: $status
+          request_time: $request_time
+          urgency_level: $urgency_level
+          picture1: $picture1
+          picture2: $picture2
+          picture3: $picture3
+          picture4: $picture4
+          video: $video
+          active: 1    
+          job_tickets: {
+            data: {
+              name: $notes
+              status: "Open"
+            } 
           }
         }
-        date_on_calendar: $date_on_calendar
-        time_on_calendar: $time_on_calendar
-        notes: $notes
       }
-    ) {
-      date_on_calendar
+      date_on_calendar: $date_on_calendar
+      time_on_calendar: $time_on_calendar
+      notes: $notes
     }
+  ) {
+    date_on_calendar
   }
+}
 `;
 
 export default function SelectSchedule(props) {
