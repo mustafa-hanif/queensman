@@ -14,7 +14,7 @@ import {
 import StarRating from "react-native-star-rating";
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { auth } from "../utils/nhost";
-
+import axios from "axios";
 import { Content, Icon } from "native-base";
 // import { takeSnapshotAsync } from "expo";
 import { captureRef as takeSnapshotAsync } from "react-native-view-shot";
@@ -70,12 +70,14 @@ const JobComplete = (props) => {
   }})
 
   const ticketCount = props.navigation.getParam('ticketCount', {})
-  console.log( props.navigation.getParam('ticketCount', {}), "TICKER OCUINT")
   const ticketId = props.navigation.getParam('ticketDetails', {}).id
+  const clientEmail = props.navigation.getParam('it', {}).client.email
+  const clientPhone = props.navigation.getParam('it', {}).client.phone
+  console.log(clientEmail)
   const signatureCanvas =  useRef();
   const [state, setState] = useState({
-    starCount: null,
-    feedback: "",
+    starCount: 0,
+    feedback: "No Feedback",
     signature: null,
     image: null,
     strokeColor: 0,
@@ -131,15 +133,49 @@ const JobComplete = (props) => {
       console.log(ticketCount)
       if(ticketCount == 1) {
         console.log("One Job")
-        console.log({
-          id: ticketId,
-          updater_id: data?.worker[0].id,
-          callout_id: state.CallOutID,
-          feedback: state.feedback,
-          rating: state.starCount,
-          solution: state.Solution,
-          signature: auth.user().email
-        })
+        // console.log({
+        //   id: ticketId,
+        //   updater_id: data?.worker[0].id,
+        //   callout_id: state.CallOutID,
+        //   feedback: state.feedback,
+        //   rating: state.starCount,
+        //   solution: state.Solution,
+        //   signature: auth.user().email
+        // })
+
+      const form = new FormData()
+      /*eslint-disable*/
+      form.append("arguments", JSON.stringify({
+        "subject": "Task from app",
+        "email": clientEmail,
+        "description": `Feedback: ${state.feedback}`,
+        "status": "Closed",
+        "lastTicket": true,
+        "score": state.starCount
+      }))
+
+      try {
+        const result = await fetch(
+          'https://www.zohoapis.com/crm/v2/functions/createzohodeskticket/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf',
+          {
+            method: 'POST',
+            headers: {
+              'x-hasura-admin-secret': 'd71e216c844d298d91fbae2407698b22'
+            },
+            body: form
+          }
+        );
+        let resultJson = await result.json();
+        let output = resultJson.details.output
+        if(output.substring(0,14) == "No email found") {
+          alert(output)
+        }
+      } catch (e) {
+        console.log("ERROR")
+        console.log(e)
+      }
+
+
         try {
           await finishJob({variables: {
             id: ticketId,
@@ -158,6 +194,38 @@ const JobComplete = (props) => {
         }
       } else {
         console.log("Many job")
+        const form = new FormData()
+        /*eslint-disable*/
+        form.append("arguments", JSON.stringify({
+          "subject": "Task from app",
+          "email": clientEmail,
+          "description": `Feedback: ${state.feedback}`,
+          "status": "Closed",
+          "lastTicket": false,
+          "score": state.starCount
+        }))
+  
+        try {
+          const result = await fetch(
+            'https://www.zohoapis.com/crm/v2/functions/createzohodeskticket/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf',
+            {
+              method: 'POST',
+              headers: {
+                'x-hasura-admin-secret': 'd71e216c844d298d91fbae2407698b22'
+              },
+              body: form
+            }
+          );
+          let resultJson = await result.json();
+          let output = resultJson.details.output
+          if(output.substring(0,14) == "No email found") {
+            alert(output)
+          }
+        } catch (e) {
+          console.log("ERROR")
+          console.log(e)
+        }
+  
         try {
           await finishJobSingle({variables: {
             id: ticketId,

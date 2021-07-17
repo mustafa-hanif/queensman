@@ -203,15 +203,16 @@ const InventoryReportStackNavigator = createStackNavigator(
         headerStyle: {
           backgroundColor: "#000E1E",
         },
-        // headerTitleStyle: {
-        //   fontFamily: "serif"
-        // },
         headerTintColor: "#fff",
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
         headerLeft: (
           <TouchableOpacity
             onPress={() => navigation.navigate("HomeNaviagtor")}
+            
           >
-            <View style={{ flexDirection: "row" }}>
+            <View style={{ flexDirection: "row", marginLeft: 20 }}>
               <Text> </Text>
               <Icon
                 name="arrow-back"
