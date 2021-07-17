@@ -67,7 +67,6 @@ export default class clientList extends React.Component {
     this.setState({ loading: true });
     link =
       "https://www.queensman.com/phase_2/queens_admin_Apis/fetchClients.php";
-    console.log(link);
     axios.get(link).then((result) => {
       var arrayLength = result.data.server_response.length;
       console.log(arrayLength);
