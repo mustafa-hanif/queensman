@@ -80,6 +80,7 @@ mutation AddCallout(
           active: 1    
           job_tickets: {
             data: {
+              type: "Full Job"
               name: $notes
               status: "Open"
             } 
@@ -117,6 +118,7 @@ export default function SelectSchedule(props) {
   const [updateCalloutApi, { loading: updateCalloutLoading, error: updatecalloutError }] = useMutation(UPDATE_CALLOUT);
 
   const state = props.route.params.state;
+  console.log({ state });
   const commingFrom = props.route.params.commingFrom;
   const callout_id_fromNotification = props.route.params.callout_id;
   console.log({ commingFrom, callout_id_fromNotification });
@@ -243,7 +245,7 @@ export default function SelectSchedule(props) {
             SubmittedCalloutAlert();
           }, 500);
         })
-        .catch((err) => console.log({ err }));
+        .catch((err) => alert(JSON.stringify({ err })));
     }
   };
 
@@ -295,14 +297,6 @@ export default function SelectSchedule(props) {
     );
   };
 
-  if (requestCalloutLoading || updateCalloutLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator color={colors.brandPrimary} size="large" />
-      </View>
-    );
-  }
-
   const getMarkedDates = () => {
     const disable = {
       // selected: true,
@@ -329,6 +323,25 @@ export default function SelectSchedule(props) {
   };
 
   console.log({ show });
+
+  const dateComponent = React.useMemo(() => {
+    return show && <DateTimePicker
+      value={date}
+      mode="time" 
+      is24Hour={false} 
+      display="default" 
+      disabled={!show}
+      onChange={onChange} 
+    />
+  }, [show]);
+
+  if (requestCalloutLoading || updateCalloutLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator color={colors.brandPrimary} size="large" />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -367,16 +380,7 @@ export default function SelectSchedule(props) {
         />
       </View>
       <Confirmmodal />
-      {React.useMemo(() => {
-        return show && <DateTimePicker
-          value={date}
-          mode="time" 
-          is24Hour={false} 
-          display="default" 
-          disabled={!show}
-          onChange={onChange} 
-        />
-      }, [show])}
+      {dateComponent}
       {time && <Modal animationType="slide" transparent visible={time}>
         <View style={{ backgroundColor: 'white', width:'100%', borderTopColor: "black",
     borderTopWidth: StyleSheet.hairlineWidth, height: 220, flex: 0.25, position: 'absolute', bottom: 0 }}>
