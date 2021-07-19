@@ -8,18 +8,17 @@
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
+import { Button, Box, ScrollView } from 'native-base';
 import { Video } from "expo-av";
 import {
   StyleSheet,
   Text,
   View,
-  ScrollView,
   TextInput,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Button,
   Image,
 } from "react-native";
 
@@ -49,7 +48,6 @@ const styles = StyleSheet.create({
   gradiantStyle: {
     width: "100%",
     height: "100%",
-    position: "absolute",
     alignSelf: "center",
   },
   RowFlex: {
@@ -83,7 +81,7 @@ const styles = StyleSheet.create({
     shadowRadius: 1, // IOS
     elevation: 1, // Android
     width: "100%",
-    height: "72%",
+    height: "100%",
     alignSelf: "center",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -151,6 +149,9 @@ const styles = StyleSheet.create({
     color: "#ccc",
   },
   SubmitCallout: {
+    borderTopWidth: 1,
+    borderTopColor: '#000',
+
     height: 38,
     width: "100%",
     backgroundColor: "#001E2B",
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
     shadowOffset: { height: 1, width: 1 }, // IOS
     shadowOpacity: 1, // IOS
     shadowRadius: 1, // IOS
-    elevation: 1, // Android
+    // elevation: 1, // Android
     borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
@@ -292,6 +293,7 @@ mutation AddCallout(
           active: 1 
           job_tickets: {
             data: {
+              type: "Full Job"
               name: $notes
               status: "Open"
             }
@@ -494,7 +496,7 @@ const RequestCallOut = (props) => {
     }
     if (!props.route.params.additionalServices) {
       if (state.Urgency === "medium") {
-        return props.navigation.navigate("SelectSchedule", { state });
+        return props.navigation.navigate("SelectSchedule", { state: { ...state, JobType: jobTypeSelect?.value }});
       } else {
         
         Alert.alert(
@@ -532,7 +534,6 @@ const RequestCallOut = (props) => {
   };
 
   const submitCallout = async () => {
-    console.log("meow");
     let category = "Uncategorized";
     const pictures = Object.fromEntries(
       [...Array(4)]
@@ -721,13 +722,9 @@ const RequestCallOut = (props) => {
     return <VideoScreen setShowVideoScreen={setShowVideoScreen} saveVideo={saveVideo} />;
   }
   return (
-    <KeyboardAvoidingView
-    behavior={Platform.OS === "ios" ? "padding" : "height"}
-    style={{flex: 1, backgroundColor: "white"}}
-  >
-    <ScrollView>
-         <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
-      <View style={{ paddingHorizontal: "10%", paddingVertical: "10%"}}>
+    
+    <ScrollView style={{ height: '100%' }}>
+      <View style={{ backgroundColor: '#000', paddingHorizontal: "10%", paddingVertical: "10%"}}>
         <FlashMessage position="top" />
         <Text style={[styles.TextFam, { color: "#FFCA5D", fontSize: 10 }]}>Callout Address</Text>
         {!state.PropertyDetailLoading ? (
@@ -931,7 +928,6 @@ const RequestCallOut = (props) => {
               <></>
             )}
           </View>
-          <View style={{ height: "2%" }} />
           <View
             style={{
               flexDirection: "row",
@@ -1003,7 +999,6 @@ const RequestCallOut = (props) => {
               </View>
             </TouchableOpacity>
           </View>
-          <View style={{ height: "1%" }} />
           <View
             style={{
               flexDirection: "row",
@@ -1075,28 +1070,23 @@ const RequestCallOut = (props) => {
               </View>
             </TouchableOpacity>
           </View>
-          <View style={{ height: "5%" }} />
-          <TouchableOpacity style={styles.SubmitCallout} onPress={() => askSubmitCallout()}>
-            {state.loading ? (
-              <ActivityIndicator size="large" color="#fff" style={{ alignSelf: "center" }} />
-            ) : (
-              <Text
-                style={{
-                  color: "#fff",
-                  fontSize: 15,
-                  fontFamily: "Helvetica",
-                  alignSelf: "center",
-                }}
-              >
-                {state.Urgency === "medium"
-                  ? "Select Date"
-                  : !props.route.params.additionalServices
-                  ? "Submit Callout"
-                  : "Make Request"}
-              </Text>
-            )}
-          </TouchableOpacity>
-          <View style={{ height: 100 }} />
+          <Box mb={24} mt={4}>
+          <Button isLoading={state.loading} style={styles.SubmitCallout} onPress={() => askSubmitCallout()}>
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: 15,
+                alignSelf: "center",
+              }}
+            >
+              {state.Urgency === "medium"
+                ? "Select Date"
+                : !props.route.params.additionalServices
+                ? "Submit Callout"
+                : "Make Request"}
+            </Text>
+          </Button>
+          </Box>
         </View>
       </View>
 
@@ -1129,8 +1119,7 @@ const RequestCallOut = (props) => {
           </TouchableOpacity>
         </View>
       </Modal>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </ScrollView>
   );
 };
 

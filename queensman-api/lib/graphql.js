@@ -254,11 +254,13 @@ async function getRelevantWoker({ callout, date, time }) {
       }
     );
     const lastWorker = lastWorkers.scheduler?.[0];
-    const workerTime = dateFns.parse(
-      lastWorker.time_on_calendar,
-      'HH:mm:ss',
-      new Date()
-    );
+    const workerTime = lastWorker
+      ? dateFns.parse(
+        lastWorker.time_on_calendar,
+        'HH:mm:ss',
+        new Date()
+      )
+      : null;
     //  - find the last slot today filled by him
     //  - if plus 3 hours from now is inside working hour
     if (!lastWorker || dateFns.getHours(dateFns.addHours(workerTime, 3)) > 18) {

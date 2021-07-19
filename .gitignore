@@ -1,9 +1,10 @@
 ./**/node_modules
 ./Queensman-Admin-Web-deploy-ready/node_modules
+./Queensman-Admin-Web-deploy-ready/.expo
+./Queensman-Client-master/.expo
 .nhost
 .DS_Store
 .env.development
 api/node_modules
 nmig
 packager-info.json
-
