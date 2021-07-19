@@ -62,7 +62,7 @@ const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
                 setShowVideoScreen(false);
               }}
             >
-              <Icon as={Ionicons} name="close-circle-outline" style={{ fontSize: 32, color: "red", marginLeft: "auto" }} />
+              <Icon as={Ionicons} name="close-circle-outline" style={{ color: "red", marginLeft: "auto" }} />
             </TouchableOpacity>
           </View>
           {recording ? (
@@ -74,19 +74,19 @@ const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
                   stopRecording();
                 }}
               >
-                <Icon as={Ionicons} name="square" style={styleCamera.recordButton} />
+                <Icon as={Ionicons} name="square" size={100} style={styleCamera.recordButton} />
               </Pressable>
             </View>
           ) : (
             <View style={styleCamera.recordButtonContainer}>
-              <Icon as={Ionicons} name="ellipse-outline" style={styleCamera.recordButtonOutline} />
+              <Icon as={Ionicons} name="ellipse-outline" size={100} style={styleCamera.recordButtonOutline} />
               <Pressable
                 style={styleCamera.recordButtonButton}
                 onPress={() => {
                   startRecording();
                 }}
               >
-                <Icon as={Ionicons} name="ellipse" style={styleCamera.recordButton} />
+                <Icon as={Ionicons} name="ellipse" size={70} style={styleCamera.recordButton} />
               </Pressable>
             </View>
           )}
@@ -110,7 +110,6 @@ const styleCamera = StyleSheet.create({
     backgroundColor: "transparent",
   },
   recordButtonOutline: {
-    fontSize: 100,
     position: "absolute",
     bottom: 0,
     left: Dimensions.get("window").width - 255,
@@ -122,7 +121,6 @@ const styleCamera = StyleSheet.create({
     left: Dimensions.get("window").width - 241,
   },
   recordButton: {
-    fontSize: 70,
     color: "red",
   },
   container: {

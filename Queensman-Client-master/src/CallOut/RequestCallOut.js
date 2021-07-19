@@ -1141,12 +1141,11 @@ const VideoPlayScreen = ({ setVideoPlayScreen, video: uri }) => {
       />
       <View style={videoPlayStyles.buttons}>
         <Button
-          title={status.isPlaying ? "Pause" : "Play"}
           color="#FFCA5D"
           style={{ marginRight: 20 }}
           onPress={() => (status.isPlaying ? video.current.pauseAsync() : video.current.playAsync())}
-        />
-        <Button color="#FFCA5D" title="Close" onPress={() => setVideoPlayScreen(false)} />
+        >{status.isPlaying ? "Pause" : "Play"}</Button>
+        <Button color="#FFCA5D" onPress={() => setVideoPlayScreen(false)} >Close</Button>
       </View>
     </View>
   );
