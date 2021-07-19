@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,28 +7,67 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Image,
-  AsyncStorage,
   TextInput,
 } from "react-native";
 
-import {
-  Container,
-  Header,
-  Content,
-  List,
-  ListItem,
-  Row,
-  Icon,
-  Col,
-  Left,
-  Right,
-  Button,
-  Picker,
-} from "native-base";
+import { Icon } from "native-base";
 import axios from "axios";
 import _ from "lodash";
 
-export default class clientList extends React.Component {
+import { gql, useQuery } from "@apollo/client";
+import { auth } from "../utils/nhost";
+
+const FETCH_CLIENTS = gql`
+  query FetchClients {
+    client(where: { active: { _eq: 1 } }) {
+      id
+      full_name
+      email
+      phone
+      password
+      sec_email
+      sec_phone
+      account_type
+      occupation
+      organization
+      age_range
+      gender
+      family_size
+      ages_of_children
+      earning_bracket
+      nationality
+      years_expatriate
+      years_native
+      referred_by
+      other_properties
+      contract_start_date
+      contract_end_date
+      sign_up_time
+    }
+  }
+`;
+
+export default function ClientList(props) {
+  const { loading, data, error } = useQuery(FETCH_CLIENTS);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#FFCA5D" />
+      </View>
+    );
+  }
+
+  return (
+    <ClientListClass
+      loading={loading}
+      data={data?.client || []}
+      {...props}
+    ></ClientListClass>
+  );
+}
+
+class ClientListClass extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -63,35 +102,20 @@ export default class clientList extends React.Component {
   };
 
   async componentDidMount() {
-    var clientsArray = [];
-    this.setState({ loading: true });
-    link =
-      "https://www.queensman.com/phase_2/queens_admin_Apis/fetchClients.php";
-    console.log(link);
-    axios.get(link).then((result) => {
-      var arrayLength = result.data.server_response.length;
-      console.log(arrayLength);
-      this.setState({
-        TotalClient: arrayLength,
-      });
-      for (var i = 0; i < arrayLength; i++) {
-        clientsArray[i] = result.data.server_response[i].clients;
-      }
-      console.log(clientsArray);
-      this.setState({
-        clientList: clientsArray,
-        totalData: clientsArray,
-        StaticData: clientsArray,
-      });
-      this.setState({ loading: false });
+    var clientsArray = this.props.data;
+
+    this.setState({
+      clientList: clientsArray,
+      totalData: clientsArray,
+      StaticData: clientsArray,
     });
   }
 
   contains = ({ full_name, phone, id }, query) => {
     if (
-      full_name.includes(query) ||
-      phone.includes(query) ||
-      id.includes(query)
+      full_name.toString().toLowerCase().includes(query.toLowerCase()) ||
+      phone.toString().includes(query) ||
+      id.toString().includes(query)
     ) {
       return true;
     }
@@ -169,62 +193,58 @@ export default class clientList extends React.Component {
           </Text>
         ) : (
           <View>
-            {this.state.loading ? (
-              <ActivityIndicator size="large" color="#FFCA5D" />
-            ) : (
-              <FlatList
-                data={this.state.clientList}
-                contentContainerStyle={{ paddingBottom: 100 }}
-                keyExtractor={(item, index) => `${index}`}
-                renderItem={({ item }) => (
-                  <View>
-                    <TouchableOpacity onPress={() => this.passItem(item)}>
-                      <View style={styles.Card}>
-                        <Text
-                          style={[
-                            styles.TextFam,
-                            { fontSize: 15, fontWeight: "bold" },
-                          ]}
-                        >
-                          {item.full_name}{" "}
-                        </Text>
+            <FlatList
+              data={this.state.clientList}
+              contentContainerStyle={{ paddingBottom: 100 }}
+              keyExtractor={(item, index) => `${index}`}
+              renderItem={({ item }) => (
+                <View>
+                  <TouchableOpacity onPress={() => this.passItem(item)}>
+                    <View style={styles.Card}>
+                      <Text
+                        style={[
+                          styles.TextFam,
+                          { fontSize: 15, fontWeight: "bold" },
+                        ]}
+                      >
+                        {item.full_name}{" "}
+                      </Text>
 
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          flex: 1,
+                          paddingBottom: "5%",
+                        }}
+                      >
                         <View
                           style={{
                             flexDirection: "row",
-                            justifyContent: "space-between",
-                            flex: 1,
-                            paddingBottom: "5%",
+                            alignItems: "center",
                           }}
                         >
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Image
-                              source={require("../../assets/Home/linehis.png")}
-                              style={{ height: 20, width: 20 }}
-                            ></Image>
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={[styles.TextFam, { fontSize: 10 }]}>
-                                Client ID : {item.id}
-                              </Text>
-                              <Text style={[styles.TextFam, { fontSize: 10 }]}>
-                                Phone : {item.phone}
-                              </Text>
-                            </View>
+                          <Image
+                            source={require("../../assets/Home/linehis.png")}
+                            style={{ height: 20, width: 20 }}
+                          ></Image>
+                          <View style={{ flexDirection: "column" }}>
+                            <Text style={[styles.TextFam, { fontSize: 10 }]}>
+                              Client ID : {item.id}
+                            </Text>
+                            <Text style={[styles.TextFam, { fontSize: 10 }]}>
+                              Phone : {item.phone}
+                            </Text>
                           </View>
                         </View>
                       </View>
-                    </TouchableOpacity>
-                    <Text> </Text>
-                  </View>
-                )}
-                keyExtractor={(item, index) => index.toString()}
-              />
-            )}
+                    </View>
+                  </TouchableOpacity>
+                  <Text> </Text>
+                </View>
+              )}
+              keyExtractor={(item, index) => index.toString()}
+            />
           </View>
         )}
       </View>
