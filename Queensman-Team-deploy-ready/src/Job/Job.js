@@ -22,6 +22,7 @@ import Modal from "react-native-modal";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { auth } from "../utils/nhost";
 import * as Location from "expo-location";
+import { createNativeWrapper } from "react-native-gesture-handler";
 
 const GET_JOB_WORKERS = gql`
   query FetchJobWorker($id: Int!) {
@@ -39,11 +40,14 @@ const GET_JOB_WORKERS = gql`
 `;
 
 const START_JOB = gql`
-  mutation StartJob($callout_id: Int!, $time: timestamp!, $updater_id: Int!) {
+  mutation StartJob($callout_id: Int!, $ticket_id: Int!, $time: timestamp!, $updater_id: Int!) {
     update_callout_by_pk(
       pk_columns: { id: $callout_id }
       _set: { status: "In Progress" }
     ) {
+      status
+    }
+    update_job_tickets_by_pk(pk_columns: {id: $ticket_id}, _set: {status: "In Progress"}) {
       status
     }
     insert_job_history_one(
@@ -71,8 +75,25 @@ const ADD_TICKET_NOTE = gql`
   }
 `;
 
+const UPDATE_TICKET_VERIFICATION = gql`
+  mutation UpdateVerificaiton($isVerified: Boolean, $id: Int!) {
+    update_job_tickets_by_pk(
+      pk_columns: { id: $id }
+      _set: { isVerified: $isVerified }
+    ) {
+      isVerified
+    }
+  }
+`;
+
 const STOP_JOB = gql`
-  mutation CloseTicket($id: Int!, $worker_email: String!, $notes: jsonb!) {
+  mutation CloseTicket($id: Int!, 
+    $callout_id: Int!, 
+    $worker_email: String!,
+    $name: String!,
+    $desc: String!,
+    $notes: jsonb!
+  ) {
     update_job_tickets_by_pk(
       pk_columns: { id: $id }
       _set: { status: "Closed" }
@@ -81,14 +102,40 @@ const STOP_JOB = gql`
       id
     }
     insert_job_tickets_one(
-      object: { type: "Deferred", worker_email: $worker_email, notes: [$notes] }
+      object: {
+        name: $name,
+        description: $desc,
+        callout_id: $callout_id, 
+        type: "Deferred", 
+        worker_email: $worker_email, 
+        notes: [$notes], 
+        status: "Opened" 
+      }
     ) {
       id
     }
   }
 `;
 
+const CHANGE_JOB_TYPE = gql`
+mutation CloseTicket($id: Int!, 
+  $notes: jsonb!,
+  $status: String!,
+  $type: String!,
+) {
+  update_job_tickets_by_pk(
+    pk_columns: { id: $id }
+    _set: { status: $status, type: $type }
+    _append: { notes: $notes }
+  ) {
+    id
+  }
+}
+`
+
 const Job = (props) => {
+  // console.log(props.navigation.getParam("ticketDetails"), " ASKJFDHASLDIHASFKAHSKDI")
+  const worker_email = auth.user().email
   const [state, setState] = useState({
     Pic1: "photos/0690da3e-9c38-4a3f-ba45-8971697bd925.jpg",
     Pic2: "link",
@@ -113,6 +160,7 @@ const Job = (props) => {
     W3Name: "none",
     W3Phone: "none",
     W3Email: "none",
+    type: ticket?.type
   });
 
   const [notes, setnotes] = useState("");
@@ -120,6 +168,8 @@ const Job = (props) => {
 
   const calloutIdFromParam = props.navigation.getParam("it", null);
   const ticket = props.navigation.getParam("ticketDetails", {});
+  console.log(ticket.id)
+  console.log(calloutIdFromParam.id)
   const [ticketNotesArray, setticketNotesArray] = useState(ticket.notes);
 
   // API
@@ -134,16 +184,27 @@ const Job = (props) => {
   const [addNote, { Notesdata, loading: addNoteLoading, error: addNoteError }] =
     useMutation(ADD_TICKET_NOTE);
 
-  console.log({ Notesdata, addNoteLoading, addNoteError });
+  // console.log({ Notesdata, addNoteLoading, addNoteError });
+  const [isVerified, setIsVerified] = useState(ticket.isVerified)
+  const [updateVerification, { data: verificationData }] = useMutation(UPDATE_TICKET_VERIFICATION);
+
 
   const [
     stopJob,
     { stopJobData, loading: stopJobLoading, error: stopJobError },
   ] = useMutation(STOP_JOB);
 
+  const [
+    changeJobType,
+    { changeJobTypeData, loading: changeJobTypeLoading, error: changeJobTypeError },
+  ] = useMutation(CHANGE_JOB_TYPE);
+
   if (startJobCalled && !startJobLoading) {
     props.navigation.navigate("PreJob", {
       QJobID: state.JobData.id,
+      it: props.navigation.getParam("it", {}),
+      ticketDetails: props.navigation.getParam("ticketDetails", {}),
+      ticketCount: props.navigation.getParam('ticketCount', {}),
     });
   }
 
@@ -202,9 +263,19 @@ const Job = (props) => {
       { cancelable: false }
     );
   };
+
+  const markAsVerified = (isVerified) => {
+    updateVerification({variables: {
+      id: ticket.id,
+      isVerified
+    }})
+    setIsVerified(isVerified)
+  }
+
   const StartJobHandler = () => {
     startJob({
       variables: {
+        ticket_id: ticket.id,
         callout_id: state.JobData.id,
         updater_id: state.workerID,
         time: new Date().toJSON(),
@@ -320,6 +391,7 @@ const Job = (props) => {
     if (notes === "") {
       return alert("Cannot add empty Note");
     }
+    console.log(auth.user())
     const { display_name } = auth.user();
 
     const param = {
@@ -327,12 +399,12 @@ const Job = (props) => {
       id: ticket.id,
     };
 
-    console.log("calling api");
+    // console.log("calling api", param);
     addNote({
       variables: param,
     })
       .then((res) => {
-        console.log({ res });
+        // console.log({ res });
         setnotes("");
         setticketNotesArray(res.data.update_job_tickets_by_pk.notes);
       })
@@ -400,20 +472,44 @@ const Job = (props) => {
     if (closeJobNote === "") {
       return alert("Please enter a note");
     }
-
-    stopJob({
-      variables: {
-        id: ticket.id,
-        worker_email: auth.user().email,
-        notes: closeJobNote,
-      },
+    console.log({
+      id: ticket.id,
+      notes: {from: auth.user().display_name, message: closeJobNote},
+      status: "Deferred",
+      type: state.type
     })
-      .then((res) => {
-        console.log({ res });
+
+    if (ticket.type == "Deferred") {
+      changeJobType({ variables: {
+        id: ticket.id,
+        notes: {from: auth.user().display_name, message: closeJobNote},
+        status: "Deferred",
+        type: state.type
+      }
+      }).then(() => {
         setstopJobModalVisible(false);
-        props.navigation.navigate("HomeNaviagtor");
+        // props.navigation.navigate("TicketListing");
+      }).catch(e => {
+        console.log(e)
       })
-      .catch(console.log);
+    } else {
+      stopJob({
+        variables: {
+          name: `Defer Ticket of ${ticket.id}`,
+          desc: closeJobNote,
+          id: ticket.id,
+          worker_email: auth.user().email,
+          callout_id: state.JobData.id,
+          notes: {from: auth.user().display_name, message: closeJobNote},
+        },
+      })
+        .then((res) => {
+          console.log({ res });
+          setstopJobModalVisible(false);
+          props.navigation.navigate("TicketListing");
+        })
+        .catch(console.log);
+    }
   };
   return (
     <ScrollView style={styles.container}>
@@ -423,6 +519,7 @@ const Job = (props) => {
         <Heading style={{ fontSize: 20, alignSelf: "center", color: "black" }}>
           Ticket Details
         </Heading>
+        <Text style={{ fontSize: 12, alignSelf: "center" }}>Status: <Text style={ ticket?.status == "Closed" && {color: 'red'}}>{ticket?.status}</Text></Text>
         <Heading>Name</Heading>
         <RenderValue>{ticket.name}</RenderValue>
         <Heading>Description</Heading>
@@ -430,7 +527,7 @@ const Job = (props) => {
 
         <Heading>Pictures</Heading>
         <View style={{ marginVertical: 10 }}>
-          {RenderPictures(ticket.pictures)}
+          {ticket?.pictures?.length > 0 && RenderPictures(ticket.pictures)}
         </View>
         <Heading>Notes</Heading>
         {ticketNotesArray?.map((val, index) => {
@@ -443,10 +540,39 @@ const Job = (props) => {
             ></RenderComment>
           );
         })}
-
-        {RenderAddNote()}
+        {addNoteLoading && <ActivityIndicator size="small" color="#aaa" />}
+        {!addNoteLoading && RenderAddNote()}
       </View>
-      <Text style={[styles.HeadingStyle, { alignSelf: "center" }]}>
+      {worker_email == "opscord@queensman.com" && <>
+      {isVerified ? <View>
+        <Button
+        style={{ width: "20%"}}
+        onPress={() => {markAsVerified(!isVerified)}}
+        title="Mark it as unverified"
+        color="#D2054E"
+      />
+      <View style={{backgroundColor: "#059669", width: "100%", borderBottomRadius: 5}}>
+        <Text style={{alignSelf: 'center', paddingVertical: 8, color: "white"}}>VERIFIED</Text>
+      </View>
+      </View> : 
+      <View>
+      <Button
+      style={{ width: "20%"}}
+      onPress={() => {markAsVerified(!isVerified)}}
+      title="Mark it as verified"
+      color="#539bf5"
+    />
+     <Button
+      style={{ width: "20%"}}
+      title="Unverified"
+      color="#539bf5"
+      disabled
+    />
+    </View>
+      }
+      </>}
+     
+      <Text style={[styles.HeadingStyle, { alignSelf: "center", marginTop: 10 }]}>
         Overall Job Details
       </Text>
       <Text
@@ -654,8 +780,8 @@ const Job = (props) => {
       >
         Email: {state.W3Email}
       </Text>
-
-      <Button
+        {ticket.status != "Closed" && <View>
+        <Button
         style={{ width: "20%" }}
         onPress={AlertStartJob}
         title="Start Job"
@@ -670,6 +796,7 @@ const Job = (props) => {
           color="#cf142b"
         />
       </View>
+          </View>}
 
       <Modal
         isVisible={state.isPicvisible}
@@ -702,12 +829,12 @@ const Job = (props) => {
       </Modal>
       <Modal
         isVisible={stopJobModalVisible}
-        onBackdropPress={() => stopJobModalVisible(false)}
+        onBackdropPress={() => setstopJobModalVisible(false)}
       >
         <View
           style={{
+            // flex: 1,
             width: "90%",
-
             borderRadius: 10,
             padding: 15,
             backgroundColor: "white",
@@ -734,8 +861,46 @@ const Job = (props) => {
               height: 80,
               textAlignVertical: "top",
               padding: 5,
+              borderWidth: 1,
+              borderRadius: 10,
+              borderColor: "#DDD",
+              marginBottom: 15
             }}
           ></TextInput>
+          
+          {ticket?.type === "Deferred" && (
+            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Job Type</Text>
+          )}
+          {ticket?.type === "Deferred" && (
+            <View
+              style={{
+                flexDirection: "row",
+                width: "100%",
+                height: 80,
+              }}
+            >
+              <View style={{flex: 1, flexDirection:"row", width: "100%", alignItems: "center"}}>
+              <TouchableOpacity
+                style={styles.circle}
+                onPress={() => setState({ ...state, type: "Material Request" })} // we set our value state to key
+              >
+                {state.type === "Material Request" ? <View style={styles.checkedCircle} /> : null}
+              </TouchableOpacity>
+
+              <Text style={{ paddingLeft: "2%", paddingRight: "2%", fontSize: 12 }}>Material Request</Text>
+              </View>
+              <View style={{flex: 1, flexDirection:"row", width: "100%", justifyContent: "flex-end", alignItems: "center"}}>
+              <TouchableOpacity
+                style={styles.circle}
+                onPress={() => setState({ ...state, type: "Out of scope" })} // we set our value state to key
+              >
+                {state.type === "Out of scope" ? <View style={styles.checkedCircle} /> : null}
+              </TouchableOpacity>
+              <Text style={{ paddingLeft: "2%", paddingRight: "2%", fontSize: 12 }}>Out of scope</Text>              
+              </View>
+            </View>
+          )}
+
           <Button
             style={{ width: "20%" }}
             onPress={onFinalSubmitButton}
@@ -778,6 +943,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     // height:'25%'
     paddingVertical: "3%",
+  },
+  checkedCircle: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: "#FFCA5D",
+  },
+  circle: {
+    height: 20,
+    width: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ACACAC",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

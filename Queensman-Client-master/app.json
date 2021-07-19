@@ -26,7 +26,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.skynners.QueensmenClient",
+      "bundleIdentifier": "com.techinoviq.QueensmenClient",
       "buildNumber": "3",
       "infoPlist": {
         "NSCameraUsageDescription": "The app uses camera so that it can allow users to take pictures of the maintenance spot (for example a broken AC) in order to justify their call for maintenance service.",
@@ -34,7 +34,8 @@
       }
     },
     "android": {
-      "package": "com.skynners.QueensmenClient",
+      "googleServicesFile": "./google-services.json",
+      "package": "com.techinoviq.QueensmenClient",
       "versionCode": 4
     },
     "description": ""

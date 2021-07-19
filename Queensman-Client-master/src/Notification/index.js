@@ -30,7 +30,6 @@ const GET_NOTIFICATIONS = gql`
       created_at
       text
       isRead
-      type
     }
   }
 `;
@@ -49,7 +48,6 @@ export default function Index(props) {
 
   console.log({ loading, data, error });
 
-  const [confirmCalout, { loading: confirmCalloutLoading, error: confirmcalloutError }] = useMutation(CONFIRM_CALLOUT);
   const onRefresh = React.useCallback(() => {
     setNotifications([]);
     setRefreshing(true);
@@ -111,6 +109,7 @@ export default function Index(props) {
                 onNoButtonPress={onNoButtonPress}
                 item={item}
                 index={i}
+                reloadNotification={() => getNotification({ variables: { email } })}
                 notifications={notifications}
                 setNotifications={setNotifications}
               />

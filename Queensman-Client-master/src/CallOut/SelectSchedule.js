@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, Modal, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { Calendar, CalendarList, Agenda } from "react-native-calendars";
-import { Button } from "native-base";
+import { Box, Button } from "native-base";
 import moment from "moment";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
@@ -44,50 +44,57 @@ const UPDATE_CALLOUT = gql`
 `;
 
 const REQUEST_CALLOUT = gql`
-  mutation AddCallout(
-    $property_id: Int
-    $date_on_calendar: date
-    $notes: String
-    $time_on_calendar: time
-    $email: String
-    $category: String
-    $job_type: String
-    $status: String
-    $picture1: String
-    $picture2: String
-    $picture3: String
-    $picture4: String
-    $video: String
-    $request_time: timestamp
-    $urgency_level: String
-  ) {
-    insert_scheduler_one(
-      object: {
-        callout: {
-          data: {
-            callout_by_email: $email
-            property_id: $property_id
-            category: $category
-            job_type: $job_type
-            status: $status
-            request_time: $request_time
-            urgency_level: $urgency_level
-            picture1: $picture1
-            picture2: $picture2
-            picture3: $picture3
-            picture4: $picture4
-            video: $video
-            active: 1
+mutation AddCallout(
+  $property_id: Int
+  $date_on_calendar: date
+  $notes: String
+  $time_on_calendar: time
+  $email: String
+  $category: String
+  $job_type: String
+  $status: String
+  $picture1: String
+  $picture2: String
+  $picture3: String
+  $picture4: String
+  $video: String
+  $request_time: timestamp
+  $urgency_level: String
+) {
+  insert_scheduler_one(
+    object: {
+      callout: {
+        data: {
+          callout_by_email: $email
+          property_id: $property_id
+          category: $category
+          job_type: $job_type
+          status: $status
+          request_time: $request_time
+          urgency_level: $urgency_level
+          picture1: $picture1
+          picture2: $picture2
+          picture3: $picture3
+          picture4: $picture4
+          video: $video
+          active: 1    
+          job_tickets: {
+            data: {
+              type: "Full Job"
+              name: $notes
+              status: "Open"
+            } 
           }
         }
-        date_on_calendar: $date_on_calendar
-        time_on_calendar: $time_on_calendar
-        notes: $notes
       }
-    ) {
-      date_on_calendar
+      date_on_calendar: $date_on_calendar
+      time_on_calendar: $time_on_calendar
+      notes: $notes
     }
+  ) {
+    date_on_calendar
   }
+}
 `;
 
 export default function SelectSchedule(props) {
@@ -96,7 +103,7 @@ export default function SelectSchedule(props) {
   const [markedDate, setmarkedDate] = useState({});
 
   const [date, setDate] = useState(() => {
-    var now = new Date();
+    const now = new Date();
     now.setHours(9);
     now.setMinutes(0);
     now.setMilliseconds(0);
@@ -110,9 +117,10 @@ export default function SelectSchedule(props) {
   );
   const [updateCalloutApi, { loading: updateCalloutLoading, error: updatecalloutError }] = useMutation(UPDATE_CALLOUT);
 
-  const state = props.navigation.getParam("state", {});
-  const commingFrom = props.navigation.getParam("commingFrom", "");
-  const callout_id_fromNotification = props.navigation.getParam("callout_id", null);
+  const state = props.route.params.state;
+  console.log({ state });
+  const commingFrom = props.route.params.commingFrom;
+  const callout_id_fromNotification = props.route.params.callout_id;
   console.log({ commingFrom, callout_id_fromNotification });
   const formatDate = (date) => {
     return moment(date).format("YYYY-MM-DD");
@@ -127,12 +135,12 @@ export default function SelectSchedule(props) {
     return formatDate(new Date(new Date().setFullYear(new Date().getFullYear() + 1)));
   };
 
-  const { loading, data, error } = useQuery(GET_SCHEDULE, {
-    variables: {
-      _gte: GetCurrentDate(),
-      _lte: GetOneYearFromNow(),
-    },
-  });
+  // const { loading, data, error } = useQuery(GET_SCHEDULE, {
+  //   variables: {
+  //     _gte: GetCurrentDate(),
+  //     _lte: GetOneYearFromNow(),
+  //   },
+  // });
 
   // console.log({
   //   loading,
@@ -150,12 +158,20 @@ export default function SelectSchedule(props) {
   };
 
   const onChange = (event, selectedDate) => {
-    setShow(false);
+    if (selectedDate === undefined) {
+      setShow(false);
+      return;
+    }
     setDate(selectedDate);
     const currentTime = moment(selectedDate).format("hh:mm a");
     settime(currentTime);
-    setmodalVisible(true);
+    onConfirmTime();
   };
+
+  const onConfirmTime = () => {
+    setShow(false);
+    setmodalVisible(true);
+  }
 
   const expoFileToFormFile = (url) => {
     const localUri = url;
@@ -229,7 +245,7 @@ export default function SelectSchedule(props) {
             SubmittedCalloutAlert();
           }, 500);
         })
-        .catch((err) => console.log({ err }));
+        .catch((err) => alert(JSON.stringify({ err })));
     }
   };
 
@@ -281,14 +297,6 @@ export default function SelectSchedule(props) {
     );
   };
 
-  if (requestCalloutLoading || loading || updateCalloutLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator color={colors.brandPrimary} size="large" />
-      </View>
-    );
-  }
-
   const getMarkedDates = () => {
     const disable = {
       // selected: true,
@@ -299,9 +307,9 @@ export default function SelectSchedule(props) {
     };
 
     const markedDates = {};
-    data.scheduler.forEach((element) => {
-      markedDates[element.start] = disable;
-    });
+    // data.scheduler.forEach((element) => {
+    //   markedDates[element.start] = disable;
+    // });
     // console.log(markedDates);
 
     return markedDates;
@@ -314,44 +322,81 @@ export default function SelectSchedule(props) {
     setShow(true);
   };
 
-  console.log(show);
+  console.log({ show });
+
+  const dateComponent = React.useMemo(() => {
+    return show && <DateTimePicker
+      value={date}
+      mode="time" 
+      is24Hour={false} 
+      display="default" 
+      disabled={!show}
+      onChange={onChange} 
+    />
+  }, [show]);
+
+  if (requestCalloutLoading || updateCalloutLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator color={colors.brandPrimary} size="large" />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>
-      <CalendarList
-        minDate={Date.now()}
-        pastScrollRange={0}
-        markedDates={getMarkedDates()}
-        onDayPress={onDayPress}
-        hideArrows
-        hideExtraDays
-        disableMonthChange
-        firstDay={1}
-        hideDayNames
-        showWeekNumbers={false}
-        disableArrowLeft
-        disableArrowRight
-        disableAllTouchEventsForDisabledDays
-        renderHeader={(date) => {
-          const header = date.toString("MMMM yyyy");
-          const [month, year] = header.split(" ");
+      <View>
+        <CalendarList
+          minDate={Date.now()}
+          pastScrollRange={0}
+          markedDates={getMarkedDates()}
+          onDayPress={onDayPress}
+          hideArrows
+          hideExtraDays
+          disableMonthChange
+          firstDay={1}
+          hideDayNames
+          showWeekNumbers={false}
+          disableArrowLeft
+          disableArrowRight
+          disableAllTouchEventsForDisabledDays
+          renderHeader={(date) => {
+            const header = date.toString("MMMM yyyy");
+            const [month, year] = header.split(" ");
 
-          return (
-            <View
-              style={{
-                flexDirection: "row",
-                marginVertical: 10,
-              }}
-            >
-              <Text style={{ marginLeft: 5, ...styles.textStyle }}>{`${month}`}</Text>
-              <Text style={{ marginRight: 5, ...styles.textStyle }}>{year}</Text>
-            </View>
-          );
-        }}
-        enableSwipeMonths={false}
-      />
+            return (
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginVertical: 10,
+                }}
+              >
+                <Text style={{ marginLeft: 5, ...styles.textStyle }}>{`${month}`}</Text>
+                <Text style={{ marginRight: 5, ...styles.textStyle }}>{year}</Text>
+              </View>
+            );
+          }}
+          enableSwipeMonths={false}
+        />
+      </View>
       <Confirmmodal />
-      {show && <DateTimePicker value={date} mode={"time"} is24Hour={false} display="default" onChange={onChange} />}
+      {dateComponent}
+      {time && <Modal animationType="slide" transparent visible={time}>
+        <View style={{ backgroundColor: 'white', width:'100%', borderTopColor: "black",
+    borderTopWidth: StyleSheet.hairlineWidth, height: 220, flex: 0.25, position: 'absolute', bottom: 0 }}>
+        {/* <DateTimePicker 
+          value={date}
+          mode="time" 
+          is24Hour={false} 
+          display="spinner" 
+          onChange={onChange} 
+        /> */}
+        <Box pt={4}>
+          <Button onPress={onConfirmTime}>Confirm Time</Button>
+        </Box>
+        </View>
+      </Modal>
+      }
     </View>
   );
 }

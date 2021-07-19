@@ -2,6 +2,9 @@
 import { useState, Fragment, forwardRef } from 'react'
 
 
+const fetch = require('node-fetch')
+const FormData = require('form-data')
+
 // ** Custom Components
 import Avatar from '@components/avatar'
 
@@ -40,6 +43,7 @@ import { gql, useMutation, useQuery } from '@apollo/client'
 import AddNewModal from './AddNewModal'
 import ButtonGroup from 'reactstrap/lib/ButtonGroup'
 import { months } from 'moment'
+import axios from 'axios'
 
 const GET_CLIENT = gql`
 query GetClient {
@@ -187,7 +191,7 @@ const DataTableAdvSearch = () => {
 
   const handleAddPlan = async (row) => {
     console.log("meow")
-    const currentDate = new Date().toISOString().split('T')[0].split('-')  //["2021", "07", "01"]
+    let currentDate = new Date().toISOString().split('T')[0].split('-')  //["2021", "07", "01"]
     let year = parseInt(currentDate[0])
     let month = parseInt(currentDate[1])
     console.log(row)
@@ -209,17 +213,17 @@ const DataTableAdvSearch = () => {
         end_time_on_calendar,
         end_date_on_calendar
       })
-      await addPlan({
-        variables: {
-        property_id: row.property_owneds[0]?.property_id,
-        callout_by: row.id,
-        email: row.email,
-        date_on_calendar,
-        time_on_calendar,
-        end_time_on_calendar,
-        end_date_on_calendar
-        }
-      })
+      // await addPlan({
+      //   variables: {
+      //   property_id: row.property_owneds[0]?.property_id,
+      //   callout_by: row.id,
+      //   email: row.email,
+      //   date_on_calendar,
+      //   time_on_calendar,
+      //   end_time_on_calendar,
+      //   end_date_on_calendar
+      //   }
+      // })
       month += 2
     }
     if (!addPlanLoading) {
@@ -228,14 +232,56 @@ const DataTableAdvSearch = () => {
         hideProgressBar: true,
         closeButton: false
       })
-      await updateClientPlan({
-        variables: {
-          id: row.id,
-          hasPlan: true
-        }
-      })
+      // await updateClientPlan({
+      //   variables: {
+      //     id: row.id,
+      //     hasPlan: true
+      //   }
+      // })
     }
     
+    currentDate = new Date().toLocaleDateString().split("/")  // "7/11/2021"
+    year = parseInt(currentDate[2])
+    month = parseInt(currentDate[0])
+    const day = parseInt(currentDate[1])
+    for (let i = 0; i < 4; i++) {
+      if (month % 13 === 0) {
+        month = 1
+        year++
+      }
+      const date = new Date(`${month}/${day}/${year}`).toDateString().split(" ")
+      const dateString = `${date[1]} ${date[2]}, ${date[3]}`
+      const form = new FormData()
+      /*eslint-disable*/
+      console.log(JSON.stringify({
+        "Subject":`Task Client ${date[1]}`,
+        "Description":`Task Client ${date[1]}`,
+        "Status":`Idk`,
+        "Due_Date": "Jul 11, 2021",
+        "email":`${row.email}`
+      }))
+      form.append("arguments", JSON.stringify({
+        "Subject":`Task Client ${date[1]}`,
+        "Description":`Task Client ${date[1]}`,
+        "Status":`Idk`,
+        "Due_Date":  "Jul 11, 2021",
+        "email":`${row.email}`
+      }))
+
+      try {
+        const res = await axios.post('https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/quarterlyTasks', {
+          "Subject":`Task Client ${date[1]}`,
+        "Description":`Task Client ${date[1]}`,
+        "Status":`Idk`,
+        "Due_Date":  `${dateString}`,
+        "email":`${row.email}`
+        })
+      } catch (e) {
+        console.log("ERROR")
+        console.log(e)
+      }
+      month += 3
+    }
    
   }
 

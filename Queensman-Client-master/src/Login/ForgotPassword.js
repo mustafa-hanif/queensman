@@ -22,7 +22,7 @@ export default class ForgotPassword extends React.Component {
     super(props);
     this.state = {
       code: "",
-      email: this.props.navigation.getParam("UserEmail", "Something"),
+      email: this.props.route.params.UserEmail,
       pass: "",
       showPassword: true,
     };

@@ -1,6 +1,8 @@
 /* eslint-disable react/no-string-refs */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
+import axios from "axios";
+
 import React, { useEffect, useState } from "react";
 
 import {
@@ -16,8 +18,8 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  SafeAreaView
 } from "react-native";
-import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
@@ -53,7 +55,46 @@ const DELETE_NOTE = gql`
   }
 `;
 
+const FINISH_JOB = gql
+`mutation FinishFinalJob($id: Int!, $updater_id: Int!, $callout_id: Int!) {
+  insert_job_history_one(object: {callout_id: $callout_id, updater_id: $updater_id, updated_by: "Ops Team", status_update: "Closed"}) {
+    time
+  }
+  update_callout_by_pk(pk_columns: {id: $callout_id}, _set: {status: "Closed"}) {
+    status
+  }
+  
+  update_job_tickets_by_pk(
+    pk_columns: { id: $id }
+    _set: { status: "Closed" }
+  ) {
+    id
+  }
+}`
+
+const FINISH_JOB_SINGLE = gql `
+mutation UpdateJobAndJobTicket ($id: Int!) {
+  update_job_tickets_by_pk(
+      pk_columns: { id: $id }
+      _set: { status: "Closed" }
+    ) {
+      id
+    }
+}
+`
+
+const GET_CURRENT_JOB_WORKER = gql
+`query GetJobWorkerId($email: String) {
+  worker(where: {email: {_eq: $email}}) {
+    id
+  }
+}
+`
+
 const PreJob = (props) => {
+  const ticketId = props.navigation.getParam("ticketDetails", {}).id
+  const ticket = props.navigation.getParam("ticketDetails", {})
+  const ticketCount = props.navigation.getParam('ticketCount', {})
   const pics = Object.fromEntries(
     [...Array(10)].map((_, index) => {
       return [`Pic${index}`, "link"];
@@ -61,7 +102,6 @@ const PreJob = (props) => {
   );
 
   const CallOutIdFromParams = props.navigation.getParam("QJobID", null);
-
   const [state, setState] = useState({
     Note: "",
     Notes: [{ note: "" }],
@@ -73,7 +113,7 @@ const PreJob = (props) => {
     isPicvisible: false, //veiw image app kay lia
     picturename: "",
     CallOutID: CallOutIdFromParams,
-    IsImageuploaded: false,
+    IsImageuploaded: true,
     selectedNo: 0,
     NoteItem: {
       key: "hay",
@@ -91,6 +131,15 @@ const PreJob = (props) => {
       callout_id: CallOutIdFromParams,
     },
   });
+
+  const [finishJob] =
+  useMutation(FINISH_JOB);
+
+  const [finishJobSingle] = useMutation(FINISH_JOB_SINGLE)
+
+  const {loading: workerLoading, data: workerData, error: workerError} = useQuery(GET_CURRENT_JOB_WORKER, {variables: {
+    email: auth.user().email,
+  }})
 
   useEffect(() => {
     fetchNotes();
@@ -120,10 +169,63 @@ const PreJob = (props) => {
     );
   };
 
+  const AlertSubmitJob = () => {
+    Alert.alert(
+      "Alert.",
+      "Are you sure you want continue?",
+      [
+        {
+          text: "No",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "Yes", onPress: () => doneJob() },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const doneJob = async () => {
+    // saveCanvas()
+    console.log(ticketCount)
+    if(ticketCount == 1) {
+      console.log("One Job")
+
+
+      try {
+        await finishJob({variables: {
+          id: ticketId,
+          updater_id: workerData?.worker[0].id,
+          callout_id: state.CallOutID,
+        }})
+        alert("Service has been successfully completed. Great Job!");
+        props.navigation.navigate("HomeNaviagtor");
+      } catch (e) {
+        console.log(e)
+        alert("Could not submit Job!");
+      }
+    } else {
+      console.log("Many job")
+      try {
+        await finishJobSingle({variables: {
+          id: ticketId,
+        }})
+        alert("Service has been successfully completed. Great Job!");
+        props.navigation.navigate("HomeNaviagtor");
+      } catch (e) {
+        console.log(e)
+        alert("Could not submit Job!");
+      }
+    }
+};
+
   const PreJobHandler = () => {
     if (state.IsImageuploaded) {
       props.navigation.navigate("PostJob", {
         QJobID: state.CallOutID,
+        it: props.navigation.getParam("it", {}),
+        ticketDetails: props.navigation.getParam("ticketDetails", {}),
+        ticketCount: props.navigation.getParam('ticketCount', {}),
       });
     } else {
       alert("Please upload pre job images first!");
@@ -301,7 +403,7 @@ const PreJob = (props) => {
     setState({ ...state, isPicvisible: false });
   };
 
-  const CameraSnap = async () => {
+  const cameraSnap = async () => {
     if (Constants.platform.ios) {
       const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
       if (status !== "granted") {
@@ -324,7 +426,7 @@ const PreJob = (props) => {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled>
-      <ScrollView style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <Text
           style={{
             fontSize: 15,
@@ -346,7 +448,7 @@ const PreJob = (props) => {
           }}
           pointerEvents={state.IsImageuploaded ? "none" : "auto"}
         >
-          <TouchableOpacity onPress={CameraSnap}>
+          <TouchableOpacity onPress={cameraSnap}>
             <View
               style={{
                 flexDirection: "row",
@@ -422,7 +524,7 @@ const PreJob = (props) => {
         >
           Notes:{" "}
         </Text>
-        <View style={{ heigh: "30%", width: "100%" }}>
+        <View  style={{ heigh: "30%", width: "100%" }}>
           <FlatList
             data={data?.job_notes || []}
             keyExtractor={(item, index) => `${index}`}
@@ -494,10 +596,10 @@ const PreJob = (props) => {
           }}
         ></View>
         <View style={{ height: "3%" }}></View>
-        <Button onPress={AlertPreJobHandler} title="NEXT" color="#FFCA5D" />
+        {ticket.type == "Deferred" ? <Button onPress={AlertSubmitJob} title = "Submit Job" color="#FFCA5D" /> : 
+        <Button onPress={AlertPreJobHandler} title="NEXT" color="#FFCA5D" />}
 
         <View style={{ height: 30 }}></View>
-        <Button title="" color="#fff" />
 
         <Modal
           isVisible={state.isPicvisible}
@@ -527,7 +629,7 @@ const PreJob = (props) => {
             />
           </View>
         </Modal>
-      </ScrollView>
+      </SafeAreaView>
     </KeyboardAvoidingView>
   );
 };

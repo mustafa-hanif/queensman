@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React from "react";
+import React, {useState, useEffect} from "react";
 import {
   StyleSheet,
   Text,
@@ -24,11 +24,9 @@ import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
 
-export default class PostJob extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      solution: "",
+const PostJob = (props) => {
+    const [state, setState] = useState({
+      solution: "123",
       Pic1: "link",
       Pic2: "link",
       Pic3: "link",
@@ -40,44 +38,39 @@ export default class PostJob extends React.Component {
       Pic9: "link",
       Pic10: "link",
       picturename: "",
-      CallOutID: this.props.navigation.getParam("QJobID", "Something"),
+      CallOutID: props.navigation.getParam("QJobID", "Something"),
       selectedPic:
         "https://en.wikipedia.org/wiki/Art#/media/File:Art-portrait-collage_2.jpg",
       isPicvisible: false, //veiw image app kay lia
-      IsImageuploaded: false,
+      IsImageuploaded: true,
       selectedNo: 0,
-      ViewOpacity: 1,
-      workerID: 1,
-    };
-  }
+      ViewOpacity: 1
+    });
 
-  async componentDidMount() {
-    const WorkerID = await AsyncStorage.getItem("QueensmanWorkerID"); // assign customer id here
-    this.setState({ workerID: WorkerID });
-  }
-
-  toggleGalleryEventModal = (vale, no) => {
-    this.setState({
-      isPicvisible: !this.state.isPicvisible,
+  const toggleGalleryEventModal = (vale, no) => {
+    setState({
+      isPicvisible: !state.isPicvisible,
       selectedPic: vale,
       selectedNo: no,
     });
   };
 
-  PostJobHandler = () => {
-    if (this.state.solution == "") {
+  const postJobHandler = () => {
+    if (state.solution == "") {
       alert("Please type solution first!");
-    } else if (this.state.IsImageuploaded == false) {
+    } else if (state.IsImageuploaded == false) {
       alert("Please upload image first!");
     } else {
-      this.props.navigation.navigate("JobComplete", {
-        QJobID: this.state.CallOutID,
-        Sol: this.state.solution,
-        workerId: this.state.workerID,
+      props.navigation.navigate("JobComplete", {
+        QJobID: state.CallOutID,
+        Sol: state.solution,
+        it: props.navigation.getParam("it", {}),
+        ticketDetails: props.navigation.getParam("ticketDetails", {}),
+        ticketCount: props.navigation.getParam('ticketCount', {})
       });
     }
   };
-  AlertPostJobHandler = () => {
+  const alertPostJobHandler = () => {
     Alert.alert(
       "Proceed.",
       "Are you sure you want to proceed?",
@@ -87,13 +80,13 @@ export default class PostJob extends React.Component {
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
-        { text: "Yes", onPress: () => this.PostJobHandler() },
+        { text: "Yes", onPress: () => postJobHandler() },
       ],
       { cancelable: false }
     );
   };
 
-  AlertUploadImage = () => {
+  const alertUploadImage = () => {
     Alert.alert(
       "Upload Images.",
       "Are you sure you want to upload the selected images?",
@@ -103,13 +96,13 @@ export default class PostJob extends React.Component {
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
-        { text: "Yes", onPress: () => this.UploadImage() },
+        { text: "Yes", onPress: () => uploadImage() },
       ],
       { cancelable: false }
     );
   };
 
-  SelectImages = async () => {
+  const selectImages = async () => {
     if (Constants.platform.ios) {
       const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
       if (status !== "granted") {
@@ -121,7 +114,7 @@ export default class PostJob extends React.Component {
       quality: 0.1,
     });
     if (!result.cancelled) {
-      this._uploadImage(result.uri);
+      _uploadImage(result.uri);
     }
   };
   //   UploadImage = () => {
@@ -162,10 +155,10 @@ export default class PostJob extends React.Component {
   //     }
   //   };
 
-  _uploadImage = (uri) => {
+  const _uploadImage = (uri) => {
     for (let i = 0; i < 10; i++) {
-      if (this.state[`Pic${i}`] === "link") {
-        this.setState({ ...this.state, ...this.state, [`Pic${i}`]: uri });
+      if (state[`Pic${i}`] === "link") {
+        setState({ ...state, ...state, [`Pic${i}`]: uri });
         break;
       }
     }
@@ -219,21 +212,21 @@ export default class PostJob extends React.Component {
   //     }
   //   };
 
-  urlToUPLOAD = async (url, link) => {
+  const urlToUPLOAD = async (url, link) => {
     let localUri = url;
     let filename = localUri.split("/").pop();
-    console.log(this.state.CallOutID);
+    console.log(state.CallOutID);
     blink =
       "https://www.queensman.com/phase_2/queens_worker_Apis/uploadPostPicture_b.php?target_file=" +
       filename +
       "&ID=" +
-      this.state.CallOutID;
+      state.CallOutID;
     console.log(blink);
     axios.get(blink).then((result) => {
       console.log(result.data);
     });
     console.log(filename);
-    this.setState({
+    setState({
       picturename: filename,
     });
     let match = /\.(\w+)$/.exec(filename);
@@ -254,51 +247,51 @@ export default class PostJob extends React.Component {
     });
   };
 
-  RemoveImages = () => {
-    if (this.state.selectedNo == 1) {
-      this.setState({
+  const removeImages = () => {
+    if (state.selectedNo == 1) {
+      setState({
         Pic1: "link",
       });
-    } else if (this.state.selectedNo == 2) {
-      this.setState({
+    } else if (state.selectedNo == 2) {
+      setState({
         Pic2: "link",
       });
-    } else if (this.state.selectedNo == 3) {
-      this.setState({
+    } else if (state.selectedNo == 3) {
+      setState({
         Pic3: "link",
       });
-    } else if (this.state.selectedNo == 4) {
-      this.setState({
+    } else if (state.selectedNo == 4) {
+      setState({
         Pic4: "link",
       });
-    } else if (this.state.selectedNo == 5) {
-      this.setState({
+    } else if (state.selectedNo == 5) {
+      setState({
         Pic5: "link",
       });
-    } else if (this.state.selectedNo == 6) {
-      this.setState({
+    } else if (state.selectedNo == 6) {
+      setState({
         Pic6: "link",
       });
-    } else if (this.state.selectedNo == 7) {
-      this.setState({
+    } else if (state.selectedNo == 7) {
+      setState({
         Pic7: "link",
       });
-    } else if (this.state.selectedNo == 8) {
-      this.setState({
+    } else if (state.selectedNo == 8) {
+      setState({
         Pic8: "link",
       });
-    } else if (this.state.selectedNo == 9) {
-      this.setState({
+    } else if (state.selectedNo == 9) {
+      setState({
         Pic9: "link",
       });
-    } else if (this.state.selectedNo == 10) {
-      this.setState({
+    } else if (state.selectedNo == 10) {
+      setState({
         Pic10: "link",
       });
     }
-    this.setState({ isPicvisible: false });
+    setState({ isPicvisible: false });
   };
-  CameraSnap = async () => {
+  const cameraSnap = async () => {
     if (Constants.platform.ios) {
       const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
       if (status !== "granted") {
@@ -315,15 +308,15 @@ export default class PostJob extends React.Component {
       quality: 0.2,
     });
     if (!result.cancelled) {
-      this._uploadImage(result.uri);
+      _uploadImage(result.uri);
     }
   };
 
-  UploadImage = () => {
+  const uploadImage = () => {
     const pictures = Object.fromEntries(
       [...Array(10)]
         .map((_, i) => {
-          const _statePic = this.state[`Pic${i}`];
+          const _statePic = state[`Pic${i}`];
 
           if (_statePic && _statePic !== "link") {
             const file = expoFileToFormFile(_statePic);
@@ -342,7 +335,7 @@ export default class PostJob extends React.Component {
     );
     console.log({ pictures });
     if (Object.keys(pictures).length > 0) {
-      this.setState({ ...this.state, IsImageuploaded: true });
+      setState({ ...state, IsImageuploaded: true });
     } else {
       alert("Please Select an Image First");
     }
@@ -350,7 +343,6 @@ export default class PostJob extends React.Component {
     return pictures;
   };
 
-  render() {
     return (
       <ScrollView style={styles.container}>
         <Text
@@ -370,14 +362,14 @@ export default class PostJob extends React.Component {
             style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput
-            ref="textInputMobile"
+            // ref="textInputMobile"
             style={{ fontSize: 15, color: "#000E1E", width: "83%" }}
             placeholder="Type solution here"
-            defaultValue={this.state.solution}
+            defaultValue={state.solution}
             placeholderTextColor="#000E1E"
             underlineColorAndroid="transparent"
             onChangeText={(solution) => {
-              this.setState({ solution });
+              setState({ ...state, solution });
             }} //email set
           />
         </View>
@@ -409,11 +401,11 @@ export default class PostJob extends React.Component {
             justifyContent: "space-between",
             alignItems: "center",
             paddingHorizontal: "5%",
-            opacity: this.state.IsImageuploaded ? 0.3 : 1,
+            opacity: state.IsImageuploaded ? 0.3 : 1,
           }}
-          pointerEvents={this.state.IsImageuploaded ? "none" : "auto"}
+          pointerEvents={state.IsImageuploaded ? "none" : "auto"}
         >
-          <TouchableOpacity onPress={this.CameraSnap}>
+          <TouchableOpacity onPress={cameraSnap}>
             <View
               style={{
                 flexDirection: "row",
@@ -430,7 +422,7 @@ export default class PostJob extends React.Component {
           </TouchableOpacity>
           <Text style={{ fontSize: 13, marginBottom: "1%" }}>OR</Text>
 
-          <TouchableOpacity onPress={this.SelectImages}>
+          <TouchableOpacity onPress={selectImages}>
             <View
               style={{
                 flexDirection: "row",
@@ -454,12 +446,12 @@ export default class PostJob extends React.Component {
             width: "100%",
             paddingHorizontal: "5%",
             marginTop: "2%",
-            opacity: this.state.IsImageuploaded ? 0.3 : 1,
+            opacity: state.IsImageuploaded ? 0.3 : 1,
           }}
         >
           <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic1, 1)}
-            disabled={this.state.Pic1 == "link" ? true : false}
+            onPress={() => toggleGalleryEventModal(state.Pic1, 1)}
+            disabled={state.Pic1 == "link" ? true : false}
           >
             <View
               style={{
@@ -472,7 +464,7 @@ export default class PostJob extends React.Component {
                 name="link"
                 style={{
                   fontSize: 20,
-                  color: this.state.Pic1 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic1 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
               ></Icon>
@@ -480,7 +472,7 @@ export default class PostJob extends React.Component {
                 style={{
                   fontSize: 13,
                   marginBottom: "1%",
-                  color: this.state.Pic1 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic1 == "link" ? "#aaa" : "#000E1E",
                 }}
               >
                 Picture 1
@@ -488,8 +480,8 @@ export default class PostJob extends React.Component {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic2, 2)}
-            disabled={this.state.Pic2 == "link" ? true : false}
+            onPress={() => toggleGalleryEventModal(state.Pic2, 2)}
+            disabled={state.Pic2 == "link" ? true : false}
           >
             <View
               style={{
@@ -502,7 +494,7 @@ export default class PostJob extends React.Component {
                 name="link"
                 style={{
                   fontSize: 20,
-                  color: this.state.Pic2 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic2 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
               ></Icon>
@@ -510,7 +502,7 @@ export default class PostJob extends React.Component {
                 style={{
                   fontSize: 13,
                   marginBottom: "1%",
-                  color: this.state.Pic2 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic2 == "link" ? "#aaa" : "#000E1E",
                 }}
               >
                 Picture 2
@@ -518,8 +510,8 @@ export default class PostJob extends React.Component {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic3, 3)}
-            disabled={this.state.Pic3 == "link" ? true : false}
+            onPress={() => toggleGalleryEventModal(state.Pic3, 3)}
+            disabled={state.Pic3 == "link" ? true : false}
           >
             <View
               style={{
@@ -532,7 +524,7 @@ export default class PostJob extends React.Component {
                 name="link"
                 style={{
                   fontSize: 20,
-                  color: this.state.Pic3 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic3 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
               ></Icon>
@@ -540,7 +532,7 @@ export default class PostJob extends React.Component {
                 style={{
                   fontSize: 13,
                   marginBottom: "1%",
-                  color: this.state.Pic3 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic3 == "link" ? "#aaa" : "#000E1E",
                 }}
               >
                 Picture 3
@@ -548,8 +540,8 @@ export default class PostJob extends React.Component {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic4, 4)}
-            disabled={this.state.Pic4 == "link" ? true : false}
+            onPress={() => toggleGalleryEventModal(state.Pic4, 4)}
+            disabled={state.Pic4 == "link" ? true : false}
           >
             <View
               style={{
@@ -562,7 +554,7 @@ export default class PostJob extends React.Component {
                 name="link"
                 style={{
                   fontSize: 20,
-                  color: this.state.Pic4 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic4 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
               ></Icon>
@@ -570,7 +562,7 @@ export default class PostJob extends React.Component {
                 style={{
                   fontSize: 13,
                   marginBottom: "1%",
-                  color: this.state.Pic4 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic4 == "link" ? "#aaa" : "#000E1E",
                 }}
               >
                 Picture 4
@@ -578,8 +570,8 @@ export default class PostJob extends React.Component {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic5, 5)}
-            disabled={this.state.Pic5 == "link" ? true : false}
+            onPress={() => toggleGalleryEventModal(state.Pic5, 5)}
+            disabled={state.Pic5 == "link" ? true : false}
           >
             <View
               style={{
@@ -592,7 +584,7 @@ export default class PostJob extends React.Component {
                 name="link"
                 style={{
                   fontSize: 20,
-                  color: this.state.Pic5 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic5 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
               ></Icon>
@@ -600,7 +592,7 @@ export default class PostJob extends React.Component {
                 style={{
                   fontSize: 13,
                   marginBottom: "1%",
-                  color: this.state.Pic5 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic5 == "link" ? "#aaa" : "#000E1E",
                 }}
               >
                 Picture 5
@@ -608,8 +600,8 @@ export default class PostJob extends React.Component {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic6, 6)}
-            disabled={this.state.Pic6 == "link" ? true : false}
+            onPress={() => toggleGalleryEventModal(state.Pic6, 6)}
+            disabled={state.Pic6 == "link" ? true : false}
           >
             <View
               style={{
@@ -622,7 +614,7 @@ export default class PostJob extends React.Component {
                 name="link"
                 style={{
                   fontSize: 20,
-                  color: this.state.Pic6 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic6 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
               ></Icon>
@@ -630,7 +622,7 @@ export default class PostJob extends React.Component {
                 style={{
                   fontSize: 13,
                   marginBottom: "1%",
-                  color: this.state.Pic6 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic6 == "link" ? "#aaa" : "#000E1E",
                 }}
               >
                 Picture 6
@@ -638,8 +630,8 @@ export default class PostJob extends React.Component {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic7, 7)}
-            disabled={this.state.Pic7 == "link" ? true : false}
+            onPress={() => toggleGalleryEventModal(state.Pic7, 7)}
+            disabled={state.Pic7 == "link" ? true : false}
           >
             <View
               style={{
@@ -652,7 +644,7 @@ export default class PostJob extends React.Component {
                 name="link"
                 style={{
                   fontSize: 20,
-                  color: this.state.Pic7 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic7 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
               ></Icon>
@@ -660,7 +652,7 @@ export default class PostJob extends React.Component {
                 style={{
                   fontSize: 13,
                   marginBottom: "1%",
-                  color: this.state.Pic7 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic7 == "link" ? "#aaa" : "#000E1E",
                 }}
               >
                 Picture 7
@@ -668,8 +660,8 @@ export default class PostJob extends React.Component {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic8, 8)}
-            disabled={this.state.Pic8 == "link" ? true : false}
+            onPress={() => toggleGalleryEventModal(state.Pic8, 8)}
+            disabled={state.Pic8 == "link" ? true : false}
           >
             <View
               style={{
@@ -682,7 +674,7 @@ export default class PostJob extends React.Component {
                 name="link"
                 style={{
                   fontSize: 20,
-                  color: this.state.Pic8 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic8 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
               ></Icon>
@@ -690,7 +682,7 @@ export default class PostJob extends React.Component {
                 style={{
                   fontSize: 13,
                   marginBottom: "1%",
-                  color: this.state.Pic8 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic8 == "link" ? "#aaa" : "#000E1E",
                 }}
               >
                 Picture 8
@@ -698,8 +690,8 @@ export default class PostJob extends React.Component {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic9, 9)}
-            disabled={this.state.Pic9 == "link" ? true : false}
+            onPress={() => toggleGalleryEventModal(state.Pic9, 9)}
+            disabled={state.Pic9 == "link" ? true : false}
           >
             <View
               style={{
@@ -712,7 +704,7 @@ export default class PostJob extends React.Component {
                 name="link"
                 style={{
                   fontSize: 20,
-                  color: this.state.Pic9 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic9 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
               ></Icon>
@@ -720,7 +712,7 @@ export default class PostJob extends React.Component {
                 style={{
                   fontSize: 13,
                   marginBottom: "1%",
-                  color: this.state.Pic9 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic9 == "link" ? "#aaa" : "#000E1E",
                 }}
               >
                 Picture 9
@@ -728,8 +720,8 @@ export default class PostJob extends React.Component {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => this.toggleGalleryEventModal(this.state.Pic10, 10)}
-            disabled={this.state.Pic10 == "link" ? true : false}
+            onPress={() => toggleGalleryEventModal(state.Pic10, 10)}
+            disabled={state.Pic10 == "link" ? true : false}
           >
             <View
               style={{
@@ -742,7 +734,7 @@ export default class PostJob extends React.Component {
                 name="link"
                 style={{
                   fontSize: 20,
-                  color: this.state.Pic10 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic10 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
               ></Icon>
@@ -750,7 +742,7 @@ export default class PostJob extends React.Component {
                 style={{
                   fontSize: 13,
                   marginBottom: "1%",
-                  color: this.state.Pic10 == "link" ? "#aaa" : "#000E1E",
+                  color: state.Pic10 == "link" ? "#aaa" : "#000E1E",
                 }}
               >
                 Picture 10
@@ -761,40 +753,40 @@ export default class PostJob extends React.Component {
         <View style={{ height: "3%" }}></View>
         <View style={{ height: "3%" }}></View>
         <Button
-          disabled={this.state.IsImageuploaded}
-          onPress={this.AlertUploadImage}
+          disabled={state.IsImageuploaded}
+          onPress={alertUploadImage}
           title="UPLOAD IMAGES"
           color="#FFCA5D"
         />
         <View style={{ height: "2%" }}></View>
         <Button
-          onPress={this.AlertPostJobHandler}
+          onPress={alertPostJobHandler}
           title="PROCEED"
           color="#FFCA5D"
         />
         <View style={{ height: 180 }}></View>
         <Modal
-          isVisible={this.state.isPicvisible}
-          onSwipeComplete={() => this.setState({ isPicvisible: false })}
+          isVisible={state.isPicvisible}
+          onSwipeComplete={() => setState({ isPicvisible: false })}
           swipeDirection={["left", "right", "down"]}
-          onBackdropPress={() => this.setState({ isPicvisible: false })}
+          onBackdropPress={() => setState({ isPicvisible: false })}
         >
           <View style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}>
             <Image
               style={{ width: "80%", height: "80%", alignSelf: "center" }}
-              source={{ uri: this.state.selectedPic }}
+              source={{ uri: state.selectedPic }}
             />
             <Text> </Text>
             <Button
-              onPress={() => this.RemoveImages()}
-              disabled={this.state.IsImageuploaded}
+              onPress={() => removeImages()}
+              disabled={state.IsImageuploaded}
               title="REMOVE IMAGE"
               color="#FFCA5D"
             />
             <Text> </Text>
             <Text> </Text>
             <Button
-              onPress={() => this.setState({ isPicvisible: false })}
+              onPress={() => setState({ isPicvisible: false })}
               title="CLOSE"
               color="#FFCA5D"
             />
@@ -803,7 +795,6 @@ export default class PostJob extends React.Component {
       </ScrollView>
     );
   }
-}
 
 const styles = StyleSheet.create({
   container: {
@@ -842,3 +833,5 @@ const expoFileToFormFile = (url) => {
   const type = match ? `image/${match[1]}` : `image`;
   return { uri: localUri, name: filename, type };
 };
+
+export default PostJob

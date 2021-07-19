@@ -102,12 +102,35 @@ class ClientListClass extends React.Component {
   };
 
   async componentDidMount() {
+<<<<<<< HEAD
     var clientsArray = this.props.data;
 
     this.setState({
       clientList: clientsArray,
       totalData: clientsArray,
       StaticData: clientsArray,
+=======
+    var clientsArray = [];
+    this.setState({ loading: true });
+    link =
+      "https://www.queensman.com/phase_2/queens_admin_Apis/fetchClients.php";
+    axios.get(link).then((result) => {
+      var arrayLength = result.data.server_response.length;
+      console.log(arrayLength);
+      this.setState({
+        TotalClient: arrayLength,
+      });
+      for (var i = 0; i < arrayLength; i++) {
+        clientsArray[i] = result.data.server_response[i].clients;
+      }
+      console.log(clientsArray);
+      this.setState({
+        clientList: clientsArray,
+        totalData: clientsArray,
+        StaticData: clientsArray,
+      });
+      this.setState({ loading: false });
+>>>>>>> 03205a4169ada2749c305a076e56c65ab9b9f9f7
     });
   }
 

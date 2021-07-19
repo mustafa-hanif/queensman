@@ -5,24 +5,47 @@ const updateScheduleWithWoker = require('../lib/graphql').updateScheduleWithWoke
 const getWorker = require('../lib/graphql').getWorker;
 const getCallout = require('../lib/graphql').getCallout;
 const getRelevantWoker = require('../lib/graphql').getRelevantWoker;
+const updateScheduleWithEmergencyWoker = require('../lib/graphql').updateScheduleWithEmergencyWoker;
 
 const scheduleCallout = async (event) => {
   const { event: { data: { new: query } } } = JSON.parse(event.body);
+  console.log(query)
   const schedulerId = query.id;
   const calloutId = query.callout_id;
   const workerId = query.worker_id;
   const callout = await getCallout({ callout_id: calloutId });
-  const { id: releventWorker, time } = await getRelevantWoker({ callout });
+  const { id: releventWorker, time } = await getRelevantWoker({
+    callout,
+    date: query.date_on_calendar,
+    time: query.time_on_calendar
+  });
+  console.log({ releventWorker, time });
   const nextWorker = workerId ?? releventWorker;
   const worker = await getWorker({ worker_id: nextWorker });
 
-  const data = await updateScheduleWithWoker({
-    id: schedulerId,
-    worker_id: nextWorker,
-    callout_id: calloutId,
-    worker_email: worker.email
-  });
-  console.log(data);
+  if (time) {
+    // Run emergency query
+    const data = await updateScheduleWithEmergencyWoker({
+      id: schedulerId,
+      worker_id: nextWorker,
+      callout_id: calloutId,
+      callout_email: callout.callout_by_email,
+      phone: callout.client_callout_email?.phone,
+      worker_email: worker.email,
+      time,
+      timestamp: new Date().toISOString(),
+      date: new Date(),
+    });
+  } else {
+    const data = await updateScheduleWithWoker({
+      id: schedulerId,
+      worker_id: nextWorker,
+      callout_id: calloutId,
+      worker_email: worker.email,
+      time,
+    });
+  }
+  // console.log(data);
   try {
     return {
       statusCode: 200,

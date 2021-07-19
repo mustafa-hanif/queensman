@@ -21,23 +21,27 @@ query GetWorkerNotifications($worker_email: String!) {
 `;
 
 export default function index() {
-  const email = auth?.currentSession?.session?.user.email;
+  const email = auth?.currentSession?.session?.user.email.toLowerCase()
 
   const [refreshing, setRefreshing] = useState(false);
   const [notifications, setNotifications] = useState([])
-  const [getNotification, { loading, data, error }] = useLazyQuery(GET_NOTIFICATIONS, {onCompleted: (data) => {setNotifications(data?.notifications || []); setRefreshing(false)}});
+  const [getNotification, { loading, data, error }] = useLazyQuery(GET_NOTIFICATIONS, {
+    onCompleted: (data) => {
+      setNotifications(data?.notifications || []); setRefreshing(false)
+    }
+  });
 
   const onRefresh = React.useCallback(() => {
     setNotifications([])
     setRefreshing(true)
-    getNotification({ variables: { worker_email: 'azamkhan@queensman.com' }})
+    getNotification({ variables: { worker_email: email }})
     console.log(error)
   }, []);
   
 
   useEffect(() => {
     if(!refreshing || loading) {
-      getNotification({ variables: { worker_email: 'azamkhan@queensman.com' }})
+      getNotification({ variables: { worker_email: email }})
     }
     return () => {loading}
   }, [])
@@ -66,6 +70,7 @@ export default function index() {
               key={i}
               index={i}
               setNotifications={setNotifications} 
+              updateNotifications={() => getNotification({ variables: { worker_email: email }})}
               notifications={notifications}
             />
          )

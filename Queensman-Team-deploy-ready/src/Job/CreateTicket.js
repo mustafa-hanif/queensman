@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
@@ -8,6 +11,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Button
 } from "react-native";
 import { Picker } from "native-base";
 import commonColor from "../../native-base-theme/variables/commonColor";
@@ -32,6 +36,8 @@ const CREATE_TICKET = gql`
         pictures: $pictures
         worker_email: $worker_email
         type: $type
+        status: "Open"
+        notes: []
       }
     ) {
       callout_id
@@ -217,20 +223,20 @@ export default function CreateTicket(props) {
 
         {photos && (
           <View
-            style={{ flexDirection: "row", flexWrap: "wrap", marginTop: "5%" }}
+            style={{ flexDirection: "row", flexWrap: "wrap", marginVertical: "3%" }}
           >
             {photos.map((item, i) => renderImage(item, i))}
           </View>
         )}
 
-        <TouchableOpacity
+        <Button
           onPress={() => {
             !imageUplaodLoader && props.navigation.push("ImagePicker");
           }}
-          style={styles.button}
+          title="Select Pictures"
+          color="#FFC968"
         >
-          <Text>Selct Pictures</Text>
-        </TouchableOpacity>
+        </Button>
 
         {imageUplaodLoader ? (
           <View
@@ -295,10 +301,10 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   button: {
-    backgroundColor: commonColor.primaryGold,
+    // backgroundColor: commonColor.primaryGold,
     padding: "5%",
     alignSelf: "center",
-    marginTop: "5%",
+    marginTop: "20%",
   },
 });
 
