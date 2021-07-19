@@ -55,7 +55,46 @@ const DELETE_NOTE = gql`
   }
 `;
 
+const FINISH_JOB = gql
+`mutation FinishFinalJob($id: Int!, $updater_id: Int!, $callout_id: Int!) {
+  insert_job_history_one(object: {callout_id: $callout_id, updater_id: $updater_id, updated_by: "Ops Team", status_update: "Closed"}) {
+    time
+  }
+  update_callout_by_pk(pk_columns: {id: $callout_id}, _set: {status: "Closed"}) {
+    status
+  }
+  
+  update_job_tickets_by_pk(
+    pk_columns: { id: $id }
+    _set: { status: "Closed" }
+  ) {
+    id
+  }
+}`
+
+const FINISH_JOB_SINGLE = gql `
+mutation UpdateJobAndJobTicket ($id: Int!) {
+  update_job_tickets_by_pk(
+      pk_columns: { id: $id }
+      _set: { status: "Closed" }
+    ) {
+      id
+    }
+}
+`
+
+const GET_CURRENT_JOB_WORKER = gql
+`query GetJobWorkerId($email: String) {
+  worker(where: {email: {_eq: $email}}) {
+    id
+  }
+}
+`
+
 const PreJob = (props) => {
+  const ticketId = props.navigation.getParam("ticketDetails", {}).id
+  const ticket = props.navigation.getParam("ticketDetails", {})
+  const ticketCount = props.navigation.getParam('ticketCount', {})
   const pics = Object.fromEntries(
     [...Array(10)].map((_, index) => {
       return [`Pic${index}`, "link"];
@@ -93,6 +132,15 @@ const PreJob = (props) => {
     },
   });
 
+  const [finishJob] =
+  useMutation(FINISH_JOB);
+
+  const [finishJobSingle] = useMutation(FINISH_JOB_SINGLE)
+
+  const {loading: workerLoading, data: workerData, error: workerError} = useQuery(GET_CURRENT_JOB_WORKER, {variables: {
+    email: auth.user().email,
+  }})
+
   useEffect(() => {
     fetchNotes();
   }, []);
@@ -120,6 +168,56 @@ const PreJob = (props) => {
       { cancelable: false }
     );
   };
+
+  const AlertSubmitJob = () => {
+    Alert.alert(
+      "Alert.",
+      "Are you sure you want continue?",
+      [
+        {
+          text: "No",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "Yes", onPress: () => doneJob() },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const doneJob = async () => {
+    // saveCanvas()
+    console.log(ticketCount)
+    if(ticketCount == 1) {
+      console.log("One Job")
+
+
+      try {
+        await finishJob({variables: {
+          id: ticketId,
+          updater_id: workerData?.worker[0].id,
+          callout_id: state.CallOutID,
+        }})
+        alert("Service has been successfully completed. Great Job!");
+        props.navigation.navigate("HomeNaviagtor");
+      } catch (e) {
+        console.log(e)
+        alert("Could not submit Job!");
+      }
+    } else {
+      console.log("Many job")
+      try {
+        await finishJobSingle({variables: {
+          id: ticketId,
+        }})
+        alert("Service has been successfully completed. Great Job!");
+        props.navigation.navigate("HomeNaviagtor");
+      } catch (e) {
+        console.log(e)
+        alert("Could not submit Job!");
+      }
+    }
+};
 
   const PreJobHandler = () => {
     if (state.IsImageuploaded) {
@@ -498,7 +596,8 @@ const PreJob = (props) => {
           }}
         ></View>
         <View style={{ height: "3%" }}></View>
-        <Button onPress={AlertPreJobHandler} title="NEXT" color="#FFCA5D" />
+        {ticket.type == "Deferred" ? <Button onPress={AlertSubmitJob} title = "Submit Job" color="#FFCA5D" /> : 
+        <Button onPress={AlertPreJobHandler} title="NEXT" color="#FFCA5D" />}
 
         <View style={{ height: 30 }}></View>
 

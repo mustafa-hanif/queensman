@@ -117,6 +117,22 @@ const STOP_JOB = gql`
   }
 `;
 
+const CHANGE_JOB_TYPE = gql`
+mutation CloseTicket($id: Int!, 
+  $notes: jsonb!,
+  $status: String!,
+  $type: String!,
+) {
+  update_job_tickets_by_pk(
+    pk_columns: { id: $id }
+    _set: { status: $status, type: $type }
+    _append: { notes: $notes }
+  ) {
+    id
+  }
+}
+`
+
 const Job = (props) => {
   // console.log(props.navigation.getParam("ticketDetails"), " ASKJFDHASLDIHASFKAHSKDI")
   const worker_email = auth.user().email
@@ -144,6 +160,7 @@ const Job = (props) => {
     W3Name: "none",
     W3Phone: "none",
     W3Email: "none",
+    type: ticket?.type
   });
 
   const [notes, setnotes] = useState("");
@@ -176,6 +193,11 @@ const Job = (props) => {
     stopJob,
     { stopJobData, loading: stopJobLoading, error: stopJobError },
   ] = useMutation(STOP_JOB);
+
+  const [
+    changeJobType,
+    { changeJobTypeData, loading: changeJobTypeLoading, error: changeJobTypeError },
+  ] = useMutation(CHANGE_JOB_TYPE);
 
   if (startJobCalled && !startJobLoading) {
     props.navigation.navigate("PreJob", {
@@ -452,27 +474,42 @@ const Job = (props) => {
     }
     console.log({
       id: ticket.id,
-      worker_email: auth.user().email,
-      callout_id: state.JobData.id,
-      notes: closeJobNote,
+      notes: {from: auth.user().display_name, message: closeJobNote},
+      status: "Deferred",
+      type: state.type
     })
 
-    stopJob({
-      variables: {
-        name: `Defer Ticket of ${ticket.id}`,
-        desc: closeJobNote,
+    if (ticket.type == "Deferred") {
+      changeJobType({ variables: {
         id: ticket.id,
-        worker_email: auth.user().email,
-        callout_id: state.JobData.id,
         notes: {from: auth.user().display_name, message: closeJobNote},
-      },
-    })
-      .then((res) => {
-        console.log({ res });
+        status: "Deferred",
+        type: state.type
+      }
+      }).then(() => {
         setstopJobModalVisible(false);
-        props.navigation.navigate("TicketListing");
+        // props.navigation.navigate("TicketListing");
+      }).catch(e => {
+        console.log(e)
       })
-      .catch(console.log);
+    } else {
+      stopJob({
+        variables: {
+          name: `Defer Ticket of ${ticket.id}`,
+          desc: closeJobNote,
+          id: ticket.id,
+          worker_email: auth.user().email,
+          callout_id: state.JobData.id,
+          notes: {from: auth.user().display_name, message: closeJobNote},
+        },
+      })
+        .then((res) => {
+          console.log({ res });
+          setstopJobModalVisible(false);
+          props.navigation.navigate("TicketListing");
+        })
+        .catch(console.log);
+    }
   };
   return (
     <ScrollView style={styles.container}>
@@ -514,12 +551,9 @@ const Job = (props) => {
         title="Mark it as unverified"
         color="#D2054E"
       />
-       <Button
-        style={{ width: "20%"}}
-        title="Verified"
-        color="#539bf5"
-        disabled
-      />
+      <View style={{backgroundColor: "#059669", width: "100%", borderBottomRadius: 5}}>
+        <Text style={{alignSelf: 'center', paddingVertical: 8, color: "white"}}>VERIFIED</Text>
+      </View>
       </View> : 
       <View>
       <Button
@@ -795,12 +829,12 @@ const Job = (props) => {
       </Modal>
       <Modal
         isVisible={stopJobModalVisible}
-        onBackdropPress={() => stopJobModalVisible(false)}
+        onBackdropPress={() => setstopJobModalVisible(false)}
       >
         <View
           style={{
+            // flex: 1,
             width: "90%",
-
             borderRadius: 10,
             padding: 15,
             backgroundColor: "white",
@@ -827,8 +861,46 @@ const Job = (props) => {
               height: 80,
               textAlignVertical: "top",
               padding: 5,
+              borderWidth: 1,
+              borderRadius: 10,
+              borderColor: "#DDD",
+              marginBottom: 15
             }}
           ></TextInput>
+          
+          {ticket?.type === "Deferred" && (
+            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Job Type</Text>
+          )}
+          {ticket?.type === "Deferred" && (
+            <View
+              style={{
+                flexDirection: "row",
+                width: "100%",
+                height: 80,
+              }}
+            >
+              <View style={{flex: 1, flexDirection:"row", width: "100%", alignItems: "center"}}>
+              <TouchableOpacity
+                style={styles.circle}
+                onPress={() => setState({ ...state, type: "Material Request" })} // we set our value state to key
+              >
+                {state.type === "Material Request" ? <View style={styles.checkedCircle} /> : null}
+              </TouchableOpacity>
+
+              <Text style={{ paddingLeft: "2%", paddingRight: "2%", fontSize: 12 }}>Material Request</Text>
+              </View>
+              <View style={{flex: 1, flexDirection:"row", width: "100%", justifyContent: "flex-end", alignItems: "center"}}>
+              <TouchableOpacity
+                style={styles.circle}
+                onPress={() => setState({ ...state, type: "Out of scope" })} // we set our value state to key
+              >
+                {state.type === "Out of scope" ? <View style={styles.checkedCircle} /> : null}
+              </TouchableOpacity>
+              <Text style={{ paddingLeft: "2%", paddingRight: "2%", fontSize: 12 }}>Out of scope</Text>              
+              </View>
+            </View>
+          )}
+
           <Button
             style={{ width: "20%" }}
             onPress={onFinalSubmitButton}
@@ -871,6 +943,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     // height:'25%'
     paddingVertical: "3%",
+  },
+  checkedCircle: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: "#FFCA5D",
+  },
+  circle: {
+    height: 20,
+    width: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ACACAC",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

@@ -35,6 +35,7 @@ const addJobTicketZoho = async (event) => {
     email: `${worker_email}`
   }))
 
+  try {
   const result = await fetch(
     'https://www.zohoapis.com/crm/v2/functions/createtask/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf',
     {
@@ -45,8 +46,12 @@ const addJobTicketZoho = async (event) => {
       body: form
     }
   );
-
-  // console.log(query);
+  const resultJson = await result.json
+  console.log(resultJson)
+  } catch(e) {
+    console.log(e)
+  }
+  console.log(query);
   try {
     return {
       statusCode: 200,

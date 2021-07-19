@@ -6,6 +6,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Pressable, Dimensions } from 
 import { Camera } from "expo-camera";
 import { Audio } from "expo-av";
 import { Icon } from "native-base";
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
 const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
   const [hasPermission, setHasPermission] = useState(null);
@@ -61,31 +62,31 @@ const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
                 setShowVideoScreen(false);
               }}
             >
-              <Icon name="close-circle-outline" style={{ fontSize: 32, color: "red", marginLeft: "auto" }} />
+              <Icon as={Ionicons} name="close-circle-outline" style={{ fontSize: 32, color: "red", marginLeft: "auto" }} />
             </TouchableOpacity>
           </View>
           {recording ? (
             <View style={styleCamera.recordButtonContainer}>
-              <Icon name="square-outline" style={styleCamera.recordButtonOutline} />
+              {/* <Icon as={Ionicons} name="square-outline" style={styleCamera.recordButtonOutline} /> */}
               <Pressable
                 style={styleCamera.recordButtonButton}
                 onPress={() => {
                   stopRecording();
                 }}
               >
-                <Icon name="square" style={styleCamera.recordButton} />
+                <Icon as={Ionicons} name="square" style={styleCamera.recordButton} />
               </Pressable>
             </View>
           ) : (
             <View style={styleCamera.recordButtonContainer}>
-              <Icon name="ellipse-outline" style={styleCamera.recordButtonOutline} />
+              <Icon as={Ionicons} name="ellipse-outline" style={styleCamera.recordButtonOutline} />
               <Pressable
                 style={styleCamera.recordButtonButton}
                 onPress={() => {
                   startRecording();
                 }}
               >
-                <Icon name="ellipse" style={styleCamera.recordButton} />
+                <Icon as={Ionicons} name="ellipse" style={styleCamera.recordButton} />
               </Pressable>
             </View>
           )}
