@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+/* eslint-disable no-undef */
+/* eslint-disable react/jsx-no-duplicate-props */
+/* eslint-disable react/prop-types */
+import React from "react";
 import {
   StyleSheet,
   Text,
@@ -11,11 +14,9 @@ import {
 } from "react-native";
 
 import { Icon } from "native-base";
-import axios from "axios";
 import _ from "lodash";
 
 import { gql, useQuery } from "@apollo/client";
-import { auth } from "../utils/nhost";
 
 const FETCH_CLIENTS = gql`
   query FetchClients {
@@ -102,35 +103,12 @@ class ClientListClass extends React.Component {
   };
 
   async componentDidMount() {
-<<<<<<< HEAD
     var clientsArray = this.props.data;
 
     this.setState({
       clientList: clientsArray,
       totalData: clientsArray,
       StaticData: clientsArray,
-=======
-    var clientsArray = [];
-    this.setState({ loading: true });
-    link =
-      "https://www.queensman.com/phase_2/queens_admin_Apis/fetchClients.php";
-    axios.get(link).then((result) => {
-      var arrayLength = result.data.server_response.length;
-      console.log(arrayLength);
-      this.setState({
-        TotalClient: arrayLength,
-      });
-      for (var i = 0; i < arrayLength; i++) {
-        clientsArray[i] = result.data.server_response[i].clients;
-      }
-      console.log(clientsArray);
-      this.setState({
-        clientList: clientsArray,
-        totalData: clientsArray,
-        StaticData: clientsArray,
-      });
-      this.setState({ loading: false });
->>>>>>> 03205a4169ada2749c305a076e56c65ab9b9f9f7
     });
   }
 
@@ -266,7 +244,7 @@ class ClientListClass extends React.Component {
                   <Text> </Text>
                 </View>
               )}
-              keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(_item, index) => index.toString()}
             />
           </View>
         )}
