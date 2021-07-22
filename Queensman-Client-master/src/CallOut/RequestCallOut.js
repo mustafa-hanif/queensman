@@ -1,3 +1,5 @@
+/* eslint-disable react/no-array-index-key */
+/* eslint-disable consistent-return */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-alert */
 /* eslint-disable no-console */
@@ -8,33 +10,21 @@
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
-import { Button, Box, ScrollView } from 'native-base';
+import { Button, Box, ScrollView, Select, Icon } from "native-base";
 import { Video } from "expo-av";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Image,
-} from "react-native";
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 
-import { Select, Icon } from "native-base";
-import FlashMessage from "react-native-flash-message";
-import { showMessage, hideMessage } from "react-native-flash-message";
+import FlashMessage, { showMessage } from "react-native-flash-message";
+
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 
-import * as MediaLibrary from 'expo-media-library';
-import { Camera } from 'expo-camera';
+import * as MediaLibrary from "expo-media-library";
+import { Camera } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
-import { LinearGradient } from "expo-linear-gradient";
 import Modal from "react-native-modal";
 import { auth, storage } from "../utils/nhost";
 
@@ -150,7 +140,7 @@ const styles = StyleSheet.create({
   },
   SubmitCallout: {
     borderTopWidth: 1,
-    borderTopColor: '#000',
+    borderTopColor: "#000",
 
     height: 38,
     width: "100%",
@@ -168,7 +158,7 @@ const styles = StyleSheet.create({
 
 const GET_JOB_CATEGORY = gql`
   query GetJobCategory {
-    team_expertise(where: {skill_level: {_eq: 0}}) {
+    team_expertise(where: { skill_level: { _eq: 0 } }) {
       skill_name
       id
     }
@@ -176,12 +166,12 @@ const GET_JOB_CATEGORY = gql`
 `;
 
 const GET_JOB_TYPE = gql`
-query GetJobType($skill_parent: Int!) {
-  team_expertise(where: {skill_level: {_eq: 1}, skill_parent: {_eq: $skill_parent}}) {
-    skill_name
+  query GetJobType($skill_parent: Int!) {
+    team_expertise(where: { skill_level: { _eq: 1 }, skill_parent: { _eq: $skill_parent } }) {
+      skill_name
+    }
   }
-}
-`
+`;
 
 const GET_PROPERTIES = gql`
   query MyQuery($email: String) {
@@ -256,58 +246,52 @@ const ADD_CALLOUT = gql`
 `;
 
 const REQUEST_CALLOUT = gql`
-mutation AddCallout(
-  $property_id: Int
-  $date_on_calendar: date
-  $notes: String
-  $time_on_calendar: time
-  $email: String
-  $category: String
-  $job_type: String
-  $status: String
-  $picture1: String
-  $picture2: String
-  $picture3: String
-  $picture4: String
-  $video: String
-  $request_time: timestamp
-  $urgency_level: String
-) {
-  insert_scheduler_one(
-    object: {
-      callout: {
-        data: {
-          callout_by_email: $email
-          property_id: $property_id
-          category: $category
-          job_type: $job_type
-          status: $status
-          request_time: $request_time
-          urgency_level: $urgency_level
-          description: $notes
-          picture1: $picture1
-          picture2: $picture2
-          picture3: $picture3
-          picture4: $picture4
-          video: $video
-          active: 1 
-          job_tickets: {
-            data: {
-              type: "Full Job"
-              name: $notes
-              status: "Open"
-            }
+  mutation AddCallout(
+    $property_id: Int
+    $date_on_calendar: date
+    $notes: String
+    $time_on_calendar: time
+    $email: String
+    $category: String
+    $job_type: String
+    $status: String
+    $picture1: String
+    $picture2: String
+    $picture3: String
+    $picture4: String
+    $video: String
+    $request_time: timestamp
+    $urgency_level: String
+  ) {
+    insert_scheduler_one(
+      object: {
+        callout: {
+          data: {
+            callout_by_email: $email
+            property_id: $property_id
+            category: $category
+            job_type: $job_type
+            status: $status
+            request_time: $request_time
+            urgency_level: $urgency_level
+            description: $notes
+            picture1: $picture1
+            picture2: $picture2
+            picture3: $picture3
+            picture4: $picture4
+            video: $video
+            active: 1
+            job_tickets: { data: { type: "Full Job", name: $notes, status: "Open" } }
           }
         }
+        date_on_calendar: $date_on_calendar
+        time_on_calendar: $time_on_calendar
+        notes: $notes
       }
-      date_on_calendar: $date_on_calendar
-      time_on_calendar: $time_on_calendar
-      notes: $notes
+    ) {
+      date_on_calendar
     }
-  ) {
-    date_on_calendar
   }
-}
 `;
 
 const RequestCallOut = (props) => {
@@ -347,9 +331,8 @@ const RequestCallOut = (props) => {
     selectedPic: "",
     selectedNo: 0,
   });
-  const {loading: jobCategoryLoading, data: jobCategory, error: jobCategoryError} = useQuery(GET_JOB_CATEGORY)
-  const [getJobType, { loading: loadingJobType, data: jobType, error: JobTypeError }] =
-  useLazyQuery(GET_JOB_TYPE);
+  const { loading: jobCategoryLoading, data: jobCategory, error: jobCategoryError } = useQuery(GET_JOB_CATEGORY);
+  const [getJobType, { loading: loadingJobType, data: jobType, error: JobTypeError }] = useLazyQuery(GET_JOB_TYPE);
   const [loadProperty, { loading: loadingSingleProperty, data: selectedProperty, error: propertyError }] =
     useLazyQuery(GET_PROPERTY_BY_ID);
 
@@ -358,22 +341,22 @@ const RequestCallOut = (props) => {
   const [requestCalloutApiCall, { loading: requestCalloutLoading }] = useMutation(REQUEST_CALLOUT);
   const [videoSaving, setVideoSaving] = useState(false);
   const [showVideoScreen, setShowVideoScreen] = useState(false);
-  const [jobCategorySelect, setJobCategorySelect] = useState({})
-  const [jobTypeSelect, setJobTypeSelect] = useState(null)
+  const [jobCategorySelect, setJobCategorySelect] = useState({});
+  const [jobTypeSelect, setJobTypeSelect] = useState(null);
 
   const onJobCategoryValueChange = (value) => {
-    setJobCategorySelect({value, label:value})
+    setJobCategorySelect({ value, label: value });
   };
 
   const onJobTypeValueChange = (value) => {
-    setJobTypeSelect({value, label:value})
-  }
+    setJobTypeSelect({ value, label: value });
+  };
 
   const selectJobCategoryPressed = (id) => {
-    console.log(id)
+    console.log(id);
     // setJobCategorySelect({value, label:value})
     getJobType({ variables: { skill_parent: id } });
-    console.log(jobType?.team_expertise)
+    console.log(jobType?.team_expertise);
   };
 
   const user = auth?.currentSession?.session?.user;
@@ -487,7 +470,7 @@ const RequestCallOut = (props) => {
   };
 
   const askSubmitCallout = () => {
-    console.log("HERE")
+    console.log("HERE");
     if (!jobCategorySelect.value) {
       return alert("Please Select Job Category First");
     }
@@ -496,23 +479,22 @@ const RequestCallOut = (props) => {
     }
     if (!props.route.params.additionalServices) {
       if (state.Urgency === "medium") {
-        return props.navigation.navigate("SelectSchedule", { state: { ...state, JobType: jobTypeSelect?.value }});
-      } else {
-        
-        Alert.alert(
-          "Callout Request Confirmation.",
-          "Kindly click YES to submit this callout.",
-          [
-            {
-              text: "Cancel",
-              onPress: () => console.log("Cancel Pressed"),
-              style: "cancel",
-            },
-            { text: "Yes", onPress: () => submitCallout() },
-          ],
-          { cancelable: false }
-        );
+        return props.navigation.navigate("SelectSchedule", { state: { ...state, JobType: jobTypeSelect?.value } });
       }
+
+      Alert.alert(
+        "Callout Request Confirmation.",
+        "Kindly click YES to submit this callout.",
+        [
+          {
+            text: "Cancel",
+            onPress: () => console.log("Cancel Pressed"),
+            style: "cancel",
+          },
+          { text: "Yes", onPress: () => submitCallout() },
+        ],
+        { cancelable: false }
+      );
     } else {
       addJobTicket();
     }
@@ -534,7 +516,7 @@ const RequestCallOut = (props) => {
   };
 
   const submitCallout = async () => {
-    let category = "Uncategorized";
+    const category = "Uncategorized";
     const pictures = Object.fromEntries(
       [...Array(4)]
         .map((_, i) => {
@@ -617,7 +599,7 @@ const RequestCallOut = (props) => {
     if (status !== "granted") {
       alert("Sorry, we need camera roll permissions to make this work!");
     }
-    
+
     const { status: status2 } = await Camera.requestCameraPermissionsAsync();
     if (status2 !== "granted") {
       alert("Sorry, we need camera roll permissions to make this work!");
@@ -671,8 +653,8 @@ const RequestCallOut = (props) => {
   };
 
   const addJobTicket = async () => {
-    console.log("HERE 2")
-    let category = "Uncategorized";
+    console.log("HERE 2");
+    const category = "Uncategorized";
     const pictures = Object.fromEntries(
       [...Array(4)]
         .map((_, i) => {
@@ -722,9 +704,8 @@ const RequestCallOut = (props) => {
     return <VideoScreen setShowVideoScreen={setShowVideoScreen} saveVideo={saveVideo} />;
   }
   return (
-    
-    <ScrollView style={{ height: '100%' }}>
-      <View style={{ backgroundColor: '#000', paddingHorizontal: "10%", paddingVertical: "10%"}}>
+    <ScrollView style={{ height: "100%" }}>
+      <View style={{ backgroundColor: "#000", paddingHorizontal: "10%", paddingVertical: "10%" }}>
         <FlashMessage position="top" />
         <Text style={[styles.TextFam, { color: "#FFCA5D", fontSize: 10 }]}>Callout Address</Text>
         {!state.PropertyDetailLoading ? (
@@ -738,7 +719,7 @@ const RequestCallOut = (props) => {
           <Text style={[styles.TextFam, { fontSize: 20, fontWeight: "bold", color: "#fff" }]}>
             Loading please wait...
           </Text>
-        )}       
+        )}
       </View>
       <View style={styles.Card}>
         <View style={styles.container} showsVerticalScrollIndicator={false}>
@@ -747,8 +728,8 @@ const RequestCallOut = (props) => {
           </Text>
 
           <View>
-            {!props.route.params.additionalServices ? ( //If it is request callout
-              <Select //Select Job category
+            {!props.route.params.additionalServices ? ( // If it is request callout
+              <Select // Select Job category
                 mode="dialog"
                 onValueChange={onJobCategoryValueChange}
                 selectedValue={jobCategorySelect.value}
@@ -756,12 +737,26 @@ const RequestCallOut = (props) => {
                 color="white"
                 placeholder="Select Job Category"
               >
-                {jobCategory ? jobCategory?.team_expertise.map((element,i) => ( //Map job category from db
-                  <Select.Item label={element.skill_name} value={element.skill_name} key={i} onTouchEnd={() => selectJobCategoryPressed(element.id)} />
-                )) : <Select.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />}
+                {jobCategory ? (
+                  jobCategory?.team_expertise.map(
+                    (
+                      element,
+                      i // Map job category from db
+                    ) => (
+                      <Select.Item
+                        label={element.skill_name}
+                        value={element.skill_name}
+                        key={i}
+                        onTouchEnd={() => selectJobCategoryPressed(element.id)}
+                      />
+                    )
+                  )
+                ) : (
+                  <Select.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />
+                )}
               </Select>
             ) : (
-              <Select //else request for additional services
+              <Select // else request for additional services
                 note
                 mode="dialog"
                 onValueChange={onJobCategoryValueChange}
@@ -782,12 +777,11 @@ const RequestCallOut = (props) => {
             )}
           </View>
 
-          {!props.route.params.additionalServices && <View style={{paddingTop: "5%"}}>
-          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
-            Job Type
-          </Text> 
+          {!props.route.params.additionalServices && (
+            <View style={{ paddingTop: "5%" }}>
+              <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>Job Type</Text>
               <Select
-                isDisabled={jobType?.team_expertise && !loadingJobType ? false : true}
+                isDisabled={!(jobType?.team_expertise && !loadingJobType)}
                 mode="dialog"
                 onValueChange={onJobTypeValueChange}
                 selectedValue={jobTypeSelect?.value}
@@ -795,12 +789,16 @@ const RequestCallOut = (props) => {
                 color="white"
                 placeholder="Select Job Type"
               >
-                {jobType ? jobType?.team_expertise.map((element,i) => (
-                  <Select.Item label={element.skill_name} value={element.skill_name} key={i} />
-                )) : <Select.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />}
+                {jobType ? (
+                  jobType?.team_expertise.map((element, i) => (
+                    <Select.Item label={element.skill_name} value={element.skill_name} key={i} />
+                  ))
+                ) : (
+                  <Select.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />
+                )}
               </Select>
-          </View>}
-
+            </View>
+          )}
 
           {state.JobType === "other" ? (
             <View style={{ paddingTop: "3%" }}>
@@ -828,30 +826,38 @@ const RequestCallOut = (props) => {
                 flex: 1,
                 flexDirection: "row",
                 width: "100%",
-                justifyContent: 'space-between'
+                justifyContent: "space-between",
                 // paddingHorizontal: "5%",
               }}
             >
-              <View style={{flex: 1, flexDirection:"row", width: "100%"}}>
-              <TouchableOpacity
-                style={styles.circle}
-                onPress={() => setState({ ...state, Urgency: "High" })} // we set our value state to key
-              >
-                {state.Urgency === "High" ? <View style={styles.checkedCircle} /> : null}
-              </TouchableOpacity>
+              <View style={{ flex: 1, flexDirection: "row", width: "100%" }}>
+                <TouchableOpacity
+                  style={styles.circle}
+                  onPress={() => setState({ ...state, Urgency: "High" })} // we set our value state to key
+                >
+                  {state.Urgency === "High" ? <View style={styles.checkedCircle} /> : null}
+                </TouchableOpacity>
 
-              <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "2%", fontSize: 14 }]}>High</Text>
-              <Icon name="flag" as={<Ionicons name="flag-sharp" />}  style={{ fontSize: 16, color: "red", marginTop: -6 }} />
+                <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "2%", fontSize: 14 }]}>High</Text>
+                <Icon
+                  name="flag"
+                  as={<Ionicons name="flag-sharp" />}
+                  style={{ fontSize: 16, color: "red", marginTop: -6 }}
+                />
               </View>
-              <View style={{flex: 1, flexDirection:"row", width: "100%", justifyContent: "flex-end"}}>
-              <TouchableOpacity
-                style={styles.circle}
-                onPress={() => setState({ ...state, Urgency: "medium" })} // we set our value state to key
-              >
-                {state.Urgency === "medium" ? <View style={styles.checkedCircle} /> : null}
-              </TouchableOpacity>
-              <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "2%", fontSize: 14 }]}>Medium</Text>
-              <Icon name="flag" as={<Ionicons name="flag-sharp" />} style={{ fontSize: 16, color: "#FFCA5D", marginTop: -6, }} />
+              <View style={{ flex: 1, flexDirection: "row", width: "100%", justifyContent: "flex-end" }}>
+                <TouchableOpacity
+                  style={styles.circle}
+                  onPress={() => setState({ ...state, Urgency: "medium" })} // we set our value state to key
+                >
+                  {state.Urgency === "medium" ? <View style={styles.checkedCircle} /> : null}
+                </TouchableOpacity>
+                <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "2%", fontSize: 14 }]}>Medium</Text>
+                <Icon
+                  name="flag"
+                  as={<Ionicons name="flag-sharp" />}
+                  style={{ fontSize: 16, color: "#FFCA5D", marginTop: -6 }}
+                />
               </View>
             </View>
           )}
@@ -949,7 +955,7 @@ const RequestCallOut = (props) => {
               >
                 <Icon
                   name="link"
-                  as={<Ionicons name="link" />} 
+                  as={<Ionicons name="link" />}
                   style={{
                     fontSize: 20,
                     color: state.picture1 === "" ? "#aaa" : "#000E1E",
@@ -979,7 +985,7 @@ const RequestCallOut = (props) => {
                 }}
               >
                 <Icon
-                  as={<Ionicons name="link" />} 
+                  as={<Ionicons name="link" />}
                   name="link"
                   style={{
                     fontSize: 20,
@@ -1019,7 +1025,7 @@ const RequestCallOut = (props) => {
                 }}
               >
                 <Icon
-                  as={<Ionicons name="link" />} 
+                  as={<Ionicons name="link" />}
                   name="link"
                   style={{
                     fontSize: 20,
@@ -1050,7 +1056,7 @@ const RequestCallOut = (props) => {
                 }}
               >
                 <Icon
-                  as={<Ionicons name="link" />} 
+                  as={<Ionicons name="link" />}
                   name="link"
                   style={{
                     fontSize: 20,
@@ -1071,21 +1077,21 @@ const RequestCallOut = (props) => {
             </TouchableOpacity>
           </View>
           <Box mb={24} mt={4}>
-          <Button isLoading={state.loading} style={styles.SubmitCallout} onPress={() => askSubmitCallout()}>
-            <Text
-              style={{
-                color: "#fff",
-                fontSize: 15,
-                alignSelf: "center",
-              }}
-            >
-              {state.Urgency === "medium"
-                ? "Select Date"
-                : !props.route.params.additionalServices
-                ? "Submit Callout"
-                : "Make Request"}
-            </Text>
-          </Button>
+            <Button isLoading={state.loading} style={styles.SubmitCallout} onPress={() => askSubmitCallout()}>
+              <Text
+                style={{
+                  color: "#fff",
+                  fontSize: 15,
+                  alignSelf: "center",
+                }}
+              >
+                {state.Urgency === "medium"
+                  ? "Select Date"
+                  : !props.route.params.additionalServices
+                  ? "Submit Callout"
+                  : "Make Request"}
+              </Text>
+            </Button>
           </Box>
         </View>
       </View>
@@ -1144,8 +1150,12 @@ const VideoPlayScreen = ({ setVideoPlayScreen, video: uri }) => {
           color="#FFCA5D"
           style={{ marginRight: 20 }}
           onPress={() => (status.isPlaying ? video.current.pauseAsync() : video.current.playAsync())}
-        >{status.isPlaying ? "Pause" : "Play"}</Button>
-        <Button color="#FFCA5D" onPress={() => setVideoPlayScreen(false)} >Close</Button>
+        >
+          {status.isPlaying ? "Pause" : "Play"}
+        </Button>
+        <Button color="#FFCA5D" onPress={() => setVideoPlayScreen(false)}>
+          Close
+        </Button>
       </View>
     </View>
   );

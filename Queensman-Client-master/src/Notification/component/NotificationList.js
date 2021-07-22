@@ -1,17 +1,16 @@
-import { formatDistance } from 'date-fns'
+import { formatDistance } from "date-fns";
 import React from "react";
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from "react-native";
 import FlashMessage, { showMessage } from "react-native-flash-message";
 import { gql, useMutation } from "@apollo/client";
 
 const UPDATE_NOTIFICATIONS = gql`
-mutation UpdateNotifications($id: Int!) {
-  update_notifications_by_pk(pk_columns: {id: $id}, _set: {isRead: true}) {
-    id
+  mutation UpdateNotifications($id: Int!) {
+    update_notifications_by_pk(pk_columns: { id: $id }, _set: { isRead: true }) {
+      id
+    }
   }
-}
 `;
-
 
 const CONFIRM_CALLOUT = gql`
   mutation ConfirmCallout($scheduler_id: Int!) {
@@ -27,26 +26,24 @@ export default function NotificationList({
   setNotifications,
   reloadNotification,
   notifications,
-  viewStyle, 
+  viewStyle,
   index,
-  textStyle, 
-  dotStyle
+  textStyle,
+  dotStyle,
 }) {
-
   const [updateNotifications] = useMutation(UPDATE_NOTIFICATIONS, {
     onCompleted: () => {
       reloadNotification();
-    }
+    },
   });
-  const [confirmCalout, { 
-    loading: confirmCalloutLoading, 
-    error: confirmcalloutError 
-  }] = useMutation(CONFIRM_CALLOUT);
+  const [confirmCalout, { loading: confirmCalloutLoading, error: confirmcalloutError }] = useMutation(CONFIRM_CALLOUT);
 
   const onConfirmPress = (val) => {
-    updateNotifications({variables:{
-      id: val.id
-    }});
+    updateNotifications({
+      variables: {
+        id: val.id,
+      },
+    });
     confirmCalout({
       variables: {
         scheduler_id: val.data.scheduler_id,
@@ -61,55 +58,59 @@ export default function NotificationList({
       message: "Notification marked as read",
       type: "success",
     });
-    const item = [...notifications]
-    item[index].isRead = true
-    setNotifications(item)
-    updateNotifications({variables:{
-      id
-    }})
-  }
-  console.log(item?.data.type === "client_confirm")
+    const item = [...notifications];
+    item[index].isRead = true;
+    setNotifications(item);
+    updateNotifications({
+      variables: {
+        id,
+      },
+    });
+  };
+  console.log(item?.data.type === "client_confirm");
   return (
     <>
-    <FlashMessage position="top" />
-    {!item?.isRead && <TouchableOpacity onLongPress={() => markAsRead(item.id)}>
-      <View style={styles.container}>
-        <View style={[styles.row, viewStyle]}>
-          <View style={{ flex: 2 }}>
-            <Text style={[[styles.text, textStyle, { fontWeight: "bold" }]]} numberOfLines={3}>
-              {item.text}
-            </Text>
+      <FlashMessage position="top" />
+      {!item?.isRead && (
+        <TouchableOpacity onLongPress={() => markAsRead(item.id)}>
+          <View style={styles.container}>
+            <View style={[styles.row, viewStyle]}>
+              <View style={{ flex: 2 }}>
+                <Text style={[[styles.text, textStyle, { fontWeight: "bold" }]]} numberOfLines={3}>
+                  {item.text}
+                </Text>
+              </View>
+              <View style={[styles.time, dotStyle]}>
+                <Text style={[styles.timeText, textStyle]} numberOfLines={2}>
+                  {`${formatDistance(new Date(), new Date(item.created_at), { includeSeconds: true })} ago`}
+                </Text>
+              </View>
+            </View>
+            {item?.data.type === "client_confirm" && (
+              <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 10 }}>
+                <Text>Do you confirm?</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    onConfirmPress && onConfirmPress(item);
+                  }}
+                  style={styles.buttonstyle}
+                >
+                  <Text style={styles.buttonstyle}>Yes</Text>
+                </TouchableOpacity>
+                <Text>Do you want to reschedule?</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    onNoButtonPress && onNoButtonPress(item);
+                  }}
+                  style={styles.buttonstyle}
+                >
+                  <Text style={styles.buttonstyle}>Yes</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
-          <View style={[styles.time, dotStyle]}>
-            <Text style={[styles.timeText, textStyle]} numberOfLines={2}>
-              {formatDistance(new Date(), new Date(item.created_at), { includeSeconds: true }) + " ago"}
-            </Text>
-          </View>
-        </View>
-        {item?.data.type === "client_confirm" && (
-          <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 10 }}>
-            <Text>Do you confirm?</Text>
-            <TouchableOpacity
-              onPress={() => {
-                onConfirmPress && onConfirmPress(item);
-              }}
-              style={styles.buttonstyle}
-            >
-              <Text style={styles.buttonstyle}>Yes</Text>
-            </TouchableOpacity>
-            <Text>Do you want to reschedule?</Text>
-            <TouchableOpacity
-              onPress={() => {
-                onNoButtonPress && onNoButtonPress(item);
-              }}
-              style={styles.buttonstyle}
-            >
-              <Text style={styles.buttonstyle}>Yes</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
-      </TouchableOpacity>}
+        </TouchableOpacity>
+      )}
       {/* {isPop && (
         <View style={styles.popUp}>
           <Text style={[[styles.text, textStyle, {fontWeight: 'bold'}]]}>

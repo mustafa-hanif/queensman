@@ -12,9 +12,9 @@ import { NhostApolloProvider } from "@nhost/react-apollo";
 import { NhostAuthProvider } from "@nhost/react-auth";
 import { auth } from "./src/utils/nhost";
 
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItem, DrawerItemList } from '@react-navigation/drawer';
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItem, DrawerItemList } from "@react-navigation/drawer";
 
 // Classes import
 import LoginScreen from "./src/Login/LoginScreen";
@@ -41,7 +41,6 @@ import SelectSchedule from "./src/CallOut/SelectSchedule";
 import Notification from "./src/Notification";
 import VideoScreen from "./src/VideoScreen";
 
-
 /** App main loading */
 export default class App extends PureComponent {
   state = {
@@ -59,9 +58,24 @@ export default class App extends PureComponent {
       );
     }
     const theme = extendTheme({
+      components: {
+        Button: {
+          defaultProps: {
+            colorScheme: "amber",
+          },
+        },
+        Text: {
+          baseStyle: {
+            color: "amber.300",
+          },
+          defaultProps: {
+            color: "amber.300",
+          },
+        },
+      },
       config: {
         // Changing initialColorMode to 'dark'
-        initialColorMode: 'dark',
+        initialColorMode: "dark",
       },
     });
     return (
@@ -119,24 +133,28 @@ async function _cacheResourcesAsync() {
 /** Login Screen */
 const LoginStack = createNativeStackNavigator();
 const LoginStackNavigator = () => {
-  return <LoginStack.Navigator screenOptions={{headerShown: false}}>
-    <LoginStack.Screen name="LoginScreen" component={LoginScreen} />
-    <LoginStack.Screen name="PinVerify" component={PinVerfication} />
-    <LoginStack.Screen name="SignUpChangePass" component={SignupChangePassword} />
-    <LoginStack.Screen name="SignUpContectUs" component={SignupContectUs} />
-    <LoginStack.Screen name="SelectProperty" component={PropertyDetails} />
-    <LoginStack.Screen name="ForgotPassword" component={ForgotPassword} />
-  </LoginStack.Navigator>;
-}
+  return (
+    <LoginStack.Navigator screenOptions={{ headerShown: false }}>
+      <LoginStack.Screen name="LoginScreen" component={LoginScreen} />
+      <LoginStack.Screen name="PinVerify" component={PinVerfication} />
+      <LoginStack.Screen name="SignUpChangePass" component={SignupChangePassword} />
+      <LoginStack.Screen name="SignUpContectUs" component={SignupContectUs} />
+      <LoginStack.Screen name="SelectProperty" component={PropertyDetails} />
+      <LoginStack.Screen name="ForgotPassword" component={ForgotPassword} />
+    </LoginStack.Navigator>
+  );
+};
 
 /** Setting Screen */
 const SettingStack = createNativeStackNavigator();
 const SettingStackNavigator = () => {
-  return <SettingStack.Navigator>
-    <SettingStack.Screen name="Settings" component={Settings} />
-    <SettingStack.Screen name="SettingPasswordChange" component={SettingPasswordChange} />
-  </SettingStack.Navigator>
-}
+  return (
+    <SettingStack.Navigator>
+      <SettingStack.Screen name="Settings" component={Settings} />
+      <SettingStack.Screen name="SettingPasswordChange" component={SettingPasswordChange} />
+    </SettingStack.Navigator>
+  );
+};
 // const SettingStackNavigator = createStackNavigator(
 //   {
 //     Settings: {
@@ -175,21 +193,31 @@ const SettingStackNavigator = () => {
 /** HomeScreen Stack Naviagtor */
 const HomeScreenStack = createNativeStackNavigator();
 const HomeScreenStackNavigator = () => {
-  return <HomeScreenStack.Navigator>
-    <HomeScreenStack.Screen options={{headerShown: false}} name="HomeNaviagtor" component={HomeScreen} />
-    <HomeScreenStack.Screen name="Notification" component={Notification} />
-    <HomeScreenStack.Screen name="VideoScreen" component={VideoScreen} />
-    <HomeScreenStack.Screen name="RequestCallOut" component={RequestCallOut} />
-    <HomeScreenStack.Screen options={{title: 'Services History'}} name="CalloutHistory" component={CalloutHistory} />
-    <HomeScreenStack.Screen options={{title: 'Scheduled Services'}} name="CalloutOngoing" component={OngoingCallout} />
-    <HomeScreenStack.Screen name="SelectSchedule" component={SelectSchedule} />
-    <HomeScreenStack.Screen name="OngoingcalloutItem" component={OngoingCalloutItem} />
-    <HomeScreenStack.Screen name="CalloutHistoryItem" component={CallOutHistoryItem} />
-    <HomeScreenStack.Screen name="CalloutReportItem" component={GenerateReport} />
-    <HomeScreenStack.Screen name="MonthlyStatsReport" component={MonthlyStatsReport} />
-    <HomeScreenStack.Screen name="MaterialWarrantyReport" component={MaterialWarrantyReport} />
-  </HomeScreenStack.Navigator>
-}
+  return (
+    <HomeScreenStack.Navigator>
+      <HomeScreenStack.Screen options={{ headerShown: false }} name="HomeNaviagtor" component={HomeScreen} />
+      <HomeScreenStack.Screen name="Notification" component={Notification} />
+      <HomeScreenStack.Screen name="VideoScreen" component={VideoScreen} />
+      <HomeScreenStack.Screen name="RequestCallOut" component={RequestCallOut} />
+      <HomeScreenStack.Screen
+        options={{ title: "Services History" }}
+        name="CalloutHistory"
+        component={CalloutHistory}
+      />
+      <HomeScreenStack.Screen
+        options={{ title: "Scheduled Services" }}
+        name="CalloutOngoing"
+        component={OngoingCallout}
+      />
+      <HomeScreenStack.Screen name="SelectSchedule" component={SelectSchedule} />
+      <HomeScreenStack.Screen name="OngoingcalloutItem" component={OngoingCalloutItem} />
+      <HomeScreenStack.Screen name="CalloutHistoryItem" component={CallOutHistoryItem} />
+      <HomeScreenStack.Screen options={{ title: "Reports" }} name="CalloutReportItem" component={GenerateReport} />
+      <HomeScreenStack.Screen name="MonthlyStatsReport" component={MonthlyStatsReport} />
+      <HomeScreenStack.Screen name="MaterialWarrantyReport" component={MaterialWarrantyReport} />
+    </HomeScreenStack.Navigator>
+  );
+};
 // const HomeScreenStackNavigator = createStackNavigator(
 //   {
 //     HomeNaviagtor: {
@@ -397,23 +425,30 @@ const CustomDrawerComponent = (props) => (
 
 const AppDrawer = createDrawerNavigator();
 const AppDrawerNavigator = () => {
-  return <AppDrawer.Navigator screenOptions={{headerShown: false}} drawerContent={(props) => <CustomDrawerComponent {...props} />}>
-    <AppDrawer.Screen name="Home" component={HomeScreenStackNavigator} />
-    <AppDrawer.Screen name="PropertyDetails" component={PropertyDetails} />
-    <AppDrawer.Screen name="ContactUs" component={ContactUs} />
-    <AppDrawer.Screen name="Settings" component={SettingStackNavigator} />
-  </AppDrawer.Navigator>
-}
+  return (
+    <AppDrawer.Navigator
+      screenOptions={{ headerShown: false }}
+      drawerContent={(props) => <CustomDrawerComponent {...props} />}
+    >
+      <AppDrawer.Screen name="Home" component={HomeScreenStackNavigator} />
+      <AppDrawer.Screen name="PropertyDetails" component={PropertyDetails} />
+      <AppDrawer.Screen name="ContactUs" component={ContactUs} />
+      <AppDrawer.Screen name="Settings" component={SettingStackNavigator} />
+    </AppDrawer.Navigator>
+  );
+};
 
 /** App start Switch navigator */
 const Stack = createNativeStackNavigator();
 
 const AppContainer = () => {
-  return <NavigationContainer>
-    <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="AuthLogin" component={AuthLoginCheck} />
-      <Stack.Screen name="Login" component={LoginStackNavigator} />
-      <Stack.Screen name="AppDrawer" component={AppDrawerNavigator} />
-    </Stack.Navigator>
-  </NavigationContainer>
-}
+  return (
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="AuthLogin" component={AuthLoginCheck} />
+        <Stack.Screen name="Login" component={LoginStackNavigator} />
+        <Stack.Screen name="AppDrawer" component={AppDrawerNavigator} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
