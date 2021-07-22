@@ -175,10 +175,8 @@ const Job = (props) => {
   // API
   const [
     startJob,
-    { called: startJobCalled, loading: startJobLoading, error: startJobError },
-  ] = useMutation(START_JOB, {
-    onError: (error) => alert(error),
-  });
+    { data: startJobCalled, loading: startJobLoading, error: startJobError },
+  ] = useMutation(START_JOB);
 
   const [stopJobModalVisible, setstopJobModalVisible] = useState(false);
   const [addNote, { Notesdata, loading: addNoteLoading, error: addNoteError }] =
@@ -199,14 +197,14 @@ const Job = (props) => {
     { changeJobTypeData, loading: changeJobTypeLoading, error: changeJobTypeError },
   ] = useMutation(CHANGE_JOB_TYPE);
 
-  if (startJobCalled && !startJobLoading) {
-    props.navigation.navigate("PreJob", {
-      QJobID: state.JobData.id,
-      it: props.navigation.getParam("it", {}),
-      ticketDetails: props.navigation.getParam("ticketDetails", {}),
-      ticketCount: props.navigation.getParam('ticketCount', {}),
-    });
-  }
+  // if (startJobCalled && !startJobLoading) {
+  //   props.navigation.navigate("PreJob", {
+  //     QJobID: state.JobData.id,
+  //     it: props.navigation.getParam("it", {}),
+  //     ticketDetails: props.navigation.getParam("ticketDetails", {}),
+  //     ticketCount: props.navigation.getParam('ticketCount', {}),
+  //   });
+  // }
 
   const { loading, data, error } = useQuery(GET_JOB_WORKERS, {
     variables: {
@@ -272,8 +270,8 @@ const Job = (props) => {
     setIsVerified(isVerified)
   }
 
-  const StartJobHandler = () => {
-    startJob({
+  const StartJobHandler = async () => {
+    await startJob({
       variables: {
         ticket_id: ticket.id,
         callout_id: state.JobData.id,
@@ -281,6 +279,14 @@ const Job = (props) => {
         time: new Date().toJSON(),
       },
     });
+    console.log("navigating")
+    props.navigation.navigate("PreJob", {
+      QJobID: state.JobData.id,
+      it: props.navigation.getParam("it", {}),
+      ticketDetails: props.navigation.getParam("ticketDetails", {}),
+      ticketCount: props.navigation.getParam('ticketCount', {}),
+    });
+    console.log("navigated")
   };
 
   const toggleGalleryEventModal = (value) => {
