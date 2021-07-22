@@ -8,7 +8,6 @@ module.exports = {
     "plugin:react/recommended",
     "airbnb",
     "prettier",
-    "prettier/react",
     "plugin:prettier/recommended", // Make sure this is always the last element in the array.
   ],
   parserOptions: {
