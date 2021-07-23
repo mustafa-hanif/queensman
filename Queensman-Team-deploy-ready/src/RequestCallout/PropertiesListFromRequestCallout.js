@@ -11,6 +11,7 @@ import {
 } from "react-native";
 
 import { Icon } from "native-base";
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import axios from "axios";
 import _ from "lodash";
 import { gql, useQuery, useLazyQuery } from "@apollo/client";
@@ -72,7 +73,10 @@ export default function PropertiesList(props) {
     const data1 = owned_properties.client_by_pk.property_owneds?.map((val) => {
       return {
         property_id: val.property.id,
+        city: val.property.city,
+        community: val.property.community,
         address: val.property.address,
+        country: val.property.country,
         type: "Owned Property",
       };
     });
@@ -80,7 +84,10 @@ export default function PropertiesList(props) {
     const data2 = owned_properties.client_by_pk.leases?.map((val) => {
       return {
         property_id: val.property.id,
+        city: val.property.city,
+        community: val.property.community,
         address: val.property.address,
+        country: val.property.country,
         type: "Leased Property",
       };
     });
@@ -132,9 +139,12 @@ class ClientList extends React.Component {
 
   passItem = (item) => {
     this.props.navigation.navigate("RequestCallOut", {
-        address: item.address,
         property_id: item.property_id,
         type: item.type,
+        city: item.city,
+        community: item.community,
+        address: item.address,
+        country: item.country,
         clientID: this.props.navigation.getParam("it", "Something").id
     });
 }
@@ -177,8 +187,9 @@ class ClientList extends React.Component {
           }}
         >
           <Icon
+            as={Ionicons}
             name="search"
-            style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
+            style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput
             defaultValue={this.state.search}

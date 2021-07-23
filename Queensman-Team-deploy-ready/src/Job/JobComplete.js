@@ -16,6 +16,7 @@ import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { auth } from "../utils/nhost";
 import axios from "axios";
 import { Content, Icon } from "native-base";
+import { Ionicons, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 // import { takeSnapshotAsync } from "expo";
 import { captureRef as takeSnapshotAsync } from "react-native-view-shot";
 // import ExpoPixi from "expo-pixi";
@@ -282,9 +283,9 @@ const JobComplete = (props) => {
         <View style={{ height: 20 }}></View>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Icon
-            type="MaterialIcons"
+          as={MaterialIcons}
             name="feedback"
-            style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
+            style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput
             // ref="textInputMobile"

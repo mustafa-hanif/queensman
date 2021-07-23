@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, NetInfo, ActivityIndicator, AsyncStorage, KeyboardAvoidingView, ScrollView, Image } from 'react-native';
 
 
-import { Picker, ListItem, Row, Icon, Col, Button, Left, } from 'native-base';
+import { Select, ListItem, Row, Icon, Col, Button, Left, } from 'native-base';
 import Toast from 'react-native-whc-toast'
 import axios from 'axios';
 
@@ -389,7 +389,7 @@ export default class RequestCallOut extends React.Component {
                         <Text style={[styles.TextFam, { color: '#000E1E', fontSize: 16, }]}>Job Type</Text>
 
                         <View style={styles.PickerStyle}>
-                            <Picker
+                            <Select
                                 note
                                 mode="dialog"
                                 onValueChange={this.onValueChange.bind(this)}
@@ -398,15 +398,15 @@ export default class RequestCallOut extends React.Component {
                                 style={{}}
 
                             >
-                                <Picker.Item label="Select" value="none" />
-                                <Picker.Item label="AC" value="AC" />
-                                <Picker.Item label="Plumbing" value="Plumbing" />
-                                <Picker.Item label="Electric" value="Electric" />
-                                <Picker.Item label="Woodworks" value="Woodworks" />
-                                <Picker.Item label="Paintworks" value="Paintworks" />
-                                <Picker.Item label="Masonry" value="Masonry" />
-                                <Picker.Item label="Other" value="other" />
-                            </Picker>
+                                <Select.Item label="Select" value="none" />
+                                <Select.Item label="AC" value="AC" />
+                                <Select.Item label="Plumbing" value="Plumbing" />
+                                <Select.Item label="Electric" value="Electric" />
+                                <Select.Item label="Woodworks" value="Woodworks" />
+                                <Select.Item label="Paintworks" value="Paintworks" />
+                                <Select.Item label="Masonry" value="Masonry" />
+                                <Select.Item label="Other" value="other" />
+                            </Select>
 
                         </View>
 

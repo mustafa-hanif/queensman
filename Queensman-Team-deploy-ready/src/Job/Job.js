@@ -16,6 +16,7 @@ import {
   TextInput,
 } from "react-native";
 import { Icon } from "native-base";
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import dayjs from "dayjs";
 import Modal from "react-native-modal";
 
@@ -320,13 +321,14 @@ const Job = (props) => {
           }}
         >
           <Icon
+          as={Ionicons}
             name="image"
             style={{
               fontSize: 20,
               color: "#000E1E",
               paddingRight: "3%",
             }}
-          ></Icon>
+          />
           <Text
             style={{
               fontSize: 13,
@@ -427,9 +429,10 @@ const Job = (props) => {
         }}
       >
         <Icon
+        as={Ionicons}
           name="ios-newspaper-outline"
           style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
-        ></Icon>
+        />
         <TextInput
           style={{
             fontSize: 15,
@@ -447,9 +450,10 @@ const Job = (props) => {
         />
         <TouchableOpacity onPress={AddNoteApiCall}>
           <Icon
+          as={Ionicons}
             name="add-circle"
             style={{ fontSize: 25, color: "#000E1E" }}
-          ></Icon>
+          />
         </TouchableOpacity>
       </View>
     );

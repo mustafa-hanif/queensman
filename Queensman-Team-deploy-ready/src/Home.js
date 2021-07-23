@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import Constants from "expo-constants";
 import NetInfo from "@react-native-community/netinfo";
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
 import * as Notifications from "expo-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -48,6 +49,7 @@ const HomeScreen = ({ navigation, workerId }) => {
           <View style={{ flexDirection: "row" }}>
             <TouchableOpacity onPress={() => AlertLogout(navigation)}>
               <Icon
+              as={Ionicons}
                 name="power"
                 style={{ fontSize: 25, color: "#FFCA5D" }}
               ></Icon>
@@ -56,13 +58,18 @@ const HomeScreen = ({ navigation, workerId }) => {
               style={{ marginLeft: 10 }}
               onPress={() => onBellIconPress(navigation)}
             >
-              <Image
+                <Icon
+              as={Ionicons}
+                name="notifications-outline"
+                style={{ fontSize: 25, color: "#FFCA5D" }}
+              ></Icon>
+              {/* <Image
                 resizeMode={"contain"}
                 tintColor={"#FFCA5D"}
                 source={require("../assets/Home/notifications.png")}
                 style={{ height: 25, width: 25 }}
-              ></Image>
-              <Text style={{color: "#FFCA5D", marginTop: -19, fontSize: 10 }}>    1</Text>
+              ></Image> */}
+              {/* <Text style={{color: "#FFCA5D", marginTop: -19, fontSize: 10 }}>    1</Text> */}
             </TouchableOpacity>
           </View>
         </View>
@@ -378,6 +385,8 @@ const GET_CURRENT_JOB_WORKER = gql
 `
 
 export default function HomeFunction(props) {
+  const notificationListener = useRef(null);
+  const responseListener = useRef(null);
   const {loading: workerLoading, data: workerData, error: workerError} = useQuery(GET_CURRENT_JOB_WORKER, {variables: {
     email: auth.user().email,
   }})
@@ -407,7 +416,7 @@ export default function HomeFunction(props) {
       sendTokenToServer({ variables: { token, email } });
     });
       
-    notificationListener = Notifications.addNotificationReceivedListener(
+    notificationListener.current = Notifications.addNotificationReceivedListener(
       (notification) => {
         // setNotification(notification);
         console.log({ notification });
@@ -419,7 +428,7 @@ export default function HomeFunction(props) {
       }
     );
       
-    responseListener =
+    responseListener.current =
       Notifications.addNotificationResponseReceivedListener(
         async (response) => {
           console.log(
@@ -439,8 +448,8 @@ export default function HomeFunction(props) {
     Alert.alert(title, body);
   }
   return () => {
-      Notifications.removeNotificationSubscription(notificationListener);
-            Notifications.removeNotificationSubscription(responseListener);
+      Notifications.removeNotificationSubscription(notificationListener.current);
+            Notifications.removeNotificationSubscription(responseListener.current);
     }
   }, []);
 

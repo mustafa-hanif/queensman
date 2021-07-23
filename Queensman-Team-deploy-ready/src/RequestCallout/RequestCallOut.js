@@ -16,7 +16,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 
-import { Picker, Icon } from "native-base";
+import { Select, Icon } from "native-base";
 import FlashMessage from "react-native-flash-message";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     paddingVertical: "10%",
   },
   TextFam: {
-    fontFamily: "Helvetica",
+
   },
   ButtonSty: {
     backgroundColor: "#FFCA5D",
@@ -272,6 +272,9 @@ mutation AddCallout(
 
 const RequestCallOut = (props) => {
   let address =  props.navigation.getParam("address", {})
+  let community =  props.navigation.getParam("community", {})
+  let country =  props.navigation.getParam("country", {})
+  let city =  props.navigation.getParam("city", {})
   let property_id =  props.navigation.getParam("property_id", {})
   let type =  props.navigation.getParam("type", {})
   const [state, setState] = useState({
@@ -382,7 +385,7 @@ const RequestCallOut = (props) => {
   };
 
   const askSubmitCallout = () => {
-    console.log("HERE")
+    console.log("HERE2")
     if (!jobCategorySelect.value) {
       return alert("Please Select Job Category First");
     }
@@ -390,7 +393,8 @@ const RequestCallOut = (props) => {
       return alert("Kindly fill all the required details.");
     }
       if (state.Urgency === "medium") {
-        return props.navigation.navigate("SelectSchedule", { state: { ...state, JobType: jobTypeSelect?.value }});
+        console.log("HERE@")
+        props.navigation.navigate("SelectSchedule", { state: { ...state, JobType: jobTypeSelect?.value }});
       } else {
         Alert.alert(
           "Callout Request Confirmation.",
@@ -618,10 +622,10 @@ const RequestCallOut = (props) => {
         <FlashMessage position="top" />
         <Text style={[styles.TextFam, { color: "#FFCA5D", fontSize: 10 }]}>Callout Address</Text>
           <View style={{}}>
-            <Text style={[styles.TextFam, { fontSize: 16, fontWeight: "bold", color: "#fff" }]}>{state.address}</Text>
-            {/* <Text style={[styles.TextFam, { fontSize: 10, color: "#fff" }]}>
-              {state.community},{state.city},{state.country}
-            </Text> */}
+            <Text style={[styles.TextFam, { fontSize: 16, fontWeight: "bold", color: "#fff" }]}>{address}</Text>
+            <Text style={[styles.TextFam, { fontSize: 10, color: "#fff" }]}>
+              {community},{city},{country}
+            </Text>
           </View>       
       </View>
       <View style={styles.Card}>
@@ -632,37 +636,37 @@ const RequestCallOut = (props) => {
 
           <View>
             {true ? ( //If it is request callout
-              <Picker //Select Job category
+              <Select //Select Job category
                 mode="dialog"
                 onValueChange={onJobCategoryValueChange}
                 selectedValue={jobCategorySelect.value}
-                backgroundColor="#FFCA5D"
-                color="white"
+                // backgroundColor="#FFCA5D"
+                color="black"
                 placeholder="Select Job Category"
               >
                 {jobCategory ? jobCategory?.team_expertise.map((element,i) => ( //Map job category from db
-                  <Picker.Item label={element.skill_name} value={element.skill_name} key={i} onTouchEnd={() => selectJobCategoryPressed(element.id)} />
-                )) : <Picker.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />}
-              </Picker>
+                  <Select.Item label={element.skill_name} value={element.skill_name} key={i} onTouchEnd={() => selectJobCategoryPressed(element.id)} />
+                )) : <Select.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />}
+              </Select>
             ) : (
-              <Picker //else request for additional services
+              <Select //else request for additional services
                 note
                 mode="dialog"
                 onValueChange={onJobCategoryValueChange}
                 selectedValue={jobCategorySelect.value}
-                backgroundColor="#FFCA5D"
-                color="white"
+                // backgroundColor="#FFCA5D"
+                color="black"
                 placeholder="Select Request Type"
               >
-                <Picker.Item label="Request for quotation" value="Request for quotation" />
-                <Picker.Item label="AC" value="AC" />
-                <Picker.Item label="Plumbing" value="Plumbing" />
-                <Picker.Item label="Electric" value="Electric" />
-                <Picker.Item label="Woodworks" value="Woodworks" />
-                <Picker.Item label="Paintworks" value="Paintworks" />
-                <Picker.Item label="Masonry" value="Masonry" />
-                <Picker.Item label="Other" value="other" />
-              </Picker>
+                <Select.Item label="Request for quotation" value="Request for quotation" />
+                <Select.Item label="AC" value="AC" />
+                <Select.Item label="Plumbing" value="Plumbing" />
+                <Select.Item label="Electric" value="Electric" />
+                <Select.Item label="Woodworks" value="Woodworks" />
+                <Select.Item label="Paintworks" value="Paintworks" />
+                <Select.Item label="Masonry" value="Masonry" />
+                <Select.Item label="Other" value="other" />
+              </Select>
             )}
           </View>
 
@@ -670,19 +674,18 @@ const RequestCallOut = (props) => {
           <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
             Job Type
           </Text> 
-              <Picker
+              <Select
                 isDisabled={jobType?.team_expertise && !loadingJobType ? false : true}
                 mode="dialog"
                 onValueChange={onJobTypeValueChange}
                 selectedValue={jobTypeSelect?.value}
-                backgroundColor="#FFCA5D"
-                color="white"
+                color="black"
                 placeholder="Select Job Type"
               >
                 {jobType ? jobType?.team_expertise.map((element,i) => (
-                  <Picker.Item label={element.skill_name} value={element.skill_name} key={i} />
-                )) : <Picker.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />}
-              </Picker>
+                  <Select.Item label={element.skill_name} value={element.skill_name} key={i} />
+                )) : <Select.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />}
+              </Select>
           </View>
 
 
@@ -690,7 +693,7 @@ const RequestCallOut = (props) => {
             <View style={{ paddingTop: "3%" }}>
               <View style={styles.OthertxtStyle}>
                 <TextInput
-                  style={{ fontSize: 14, fontFamily: "Helvetica" }}
+                  style={{ fontSize: 14 }}
                   placeholder="Type other here...."
                   underlineColorAndroid="transparent"
                   numberOfLines={1}
@@ -747,7 +750,6 @@ const RequestCallOut = (props) => {
                 // fontSize: 14,
                 color: "#8c8c8c",
                 width: "90%",
-                fontFamily: "Helvetica",
                 paddingTop: "2%",
               }}
               placeholder="Type description here ...."

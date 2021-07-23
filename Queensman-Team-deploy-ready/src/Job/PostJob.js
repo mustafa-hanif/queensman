@@ -14,6 +14,7 @@ import {
   Image,
   ScrollView,
 } from "react-native";
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Modal from "react-native-modal";
 import { auth, storage } from "../utils/nhost";
@@ -343,8 +344,27 @@ const PostJob = (props) => {
     return pictures;
   };
 
+  const Heading = (props) => {
+    return (
+      <Text
+        style={{
+          fontSize: 16,
+          fontWeight: "500",
+          color: "#FFCA5D",
+          marginBottom: "1.5%",
+          ...props.style,
+        }}
+      >
+        {props.children}
+      </Text>
+    );
+  };
+
     return (
       <ScrollView style={styles.container}>
+         <Heading style={{ fontSize: 20, alignSelf: "center", color: "black", marginVertical:20 }}>
+        Post Job
+        </Heading>
         <Text
           style={{
             fontSize: 15,
@@ -358,9 +378,10 @@ const PostJob = (props) => {
         <View style={{ height: 15 }}></View>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Icon
+          as={Ionicons}
             name="today"
-            style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
-          ></Icon>
+            style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
+          />
           <TextInput
             // ref="textInputMobile"
             style={{ fontSize: 15, color: "#000E1E", width: "83%" }}
@@ -379,11 +400,10 @@ const PostJob = (props) => {
             borderBottomWidth: 2,
             width: "100%",
             paddingTop: "3%",
+            marginBottom: 20
           }}
         ></View>
-        <View style={{ height: "3%" }}></View>
 
-        <View style={{ height: "7%" }}></View>
         <Text
           style={{
             fontSize: 15,
@@ -394,7 +414,6 @@ const PostJob = (props) => {
         >
           Post Images
         </Text>
-        <View style={{ height: "2%" }}></View>
         <View
           style={{
             flexDirection: "row",
@@ -414,10 +433,11 @@ const PostJob = (props) => {
               }}
             >
               <Icon
+              as={Ionicons}
                 name="camera"
                 style={{ fontSize: 20, color: "#000E1E", paddingRight: "3%" }}
-              ></Icon>
-              <Text style={{ fontSize: 13, marginBottom: "1%" }}>Camera</Text>
+              />
+              <Text style={{ fontSize: 13, marginBottom: "1%", color: "#000E1E"}}>Camera</Text>
             </View>
           </TouchableOpacity>
           <Text style={{ fontSize: 13, marginBottom: "1%" }}>OR</Text>
@@ -431,10 +451,11 @@ const PostJob = (props) => {
               }}
             >
               <Icon
+              as={Ionicons}
                 name="add-circle"
                 style={{ fontSize: 20, color: "#000E1E", paddingRight: "3%" }}
-              ></Icon>
-              <Text style={{ fontSize: 13, marginBottom: "1%" }}>
+              />
+              <Text style={{ fontSize: 13, marginBottom: "1%", color: "#000E1E" }}>
                 Select images to upload
               </Text>
             </View>
@@ -461,13 +482,14 @@ const PostJob = (props) => {
               }}
             >
               <Icon
+              as={Ionicons}
                 name="link"
                 style={{
                   fontSize: 20,
                   color: state.Pic1 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
-              ></Icon>
+              />
               <Text
                 style={{
                   fontSize: 13,
@@ -491,13 +513,14 @@ const PostJob = (props) => {
               }}
             >
               <Icon
+              as={Ionicons}
                 name="link"
                 style={{
                   fontSize: 20,
                   color: state.Pic2 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
-              ></Icon>
+              />
               <Text
                 style={{
                   fontSize: 13,
@@ -521,13 +544,14 @@ const PostJob = (props) => {
               }}
             >
               <Icon
+              as={Ionicons}
                 name="link"
                 style={{
                   fontSize: 20,
                   color: state.Pic3 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
-              ></Icon>
+              />
               <Text
                 style={{
                   fontSize: 13,
@@ -551,13 +575,14 @@ const PostJob = (props) => {
               }}
             >
               <Icon
+              as={Ionicons}
                 name="link"
                 style={{
                   fontSize: 20,
                   color: state.Pic4 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
-              ></Icon>
+              />
               <Text
                 style={{
                   fontSize: 13,
@@ -581,13 +606,14 @@ const PostJob = (props) => {
               }}
             >
               <Icon
+              as={Ionicons}
                 name="link"
                 style={{
                   fontSize: 20,
                   color: state.Pic5 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
-              ></Icon>
+              />
               <Text
                 style={{
                   fontSize: 13,
@@ -611,13 +637,14 @@ const PostJob = (props) => {
               }}
             >
               <Icon
+              as={Ionicons}
                 name="link"
                 style={{
                   fontSize: 20,
                   color: state.Pic6 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
-              ></Icon>
+              />
               <Text
                 style={{
                   fontSize: 13,
@@ -641,13 +668,14 @@ const PostJob = (props) => {
               }}
             >
               <Icon
+              as={Ionicons}
                 name="link"
                 style={{
                   fontSize: 20,
                   color: state.Pic7 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
-              ></Icon>
+              />
               <Text
                 style={{
                   fontSize: 13,
@@ -671,13 +699,14 @@ const PostJob = (props) => {
               }}
             >
               <Icon
+              as={Ionicons}
                 name="link"
                 style={{
                   fontSize: 20,
                   color: state.Pic8 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
-              ></Icon>
+              />
               <Text
                 style={{
                   fontSize: 13,
@@ -701,13 +730,14 @@ const PostJob = (props) => {
               }}
             >
               <Icon
+              as={Ionicons}
                 name="link"
                 style={{
                   fontSize: 20,
                   color: state.Pic9 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
-              ></Icon>
+              />
               <Text
                 style={{
                   fontSize: 13,
@@ -731,13 +761,14 @@ const PostJob = (props) => {
               }}
             >
               <Icon
+              as={Ionicons}
                 name="link"
                 style={{
                   fontSize: 20,
                   color: state.Pic10 == "link" ? "#aaa" : "#000E1E",
                   paddingRight: "3%",
                 }}
-              ></Icon>
+              />
               <Text
                 style={{
                   fontSize: 13,
@@ -764,7 +795,7 @@ const PostJob = (props) => {
           title="PROCEED"
           color="#FFCA5D"
         />
-        <View style={{ height: 180 }}></View>
+        <View style={{ height: 80 }}></View>
         <Modal
           isVisible={state.isPicvisible}
           onSwipeComplete={() => setState({ isPicvisible: false })}
@@ -800,7 +831,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    marginTop: "5%",
     paddingHorizontal: "5%",
   },
   GalleryEventModel: {
