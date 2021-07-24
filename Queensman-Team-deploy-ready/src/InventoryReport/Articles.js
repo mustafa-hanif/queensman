@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import React from "react";
 import {
   StyleSheet,
@@ -9,7 +11,9 @@ import {
   ScrollView,
 } from "react-native";
 
-import { Icon, Picker } from "native-base";
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
+
+import { Icon, Select } from "native-base";
 import axios from "axios";
 
 import { gql, useQuery, useLazyQuery, useMutation } from "@apollo/client";
@@ -190,7 +194,8 @@ class ArticlesClass extends React.Component {
           }, 1000);
         })
         .catch((error) => {
-          alert("Failed To Submitted Inventory Article Details..");
+          console.log(error);
+          alert("Failed To Submitted Inventory Article Details..", error);
         });
     } else {
       console.log("Article already exists");
@@ -293,34 +298,34 @@ class ArticlesClass extends React.Component {
           Article Type
         </Text>
 
-        <View style={styles.PickerStyle}>
-          <Picker
-            note
-            mode="dialog"
+        <View>
+          <Select
+            mx={2}
+            color="black"
+            borderColor="amber.600"
+            placeholder="Select"
             onValueChange={this.onValueChange.bind(this)}
             selectedValue={this.state.JobType}
-            itemStyle={{ fontSize: 30 }}
-            style={{}}
           >
-            <Picker.Item label="Select" value="none" />
-            <Picker.Item
-              label=" ELECTRICAL Services (repair and replace warranty cover)"
-              value=" ELECTRICAL Services (repair and replace warranty cover)"
+            <Select.Item label="Select" value="none" />
+            <Select.Item
+              label="ELECTRICAL Services (repair and replace warranty cover)"
+              value="ELECTRICAL Services (repair and replace warranty cover)"
             />
-            <Picker.Item
+            <Select.Item
               label="CARPENTRY, PAINT & TILING Services (repair and replace warranty cover)"
               value="CARPENTRY, PAINT & TILING Services (repair and replace warranty cover)"
             />
-            <Picker.Item
+            <Select.Item
               label="AC (HVAC) Services (repair and replace warranty cover)"
               value="AC (HVAC) Services (repair and replace warranty cover)"
             />
-            <Picker.Item
+            <Select.Item
               label="WATER SYSTEM & PLUMIBING Services (repair and replace warranty cover)"
               value="WATER SYSTEM & PLUMIBING Services (repair and replace warranty cover)"
             />
-            <Picker.Item label="General Services" value="General Services" />
-          </Picker>
+            <Select.Item label="General Services" value="General Services" />
+          </Select>
         </View>
 
         {/* {this.state.JobType == "General Services" ? (
@@ -375,6 +380,7 @@ class ArticlesClass extends React.Component {
         >
           <Icon
             name="today"
+            as={Ionicons}
             style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput
@@ -416,6 +422,7 @@ class ArticlesClass extends React.Component {
         >
           <Icon
             name="today"
+            as={Ionicons}
             style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput
@@ -457,6 +464,7 @@ class ArticlesClass extends React.Component {
         >
           <Icon
             name="clipboard"
+            as={Ionicons}
             style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput
@@ -497,6 +505,7 @@ class ArticlesClass extends React.Component {
         >
           <Icon
             name="document"
+            as={Ionicons}
             style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput

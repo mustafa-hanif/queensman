@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import React from "react";
 import {
   StyleSheet,
@@ -7,24 +9,22 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Image,
-  Button,
+
   ScrollView,
   TextInput,
 } from "react-native";
 
-import { Icon } from "native-base";
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
-import axios from "axios";
+import { Button as MyButton , HStack, Icon } from "native-base";
+import { Ionicons } from '@expo/vector-icons';
 import _ from "lodash";
 
 import Modal from "react-native-modal";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
-import * as Permissions from "expo-permissions";
-import { auth, storage } from "../utils/nhost";
+
+import { storage } from "../utils/nhost";
 
 import { gql, useQuery, useMutation } from "@apollo/client";
-import { fil, th } from "date-fns/locale";
 
 const fetchInventoryArticlesViaInventoryReportID = gql`
   query InventoryArticles($_eq: Int = 10) {
@@ -466,25 +466,18 @@ class InventoryReportRoomClass extends React.Component {
             alignSelf: "center",
           }}
         ></View>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            paddingHorizontal: "20%",
-          }}
-        >
+        <HStack space={4} mx="auto">
           <Button
             onPress={() => this.changeselected("art")}
-            title="    Articles   "
+            title="Articles"
             color={this.state.MenuSelected == "art" ? "#FFCA5D" : "#000E1E"}
           />
           <Button
             onPress={() => this.changeselected("pic")}
-            title="   Pictures    "
+            title="Pictures"
             color={this.state.MenuSelected == "pic" ? "#FFCA5D" : "#000E1E"}
           />
-        </View>
+        </HStack>
 
         <View
           style={{
@@ -759,3 +752,7 @@ const expoFileToFormFile = (url) => {
   const type = match ? `image/${match[1]}` : `image`;
   return { uri: localUri, name: filename, type };
 };
+
+const Button = ({ title, ...props}) => {
+  return <MyButton {...props}>{title}</MyButton>
+}
