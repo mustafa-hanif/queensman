@@ -63,7 +63,7 @@ const JobComplete = (props) => {
 
 
   const ticketCount = props.navigation.getParam('ticketCount', {})
-  const workerId = props.navigation.getParam('workerId', {})
+  const workerId = props.navigation.getParam('workerId', null);
   const ticketId = props.navigation.getParam('ticketDetails', {}).id
   const clientEmail = props.navigation.getParam('it', {}).client.email
   const clientPhone = props.navigation.getParam('it', {}).client.phone
@@ -168,7 +168,15 @@ const JobComplete = (props) => {
         console.log(e)
       }
 
-
+      console.log({
+        id: ticketId,
+        updater_id: workerId,
+        callout_id: state.CallOutID,
+        feedback: state.feedback,
+        rating: state.starCount,
+        solution: state.Solution,
+        signature: auth.user().email
+      });
         try {
           await finishJob({variables: {
             id: ticketId,
@@ -179,8 +187,9 @@ const JobComplete = (props) => {
             solution: state.Solution,
             signature: auth.user().email
           }})
-          alert("Service has been successfully completed. Great Job!");
-          props.navigation.navigate("HomeNaviagtor");
+          setTimeout(() => {
+            props.navigation.navigate("HomeNaviagtor")
+          }, 1000);
         } catch (e) {
           console.log(e)
           alert("Could not submit Job!");
