@@ -28,7 +28,7 @@ import { auth } from './utils/nhost';
 let deviceWidth = Dimensions.get("window").width;
 let deviceHeight = Dimensions.get("window").height;
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = ({ navigation, workerId }) => {
   return (
     <View style={styles.container}>
       <View style={styles.Name}>
@@ -141,7 +141,7 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={{ flex: 1 }}
-            onPress={() => ScheduleHandler(navigation)}
+            onPress={() => ScheduleHandler(navigation, workerId)}
           >
             <View style={[styles.button]}>
               <Image
@@ -310,8 +310,10 @@ const ServicesHistoryHandler = (navigation) => {
   navigation.navigate("ServicesHistory");
 };
 
-const ScheduleHandler = (navigation) => {
-  navigation.navigate("Scheduler");
+const ScheduleHandler = (navigation, workerId) => {
+  navigation.navigate("Scheduler", {
+    workerId
+  });
 };
 
 const InventoryReportHandler = (navigation) => {
@@ -366,9 +368,19 @@ const UPDATE_TOKEN = gql`
   }
 `;
 
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
+const GET_CURRENT_JOB_WORKER = gql
+`query GetJobWorkerId($email: String) {
+  worker(where: {email: {_eq: $email}}) {
+    id
+  }
+}
+`
 
 export default function HomeFunction(props) {
+  const {loading: workerLoading, data: workerData, error: workerError} = useQuery(GET_CURRENT_JOB_WORKER, {variables: {
+    email: auth.user().email,
+  }})
   const [updateToken, { loading: mutationLoading, error: mutationError }] =
     useMutation(UPDATE_TOKEN);
 
@@ -433,7 +445,7 @@ export default function HomeFunction(props) {
   }, []);
 
   return (
-    <HomeScreen sendTokenToServer={sendTokenToServer} {...props}></HomeScreen>
+    <HomeScreen sendTokenToServer={sendTokenToServer} workerId={workerData?.worker[0].id} {...props}></HomeScreen>
   );
 }
 

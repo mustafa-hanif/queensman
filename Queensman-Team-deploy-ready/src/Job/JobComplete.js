@@ -20,13 +20,7 @@ import { Content, Icon } from "native-base";
 import { captureRef as takeSnapshotAsync } from "react-native-view-shot";
 // import ExpoPixi from "expo-pixi";
 
-const GET_CURRENT_JOB_WORKER = gql
-`query GetJobWorkerId($email: String) {
-  worker(where: {email: {_eq: $email}}) {
-    id
-  }
-}
-`
+
 const FINISH_JOB = gql
 `mutation FinishFinalJob($id: Int!, $updater_id: Int!, $callout_id: Int!, $feedback: String!, $rating: Int!, $solution: String!, $signature: String!) {
   insert_job_history_one(object: {callout_id: $callout_id, updater_id: $updater_id, updated_by: "Ops Team", status_update: "Closed"}) {
@@ -65,15 +59,13 @@ mutation UpdateJobAndJobTicket ($id: Int!, $callout_id: Int!, $feedback: String!
 }
 `
 const JobComplete = (props) => {
-  const {loading: workerLoading, data, error: workerError} = useQuery(GET_CURRENT_JOB_WORKER, {variables: {
-    email: auth.user().email,
-  }})
+
 
   const ticketCount = props.navigation.getParam('ticketCount', {})
+  const workerId = props.navigation.getParam('workerId', {})
   const ticketId = props.navigation.getParam('ticketDetails', {}).id
   const clientEmail = props.navigation.getParam('it', {}).client.email
   const clientPhone = props.navigation.getParam('it', {}).client.phone
-  console.log(clientEmail)
   const signatureCanvas =  useRef();
   const [state, setState] = useState({
     starCount: 0,
@@ -135,7 +127,7 @@ const JobComplete = (props) => {
         console.log("One Job")
         // console.log({
         //   id: ticketId,
-        //   updater_id: data?.worker[0].id,
+        //   updater_id: workerId,
         //   callout_id: state.CallOutID,
         //   feedback: state.feedback,
         //   rating: state.starCount,
@@ -179,7 +171,7 @@ const JobComplete = (props) => {
         try {
           await finishJob({variables: {
             id: ticketId,
-            updater_id: data?.worker[0].id,
+            updater_id: workerId,
             callout_id: state.CallOutID,
             feedback: state.feedback,
             rating: state.starCount,

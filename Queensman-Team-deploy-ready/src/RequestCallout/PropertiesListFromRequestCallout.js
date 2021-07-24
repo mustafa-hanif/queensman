@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,28 +7,98 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Image,
-  AsyncStorage,
   TextInput,
 } from "react-native";
 
-import {
-  Container,
-  Header,
-  Content,
-  List,
-  ListItem,
-  Row,
-  Icon,
-  Col,
-  Left,
-  Right,
-  Button,
-  Picker,
-} from "native-base";
+import { Icon } from "native-base";
 import axios from "axios";
 import _ from "lodash";
+import { gql, useQuery, useLazyQuery } from "@apollo/client";
 
-export default class clientList extends React.Component {
+const FETCH_CLIENT_OWNED_PROPERTIES = gql`
+  query fetchClientOwnedPropertiesViaClientID($id: Int!) {
+    client_by_pk(id: $id) {
+      property_owneds(where: { property: { active: { _eq: 1 } } }) {
+        property {
+          id
+          address
+          community
+          city
+          country
+        }
+      }
+    }
+
+    client_by_pk(id: $id) {
+      leases(where: { active: { _eq: 1 } }) {
+        property {
+          community
+          city
+          address
+          country
+          type
+          comments
+        }
+        lease_id: id
+        lease_start
+        lease_end
+      }
+    }
+  }
+`;
+
+export default function PropertiesList(props) {
+  const client_id = props.navigation.getParam("it", "Something").id;
+
+  const {
+    loading,
+    data: owned_properties,
+    error,
+  } = useQuery(FETCH_CLIENT_OWNED_PROPERTIES, {
+    variables: {
+      id: client_id,
+    },
+  });
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#FFCA5D" />
+      </View>
+    );
+  }
+
+  const getCombinedData = () => {
+    const data1 = owned_properties.client_by_pk.property_owneds?.map((val) => {
+      return {
+        property_id: val.property.id,
+        address: val.property.address,
+        type: "Owned Property",
+      };
+    });
+
+    const data2 = owned_properties.client_by_pk.leases?.map((val) => {
+      return {
+        property_id: val.property.id,
+        address: val.property.address,
+        type: "Leased Property",
+      };
+    });
+
+    const arr = [...data1, ...data2];
+    return arr;
+  };
+
+  return (
+    <ClientList
+      loading={loading}
+      data={getCombinedData()}
+      {...props}
+    ></ClientList>
+  );
+}
+
+class ClientList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -60,87 +130,29 @@ export default class clientList extends React.Component {
     };
   }
 
-  passItem = (item, clientID) => {
-    console.log(item, clientID);
+  passItem = (item) => {
     this.props.navigation.navigate("RequestCallOut", {
-      it: item,
-      clientID,
+        address: item.address,
+        property_id: item.property_id,
+        type: item.type,
+        clientID: this.props.navigation.getParam("it", "Something").id
     });
-  };
+}
 
   async componentDidMount() {
-    var clientsArray = [];
-    this.setState({ loading: true });
-    // link = "https://www.queensman.com/phase_2/queens_admin_Apis/fetchClients.php"
-    // console.log(link)
-    // axios.get(link).then((result) => {
-    //     var arrayLength = result.data.server_response.length
-    //     console.log(arrayLength)
-    //     this.setState({
-    //         TotalClient: arrayLength
-    //     })
-    //     for (var i = 0; i < arrayLength; i++) {
-    //         clientsArray[i] = result.data.server_response[i].clients
-    //     }
-    //  //   console.log(clientsArray)
-    //     this.setState({
-    //         clientList: clientsArray,
-    //         totalData: clientsArray,
-    //         StaticData: clientsArray,
-    //     })
-    this.setState({ loading: false });
-    // })
-
-    link =
-      "https://www.queensman.com/phase_2/queens_client_Apis/FetchClientOwnedPropertyViaClientID.php?ID=" +
-      this.state.clientID;
-    console.log(link);
-    axios.get(link).then((result) => {
-      var arrayLength = result.data.server_responce.length;
-      var properties = [];
-      for (var i = 0; i < arrayLength; i++) {
-        var property = {
-          property_id:
-            result.data.server_responce[i].Client_property.property_id,
-          address: result.data.server_responce[i].Client_property.address,
-          type: "Owned Property",
-          property_category:
-            result.data.server_responce[i].Client_property.category,
-        };
-        properties.push(property);
-      }
-
-      link =
-        "https://www.queensman.com/phase_2/queens_client_Apis/FetchClientLeasedPropertiesViaClientID.php?ID=" +
-        this.state.clientID;
-      console.log(link);
-      axios.get(link).then((result) => {
-        var arrayLength = result.data.server_responce.length;
-
-        for (var i = 0; i < arrayLength; i++) {
-          var property = {
-            property_id:
-              result.data.server_responce[i].lease_property.property_id,
-            address: result.data.server_responce[i].lease_property.address,
-            type: "Leased Property",
-            property_category:
-              result.data.server_responce[i].lease_property.category,
-          };
-          properties.push(property);
-        }
-
-        console.log(properties);
-        this.setState({
-          clientList: properties,
-          totalData: properties,
-          StaticData: properties,
-        });
-      });
+    var properties = this.props.data;
+    this.setState({
+      clientList: properties,
+      totalData: properties,
+      StaticData: properties,
     });
   }
 
   contains = ({ property_id, address }, query) => {
-    if (property_id.toString().includes(query) || address.includes(query)) {
+    if (
+      property_id.toString().includes(query) ||
+      address.toLowerCase().includes(query.toLowerCase())
+    ) {
       return true;
     }
     return false;
@@ -246,11 +258,11 @@ export default class clientList extends React.Component {
               },
             ]}
           >
-            No Properties Listed
+            No Such Properties Listed
           </Text>
         ) : (
           <View>
-            {this.state.loading ? (
+            {this.props.loading ? (
               <ActivityIndicator size="large" color="#FFCA5D" />
             ) : (
               <FlatList
@@ -258,9 +270,7 @@ export default class clientList extends React.Component {
                 contentContainerStyle={{ paddingBottom: 100 }}
                 renderItem={({ item }) => (
                   <View>
-                    <TouchableOpacity
-                      onPress={() => this.passItem(item, this.state.clientID)}
-                    >
+                    <TouchableOpacity onPress={() => this.passItem(item)}>
                       <View style={styles.Card}>
                         <Text
                           style={[
@@ -295,9 +305,6 @@ export default class clientList extends React.Component {
                               </Text>
                               <Text style={[styles.TextFam, { fontSize: 10 }]}>
                                 Type : {item.type}
-                              </Text>
-                              <Text style={[styles.TextFam, { fontSize: 10 }]}>
-                                Property Category : {item.property_category}
                               </Text>
                             </View>
                           </View>

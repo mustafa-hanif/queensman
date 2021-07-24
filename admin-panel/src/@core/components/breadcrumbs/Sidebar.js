@@ -14,8 +14,6 @@ import { Button, FormGroup, Label, FormText, Form, Input } from 'reactstrap'
 
 // ** Store & Actions
 import { useDispatch } from 'react-redux'
-<<<<<<< HEAD
-=======
 
 import { gql, useMutation } from '@apollo/client'
 
@@ -29,7 +27,6 @@ mutation AddClient($full_name: String!, $email: String!, $phone: String!) {
 }
 `
 
->>>>>>> 85716132b8812cf0dfaa75f03f130b54f5f4cd3a
 const AddClient = ({ open, toggleSidebar }) => {
   let input
 

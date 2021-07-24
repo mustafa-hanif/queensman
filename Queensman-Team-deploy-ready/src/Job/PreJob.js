@@ -83,16 +83,10 @@ mutation UpdateJobAndJobTicket ($id: Int!) {
 }
 `
 
-const GET_CURRENT_JOB_WORKER = gql
-`query GetJobWorkerId($email: String) {
-  worker(where: {email: {_eq: $email}}) {
-    id
-  }
-}
-`
 
 const PreJob = (props) => {
   const ticketId = props.navigation.getParam("ticketDetails", {}).id
+  const workerId = props.navigation.getParam('workerId', {})
   const ticket = props.navigation.getParam("ticketDetails", {})
   const ticketCount = props.navigation.getParam('ticketCount', {})
   const pics = Object.fromEntries(
@@ -137,9 +131,6 @@ const PreJob = (props) => {
 
   const [finishJobSingle] = useMutation(FINISH_JOB_SINGLE)
 
-  const {loading: workerLoading, data: workerData, error: workerError} = useQuery(GET_CURRENT_JOB_WORKER, {variables: {
-    email: auth.user().email,
-  }})
 
   useEffect(() => {
     fetchNotes();
@@ -195,7 +186,7 @@ const PreJob = (props) => {
       try {
         await finishJob({variables: {
           id: ticketId,
-          updater_id: workerData?.worker[0].id,
+          updater_id: workerId,
           callout_id: state.CallOutID,
         }})
         alert("Service has been successfully completed. Great Job!");

@@ -8,3 +8,5 @@
 api/node_modules
 nmig
 packager-info.json
+Queensman-Client-master/.expo/packager-info.json
+.DS_Store

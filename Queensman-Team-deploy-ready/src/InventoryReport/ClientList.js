@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+/* eslint-disable no-undef */
+/* eslint-disable react/jsx-no-duplicate-props */
+/* eslint-disable react/prop-types */
+import React from "react";
 import {
   StyleSheet,
   Text,
@@ -11,11 +14,9 @@ import {
 } from "react-native";
 
 import { Icon } from "native-base";
-import axios from "axios";
 import _ from "lodash";
 
 import { gql, useQuery } from "@apollo/client";
-import { auth } from "../utils/nhost";
 
 const FETCH_CLIENTS = gql`
   query FetchClients {
@@ -243,7 +244,7 @@ class ClientListClass extends React.Component {
                   <Text> </Text>
                 </View>
               )}
-              keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(_item, index) => index.toString()}
             />
           </View>
         )}

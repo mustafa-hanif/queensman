@@ -155,12 +155,26 @@ const RequestCalloutStackNavigator = createStackNavigator(
         headerTitleStyle: {
           fontWeight: "bold",
         },
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate("HomeNaviagtor")}
+            
+          >
+            <View style={{ flexDirection: "row", marginLeft: 20 }}>
+              <Text> </Text>
+              <Icon
+                name="arrow-back"
+                style={{ fontSize: 24, color: "#fff" }}
+              ></Icon>
+            </View>
+          </TouchableOpacity>
+        ),
       }),
     },
     PropertiesListFromRequestCallout: {
       screen: PropertiesListFromRequestCallout,
       navigationOptions: ({ navigation }) => ({
-        title: " Client Properties",
+        title: "Client Properties",
 
         headerStyle: {
           backgroundColor: "#000E1E",
@@ -174,7 +188,7 @@ const RequestCalloutStackNavigator = createStackNavigator(
     RequestCallOut: {
       screen: RequestCallOut,
       navigationOptions: ({ navigation }) => ({
-        title: " Client Properties",
+        title: "asdasd Properties",
 
         headerStyle: {
           backgroundColor: "#000E1E",
@@ -207,7 +221,7 @@ const InventoryReportStackNavigator = createStackNavigator(
         headerTitleStyle: {
           fontWeight: "bold",
         },
-        headerLeft: (
+        headerLeft: () => (
           <TouchableOpacity
             onPress={() => navigation.navigate("HomeNaviagtor")}
             

@@ -259,6 +259,15 @@ const JobsList = (props) => {
       </View>
     );
   }
+
+  if(loading || allLoading) {
+    return (
+      <View style={{flex:1, alignItems: "center", justifyContent: "center"}}>
+    <ActivityIndicator size="large" color="#FFCA5D" />
+    </View>
+    )
+  } 
+
   return (
     <View style={styles.container}>
       <View
@@ -299,8 +308,7 @@ const JobsList = (props) => {
           <Picker.Item label="Urgency Level:Scheduled" value="scheduled" />
         </Picker>
       </View>
-      {(loading || allLoading) && <ActivityIndicator size="large" color="#FFCA5D" />}
-      {(!loading || !allLoading) && (data?.callout.length || allData?.callout.length) === 0 ? (
+      {(data?.callout.length || allData?.callout.length) === 0 ? (
         <Text
           style={[
             styles.TextFam,
