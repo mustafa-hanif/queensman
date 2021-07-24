@@ -11,17 +11,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import {
-  Container,
-  Header,
-  Content,
-  List,
-  ListItem,
-  Row,
   Icon,
-  Col,
-  Left,
-  Right,
-  Button,
   Select,
 } from "native-base";
 import axios from "axios";

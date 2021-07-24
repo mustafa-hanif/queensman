@@ -13,7 +13,7 @@ import {
   ActivityIndicator,
   Button
 } from "react-native";
-import { Picker } from "native-base";
+import { Select } from "native-base";
 import commonColor from "../../native-base-theme/variables/commonColor";
 import { ImageBrowser } from "expo-image-picker-multiple";
 import { auth, storage } from "../utils/nhost";
@@ -87,25 +87,21 @@ export default function CreateTicket(props) {
       <View>
         <Text style={styles.label}>New Ticket Information</Text>
         <View style={{ marginTop: "1%", borderWidth: 0.5 }}>
-          <Picker
-            note
-            mode="dialog"
-            itemStyle={{
-              fontSize: 18,
-            }}
+          <Select
+            color="black"
             selectedValue={selectedType}
             onValueChange={(val) => {
               setselectedType(val);
             }}
           >
-            <Picker.Item label="Select" value="Select" />
-            <Picker.Item label="Material Request" value="Material Request" />
-            <Picker.Item label="Patch Job" value="Patch Job" />
-            <Picker.Item label="Full Job" value="Full Job" />
+            <Select.Item label="Select" value="Select" />
+            <Select.Item label="Material Request" value="Material Request" />
+            <Select.Item label="Patch Job" value="Patch Job" />
+            <Select.Item label="Full Job" value="Full Job" />
             {/* {TicketType.map((val) => (
-              <Picker.Item label={val.name} value={val.name} />
+              <Select.Item label={val.name} value={val.name} />
             ))} */}
-          </Picker>
+          </Select>
         </View>
       </View>
     );
