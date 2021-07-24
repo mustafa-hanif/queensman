@@ -3,16 +3,13 @@
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable camelcase */
 /* eslint-disable no-use-before-define */
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { format, parseISO } from "date-fns";
-import { StyleSheet, View, Dimensions, TouchableOpacity, ActivityIndicator, Linking } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { StyleSheet, View, Dimensions, Linking } from "react-native";
 import { Box, FlatList, Spinner, Text, ScrollView, Modal, Button } from "native-base";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import axios from "axios";
-import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
-import { auth, storage } from "../utils/nhost";
+import { gql, useQuery } from "@apollo/client";
+import { auth } from "../utils/nhost";
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
@@ -33,6 +30,10 @@ class GenerateReport extends React.Component {
     };
   }
 
+  setPropertyId = (id) => {
+    this.setState({ ...this.state, propertyID: id });
+  };
+
   toggleReportModel = (value) => {
     if (value === 1) {
       this.setState({
@@ -51,33 +52,10 @@ class GenerateReport extends React.Component {
     }
   };
 
-  async componentDidMount() {
-    // this.setState({ loading: true });
-    // if (property_ID === "asd") {
-    //   alert("Please select property first from 'Property Details' tab in the menu.");
-    //   this.props.navigation.navigate("HomeNaviagtor");
-    // }
-    // if (property_Type === "leased") {
-    //   alert("Reports are only available for owned properties.");
-    //   this.props.navigation.navigate("HomeNaviagtor");
-    // }
-    // link = `http://queensman.com/queens_client_Apis/fetchManagementReport.php?ID=${property_ID}`;
-    // // console.log(link);
-    // axios.get(link).then((result) => {
-    //   // console.log(result.data.server_response);
-    //   this.setState({ ManagementReportData: result.data.server_response, propertyID: property_ID });
-    //   link = `http://queensman.com/queens_client_Apis/fetchMarketReport.php?ID=${property_ID}`;
-    //   //console.log(link);
-    //   axios.get(link).then((result) => {
-    //     console.log(result.data);
-    //     this.setState({ MarkertReportData: result.data.server_response, loading: false });
-    //   });
-    // });
-  }
-
   HandleMaterialwarranty = () => {
-    console.log("material warranty clicked");
-    this.props.navigation.navigate("MaterialWarrantyReport");
+    this.props.navigation.navigate("MaterialWarrantyReport", {
+      propertyId: this.state.propertyID,
+    });
   };
 
   PerfReporthandle = () => {
@@ -86,10 +64,8 @@ class GenerateReport extends React.Component {
 
   Reporthandle = async (Value) => {
     this.setState({ loading: true });
-    console.log("Management Report");
     this.setState({ isReportModelVisible: !this.state.isReportModelVisible });
 
-    console.log(Value);
     Linking.openURL(Value);
     this.setState({ loading: false });
   };
@@ -98,7 +74,12 @@ class GenerateReport extends React.Component {
     <Box>
       {this.state.modeltype ? <Text>Property Management Reports</Text> : <Text>Markert Analysis Reports</Text>}
       <Text mb={4}>Tap to view or download a report.</Text>
-      <MyFlatList value={this.state.value} Reporthandle={this.Reporthandle} />
+      <MyFlatList
+        property_ID={this.state.propertyID}
+        setPropertyId={this.setPropertyId}
+        value={this.state.value}
+        Reporthandle={this.Reporthandle}
+      />
     </Box>
   );
 
@@ -114,7 +95,7 @@ class GenerateReport extends React.Component {
           <Modal.Content h={400}>{this.renderReportModalContent()}</Modal.Content>
         </Modal>
         {/* background gradinet   */}
-
+        <LoadProperties setPropertyId={this.setPropertyId} />
         <Text style={styles.HeadingStyle}>Reports</Text>
         <Text style={{ color: "#fff", fontSize: 15, fontFamily: "Helvetica", paddingBottom: "15%" }}>
           Select the type of report to download{" "}
@@ -140,6 +121,24 @@ class GenerateReport extends React.Component {
     );
   }
 }
+
+const LoadProperties = ({ setPropertyId }) => {
+  const user = auth?.currentSession?.session?.user;
+  const email = user?.email;
+
+  const {
+    loading,
+    data: allProperties,
+    error,
+  } = useQuery(GET_PROPERTIES, {
+    variables: { email },
+    onCompleted: ({ client }) => {
+      setPropertyId(client[0].property_owneds[0].property.id);
+    },
+  });
+
+  return <></>;
+};
 
 const GET_PROPERTIES = gql`
   query MyQuery($email: String) {
@@ -180,23 +179,7 @@ const MARKET_REPORT = gql`
   }
 `;
 
-const MyFlatList = ({ value, Reporthandle }) => {
-  const [property_ID, setPropertyId] = useState(null);
-
-  const user = auth?.currentSession?.session?.user;
-  const email = user?.email;
-
-  const {
-    loading,
-    data: allProperties,
-    error,
-  } = useQuery(GET_PROPERTIES, {
-    variables: { email },
-    onCompleted: ({ client }) => {
-      setPropertyId(client[0].property_owneds[0].property.id);
-    },
-  });
-
+const MyFlatList = ({ property_ID, value, Reporthandle }) => {
   const {
     loading: reportLoading,
     data: ManagementReportData,
@@ -221,11 +204,11 @@ const MyFlatList = ({ value, Reporthandle }) => {
   } else if (value === 2) {
     ModelData = MarkertReportData?.market_report;
   }
-  if (loading || reportLoading || reportLoading2) {
+  if (!property_ID || reportLoading || reportLoading2) {
     return <Spinner size="sm" />;
   }
-  if (error || mError || mError2) {
-    return <Text>{error || mError || mError2}</Text>;
+  if (mError || mError2) {
+    return <Text>{mError || mError2}</Text>;
   }
   if (ModelData?.length === 0) {
     return <Text>There are no reports for this property</Text>;
