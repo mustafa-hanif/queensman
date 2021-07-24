@@ -283,7 +283,6 @@ class InventoryReportRoomClass extends React.Component {
   };
   SaveInfo = () => {
     console.log(this.state.room);
-
     this.props
       .insertInventoryRoom({
         variables: {
