@@ -14,6 +14,7 @@ import {
 } from "react-native";
 
 import { Icon } from "native-base";
+import { Ionicons, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import _ from "lodash";
 
 import { gql, useQuery } from "@apollo/client";
@@ -142,8 +143,9 @@ class ClientListClass extends React.Component {
           }}
         >
           <Icon
+          as={Ionicons}
             name="search"
-            style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
+            style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput
             defaultValue={this.state.search}

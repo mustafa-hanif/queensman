@@ -3,28 +3,13 @@ import {
   StyleSheet,
   Text,
   View,
-  ActivityIndicator,
-  TouchableOpacity,
   Image,
   Button,
-  AsyncStorage,
   TextInput,
   ScrollView,
 } from "react-native";
 
-import {
-  Container,
-  Header,
-  Content,
-  List,
-  ListItem,
-  Row,
-  Icon,
-  Col,
-  Left,
-  Right,
-  Picker,
-} from "native-base";
+import { Icon, Picker } from "native-base";
 import axios from "axios";
 
 import { gql, useQuery, useLazyQuery, useMutation } from "@apollo/client";
@@ -211,7 +196,7 @@ class ArticlesClass extends React.Component {
       console.log("Article already exists");
       if (this.state.Discription1 != this.state.Discription) {
         // ($id: Int = 10, $description: String = "")
-        console.log('Updating Discription1 ')
+        console.log("Updating Discription1 ");
         this.props
           .updateDescription({
             variables: {
@@ -227,7 +212,7 @@ class ArticlesClass extends React.Component {
           });
       }
       if (this.state.WorkDescription1 != this.state.WorkDescription) {
-        console.log('Updating WorkDescription ')
+        console.log("Updating WorkDescription ");
 
         this.props
           .updateWorkDescription({

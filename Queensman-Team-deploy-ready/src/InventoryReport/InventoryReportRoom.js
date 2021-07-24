@@ -13,6 +13,7 @@ import {
 } from "react-native";
 
 import { Icon } from "native-base";
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import axios from "axios";
 import _ from "lodash";
 
@@ -434,8 +435,9 @@ class InventoryReportRoomClass extends React.Component {
           }}
         >
           <Icon
+          as={Ionicons}
             name="bed"
-            style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
+            style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput
             defaultValue={this.state.room}
@@ -642,9 +644,10 @@ class InventoryReportRoomClass extends React.Component {
                       }}
                     >
                       <Icon
+                      as={Ionicons}
                         name="link"
                         style={{
-                          fontSize: 20,
+                          fontSize: 18,
                           color: "#000E1E",
                           paddingRight: "3%",
                         }}

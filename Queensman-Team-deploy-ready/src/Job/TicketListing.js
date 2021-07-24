@@ -13,6 +13,7 @@ import {
   ScrollView,
 } from "react-native";
 import { Icon, CheckIcon } from 'native-base';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import commonColor from "../../native-base-theme/variables/commonColor";
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 
@@ -141,9 +142,9 @@ export default function TicketListing(props) {
           </View>
           <View>
             {props.Checked ? (
-              <Icon name='flag' style={{ fontSize: 20, color: 'green', marginBottom: 10}}></Icon>
-            ) : <Icon name='flag' style={{ fontSize: 20, color: 'red', marginBottom: 10}}></Icon>}
-            {props.isVerified && <Icon type="FontAwesome" name="check" style={{fontSize: 20, color: '#539bf5'}}/>}
+              <Icon as={Ionicons} name='flag' style={{ fontSize: 20, color: 'green', marginBottom: 10}} />
+            ) : <Icon as={Ionicons} name='flag' style={{ fontSize: 20, color: 'red', marginBottom: 10}} />}
+            {props.isVerified && <Icon as={FontAwesome} name="check" style={{fontSize: 20, color: '#539bf5'}}/>}
           </View>
         </View>
       </TouchableOpacity>

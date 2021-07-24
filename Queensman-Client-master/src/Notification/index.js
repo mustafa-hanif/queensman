@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, RefreshControl, ActivityIndicator } from "react-native";
@@ -46,8 +47,6 @@ export default function Index(props) {
     },
   });
 
-  console.log({ loading, data, error });
-
   const onRefresh = React.useCallback(() => {
     setNotifications([]);
     setRefreshing(true);
@@ -55,15 +54,10 @@ export default function Index(props) {
     console.log(error);
   }, []);
 
-  console.log(data);
-
   useEffect(() => {
     if (!refreshing || loading) {
       getNotification({ variables: { email } });
     }
-    return () => {
-      loading;
-    };
   }, []);
   if (error) {
     return (

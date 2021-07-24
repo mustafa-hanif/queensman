@@ -2,7 +2,8 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import call from 'react-native-phone-call'
-import { Icon } from 'native-base'
+import { Icon } from 'native-base';
+import { Ionicons } from "@expo/vector-icons";
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity, Pressable } from "react-native";
 import { gql, useMutation } from "@apollo/client";
 import FlashMessage, { showMessage } from "react-native-flash-message";
@@ -47,6 +48,7 @@ export default function NotificationList({ item, updateNotifications: reloadNoti
               {item?.data?.type === "call" ?
                 <Icon
                   name="call"
+                  as={Ionicons}
                   style={{ fontSize: 25, color: "blue", paddingRight: "4%" }}
                 />
                 :

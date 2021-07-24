@@ -38,7 +38,7 @@
     "hoist-non-react-statics": "*",
     "install": "^0.13.0",
     "lodash": "^4.0.0",
-    "native-base": "^2.13.12",
+    "native-base": "^3.0.6",
     "nhost-js-sdk": "^3.1.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
@@ -61,8 +61,11 @@
     "react-navigation": "^4.4.4",
     "react-navigation-drawer": "^2.7.1",
     "react-navigation-stack": "latest",
+    "styled-components": "^5.3.0",
+    "styled-system": "^5.1.5",
     "unimodules": "^1.0.0",
-    "unimodules-permissions-interface": "~6.1.0"
+    "unimodules-permissions-interface": "~6.1.0",
+    "react-native-svg": "12.1.0"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",

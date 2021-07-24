@@ -27,6 +27,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Modal from "react-native-modal";
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { Content, Icon } from "native-base";
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { auth, storage } from "../utils/nhost";
 
 const GET_NOTES = gql`
@@ -415,19 +416,67 @@ const PreJob = (props) => {
     }
   };
 
-  return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled>
-      <SafeAreaView style={styles.container}>
-        <Text
+  const Heading = (props) => {
+    return (
+      <Text
+        style={{
+          fontSize: 16,
+          fontWeight: "500",
+          color: "#FFCA5D",
+          marginBottom: "1.5%",
+          ...props.style,
+        }}
+      >
+        {props.children}
+      </Text>
+    );
+  };
+
+  const RenderAddNote = () => {
+    return (
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          marginTop: 10,
+        }}
+      >
+        <Icon
+        as={Ionicons}
+          name="ios-newspaper-outline"
+          style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
+        />
+        <TextInput
           style={{
             fontSize: 15,
-            fontWeight: "500",
-            color: "#FFCA5D",
-            marginBottom: "1.5%",
+            color: "#000E1E",
+            width: "83%",
           }}
-        >
-          Pre Images
-        </Text>
+          placeholder="Type note here..."
+          defaultValue={state.Note}
+          // value={state.Note}
+          placeholderTextColor="#000E1E"
+          underlineColorAndroid="transparent"
+          onChangeText={(Note) => {
+            setState({ ...state, Note });
+          }} //email set
+        />
+        <TouchableOpacity onPress={addNote}>
+          <Icon
+          as={Ionicons}
+            name="add-circle"
+            style={{ fontSize: 25, color: "#000E1E" }}
+          />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  return (
+    <ScrollView style={styles.container}>
+       <Heading style={{ fontSize: 20, alignSelf: "center", color: "black", marginVertical:20 }}>
+       Upload Images
+        </Heading>
         <View style={{ height: "2%" }}></View>
         <View
           style={{
@@ -448,9 +497,10 @@ const PreJob = (props) => {
               }}
             >
               <Icon
+              as={Ionicons}
                 name="camera"
                 style={{ fontSize: 20, color: "#000E1E", paddingRight: "3%" }}
-              ></Icon>
+              />
               <Text style={{ fontSize: 13, marginBottom: "1%" }}>Camera</Text>
             </View>
           </TouchableOpacity>
@@ -467,9 +517,10 @@ const PreJob = (props) => {
               }}
             >
               <Icon
+              as={Ionicons}
                 name="add-circle"
                 style={{ fontSize: 20, color: "#000E1E", paddingRight: "3%" }}
-              ></Icon>
+              />
               <Text style={{ fontSize: 13, marginBottom: "1%" }}>
                 Select Image From Gallery
               </Text>
@@ -516,7 +567,7 @@ const PreJob = (props) => {
           Notes:{" "}
         </Text>
         <View  style={{ heigh: "30%", width: "100%" }}>
-          <FlatList
+          {data?.job_notes && !delNoteLoading ? <FlatList
             data={data?.job_notes || []}
             keyExtractor={(item, index) => `${index}`}
             renderItem={({ item }) => (
@@ -531,9 +582,10 @@ const PreJob = (props) => {
               >
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <Icon
+                  as={Ionicons}
                     name="remove"
                     style={{ fontSize: 12, color: "#aaa" }}
-                  ></Icon>
+                  />
                   <Text style={{ fontSize: 12, color: "#aaa" }}>
                     {" "}
                     {item.note}
@@ -542,55 +594,23 @@ const PreJob = (props) => {
 
                 <TouchableOpacity onPress={() => RemoveNotesAlert(item)}>
                   <Icon
+                  as={Ionicons}
                     name="close-circle"
                     style={{ fontSize: 20, color: "#FFCA5D" }}
-                  ></Icon>
+                  />
                 </TouchableOpacity>
               </View>
             )}
-          ></FlatList>
+          ></FlatList> : <ActivityIndicator size="small" color="#aaa" />}
         </View>
-        <View style={{ height: 17 }}></View>
-        <Text style={{ color: "#aaa", fontSize: 10 }}>
-          Note: Kindly scroll screen upwards if the textbox hides behind the
-          keyboard.
-        </Text>
-        <View style={{ height: 2 }}></View>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Icon
-            name="ios-newspaper-outline"
-            style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
-          ></Icon>
-          <TextInput
-            style={{ fontSize: 15, color: "#000E1E", width: "83%" }}
-            placeholder="Type note here"
-            defaultValue={state.Note}
-            placeholderTextColor="#000E1E"
-            underlineColorAndroid="transparent"
-            onChangeText={(Note) => {
-              setState({ ...state, Note });
-            }} //email set
-          />
-          <TouchableOpacity onPress={addNote}>
-            <Icon
-              name="add-circle"
-              style={{ fontSize: 25, color: "#000E1E" }}
-            ></Icon>
-          </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            borderBottomColor: "#aaa",
-            borderBottomWidth: 2,
-            width: "100%",
-            paddingTop: "3%",
-          }}
-        ></View>
-        <View style={{ height: "3%" }}></View>
+        <View  style={{ borderBottomWidth: 1, paddingBottom: 10 }}>
+        {addJobNoteLoading && <ActivityIndicator size="small" color="#aaa" />}
+        {!addJobNoteLoading && RenderAddNote()}
+       </View>
+       <View style={{ marginTop: 20, marginBottom: 60}}>
         {ticket.type == "Deferred" ? <Button onPress={AlertSubmitJob} title = "Submit Job" color="#FFCA5D" /> : 
         <Button onPress={AlertPreJobHandler} title="NEXT" color="#FFCA5D" />}
-
-        <View style={{ height: 30 }}></View>
+        </View>
 
         <Modal
           isVisible={state.isPicvisible}
@@ -619,9 +639,8 @@ const PreJob = (props) => {
               color="#FFCA5D"
             />
           </View>
-        </Modal>
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+        </Modal>      
+    </ScrollView>
   );
 };
 
@@ -629,7 +648,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    marginTop: "5%",
     paddingHorizontal: "5%",
   },
   GalleryEventModel: {
@@ -668,13 +686,14 @@ const PictureLink = ({ toggleGalleryEventModal, picture, label, index }) => {
         }}
       >
         <Icon
+        as={Ionicons}
           name="link"
           style={{
             fontSize: 20,
             color: picture == "link" ? "#aaa" : "#000E1E",
             paddingRight: "3%",
           }}
-        ></Icon>
+        />
         <Text
           style={{
             fontSize: 13,
