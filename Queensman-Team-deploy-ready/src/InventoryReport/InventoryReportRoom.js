@@ -21,8 +21,10 @@ import Modal from "react-native-modal";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
+import { auth, storage } from "../utils/nhost";
 
 import { gql, useQuery, useMutation } from "@apollo/client";
+import { fil, th } from "date-fns/locale";
 
 const fetchInventoryArticlesViaInventoryReportID = gql`
   query InventoryArticles($_eq: Int = 10) {
@@ -56,9 +58,44 @@ const fetchInvetoryPictures = gql`
   }
 `;
 
+const insertInventoryRoomQuery = gql`
+  mutation InsertInventoryRoom(
+    $inventory_report_id: Int = 10
+    $room: String = ""
+  ) {
+    insert_inventory_room_one(
+      object: { inventory_report_id: $inventory_report_id, room: $room }
+    ) {
+      id
+    }
+  }
+`;
+
+const insertInventoryPicturesQuery = gql`
+  mutation InventoryPicture(
+    $inventory_room_id: Int!
+    $picture_location: String!
+  ) {
+    insert_inventory_picture_one(
+      object: {
+        inventory_room_id: $inventory_room_id
+        picture_location: $picture_location
+      }
+    ) {
+      id
+    }
+  }
+`;
+
 export default function InventoryReportRoom(props) {
   const InventoryReportID = props.navigation.getParam("InventoryReportID", "");
   const room_id = props.navigation.getParam("it", "").room_id;
+
+  const [insertInventoryRoom, { loading: IRoomLoading, error: IRoomError }] =
+    useMutation(insertInventoryRoomQuery);
+
+  const [insertInventoryPictures, { loading: IPLoading, error: IPError }] =
+    useMutation(insertInventoryPicturesQuery);
 
   const { loading, data, error } = useQuery(
     fetchInventoryArticlesViaInventoryReportID,
@@ -94,6 +131,9 @@ export default function InventoryReportRoom(props) {
   return (
     <InventoryReportRoomClass
       loading={loading}
+      insertInventoryRoom={insertInventoryRoom}
+      IPLoading={IPLoading}
+      insertInventoryPictures={insertInventoryPictures}
       inventory_picture={inventory_picture}
       data={result[0]?.inventory_articles || []}
       {...props}
@@ -127,10 +167,7 @@ class InventoryReportRoomClass extends React.Component {
       totalData: [],
       StaticData: [],
       MenuSelected: "art",
-      ImagesList: [
-        // { imageSel: 'Devin' },
-        // { imageSel: 'Jackson' },
-      ],
+      ImagesList: [],
       room_id: this.props.navigation.getParam("it", "").room_id,
       room: this.props.navigation.getParam("it", "").room,
       selectedPic: null,
@@ -163,6 +200,8 @@ class InventoryReportRoomClass extends React.Component {
         };
       });
 
+      console.log("picturess ===> get => ", this.props.inventory_picture);
+
       this.setState({
         clientList: clientsArray,
         totalData: clientsArray,
@@ -176,6 +215,7 @@ class InventoryReportRoomClass extends React.Component {
   componentWillUnmount() {
     this.subs.remove();
   }
+
   changeselected = (value) => {
     this.setState({ MenuSelected: value });
   };
@@ -244,71 +284,123 @@ class InventoryReportRoomClass extends React.Component {
   };
   SaveInfo = () => {
     console.log(this.state.room);
-    const link =
-      "https://www.queensman.com/phase_2/queens_admin_Apis/insertInventoryRoom.php?inventory_report_id=" +
-      this.state.InventoryReportID +
-      "&room=" +
-      this.state.room;
-    console.log(link);
-    axios.get(link).then((result) => {
-      console.log(result.data);
-      // if(result.data.server_response=="Successfully Submitted Inventory Report Details.")
-      alert("Successfully Added Room In Inventory Report Details.");
-      // else
-      //  alert("Failed Submitted Inventory Report Details.");
-      setTimeout(() => {
+    this.props
+      .insertInventoryRoom({
+        variables: {
+          inventory_report_id: this.state.InventoryReportID,
+          room: this.state.room,
+        },
+      })
+      .then((result) => {
+        console.log(result.data);
+        // if(result.data.server_response=="Successfully Submitted Inventory Report Details.")
+        alert("Successfully Added Room In Inventory Report Details.");
+        // else
+        //  alert("Failed Submitted Inventory Report Details.");
+        setTimeout(() => {
+          this.props.navigation.goBack();
+        }, 1000);
+      });
+
+    // // $inventory_report_id: Int = 10
+    // // $room: String = ""
+    // const link =
+    //   "https://www.queensman.com/phase_2/queens_admin_Apis/insertInventoryRoom.php?inventory_report_id=" +
+    //   this.state.InventoryReportID +
+    //   "&room=" +
+    //   this.state.room;
+    // console.log(link);
+    // axios.get(link).then((result) => {
+    //   console.log(result.data);
+    //   // if(result.data.server_response=="Successfully Submitted Inventory Report Details.")
+    //   alert("Successfully Added Room In Inventory Report Details.");
+    //   // else
+    //   //  alert("Failed Submitted Inventory Report Details.");
+    //   setTimeout(() => {
+    //     this.props.navigation.goBack();
+    //   }, 1000);
+    // });
+  };
+
+  uploadPics = async () => {
+    const imagesToUplaod = this.state.ImagesList.filter(
+      (value) =>
+        !value.imageSel.startsWith("https://backend-8106d23e.nhost.app")
+    );
+
+    if (imagesToUplaod.length > 0) {
+      await Promise.all(
+        imagesToUplaod.map((value) => {
+          const file = expoFileToFormFile(value.imageSel);
+          console.log({ file });
+          return storage
+            .put(`/callout_pics/${file.name}`, file)
+            .then((res) => {
+              return `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`;
+            })
+            .catch(console.error);
+        })
+      ).then(async (values) => {
+        const res = await Promise.all(
+          values.map((val) => {
+            this.props.insertInventoryPictures({
+              variables: {
+                inventory_room_id: this.state.room_id,
+                picture_location: val,
+              },
+            });
+          })
+        );
+        alert("Pictures Uploaded Successfully");
         this.props.navigation.goBack();
-      }, 1000);
-    });
+      });
+    }
   };
 
-  urlToUPLOAD = async (url, link) => {
-    let localUri = url;
-    let filename = localUri.split("/").pop();
-    //    console.log(this.state.CallOutID)
-    const blink =
-      "https://www.queensman.com/phase_2/queens_worker_Apis/uploadInventoryPicture_b.php?inventory_room_id=" +
-      this.state.room_id +
-      "&picture_location=" +
-      filename;
-    console.log(blink);
-    axios.get(blink).then((result) => {
-      console.log(result.data);
-    });
-    console.log(filename);
-    this.setState({
-      picturename: filename,
-    });
-    let match = /\.(\w+)$/.exec(filename);
-    let type = match ? `image/${match[1]}` : `image`;
+  // urlToUPLOAD = async (url, link) => {
+  //   let localUri = url;
+  //   let filename = localUri.split("/").pop();
+  //   //    console.log(this.state.CallOutID)
+  //   const blink =
+  //     "https://www.queensman.com/phase_2/queens_worker_Apis/uploadInventoryPicture_b.php?inventory_room_id=" +
+  //     this.state.room_id +
+  //     "&picture_location=" +
+  //     filename;
+  //   console.log(blink);
+  //   axios.get(blink).then((result) => {
+  //     console.log("upload invetnroy pic result with params", result.data);
+  //   });
+  //   console.log({ filename });
+  //   this.setState({
+  //     picturename: filename,
+  //   });
+  //   let match = /\.(\w+)$/.exec(filename);
+  //   let type = match ? `image/${match[1]}` : `image`;
 
-    let formData = new FormData();
-    formData.append("photo", { uri: localUri, name: filename, type });
-    console.log(formData);
-    console.log(link);
-    return await fetch(link, {
-      method: "POST",
-      body: formData,
-      header: {
-        "content-type": "multipart/form-data",
-      },
-    }).then((result) => {
-      console.log(result.data);
-    });
-  };
+  //   let formData = new FormData();
+  //   formData.append("photo", { uri: localUri, name: filename, type });
+  //   console.log({ formData });
+  //   console.log({ link });
+  //   return await fetch(link, {
+  //     method: "POST",
+  //     body: formData,
+  //     header: {
+  //       "content-type": "multipart/form-data",
+  //     },
+  //   }).then((result) => {
+  //     console.log("last wali api form data wali ka respionse => ", result.data);
+  //   });
+  // };
 
   UploadImages = () => {
-    const link =
-      "https://www.queensman.com/phase_2/queens_worker_Apis/uploadInventoryPicture_a.php";
-    this.state.ImagesList.map((data) => {
-      console.log(data.imageSel);
-      console.log(link);
-      this.urlToUPLOAD(data.imageSel, link);
-
-      // setTimeout(() => {
-      //     alert("All pictures uploaded!")
-      // }, 5000);
-    });
+    this.uploadPics();
+    // const link =
+    //   "https://www.queensman.com/phase_2/queens_worker_Apis/uploadInventoryPicture_a.php";
+    // this.state.ImagesList.map((data) => {
+    //   console.log("state map", data.imageSel);
+    //   console.log(link);
+    //   this.urlToUPLOAD(data.imageSel, link);
+    // });
   };
 
   render() {
@@ -528,6 +620,7 @@ class InventoryReportRoomClass extends React.Component {
                 color="#FFCA5D"
               />
               <Button
+                disabled={this.props.IPLoading}
                 onPress={() => this.UploadImages()}
                 title="Upload"
                 color="#FFCA5D"
@@ -658,3 +751,11 @@ const styles = StyleSheet.create({
     borderColor: "rgba(0, 0, 0, 0.1)",
   },
 });
+
+const expoFileToFormFile = (url) => {
+  const localUri = url;
+  const filename = localUri.split("/").pop();
+  const match = /\.(\w+)$/.exec(filename);
+  const type = match ? `image/${match[1]}` : `image`;
+  return { uri: localUri, name: filename, type };
+};
