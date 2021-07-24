@@ -12,6 +12,7 @@ import {
 } from "react-native";
 
 import { Icon } from "native-base";
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import axios from "axios";
 import _ from "lodash";
 
@@ -269,8 +270,9 @@ class InventoryReportClass extends React.Component {
           }}
         >
           <Icon
+          as={Ionicons}
             name="people"
-            style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
+            style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput
             defaultValue={this.state.teamID}
@@ -309,8 +311,9 @@ class InventoryReportClass extends React.Component {
           }}
         >
           <Icon
+          as={Ionicons}
             name="calendar"
-            style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
+            style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TouchableOpacity
             onPress={this.SetdateToday}
@@ -345,8 +348,9 @@ class InventoryReportClass extends React.Component {
           }}
         >
           <Icon
+          as={Ionicons}
             name="clipboard"
-            style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
+            style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput
             defaultValue={this.state.inspectedBy}
@@ -384,8 +388,9 @@ class InventoryReportClass extends React.Component {
           }}
         >
           <Icon
+          as={Ionicons}
             name="document"
-            style={{ fontSize: 25, color: "#000E1E", paddingRight: "4%" }}
+            style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput
             defaultValue={this.state.Summery}

@@ -24,7 +24,8 @@ import {
 import { DrawerItems, createDrawerNavigator } from "react-navigation-drawer";
 import { createStackNavigator } from "react-navigation-stack";
 
-import { Icon, StyleProvider } from "native-base";
+import { Icon, NativeBaseProvider, extendTheme } from "native-base";
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import AppLoading from "expo-app-loading";
 
 import { NhostApolloProvider } from "@nhost/react-apollo";
@@ -89,16 +90,34 @@ export default class App extends PureComponent {
         />
       );
     }
+    const theme = extendTheme({
+      components: {
+        Button: {
+          defaultProps: {
+            colorScheme: "amber",
+          },
+        },
+        Text: {
+          baseStyle: {
+            color: "amber.300",
+          },
+          defaultProps: {
+            color: "amber.300",
+          },
+        },
+      },
+      config: {
+        // Changing initialColorMode to 'dark'
+        initialColorMode: "dark",
+      },
+    });
     // SplashScreen.hideAsync();
     return (
       <NhostAuthProvider auth={auth}>
-        <NhostApolloProvider
-          auth={auth}
-          gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql"
-        >
-          <StyleProvider style={getTheme(commonColor)}>
+        <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">
+          <NativeBaseProvider theme={theme}>
             <AppContainer />
-          </StyleProvider>
+          </NativeBaseProvider>
         </NhostApolloProvider>
       </NhostAuthProvider>
     );
@@ -125,9 +144,10 @@ const SettingStackNavigator = createStackNavigator(
             <View style={{ flexDirection: "row" }}>
               <Text> </Text>
               <Icon
+              as={Ionicons}
                 name="arrow-back"
-                style={{ fontSize: 24, color: "#000" }}
-              ></Icon>
+                style={{ fontSize: 18, color: "#000" }}
+              />
             </View>
           </TouchableOpacity>
         ),
@@ -155,12 +175,27 @@ const RequestCalloutStackNavigator = createStackNavigator(
         headerTitleStyle: {
           fontWeight: "bold",
         },
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Home")}
+            
+          >
+            <View style={{ flexDirection: "row", marginLeft: 20 }}>
+              <Text> </Text>
+              <Icon
+              as={Ionicons}
+                name="arrow-back"
+                style={{ fontSize: 24, color: "#fff" }}
+              />
+            </View>
+          </TouchableOpacity>
+        ),
       }),
     },
     PropertiesListFromRequestCallout: {
       screen: PropertiesListFromRequestCallout,
       navigationOptions: ({ navigation }) => ({
-        title: " Client Properties",
+        title: "Client Properties",
 
         headerStyle: {
           backgroundColor: "#000E1E",
@@ -174,7 +209,7 @@ const RequestCalloutStackNavigator = createStackNavigator(
     RequestCallOut: {
       screen: RequestCallOut,
       navigationOptions: ({ navigation }) => ({
-        title: " Client Properties",
+        title: "Request Callout",
 
         headerStyle: {
           backgroundColor: "#000E1E",
@@ -207,17 +242,18 @@ const InventoryReportStackNavigator = createStackNavigator(
         headerTitleStyle: {
           fontWeight: "bold",
         },
-        headerLeft: (
+        headerLeft: () => (
           <TouchableOpacity
-            onPress={() => navigation.navigate("HomeNaviagtor")}
+            onPress={() => navigation.navigate("Home")}
             
           >
             <View style={{ flexDirection: "row", marginLeft: 20 }}>
               <Text> </Text>
               <Icon
+              as={Ionicons}
                 name="arrow-back"
                 style={{ fontSize: 24, color: "#fff" }}
-              ></Icon>
+              />
             </View>
           </TouchableOpacity>
         ),
@@ -304,7 +340,7 @@ createAppContainer(InventoryReportStackNavigator);
 /** HomeScreen Stack Naviagtor */
 const HomeScreenStackNavigator = createStackNavigator(
   {
-    HomeNaviagtor: {
+    Home: {
       screen: Home,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
@@ -500,7 +536,7 @@ const HomeScreenStackNavigator = createStackNavigator(
     },
   },
   {
-    initialRouteName: "HomeNaviagtor",
+    initialRouteName: "Home",
   }
 );
 createAppContainer(HomeScreenStackNavigator);
@@ -545,9 +581,10 @@ const AppDrawerNavigator = createDrawerNavigator(
         // labelStyle: { fontFamily: 'serif', },
         drawerIcon: ({ tintColor }) => (
           <Icon
+          as={Ionicons}
             name="md-home"
             style={{ fontSize: 24, color: tintColor }}
-          ></Icon>
+          />
         ),
       },
     },
@@ -557,7 +594,8 @@ const AppDrawerNavigator = createDrawerNavigator(
         drawerLabel: "Inventory Report",
         // labelStyle: { fontFamily: 'serif', },
         drawerIcon: ({ tintColor }) => (
-          <Icon name="folder" style={{ fontSize: 24, color: tintColor }}></Icon>
+          <Icon
+          as={Ionicons} name="folder" style={{ fontSize: 24, color: tintColor }}/>
         ),
       },
     },
@@ -567,7 +605,8 @@ const AppDrawerNavigator = createDrawerNavigator(
         drawerLabel: "Request Callout",
         // labelStyle: { fontFamily: 'serif', },
         drawerIcon: ({ tintColor }) => (
-          <Icon name="folder" style={{ fontSize: 24, color: tintColor }}></Icon>
+          <Icon
+          as={Ionicons} name="folder" style={{ fontSize: 24, color: tintColor }}/>
         ),
       },
     },
@@ -579,9 +618,10 @@ const AppDrawerNavigator = createDrawerNavigator(
         //  labelStyle: { fontFamily: 'serif', },
         drawerIcon: ({ tintColor }) => (
           <Icon
+          as={Ionicons}
             name="settings"
             style={{ fontSize: 24, color: tintColor }}
-          ></Icon>
+          />
         ),
       },
     },

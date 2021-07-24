@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Image, Button, AsyncStorage, TextInput, ScrollView } from 'react-native';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
-import { Container, Header, Content, List, ListItem, Row, Icon, Col, Left, Right, Picker } from 'native-base';
+import { Container, Header, Content, List, ListItem, Row, Icon, Col, Left, Right, Select } from 'native-base';
 import axios from 'axios';
 
 
@@ -142,7 +143,7 @@ export default class Articles extends React.Component {
                 <Text style={[styles.TextFam, { color: '#000E1E', fontSize: 16, paddingHorizontal: "6%", marginBottom: "1%" }]}>Article Type</Text>
 
                 <View style={styles.PickerStyle}>
-                    <Picker
+                    <Select
                         note
                         mode="dialog"
                         onValueChange={this.onValueChange.bind(this)}
@@ -151,20 +152,20 @@ export default class Articles extends React.Component {
                         style={{}}
 
                     >
-                        <Picker.Item label="Select" value="none" />
-                        <Picker.Item label=" ELECTRICAL Services (repair and replace warranty cover)" value=" ELECTRICAL Services (repair and replace warranty cover)" />
-                        <Picker.Item label="CARPENTRY, PAINT & TILING Services (repair and replace warranty cover)" value="CARPENTRY, PAINT & TILING Services (repair and replace warranty cover)" />
-                        <Picker.Item label="AC (HVAC) Services (repair and replace warranty cover)" value="AC (HVAC) Services (repair and replace warranty cover)" />
-                        <Picker.Item label="WATER SYSTEM & PLUMIBING Services (repair and replace warranty cover)" value="WATER SYSTEM & PLUMIBING Services (repair and replace warranty cover)" />
-                        <Picker.Item label="General Services" value="General Services" />
+                        <Select.Item label="Select" value="none" />
+                        <Select.Item label=" ELECTRICAL Services (repair and replace warranty cover)" value=" ELECTRICAL Services (repair and replace warranty cover)" />
+                        <Select.Item label="CARPENTRY, PAINT & TILING Services (repair and replace warranty cover)" value="CARPENTRY, PAINT & TILING Services (repair and replace warranty cover)" />
+                        <Select.Item label="AC (HVAC) Services (repair and replace warranty cover)" value="AC (HVAC) Services (repair and replace warranty cover)" />
+                        <Select.Item label="WATER SYSTEM & PLUMIBING Services (repair and replace warranty cover)" value="WATER SYSTEM & PLUMIBING Services (repair and replace warranty cover)" />
+                        <Select.Item label="General Services" value="General Services" />
 
-                    </Picker>
+                    </Select>
 
                 </View>
 
                 {this.state.JobType == 'General Services' ?
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: '6%', }}>
-                        <Icon name="hammer" style={{ fontSize: 25, color: '#000E1E', paddingRight: "4%" }}></Icon>
+                        <Icon as={Ionicons} name="hammer" style={{ fontSize: 18, color: '#000E1E', paddingRight: "4%" }}></Icon>
                         <TextInput
                             defaultValue={this.state.ArticleType}
                             style={{ fontSize: 15, color: '#000E1E', width: '90%', paddingStart: '1%' }}
@@ -179,7 +180,7 @@ export default class Articles extends React.Component {
 
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: '6%', }}>
-                    <Icon name="today" style={{ fontSize: 25, color: '#000E1E', paddingRight: "4%" }}></Icon>
+                    <Icon as={Ionicons} name="today" style={{ fontSize: 18, color: '#000E1E', paddingRight: "4%" }}></Icon>
                     <TextInput
                         defaultValue={this.state.Discription}
                         style={{ fontSize: 15, color: '#000E1E', width: '90%', paddingStart: '1%' }}
@@ -194,7 +195,7 @@ export default class Articles extends React.Component {
                 <View style={{ borderBottomColor: '#FFCA5D', borderBottomWidth: 2, width: '94%', paddingTop: '3%', marginBottom: '4%', alignSelf: 'center' }}></View>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: '6%', }}>
-                    <Icon name="today" style={{ fontSize: 25, color: '#000E1E', paddingRight: "4%" }}></Icon>
+                    <Icon as={Ionicons} name="today" style={{ fontSize: 18, color: '#000E1E', paddingRight: "4%" }}></Icon>
                     <TextInput
                         defaultValue={this.state.Inspection}
                         style={{ fontSize: 15, color: '#000E1E', width: '90%', paddingStart: '1%' }}
@@ -209,7 +210,7 @@ export default class Articles extends React.Component {
                 <View style={{ borderBottomColor: '#FFCA5D', borderBottomWidth: 2, width: '94%', paddingTop: '3%', marginBottom: '4%', alignSelf: 'center' }}></View>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: '6%', }}>
-                    <Icon name="clipboard" style={{ fontSize: 25, color: '#000E1E', paddingRight: "4%" }}></Icon>
+                    <Icon as={Ionicons} name="clipboard" style={{ fontSize: 18, color: '#000E1E', paddingRight: "4%" }}></Icon>
                     <TextInput
                         defaultValue={this.state.WorkDescription}
                         style={{ fontSize: 15, color: '#000E1E', width: '90%', paddingStart: '1%' }}
@@ -223,7 +224,7 @@ export default class Articles extends React.Component {
 
                 <View style={{ borderBottomColor: '#FFCA5D', borderBottomWidth: 2, width: '94%', paddingTop: '3%', marginBottom: '4%', alignSelf: 'center' }}></View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: '6%', }}>
-                    <Icon name="document" style={{ fontSize: 25, color: '#000E1E', paddingRight: "4%" }}></Icon>
+                    <Icon as={Ionicons} name="document" style={{ fontSize: 18, color: '#000E1E', paddingRight: "4%" }}></Icon>
                     <TextInput
                         defaultValue={this.state.Remarks}
                         style={{ fontSize: 15, color: '#000E1E', width: '90%', paddingStart: '1%' }}

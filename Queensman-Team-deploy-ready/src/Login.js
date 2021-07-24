@@ -17,6 +17,7 @@ import {
 import { Font, Constants } from "expo";
 import { LinearGradient } from "expo-linear-gradient";
 import { Content, Icon } from "native-base";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { auth } from "./utils/nhost";
@@ -152,26 +153,28 @@ export default class Login extends React.Component {
             />
             {this.state.showPassword ? (
               <Icon
+              as={Ionicons}
                 onPress={this.toggleSwitch}
                 name="eye-off"
                 style={{
-                  paddingTop: "2%",
-                  fontSize: 25,
+                  
+                  fontSize: 18,
                   color: "#000E1E",
                   paddingRight: "4%",
                 }}
-              ></Icon>
+              />
             ) : (
               <Icon
+              as={Ionicons}
                 onPress={this.toggleSwitch}
                 name="eye"
                 style={{
-                  paddingTop: "2%",
-                  fontSize: 25,
+                  
+                  fontSize: 18,
                   color: "#000E1E",
                   paddingRight: "4%",
                 }}
-              ></Icon>
+              />
             )}
           </View>
         </ImageBackground>

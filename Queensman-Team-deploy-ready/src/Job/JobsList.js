@@ -12,19 +12,11 @@ import {
 } from "react-native";
 
 import {
-  Container,
-  Header,
-  Content,
-  List,
-  ListItem,
-  Row,
   Icon,
-  Col,
-  Left,
-  Right,
-  Button,
-  Picker,
+  Select,
+  CheckIcon
 } from "native-base";
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
 import dayjs from "dayjs";
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
@@ -109,7 +101,7 @@ const JobsList = (props) => {
     Id: "",
     dataAvaible: true,
     cusID: "",
-    selected: "Owned",
+    selected: null,
     workerID: 1,
     TotalData: [],
   });
@@ -122,91 +114,104 @@ const JobsList = (props) => {
 
   const [getAllJobs, { loading: allLoading, data: allData, error: allError }] = useLazyQuery(GET_JOBS_LIST_ALL);
 
+  // if (state.selected == "date") {
+  //   const myData = [].concat(state.assignedCallouts);
+  //   // console.log(myData);
+  //   setState({
+  //     ...state,
+  //     assignedCallouts: state.TotalData,
+  //   });
+  // } else if (state.selected == "medium") {
+  //   const myData = [].concat(state.assignedCallouts);
+  //   // console.log(myData);
+  //   myData.sort(function (a, b) {
+  //     var idA = a.urgency_level;
+  //     var idB = b.urgency_level;
+  //     // console.log(idA);
+  //     // console.log(idB);
+  //     if (idA == "Medium" && idB != "Medium") {
+  //       return -1;
+  //     }
+  //     if (idA != "Medium" && idB == "Medium") {
+  //       return 1;
+  //     }
+
+  //     return 0;
+  //   });
+  //   setState({
+  //     ...state,
+  //     assignedCallouts: myData,
+  //   });
+  // } else if (state.selected == "high") {
+  //   const myData = [].concat(state.assignedCallouts);
+  //   // console.log(myData);
+  //   myData.sort(function (a, b) {
+  //     var idA = a.urgency_level;
+  //     var idB = b.urgency_level;
+  //     // console.log(idA);
+  //     // console.log(idB);
+  //     if (idA == "High" && idB != "High") {
+  //       return -1;
+  //     }
+  //     if (idA != "High" && idB == "High") {
+  //       return 1;
+  //     }
+
+  //     return 0;
+  //   });
+  //   // console.log(myData);
+  //   setState({
+  //     ...state,
+  //     assignedCallouts: myData,
+  //   });
+  // } else if (state.selected == "scheduled") {
+  //   const myData = [].concat(state.assignedCallouts);
+  //   // console.log(myData);
+  //   myData.sort(function (a, b) {
+  //     var idA = a.urgency_level;
+  //     var idB = b.urgency_level;
+  //     // console.log(idA);
+  //     // console.log(idB);
+  //     if (idA == "Scheduled" && idB != "Scheduled") {
+  //       return -1;
+  //     }
+  //     if (idA != "Scheduled" && idB == "Scheduled") {
+  //       return 1;
+  //     }
+
+  //     return 0;
+  //   });
+  //   console.log(myData);
+  //   setState({
+  //     ...state,
+  //     assignedCallouts: myData,
+  //   });
+  // } else {
+  //   if(allData?.callout) {
+  //     setState({
+  //       ...state,
+  //       assignedCallouts: allData.callout,
+  //       dataAvaible: true,
+  //       TotalData: allData.callout,
+  //     });
+  //   } else if(data?.callout) {
+  //     setState({
+  //       ...state,
+  //       assignedCallouts: data?.callout,
+  //       dataAvaible: true,
+  //       TotalData: data?.callout,
+  //     });
+  //   } else {
+  //     setState({ ...state, dataAvaible: false });
+  //   }
+  // }
+
   const onValueChange = (value) => {
+    console.log(value)
     setState({
       ...state,
       selected: value,
     });
-
-    if (state.selected == "date") {
-      const myData = [].concat(state.assignedCallouts);
-      // console.log(myData);
-      setState({
-        ...state,
-        assignedCallouts: state.TotalData,
-      });
-    }
-
-    if (state.selected == "medium") {
-      const myData = [].concat(state.assignedCallouts);
-      // console.log(myData);
-      myData.sort(function (a, b) {
-        var idA = a.urgency_level;
-        var idB = b.urgency_level;
-        // console.log(idA);
-        // console.log(idB);
-        if (idA == "Medium" && idB != "Medium") {
-          return -1;
-        }
-        if (idA != "Medium" && idB == "Medium") {
-          return 1;
-        }
-
-        return 0;
-      });
-      setState({
-        ...state,
-        assignedCallouts: myData,
-      });
-    }
-
-    if (state.selected == "high") {
-      const myData = [].concat(state.assignedCallouts);
-      // console.log(myData);
-      myData.sort(function (a, b) {
-        var idA = a.urgency_level;
-        var idB = b.urgency_level;
-        // console.log(idA);
-        // console.log(idB);
-        if (idA == "High" && idB != "High") {
-          return -1;
-        }
-        if (idA != "High" && idB == "High") {
-          return 1;
-        }
-
-        return 0;
-      });
-      // console.log(myData);
-      setState({
-        ...state,
-        assignedCallouts: myData,
-      });
-    }
-
-    if (state.selected == "scheduled") {
-      const myData = [].concat(state.assignedCallouts);
-      // console.log(myData);
-      myData.sort(function (a, b) {
-        var idA = a.urgency_level;
-        var idB = b.urgency_level;
-        // console.log(idA);
-        // console.log(idB);
-        if (idA == "Scheduled" && idB != "Scheduled") {
-          return -1;
-        }
-        if (idA != "Scheduled" && idB == "Scheduled") {
-          return 1;
-        }
-
-        return 0;
-      });
-      console.log(myData);
-      setState({
-        ...state,
-        assignedCallouts: myData,
-      });
-    }
   };
 
   const passItem = (item) => {
@@ -259,8 +264,38 @@ const JobsList = (props) => {
       </View>
     );
   }
+
+  if(loading || allLoading) {
+    return (
+      <View style={{flex:1, alignItems: "center", justifyContent: "center"}}>
+    <ActivityIndicator size="large" color="#FFCA5D" />
+    </View>
+    )
+  } 
+
   return (
     <View style={styles.container}>
+      <View style={{width: "100%",  paddingHorizontal: "4%"}}>
+      <Select
+          // note
+          // mode="dialog"
+          color={"black"}
+          style={{ marginTop: "1%" }}
+          selectedValue={state.selected}
+          placeholder="Sort options"
+          onValueChange={(itemValue) => {onValueChange(itemValue)}}
+          _selectedItem={{
+            // bg: "teal.600",
+            endIcon: <CheckIcon size={5} />,
+          }}
+        >
+          <Select.Item label="All" value="All" />
+          <Select.Item label="Date" value="date" />
+          <Select.Item label="Urgency Level:Medium" value="medium" />
+          <Select.Item label="Urgency Level:High" value="high" />
+          <Select.Item label="Urgency Level:Scheduled" value="scheduled" />
+        </Select>
+        </View>
       <View
         style={{
           flexDirection: "row",
@@ -270,37 +305,9 @@ const JobsList = (props) => {
           marginBottom: "4%",
         }}
       >
-        <Text
-          style={{
-            fontSize: 20,
-            fontWeight: "500",
-            color: "#FFCA5D",
-            marginRight: "4%",
-          }}
-        >
-          Sort
-        </Text>
-
-        <Picker
-          note
-          mode="dialog"
-          style={{ marginTop: "1%" }}
-          itemStyle={{
-            // fontFamily: 'serif',
-            fontSize: 20,
-          }}
-          selectedValue={state.selected}
-          onValueChange={onValueChange.bind(this)}
-        >
-          <Picker.Item label="Select" value="Select" />
-          <Picker.Item label="Date" value="date" />
-          <Picker.Item label="Urgency Level:Medium" value="medium" />
-          <Picker.Item label="Urgency Level:High" value="high" />
-          <Picker.Item label="Urgency Level:Scheduled" value="scheduled" />
-        </Picker>
+ 
       </View>
-      {(loading || allLoading) && <ActivityIndicator size="large" color="#FFCA5D" />}
-      {(!loading || !allLoading) && (data?.callout.length || allData?.callout.length) === 0 ? (
+      {(data?.callout.length || allData?.callout.length) === 0 ? (
         <Text
           style={[
             styles.TextFam,
@@ -340,6 +347,7 @@ const JobsList = (props) => {
                           Job type : {item.job_type}{" "}
                         </Text>
                         <Icon
+                        as={Ionicons}
                           name="flag"
                           style={{
                             fontSize: 24,
@@ -351,7 +359,7 @@ const JobsList = (props) => {
                                 : "#FFCA5D",
                             paddingRight: "5%",
                           }}
-                        ></Icon>
+                        />
                       </View>
 
                       <View

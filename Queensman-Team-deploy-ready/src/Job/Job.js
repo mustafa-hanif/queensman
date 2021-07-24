@@ -16,6 +16,7 @@ import {
   TextInput,
 } from "react-native";
 import { Icon } from "native-base";
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import dayjs from "dayjs";
 import Modal from "react-native-modal";
 
@@ -175,10 +176,8 @@ const Job = (props) => {
   // API
   const [
     startJob,
-    { called: startJobCalled, loading: startJobLoading, error: startJobError },
-  ] = useMutation(START_JOB, {
-    onError: (error) => alert(error),
-  });
+    { data: startJobCalled, loading: startJobLoading, error: startJobError },
+  ] = useMutation(START_JOB);
 
   const [stopJobModalVisible, setstopJobModalVisible] = useState(false);
   const [addNote, { Notesdata, loading: addNoteLoading, error: addNoteError }] =
@@ -199,14 +198,14 @@ const Job = (props) => {
     { changeJobTypeData, loading: changeJobTypeLoading, error: changeJobTypeError },
   ] = useMutation(CHANGE_JOB_TYPE);
 
-  if (startJobCalled && !startJobLoading) {
-    props.navigation.navigate("PreJob", {
-      QJobID: state.JobData.id,
-      it: props.navigation.getParam("it", {}),
-      ticketDetails: props.navigation.getParam("ticketDetails", {}),
-      ticketCount: props.navigation.getParam('ticketCount', {}),
-    });
-  }
+  // if (startJobCalled && !startJobLoading) {
+  //   props.navigation.navigate("PreJob", {
+  //     QJobID: state.JobData.id,
+  //     it: props.navigation.getParam("it", {}),
+  //     ticketDetails: props.navigation.getParam("ticketDetails", {}),
+  //     ticketCount: props.navigation.getParam('ticketCount', {}),
+  //   });
+  // }
 
   const { loading, data, error } = useQuery(GET_JOB_WORKERS, {
     variables: {
@@ -272,8 +271,8 @@ const Job = (props) => {
     setIsVerified(isVerified)
   }
 
-  const StartJobHandler = () => {
-    startJob({
+  const StartJobHandler = async () => {
+    await startJob({
       variables: {
         ticket_id: ticket.id,
         callout_id: state.JobData.id,
@@ -281,6 +280,14 @@ const Job = (props) => {
         time: new Date().toJSON(),
       },
     });
+    console.log("navigating")
+    props.navigation.navigate("PreJob", {
+      QJobID: state.JobData.id,
+      it: props.navigation.getParam("it", {}),
+      ticketDetails: props.navigation.getParam("ticketDetails", {}),
+      ticketCount: props.navigation.getParam('ticketCount', {}),
+    });
+    console.log("navigated")
   };
 
   const toggleGalleryEventModal = (value) => {
@@ -314,13 +321,14 @@ const Job = (props) => {
           }}
         >
           <Icon
+          as={Ionicons}
             name="image"
             style={{
               fontSize: 20,
               color: "#000E1E",
               paddingRight: "3%",
             }}
-          ></Icon>
+          />
           <Text
             style={{
               fontSize: 13,
@@ -421,9 +429,10 @@ const Job = (props) => {
         }}
       >
         <Icon
+        as={Ionicons}
           name="ios-newspaper-outline"
           style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
-        ></Icon>
+        />
         <TextInput
           style={{
             fontSize: 15,
@@ -441,9 +450,10 @@ const Job = (props) => {
         />
         <TouchableOpacity onPress={AddNoteApiCall}>
           <Icon
+          as={Ionicons}
             name="add-circle"
             style={{ fontSize: 25, color: "#000E1E" }}
-          ></Icon>
+          />
         </TouchableOpacity>
       </View>
     );
