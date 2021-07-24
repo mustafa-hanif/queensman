@@ -6,7 +6,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Pressable, Dimensions } from 
 import { Camera } from "expo-camera";
 import { Audio } from "expo-av";
 import { Icon } from "native-base";
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
 
 const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
   const [hasPermission, setHasPermission] = useState(null);

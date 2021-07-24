@@ -1,5 +1,11 @@
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-shadow */
+/* eslint-disable no-use-before-define */
 import { formatDistance } from "date-fns";
 import React from "react";
+import { Icon, IconButton } from "native-base";
+import { Ionicons } from "@expo/vector-icons";
+import call from "react-native-phone-call";
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from "react-native";
 import FlashMessage, { showMessage } from "react-native-flash-message";
 import { gql, useMutation } from "@apollo/client";
@@ -67,7 +73,7 @@ export default function NotificationList({
       },
     });
   };
-  console.log(item?.data.type === "client_confirm");
+
   return (
     <>
       <FlashMessage position="top" />
@@ -84,6 +90,15 @@ export default function NotificationList({
                 <Text style={[styles.timeText, textStyle]} numberOfLines={2}>
                   {`${formatDistance(new Date(), new Date(item.created_at), { includeSeconds: true })} ago`}
                 </Text>
+                {item?.data?.type === "call" && (
+                  <IconButton
+                    variant="outline"
+                    icon={<Icon as={Ionicons} size={4} name="call" style={{ color: "blue", paddingRight: "4%" }} />}
+                    onPress={() => {
+                      call({ number: item.data.phone, prompt: true });
+                    }}
+                  />
+                )}
               </View>
             </View>
             {item?.data.type === "client_confirm" && (

@@ -37,5 +37,6 @@ module.exports = {
     "global-require": "off",
     "react/prop-types": "off",
     "react/no-unused-state": "warn",
+    "prettier/prettier": ["error", { endOfLine: "auto" }],
   },
 };
