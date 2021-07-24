@@ -1,4 +1,6 @@
-import React, {useState, useEffect, useRef} from "react";
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
+import React, {useState, useRef} from "react";
 import {
   StyleSheet,
   Text,
@@ -6,24 +8,18 @@ import {
   TextInput,
   Button,
   Alert,
-  Platform,
   ScrollView,
-  AppState,
-  Image,
 } from "react-native";
 import StarRating from "react-native-star-rating";
-import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { auth } from "../utils/nhost";
-import axios from "axios";
-import { Content, Icon } from "native-base";
-import { Ionicons, FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { Icon } from "native-base";
+import { MaterialIcons } from '@expo/vector-icons';
 // import { takeSnapshotAsync } from "expo";
-import { captureRef as takeSnapshotAsync } from "react-native-view-shot";
 // import ExpoPixi from "expo-pixi";
 
 
-const FINISH_JOB = gql
-`mutation FinishFinalJob($id: Int!, $updater_id: Int!, $callout_id: Int!, $feedback: String!, $rating: Int!, $solution: String!, $signature: String!) {
+const FINISH_JOB = gql`mutation FinishFinalJob($id: Int!, $updater_id: Int!, $callout_id: Int!, $feedback: String!, $rating: Int!, $solution: String!, $signature: String!) {
   insert_job_history_one(object: {callout_id: $callout_id, updater_id: $updater_id, updated_by: "Ops Team", status_update: "Closed"}) {
     time
   }
@@ -43,8 +39,7 @@ const FINISH_JOB = gql
   }
 }`
 
-const FINISH_JOB_SINGLE = gql `
-mutation UpdateJobAndJobTicket ($id: Int!, $callout_id: Int!, $feedback: String!, $rating: Int!, $solution: String!, $signature: String!) {
+const FINISH_JOB_SINGLE = gql `mutation UpdateJobAndJobTicket ($id: Int!, $callout_id: Int!, $feedback: String!, $rating: Int!, $solution: String!, $signature: String!) {
   update_job(where: {callout_id: {_eq: $callout_id}}, _set: {solution: $solution, rating: $rating, signature: $signature, feedback: $feedback}) {
     returning {
       solution
@@ -337,15 +332,6 @@ const JobComplete = (props) => {
             strokeWidth={3}
           />
         </View> */}
-        <View style={{ height: "4%" }}></View>
-        <Button
-          color="#FFCA5D"
-          title="CLEAR"
-          style={styles.button}
-          onPress={() => {
-            signatureCanvas.clear()
-          }}
-        />
         <View style={{ height: "4%" }}></View>
         <Button
           onPress={AlertJobDone}
