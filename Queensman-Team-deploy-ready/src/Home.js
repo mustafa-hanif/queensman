@@ -182,7 +182,7 @@ const HomeScreen = ({ navigation, workerId }) => {
             },
           ]}
         >
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={{ flex: 1, paddingRight: "2%" }}
             onPress={() => ServicesHistoryHandler(navigation)}
           >
@@ -213,7 +213,7 @@ const HomeScreen = ({ navigation, workerId }) => {
                 History
               </Text>
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity
             style={{ flex: 1 }}
             onPress={() => InventoryReportHandler(navigation)}
@@ -376,10 +376,9 @@ const UPDATE_TOKEN = gql`
 `;
 
 import { gql, useMutation, useQuery } from "@apollo/client";
-const GET_CURRENT_JOB_WORKER = gql
-`query GetJobWorkerId($email: String) {
-  worker(where: {email: {_eq: $email}}) {
-    id
+const GET_CURRENT_JOB_WORKER = gql`query GetJobWorkerId($email: String) {
+    worker(where: {email: {_eq: $email}}) {
+      id
   }
 }
 `

@@ -41,7 +41,7 @@ const GET_JOB_WORKERS = gql`
 `;
 
 const START_JOB = gql`
-  mutation StartJob($callout_id: Int!, $ticket_id: Int!, $time: timestamp!, $updater_id: Int!) {
+  mutation StartJob($callout_id: Int!, $ticket_id: Int!, $time: timestamp!, $location:String = "", $updater_id: Int!) {
     update_callout_by_pk(
       pk_columns: { id: $callout_id }
       _set: { status: "In Progress" }
@@ -57,6 +57,7 @@ const START_JOB = gql`
         status_update: "In Progress"
         updated_by: "Ops Team"
         updater_id: $updater_id
+        location: $location
         time: $time
       }
     ) {
@@ -278,6 +279,7 @@ const Job = (props) => {
         callout_id: state.JobData.id,
         updater_id: state.workerID,
         time: new Date().toJSON(),
+        location: await getLocation(),
       },
     });
     console.log("navigating")

@@ -45,7 +45,7 @@ import TicketListing from "./src/Job/TicketListing";
 import CreateTicket from "./src/Job/CreateTicket";
 import ImagePicker from "./src/Job/ImagePicker";
 import Settings from "./src/Components/Settings";
-import ServicesHistory from "./src/Components/ServicesHistory";
+// import ServicesHistory from "./src/Components/ServicesHistory";
 import AuthLogin from "./src/Auth/AuthLogin";
 import ServicesHistoryItem from "./src/Components/ServicesHistoryItem";
 //Inventory Report
@@ -492,20 +492,20 @@ const HomeScreenStackNavigator = createStackNavigator(
         },
       }),
     },
-    ServicesHistory: {
-      screen: ServicesHistory,
-      navigationOptions: ({ navigation }) => ({
-        title: "Services History",
+    // ServicesHistory: {
+    //   screen: ServicesHistory,
+    //   navigationOptions: ({ navigation }) => ({
+    //     title: "Services History",
 
-        headerStyle: {
-          backgroundColor: "#000E1E",
-        },
-        headerTintColor: "#fff",
-        headerTitleStyle: {
-          fontWeight: "bold",
-        },
-      }),
-    },
+    //     headerStyle: {
+    //       backgroundColor: "#000E1E",
+    //     },
+    //     headerTintColor: "#fff",
+    //     headerTitleStyle: {
+    //       fontWeight: "bold",
+    //     },
+    //   }),
+    // },
     ServicesHistoryItem: {
       screen: ServicesHistoryItem,
       navigationOptions: ({ navigation }) => ({
