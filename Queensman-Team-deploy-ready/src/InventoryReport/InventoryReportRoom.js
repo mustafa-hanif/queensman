@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,13 +9,12 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Image,
-
   ScrollView,
   TextInput,
 } from "react-native";
 
-import { Button as MyButton , HStack, Icon } from "native-base";
-import { Ionicons } from '@expo/vector-icons';
+import { Button as MyButton, HStack, Icon } from "native-base";
+import { Ionicons } from "@expo/vector-icons";
 import _ from "lodash";
 
 import Modal from "react-native-modal";
@@ -24,7 +23,8 @@ import Constants from "expo-constants";
 
 import { storage } from "../utils/nhost";
 
-import { gql, useQuery, useMutation } from "@apollo/client";
+import * as Permissions from "expo-permissions";
+import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 
 const fetchInventoryArticlesViaInventoryReportID = gql`
   query InventoryArticles($_eq: Int = 10) {
@@ -90,6 +90,7 @@ const insertInventoryPicturesQuery = gql`
 export default function InventoryReportRoom(props) {
   const InventoryReportID = props.navigation.getParam("InventoryReportID", "");
   const room_id = props.navigation.getParam("it", "").room_id;
+  const [ImagesList, setImagesList] = useState([]);
 
   const [insertInventoryRoom, { loading: IRoomLoading, error: IRoomError }] =
     useMutation(insertInventoryRoomQuery);
@@ -97,7 +98,7 @@ export default function InventoryReportRoom(props) {
   const [insertInventoryPictures, { loading: IPLoading, error: IPError }] =
     useMutation(insertInventoryPicturesQuery);
 
-  const { loading, data, error } = useQuery(
+  const [loadArticles, { loading, data, error }] = useLazyQuery(
     fetchInventoryArticlesViaInventoryReportID,
     {
       variables: {
@@ -106,36 +107,70 @@ export default function InventoryReportRoom(props) {
     }
   );
 
-  const {
-    loading: picturesloading,
-    data: pictures,
-    error: pictureError,
-  } = useQuery(fetchInvetoryPictures, {
+  const [
+    loadPics,
+    { loading: picturesloading, data: pictures, error: pictureError },
+  ] = useLazyQuery(fetchInvetoryPictures, {
     variables: {
       inventory_room_id: room_id,
     },
   });
 
-  if (loading || picturesloading) {
+  useEffect(() => {
+    const { navigation } = props;
+    const focusListener = navigation.addListener("didFocus", () => {
+      console.log("calling apis");
+      loadArticles();
+      loadPics();
+    });
+    return () => {
+      focusListener.remove();
+      return focusListener;
+    };
+  }, []);
+
+  const [isloading, setisloading] = useState(true);
+  useEffect(() => {
+    if (data || pictures) {
+      setisloading(false);
+
+      const inventory_picture = pictures?.inventory_picture.filter(
+        (val) => val.inventory_room.room_id === room_id
+      );
+
+      const images = inventory_picture?.map((val) => {
+        return {
+          imageSel: val.picture_location,
+        };
+      });
+
+      setImagesList(images);
+    }
+  }, [data, pictures]);
+
+  if (isloading) {
     return null;
   }
 
-  const result = data.inventory_room.filter(
-    (val) => val?.inventory_room?.room_id === room_id
-  );
+  const result = data?.inventory_room.filter((val) => val?.room_id === room_id);
 
-  const inventory_picture = pictures.inventory_picture.filter(
+  const inventory_picture = pictures?.inventory_picture.filter(
     (val) => val.inventory_room.room_id === room_id
   );
+
+  console.log("length ", inventory_picture?.length);
 
   return (
     <InventoryReportRoomClass
       loading={loading}
+      room_id={room_id}
+      ImagesList={ImagesList}
+      setImagesList={setImagesList}
       insertInventoryRoom={insertInventoryRoom}
       IPLoading={IPLoading}
       insertInventoryPictures={insertInventoryPictures}
       inventory_picture={inventory_picture}
-      data={result[0]?.inventory_articles || []}
+      data={result[0]?.inventory_articles}
       {...props}
     ></InventoryReportRoomClass>
   );
@@ -191,29 +226,21 @@ class InventoryReportRoomClass extends React.Component {
     });
   };
   componentDidMount() {
-    this.subs = this.props.navigation.addListener("didFocus", async () => {
-      var clientsArray = this.props.data;
+    var clientsArray = this.props.data;
 
-      const images = this.props?.inventory_picture?.map((val) => {
-        return {
-          imageSel: val.picture_location,
-        };
-      });
+    // const images = this.props?.inventory_picture?.map((val) => {
+    //   return {
+    //     imageSel: val.picture_location,
+    //   };
+    // });
 
-      console.log("picturess ===> get => ", this.props.inventory_picture);
-
-      this.setState({
-        clientList: clientsArray,
-        totalData: clientsArray,
-        StaticData: clientsArray,
-        loading: false,
-        ImagesList: images,
-      });
+    this.setState({
+      clientList: clientsArray,
+      totalData: clientsArray,
+      StaticData: clientsArray,
+      loading: false,
+      ImagesList: this.props.ImagesList,
     });
-  }
-
-  componentWillUnmount() {
-    this.subs.remove();
   }
 
   changeselected = (value) => {
@@ -261,22 +288,25 @@ class InventoryReportRoomClass extends React.Component {
       quality: 0.2,
     });
     if (!result.cancelled) {
-      var picList = this.state.ImagesList;
+      var picList = [...this.props.ImagesList];
       var img = { imageSel: result.uri };
       picList.push(img);
       //        console.log(picList)
+      this.props.setImagesList(picList);
       this.setState({ ImagesList: picList });
     }
   };
 
   RemoveImages = () => {
     var picList = [];
-    var len = picList.length;
-    this.state.ImagesList.map((data) => {
+
+    this.props.ImagesList.map((data) => {
       if (data.imageSel != this.state.selectedPic) {
         picList.push(data.imageSel);
       }
     });
+
+    this.props.setImagesList(picList);
     this.setState({
       ImagesList: picList,
       isPicvisible: !this.state.isPicvisible,
@@ -284,6 +314,9 @@ class InventoryReportRoomClass extends React.Component {
   };
   SaveInfo = () => {
     console.log(this.state.room);
+    if (!this.state.room) {
+      return alert("Cannot Add Empty Name");
+    }
     this.props
       .insertInventoryRoom({
         variables: {
@@ -293,37 +326,16 @@ class InventoryReportRoomClass extends React.Component {
       })
       .then((result) => {
         console.log(result.data);
-        // if(result.data.server_response=="Successfully Submitted Inventory Report Details.")
         alert("Successfully Added Room In Inventory Report Details.");
-        // else
-        //  alert("Failed Submitted Inventory Report Details.");
+
         setTimeout(() => {
           this.props.navigation.goBack();
         }, 1000);
       });
-
-    // // $inventory_report_id: Int = 10
-    // // $room: String = ""
-    // const link =
-    //   "https://www.queensman.com/phase_2/queens_admin_Apis/insertInventoryRoom.php?inventory_report_id=" +
-    //   this.state.InventoryReportID +
-    //   "&room=" +
-    //   this.state.room;
-    // console.log(link);
-    // axios.get(link).then((result) => {
-    //   console.log(result.data);
-    //   // if(result.data.server_response=="Successfully Submitted Inventory Report Details.")
-    //   alert("Successfully Added Room In Inventory Report Details.");
-    //   // else
-    //   //  alert("Failed Submitted Inventory Report Details.");
-    //   setTimeout(() => {
-    //     this.props.navigation.goBack();
-    //   }, 1000);
-    // });
   };
 
   uploadPics = async () => {
-    const imagesToUplaod = this.state.ImagesList.filter(
+    const imagesToUplaod = this.props.ImagesList.filter(
       (value) =>
         !value.imageSel.startsWith("https://backend-8106d23e.nhost.app")
     );
@@ -435,7 +447,7 @@ class InventoryReportRoomClass extends React.Component {
           }}
         >
           <Icon
-          as={Ionicons}
+            as={Ionicons}
             name="bed"
             style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
@@ -466,202 +478,210 @@ class InventoryReportRoomClass extends React.Component {
             alignSelf: "center",
           }}
         ></View>
-        <HStack space={4} mx="auto">
-          <Button
-            onPress={() => this.changeselected("art")}
-            title="Articles"
-            color={this.state.MenuSelected == "art" ? "#FFCA5D" : "#000E1E"}
-          />
-          <Button
-            onPress={() => this.changeselected("pic")}
-            title="Pictures"
-            color={this.state.MenuSelected == "pic" ? "#FFCA5D" : "#000E1E"}
-          />
-        </HStack>
+        {this.props.room_id && (
+          <HStack space={4} mx="auto">
+            <Button
+              onPress={() => this.changeselected("art")}
+              title="Articles"
+              color={this.state.MenuSelected == "art" ? "#FFCA5D" : "#000E1E"}
+            />
+            <Button
+              onPress={() => this.changeselected("pic")}
+              title="Pictures"
+              color={this.state.MenuSelected == "pic" ? "#FFCA5D" : "#000E1E"}
+            />
+          </HStack>
+        )}
 
-        <View
-          style={{
-            borderBottomColor: "#FFCA5D",
-            borderBottomWidth: 2,
-            width: "94%",
-            paddingTop: "3%",
-            marginBottom: "4%",
-            alignSelf: "center",
-          }}
-        ></View>
-        {this.state.MenuSelected == "art" ? (
-          <View>
-            <View style={{ paddingHorizontal: "6%" }}>
-              <Button
-                style={{ width: "100%" }}
-                onPress={() => this.CreateNewArticles()}
-                title="Add Article"
-                color="#FFCA5D"
-              />
-            </View>
+        {this.props.room_id && (
+          <View
+            style={{
+              borderBottomColor: "#FFCA5D",
+              borderBottomWidth: 2,
+              width: "94%",
+              paddingTop: "3%",
+              marginBottom: "4%",
+              alignSelf: "center",
+            }}
+          ></View>
+        )}
 
-            <View
-              style={{
-                borderBottomColor: "#FFCA5D",
-                borderBottomWidth: 2,
-                width: "94%",
-                paddingTop: "3%",
-                marginBottom: "4%",
-                alignSelf: "center",
-              }}
-            ></View>
+        {this.props.room_id ? (
+          this.state.MenuSelected == "art" ? (
+            <View>
+              <View style={{ paddingHorizontal: "6%" }}>
+                <Button
+                  style={{ width: "100%" }}
+                  onPress={() => this.CreateNewArticles()}
+                  title="Add Article"
+                  color="#FFCA5D"
+                />
+              </View>
 
-            {/* <Text style={{
+              <View
+                style={{
+                  borderBottomColor: "#FFCA5D",
+                  borderBottomWidth: 2,
+                  width: "94%",
+                  paddingTop: "3%",
+                  marginBottom: "4%",
+                  alignSelf: "center",
+                }}
+              ></View>
+
+              {/* <Text style={{
                     alignSelf: 'center',
                     fontSize: 15,
                     margin: "2%",
                     color: '#000E1E',
                     fontWeight: '500'
                 }}>Total Clients: {this.state.TotalClient}</Text> */}
-            {this.state.clientList?.length <= 0 ? (
-              <Text
-                style={[
-                  styles.TextFam,
-                  {
-                    fontSize: 14,
-                    color: "#aaa",
-                    paddingTop: "3%",
-                    alignSelf: "center",
-                  },
-                ]}
-              >
-                No Article Available.{" "}
-              </Text>
-            ) : (
-              <View>
-                {this.state.loading ? (
-                  <ActivityIndicator size="large" color="#FFCA5D" />
-                ) : (
-                  <FlatList
-                    data={this.state.clientList}
-                    contentContainerStyle={{ paddingBottom: 100 }}
-                    renderItem={({ item }) => (
-                      <View>
-                        <TouchableOpacity onPress={() => this.passItem(item)}>
-                          <View style={styles.Card}>
-                            <Text
-                              style={[
-                                styles.TextFam,
-                                { fontSize: 15, fontWeight: "bold" },
-                              ]}
-                            >
-                              {item.type}{" "}
-                            </Text>
+              {this.props.data?.length <= 0 ? (
+                <Text
+                  style={[
+                    styles.TextFam,
+                    {
+                      fontSize: 14,
+                      color: "#aaa",
+                      paddingTop: "3%",
+                      alignSelf: "center",
+                    },
+                  ]}
+                >
+                  No Article Available.{" "}
+                </Text>
+              ) : (
+                <View>
+                  {this.state.loading ? (
+                    <ActivityIndicator size="large" color="#FFCA5D" />
+                  ) : (
+                    <FlatList
+                      data={this.props.data}
+                      contentContainerStyle={{ paddingBottom: 100 }}
+                      renderItem={({ item }) => (
+                        <View>
+                          <TouchableOpacity onPress={() => this.passItem(item)}>
+                            <View style={styles.Card}>
+                              <Text
+                                style={[
+                                  styles.TextFam,
+                                  { fontSize: 15, fontWeight: "bold" },
+                                ]}
+                              >
+                                {item.type}{" "}
+                              </Text>
 
-                            <View
-                              style={{
-                                flexDirection: "row",
-                                justifyContent: "space-between",
-                                flex: 1,
-                                paddingBottom: "5%",
-                              }}
-                            >
                               <View
                                 style={{
                                   flexDirection: "row",
-                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  flex: 1,
+                                  paddingBottom: "5%",
                                 }}
                               >
-                                <Image
-                                  source={require("../../assets/Home/linehis.png")}
-                                  style={{ height: 20, width: 20 }}
-                                ></Image>
-                                <View style={{ flexDirection: "column" }}>
-                                  <Text
-                                    style={[styles.TextFam, { fontSize: 10 }]}
-                                  >
-                                    Article ID : {item.article_id}
-                                  </Text>
-                                  <Text
-                                    style={[styles.TextFam, { fontSize: 10 }]}
-                                  >
-                                    Description : {item.description}{" "}
-                                  </Text>
+                                <View
+                                  style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <Image
+                                    source={require("../../assets/Home/linehis.png")}
+                                    style={{ height: 20, width: 20 }}
+                                  ></Image>
+                                  <View style={{ flexDirection: "column" }}>
+                                    <Text
+                                      style={[styles.TextFam, { fontSize: 10 }]}
+                                    >
+                                      Article ID : {item.article_id}
+                                    </Text>
+                                    <Text
+                                      style={[styles.TextFam, { fontSize: 10 }]}
+                                    >
+                                      Description : {item.description}{" "}
+                                    </Text>
+                                  </View>
                                 </View>
                               </View>
                             </View>
-                          </View>
-                        </TouchableOpacity>
-                        <Text> </Text>
-                      </View>
-                    )}
-                    keyExtractor={(item, index) => index.toString()}
-                  />
-                )}
-              </View>
-            )}
-          </View>
-        ) : (
-          <View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                paddingHorizontal: "20%",
-                marginBottom: 10,
-              }}
-            >
-              <Button
-                onPress={() => this.CameraSnap()}
-                title="Camera"
-                color="#FFCA5D"
-              />
-              <Button
-                disabled={this.props.IPLoading}
-                onPress={() => this.UploadImages()}
-                title="Upload"
-                color="#FFCA5D"
-              />
-            </View>
-
-            {console.log("----------> ", this.state.ImagesList)}
-            <FlatList
-              data={this.state.ImagesList}
-              contentContainerStyle={{ paddingBottom: 100 }}
-              renderItem={({ item }) => (
-                <View style={{ paddingHorizontal: "6%" }}>
-                  <TouchableOpacity
-                    onPress={() => this.toggleGalleryEventModal(item.imageSel)}
-                  >
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        width: "100%",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Icon
-                      as={Ionicons}
-                        name="link"
-                        style={{
-                          fontSize: 18,
-                          color: "#000E1E",
-                          paddingRight: "3%",
-                        }}
-                      ></Icon>
-                      <Text
-                        style={{
-                          fontSize: 13,
-                          marginBottom: "1%",
-                          color: "#000E1E",
-                        }}
-                      >
-                        Picture{" "}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
+                          </TouchableOpacity>
+                          <Text> </Text>
+                        </View>
+                      )}
+                      keyExtractor={(item, index) => index.toString()}
+                    />
+                  )}
                 </View>
               )}
-              keyExtractor={(item, index) => index.toString()}
-            />
-          </View>
-        )}
+            </View>
+          ) : (
+            <View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  paddingHorizontal: "20%",
+                  marginBottom: 10,
+                }}
+              >
+                <Button
+                  onPress={() => this.CameraSnap()}
+                  title="Camera"
+                  color="#FFCA5D"
+                />
+                <Button
+                  disabled={this.props.IPLoading}
+                  onPress={() => this.UploadImages()}
+                  title="Upload"
+                  color="#FFCA5D"
+                />
+              </View>
+
+              <FlatList
+                data={this.props.ImagesList}
+                contentContainerStyle={{ paddingBottom: 100 }}
+                renderItem={({ item }) => (
+                  <View style={{ paddingHorizontal: "6%" }}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        this.toggleGalleryEventModal(item.imageSel)
+                      }
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          width: "100%",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Icon
+                          as={Ionicons}
+                          name="link"
+                          style={{
+                            fontSize: 18,
+                            color: "#000E1E",
+                            paddingRight: "3%",
+                          }}
+                        ></Icon>
+                        <Text
+                          style={{
+                            fontSize: 13,
+                            marginBottom: "1%",
+                            color: "#000E1E",
+                          }}
+                        >
+                          Picture{" "}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+              />
+            </View>
+          )
+        ) : null}
         <Modal
           isVisible={this.state.isPicvisible}
           onSwipeComplete={() => this.setState({ isPicvisible: false })}
@@ -753,6 +773,6 @@ const expoFileToFormFile = (url) => {
   return { uri: localUri, name: filename, type };
 };
 
-const Button = ({ title, ...props}) => {
-  return <MyButton {...props}>{title}</MyButton>
-}
+const Button = ({ title, ...props }) => {
+  return <MyButton {...props}>{title}</MyButton>;
+};

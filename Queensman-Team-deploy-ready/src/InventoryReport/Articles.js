@@ -11,7 +11,7 @@ import {
   ScrollView,
 } from "react-native";
 
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 
 import { Icon, Select } from "native-base";
 import axios from "axios";
@@ -96,6 +96,8 @@ export default function Articles(props) {
   const [updateRemarks, { loading: URloading, error: UrError }] =
     useMutation(UpdateRemarksQuery);
 
+  const room_id = props.navigation.getParam("room_id", "");
+  console.log("===> ", { room_id });
   const [updateDescription, { loading: UDloading, error: UDError }] =
     useMutation(UpdateDescriptionQuery);
 
@@ -174,6 +176,15 @@ class ArticlesClass extends React.Component {
   saveArticles = () => {
     if (!this.state.articleId) {
       var type = this.state.JobType;
+
+      console.log({
+        work_description: this.state.WorkDescription1,
+        type: type,
+        inventory_room_id: this.state.RoomID,
+        description: this.state.Discription1,
+        remarks: this.state.Remarks1,
+        inspection: this.state.Inspection1,
+      });
 
       this.props
         .insertInventoryArticle({

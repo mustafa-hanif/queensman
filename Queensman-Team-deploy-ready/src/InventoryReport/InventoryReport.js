@@ -12,7 +12,7 @@ import {
 } from "react-native";
 
 import { Icon } from "native-base";
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import axios from "axios";
 import _ from "lodash";
 
@@ -63,7 +63,7 @@ export default function InventoryReportRoom(props) {
   const [insertInventory, { loading: invetoryLoading, error: inventoryError }] =
     useMutation(insertInventoryReport);
 
-  const { loading, data, error } = useQuery(
+  const [loadData, { loading, data, error }] = useLazyQuery(
     fetchInventoryArticlesViaInventoryReportID,
     {
       variables: {
@@ -72,15 +72,23 @@ export default function InventoryReportRoom(props) {
     }
   );
 
-  if (loading) {
-    return null;
-  }
+  useEffect(() => {
+    const { navigation } = props;
+    const focusListener = navigation.addListener("didFocus", () => {
+      loadData();
+    });
+    return () => {
+      focusListener.remove();
+      return focusListener;
+    };
+  }, []);
+
   //   return null;
   return (
     <InventoryReportClass
       insertInventory={insertInventory}
       loading={loading}
-      data={data?.inventory_room || []}
+      data={data?.inventory_room}
       {...props}
     ></InventoryReportClass>
   );
@@ -270,7 +278,7 @@ class InventoryReportClass extends React.Component {
           }}
         >
           <Icon
-          as={Ionicons}
+            as={Ionicons}
             name="people"
             style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
@@ -311,7 +319,7 @@ class InventoryReportClass extends React.Component {
           }}
         >
           <Icon
-          as={Ionicons}
+            as={Ionicons}
             name="calendar"
             style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
@@ -348,7 +356,7 @@ class InventoryReportClass extends React.Component {
           }}
         >
           <Icon
-          as={Ionicons}
+            as={Ionicons}
             name="clipboard"
             style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
@@ -388,7 +396,7 @@ class InventoryReportClass extends React.Component {
           }}
         >
           <Icon
-          as={Ionicons}
+            as={Ionicons}
             name="document"
             style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
@@ -452,14 +460,7 @@ class InventoryReportClass extends React.Component {
           }}
         ></View>
 
-        {/* <Text style={{
-                    alignSelf: 'center',
-                    fontSize: 15,
-                    margin: "2%",
-                    color: '#000E1E',
-                    fontWeight: '500'
-                }}>Total Clients: {this.state.TotalClient}</Text> */}
-        {this.state.clientList.length <= 0 ? (
+        {this.props.data === 0 ? (
           <Text
             style={[
               styles.TextFam,
@@ -479,7 +480,7 @@ class InventoryReportClass extends React.Component {
               <ActivityIndicator size="large" color="#FFCA5D" />
             ) : (
               <FlatList
-                data={this.state.clientList}
+                data={this.props.data}
                 contentContainerStyle={{ paddingBottom: 100 }}
                 renderItem={({ item }) => (
                   <View>
