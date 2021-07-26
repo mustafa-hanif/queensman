@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from "react";
-import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions, Platform } from "react-native";
+import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions, Platform, Alert } from "react-native";
+import { Content, Icon } from "native-base";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { gql, useMutation } from "@apollo/client";
@@ -15,7 +17,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    marginHorizontal: "10%",
+    marginHorizontal: "5%",
     paddingVertical: "10%",
     // justifyContent: 'center'
   },
@@ -127,6 +129,33 @@ const CallOutReportPress = (navigation) => {
   navigation.navigate("CalloutReportItem");
 };
 
+const AlertLogout = (navigation) => {
+  Alert.alert(
+    "Logout.",
+    "Are you sure you want to logout?",
+    [
+      {
+        text: "No",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel",
+      },
+      { text: "Yes", onPress: () => logout(navigation) },
+    ],
+    { cancelable: false }
+  );
+};
+
+const logout = async (navigation) => {
+  try {
+    await AsyncStorage.removeItem("QueensUser");
+    setTimeout(() => {
+      navigation.navigate("Login");
+    }, 500);
+  } catch (error) {
+    // Error saving data
+  }
+};
+
 const UPDATE_TOKEN = gql`
   mutation MyMutation($token: String!, $email: String!) {
     update_client(where: { email: { _eq: $email } }, _set: { expo_token: $token }) {
@@ -142,11 +171,9 @@ const HomeScreen = ({ navigation }) => {
   const responseListener = useRef(null);
   const [updateToken, { loading: mutationLoading, error: mutationError }] = useMutation(UPDATE_TOKEN);
   useEffect(() => {
-    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-    });
+    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {});
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(async (response) => {
-    });
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(async (response) => {});
 
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
@@ -176,16 +203,31 @@ const HomeScreen = ({ navigation }) => {
       <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
 
       <View style={styles.Name}>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-            <Image source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }} />
+            <Image source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }}></Image>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
-            <Image
-              source={require("../../assets/Home/notifications.png")}
-              style={{ tintColor: "#FFCA5D", height: 25, width: 25 }}
-            />
-          </TouchableOpacity>
+          <View style={{ flexDirection: "row" }}>
+            <TouchableOpacity onPress={() => AlertLogout(navigation)}>
+              <Icon as={Ionicons} name="power" style={{ fontSize: 25, color: "#FFCA5D" }}></Icon>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => navigation.navigate("Notification")}>
+              <Icon as={Ionicons} name="notifications-outline" style={{ fontSize: 25, color: "#FFCA5D" }}></Icon>
+              {/* <Image
+                resizeMode={"contain"}
+                tintColor={"#FFCA5D"}
+                source={require("../assets/Home/notifications.png")}
+                style={{ height: 25, width: 25 }}
+              ></Image> */}
+              {/* <Text style={{color: "#FFCA5D", marginTop: -19, fontSize: 10 }}>    1</Text> */}
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={{ flexDirection: "row", paddingTop: "7%" }}>
           <Image source={require("../../assets/Login/Queensman_logo3.png")} style={{ height: 50, width: 50 }} />
@@ -198,7 +240,10 @@ const HomeScreen = ({ navigation }) => {
       <View style={{ height: "10%" }} />
       <View animation="fadeInUpBig" iterationCount={1} duration={1000} style={{ flex: 1 }}>
         <View style={[styles.bottomView]}>
-        <TouchableOpacity style={{ flex: 1 }} onPress={() => requestCallOutPress(navigation, {additionalServices: false})}>
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            onPress={() => requestCallOutPress(navigation, { additionalServices: false })}
+          >
             <View style={[styles.button]}>
               <Image
                 source={require("../../assets/Home/calloutHome.png")}
@@ -294,29 +339,32 @@ const HomeScreen = ({ navigation }) => {
         </View>
       </View>
       <View style={{ height: "3%" }} />
-        <View style={[styles.bottomView]}>
-          <TouchableOpacity style={{ flex: 1 }} onPress={() => requestCallOutPress(navigation, {additionalServices: true})}>
-            <View style={styles.button}>
-              <Image
-                source={require("../../assets/Home/pendingHome.png")}
-                style={{ height: 40, width: 40, alignSelf: "center" }}
-              />
-              <Text
-                style={[
-                  {
-                    alignSelf: "center",
-                    fontSize: 12,
-                    color: "#000E1E",
-                    marginTop: "4%",
-                  },
-                  styles.TextStyles,
-                ]}
-              >
-                Request of Additional Services
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+      <View style={[styles.bottomView]}>
+        <TouchableOpacity
+          style={{ flex: 1 }}
+          onPress={() => requestCallOutPress(navigation, { additionalServices: true })}
+        >
+          <View style={styles.button}>
+            <Image
+              source={require("../../assets/Home/pendingHome.png")}
+              style={{ height: 40, width: 40, alignSelf: "center" }}
+            />
+            <Text
+              style={[
+                {
+                  alignSelf: "center",
+                  fontSize: 12,
+                  color: "#000E1E",
+                  marginTop: "4%",
+                },
+                styles.TextStyles,
+              ]}
+            >
+              Request of Additional Services
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

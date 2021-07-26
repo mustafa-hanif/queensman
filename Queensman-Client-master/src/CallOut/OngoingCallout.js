@@ -9,26 +9,26 @@ import { gql, useQuery } from "@apollo/client";
 import PTRView from "react-native-pull-to-refresh";
 
 const GET_CALLOUT = gql`
-query GetCallout($callout_by_email: String!) {
-  callout(where: {callout_by_email: {_eq: $callout_by_email}}) {
-  job_type
-  description
-  schedulers {
-    date_on_calendar
-    time_on_calendar
-    id
+  query GetCallout($callout_by_email: String!) {
+    callout(where: { callout_by_email: { _eq: $callout_by_email } }) {
+      job_type
+      description
+      schedulers(order_by: { date_on_calendar: desc }) {
+        date_on_calendar
+        time_on_calendar
+        id
+      }
+    }
   }
-}
-}
 `;
 
 const OngoingCallout = (props) => {
   const email = auth?.currentSession?.session?.user.email;
-    const { loading, data, error } = useQuery(GET_CALLOUT, {
-      variables: {
-        callout_by_email: email
-      }
-    });
+  const { loading, data, error } = useQuery(GET_CALLOUT, {
+    variables: {
+      callout_by_email: email,
+    },
+  });
 
   const passItem = (item) => {
     props.navigation.navigate("OngoingcalloutItem", {
@@ -71,10 +71,10 @@ const OngoingCallout = (props) => {
                         }}
                       >
                         <Text style={[styles.TextFam, { fontSize: 15, fontWeight: "bold" }]}>
-                          Job Type: {item.job_type}{" "}
+                          Job Type: {item?.job_type}{" "}
                         </Text>
                         <Icon
-                          as={<Ionicons name="flag-sharp" />} 
+                          as={<Ionicons name="flag-sharp" />}
                           name="flag"
                           style={{
                             fontSize: 24,
@@ -103,7 +103,9 @@ const OngoingCallout = (props) => {
                             style={{ height: 20, width: 20 }}
                           ></Image>
                           <View style={{ flexDirection: "column" }}>
-                            <Text style={[styles.TextFam, { fontSize: 10 }]}>Schedule ID :{item.schedulers[0].id}</Text>
+                            <Text style={[styles.TextFam, { fontSize: 10 }]}>
+                              Schedule ID :{item?.schedulers[0]?.id}
+                            </Text>
                           </View>
                         </View>
                         <View
@@ -114,10 +116,10 @@ const OngoingCallout = (props) => {
                           }}
                         >
                           <Text style={[styles.TextFam, { fontSize: 9, color: "#aaa" }]}>
-                            Date: {item.schedulers[0].date_on_calendar}
+                            Date: {item?.schedulers[0]?.date_on_calendar}
                           </Text>
                           <Text style={[styles.TextFam, { fontSize: 9, color: "#aaa" }]}>
-                            Time: {item.schedulers[0].time_on_calendar}
+                            Time: {item?.schedulers[0]?.time_on_calendar}
                           </Text>
                         </View>
                       </View>

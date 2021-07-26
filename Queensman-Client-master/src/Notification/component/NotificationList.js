@@ -91,9 +91,10 @@ export default function NotificationList({
                   {`${formatDistance(new Date(), new Date(item.created_at), { includeSeconds: true })} ago`}
                 </Text>
                 {item?.data?.type === "call" && (
-                  <IconButton
-                    variant="outline"
-                    icon={<Icon as={Ionicons} size={4} name="call" style={{ color: "blue", paddingRight: "4%" }} />}
+                  <Icon
+                    name="call"
+                    as={Ionicons}
+                    style={{ fontSize: 25, color: "blue", paddingRight: "4%" }}
                     onPress={() => {
                       call({ number: item.data.phone, prompt: true });
                     }}
@@ -141,25 +142,21 @@ export default function NotificationList({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginBottom: 12,
-    backgroundColor: "#fff",
+  row: {
+    flexDirection: "row",
     borderBottomWidth: 1,
     borderBottomColor: "lightgray",
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingVertical: 32,
     paddingHorizontal: 16,
     width: "95%",
     borderRadius: 15,
-  },
-  row: {
-    flexDirection: "row",
-
+    backgroundColor: "white",
     alignSelf: "center",
+    marginBottom: 12,
   },
   text: {
     marginLeft: 1,
-    fontFamily: "Helvetica",
+    // fontFamily: "Helvetica",
   },
   time: {
     marginRight: 1,
@@ -169,20 +166,20 @@ const styles = StyleSheet.create({
   },
   timeText: {
     opacity: 0.4,
-    fontFamily: "Helvetica",
+    // fontFamily: "Helvetica",
   },
   dot: {
     height: 12,
     width: 12,
     borderRadius: 12,
-    backgroundColor: "#fff",
+    backgroundColor: "#eee",
     marginTop: 4,
   },
   unDot: {
     height: 12,
     width: 12,
     borderRadius: 12,
-    backgroundColor: "#fff",
+    backgroundColor: "#eee",
     marginTop: 4,
   },
   popUp: {
@@ -191,22 +188,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     justifyContent: "center",
     position: "absolute",
-    backgroundColor: "#fff",
-  },
-  buttonstyle: {
-    backgroundColor: "#FFCA5D",
-    alignContent: "center",
-    justifyContent: "center",
-    // height: "7%",
-    padding: "1%",
-    paddingHorizontal: "2%",
-    alignSelf: "flex-start",
-    borderRadius: 6,
-  },
-  buttonTxt: {
-    color: "#000E1E",
-    fontSize: 14,
-    fontFamily: "Helvetica",
-    alignSelf: "center",
+    backgroundColor: "#eee",
   },
 });

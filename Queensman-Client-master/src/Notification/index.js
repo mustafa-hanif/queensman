@@ -96,7 +96,7 @@ export default function Index(props) {
               Long press the notification to mark as read
             </Text>
           )}
-          <View style={{ paddingHorizontal: 20, paddingBottom: 20 }}>
+          <View>
             {data?.notifications?.map((item, i) => (
               <NotificationList
                 key={item.id}
