@@ -216,6 +216,8 @@ const ADD_CALLOUT = gql`
     $category: String
     $job_type: String
     $status: String
+    $worker_id: Int
+    $worker_email: String
     $urgency_level: String
   ) {
     insert_job_tickets_one(
@@ -237,7 +239,10 @@ const ADD_CALLOUT = gql`
         }
         name: "Request quotation"
         description: $description
-        type: "Deffered"
+        type: "Deferred"
+        status: $status
+        worker_id: $worker_id
+        worker_email: $worker_email
       }
     ) {
       id
@@ -672,6 +677,8 @@ const RequestCallOut = (props) => {
     addCalloutApiCall({
       variables: {
         callout_by_email: auth?.currentSession?.session?.user.email,
+        worker_email: "antony@queensman.com",
+        worker_id: 16,
         description: state.Description,
         category,
         job_type: jobCategorySelect.value,
