@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Box, ScrollView } from 'native-base';
+import { Button, Box, ScrollView } from "native-base";
 import { Video } from "expo-av";
 import {
   StyleSheet,
@@ -21,8 +21,8 @@ import FlashMessage from "react-native-flash-message";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 
-import * as MediaLibrary from 'expo-media-library';
-import { Camera } from 'expo-camera';
+import * as MediaLibrary from "expo-media-library";
+import { Camera } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import { LinearGradient } from "expo-linear-gradient";
@@ -80,9 +80,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: "10%",
     paddingVertical: "10%",
   },
-  TextFam: {
-
-  },
+  TextFam: {},
   ButtonSty: {
     backgroundColor: "#FFCA5D",
     //  borderRadius: 20,
@@ -141,7 +139,7 @@ const styles = StyleSheet.create({
   },
   SubmitCallout: {
     borderTopWidth: 1,
-    borderTopColor: '#000',
+    borderTopColor: "#000",
 
     height: 38,
     width: "100%",
@@ -159,7 +157,7 @@ const styles = StyleSheet.create({
 
 const GET_JOB_CATEGORY = gql`
   query GetJobCategory {
-    team_expertise(where: {skill_level: {_eq: 0}}) {
+    team_expertise(where: { skill_level: { _eq: 0 } }) {
       skill_name
       id
     }
@@ -167,13 +165,14 @@ const GET_JOB_CATEGORY = gql`
 `;
 
 const GET_JOB_TYPE = gql`
-query GetJobType($skill_parent: Int!) {
-  team_expertise(where: {skill_level: {_eq: 1}, skill_parent: {_eq: $skill_parent}}) {
-    skill_name
+  query GetJobType($skill_parent: Int!) {
+    team_expertise(
+      where: { skill_level: { _eq: 1 }, skill_parent: { _eq: $skill_parent } }
+    ) {
+      skill_name
+    }
   }
-}
-`
-
+`;
 
 const ADD_CALLOUT = gql`
   mutation AddCallOut(
@@ -216,67 +215,63 @@ const ADD_CALLOUT = gql`
 `;
 
 const REQUEST_CALLOUT = gql`
-mutation AddCallout(
-  $property_id: Int
-  $date_on_calendar: date
-  $notes: String
-  $time_on_calendar: time
-  $email: String
-  $category: String
-  $job_type: String
-  $status: String
-  $picture1: String
-  $picture2: String
-  $picture3: String
-  $picture4: String
-  $video: String
-  $request_time: timestamp
-  $urgency_level: String
-) {
-  insert_scheduler_one(
-    object: {
-      callout: {
-        data: {
-          callout_by_email: $email
-          property_id: $property_id
-          category: $category
-          job_type: $job_type
-          status: $status
-          request_time: $request_time
-          urgency_level: $urgency_level
-          description: $notes
-          picture1: $picture1
-          picture2: $picture2
-          picture3: $picture3
-          picture4: $picture4
-          video: $video
-          active: 1 
-          job_tickets: {
-            data: {
-              type: "Full Job"
-              name: $notes
-              status: "Open"
+  mutation AddCallout(
+    $property_id: Int
+    $date_on_calendar: date
+    $notes: String
+    $time_on_calendar: time
+    $email: String
+    $category: String
+    $job_type: String
+    $status: String
+    $picture1: String
+    $picture2: String
+    $picture3: String
+    $picture4: String
+    $video: String
+    $request_time: timestamp
+    $urgency_level: String
+  ) {
+    insert_scheduler_one(
+      object: {
+        callout: {
+          data: {
+            callout_by_email: $email
+            property_id: $property_id
+            category: $category
+            job_type: $job_type
+            status: $status
+            request_time: $request_time
+            urgency_level: $urgency_level
+            description: $notes
+            picture1: $picture1
+            picture2: $picture2
+            picture3: $picture3
+            picture4: $picture4
+            video: $video
+            active: 1
+            job_tickets: {
+              data: { type: "Full Job", name: $notes, status: "Open" }
             }
           }
         }
+        date_on_calendar: $date_on_calendar
+        time_on_calendar: $time_on_calendar
+        notes: $notes
       }
-      date_on_calendar: $date_on_calendar
-      time_on_calendar: $time_on_calendar
-      notes: $notes
+    ) {
+      date_on_calendar
     }
-  ) {
-    date_on_calendar
   }
-}
 `;
 
 const RequestCallOut = (props) => {
-  let address =  props.navigation.getParam("address", {})
-  let community =  props.navigation.getParam("community", {})
-  let country =  props.navigation.getParam("country", {})
-  let city =  props.navigation.getParam("city", {})
-  let property_id =  props.navigation.getParam("property_id", {})
-  let type =  props.navigation.getParam("type", {})
+  let address = props.navigation.getParam("address", {});
+  let community = props.navigation.getParam("community", {});
+  let country = props.navigation.getParam("country", {});
+  let city = props.navigation.getParam("city", {});
+  let property_id = props.navigation.getParam("property_id", {});
+  let type = props.navigation.getParam("type", {});
   const [state, setState] = useState({
     Urgency: "",
     OtherJobType: "",
@@ -305,29 +300,38 @@ const RequestCallOut = (props) => {
     selectedPic: "",
     selectedNo: 0,
   });
-  const {loading: jobCategoryLoading, data: jobCategory, error: jobCategoryError} = useQuery(GET_JOB_CATEGORY)
-  const [getJobType, { loading: loadingJobType, data: jobType, error: JobTypeError }] =
-  useLazyQuery(GET_JOB_TYPE);
-  const [addCalloutApiCall, { loading: addCalloutApiLoading, error: mutationError }] = useMutation(ADD_CALLOUT);
+  const {
+    loading: jobCategoryLoading,
+    data: jobCategory,
+    error: jobCategoryError,
+  } = useQuery(GET_JOB_CATEGORY);
+  const [
+    getJobType,
+    { loading: loadingJobType, data: jobType, error: JobTypeError },
+  ] = useLazyQuery(GET_JOB_TYPE);
+  const [
+    addCalloutApiCall,
+    { loading: addCalloutApiLoading, error: mutationError },
+  ] = useMutation(ADD_CALLOUT);
 
-  const [requestCalloutApiCall, { loading: requestCalloutLoading }] = useMutation(REQUEST_CALLOUT);
+  const [requestCalloutApiCall, { loading: requestCalloutLoading }] =
+    useMutation(REQUEST_CALLOUT);
   const [videoSaving, setVideoSaving] = useState(false);
   const [showVideoScreen, setShowVideoScreen] = useState(false);
-  const [jobCategorySelect, setJobCategorySelect] = useState({})
-  const [jobTypeSelect, setJobTypeSelect] = useState(null)
+  const [jobCategorySelect, setJobCategorySelect] = useState({});
+  const [jobTypeSelect, setJobTypeSelect] = useState(null);
 
   const onJobCategoryValueChange = (value) => {
-    setJobCategorySelect({value, label:value})
+    setJobCategorySelect({ value, label: value });
   };
 
   const onJobTypeValueChange = (value) => {
-    setJobTypeSelect({value, label:value})
-  }
+    setJobTypeSelect({ value, label: value });
+  };
 
   const selectJobCategoryPressed = (id) => {
     getJobType({ variables: { skill_parent: id } });
   };
-
 
   const selectFromGallery = async () => {
     if (Constants.platform.ios) {
@@ -385,31 +389,33 @@ const RequestCallOut = (props) => {
   };
 
   const askSubmitCallout = () => {
-    console.log("HERE2")
+    console.log("HERE2");
     if (!jobCategorySelect.value) {
       return alert("Please Select Job Category First");
     }
     if (state.picture1 === "" || state.Urgency === "") {
       return alert("Kindly fill all the required details.");
     }
-      if (state.Urgency === "medium") {
-        console.log("HERE@")
-        props.navigation.navigate("SelectSchedule", { state: { ...state, JobType: jobTypeSelect?.value }});
-      } else {
-        Alert.alert(
-          "Callout Request Confirmation.",
-          "Kindly click YES to submit this callout.",
-          [
-            {
-              text: "Cancel",
-              onPress: () => console.log("Cancel Pressed"),
-              style: "cancel",
-            },
-            { text: "Yes", onPress: () => submitCallout() },
-          ],
-          { cancelable: false }
-        );
-      }
+    if (state.Urgency === "medium") {
+      console.log("HERE@");
+      props.navigation.navigate("SelectSchedule", {
+        state: { ...state, JobType: jobTypeSelect?.value },
+      });
+    } else {
+      Alert.alert(
+        "Callout Request Confirmation.",
+        "Kindly click YES to submit this callout.",
+        [
+          {
+            text: "Cancel",
+            onPress: () => console.log("Cancel Pressed"),
+            style: "cancel",
+          },
+          { text: "Yes", onPress: () => submitCallout() },
+        ],
+        { cancelable: false }
+      );
+    }
   };
 
   const SubmittedCalloutAlert = () => {
@@ -435,8 +441,14 @@ const RequestCallOut = (props) => {
           const _statePic = state[`picture${i}`];
           if (_statePic) {
             const file = expoFileToFormFile(_statePic);
-            storage.put(`/callout_pics/${file.name}`, file).then(console.log).catch(console.error);
-            return [`picture${i}`, `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`];
+            storage
+              .put(`/callout_pics/${file.name}`, file)
+              .then(console.log)
+              .catch(console.error);
+            return [
+              `picture${i}`,
+              `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`,
+            ];
           }
           return null;
         })
@@ -461,12 +473,16 @@ const RequestCallOut = (props) => {
       .then((res) => {
         // SubmittedCalloutAlert();
         props.navigation.navigate(
-          "HomeNaviagtor",
+          "Home",
           showMessage({
             message: "Callout Request Submitted",
             description: "One of our team will be in touch shortly",
             type: "danger",
-            style: { height: "20%", flexDirection: "row", alignItems: "center" },
+            style: {
+              height: "20%",
+              flexDirection: "row",
+              alignItems: "center",
+            },
             textStyle: { textAlignVertical: "center" },
             duration: 3000,
           })
@@ -511,7 +527,7 @@ const RequestCallOut = (props) => {
     if (status !== "granted") {
       alert("Sorry, we need camera roll permissions to make this work!");
     }
-    
+
     const { status: status2 } = await Camera.requestCameraPermissionsAsync();
     if (status2 !== "granted") {
       alert("Sorry, we need camera roll permissions to make this work!");
@@ -565,7 +581,7 @@ const RequestCallOut = (props) => {
   };
 
   const addJobTicket = async () => {
-    console.log("HERE 2")
+    console.log("HERE 2");
     let category = "Uncategorized";
     const pictures = Object.fromEntries(
       [...Array(4)]
@@ -573,8 +589,14 @@ const RequestCallOut = (props) => {
           const _statePic = state[`picture${i}`];
           if (_statePic) {
             const file = expoFileToFormFile(_statePic);
-            storage.put(`/callout_pics/${file.name}`, file).then(console.log).catch(console.error);
-            return [`picture${i}`, `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`];
+            storage
+              .put(`/callout_pics/${file.name}`, file)
+              .then(console.log)
+              .catch(console.error);
+            return [
+              `picture${i}`,
+              `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`,
+            ];
           }
           return null;
         })
@@ -601,7 +623,7 @@ const RequestCallOut = (props) => {
         });
         SubmittedCalloutAlert();
         setTimeout(() => {
-          props.navigation.navigate("HomeNaviagtor");
+          props.navigation.navigate("Home");
         }, 4000);
       })
       .catch((err) => console.log({ err }));
@@ -609,28 +631,57 @@ const RequestCallOut = (props) => {
 
   if (videoPlayScreen) {
     console.log("will return video play screen");
-    return <VideoPlayScreen setVideoPlayScreen={setVideoPlayScreen} video={state.video} />;
+    return (
+      <VideoPlayScreen
+        setVideoPlayScreen={setVideoPlayScreen}
+        video={state.video}
+      />
+    );
   }
 
   if (showVideoScreen) {
-    return <VideoScreen setShowVideoScreen={setShowVideoScreen} saveVideo={saveVideo} />;
+    return (
+      <VideoScreen
+        setShowVideoScreen={setShowVideoScreen}
+        saveVideo={saveVideo}
+      />
+    );
   }
   return (
-    
-    <ScrollView style={{ height: '100%' }}>
-      <View style={{ backgroundColor: '#000', paddingHorizontal: "10%", paddingVertical: "10%"}}>
+    <ScrollView style={{ height: "100%" }}>
+      <View
+        style={{
+          backgroundColor: "#000",
+          paddingHorizontal: "10%",
+          paddingVertical: "10%",
+        }}
+      >
         <FlashMessage position="top" />
-        <Text style={[styles.TextFam, { color: "#FFCA5D", fontSize: 10 }]}>Callout Address</Text>
-          <View style={{}}>
-            <Text style={[styles.TextFam, { fontSize: 16, fontWeight: "bold", color: "#fff" }]}>{address}</Text>
-            <Text style={[styles.TextFam, { fontSize: 10, color: "#fff" }]}>
-              {community},{city},{country}
-            </Text>
-          </View>       
+        <Text style={[styles.TextFam, { color: "#FFCA5D", fontSize: 10 }]}>
+          Callout Address
+        </Text>
+        <View style={{}}>
+          <Text
+            style={[
+              styles.TextFam,
+              { fontSize: 16, fontWeight: "bold", color: "#fff" },
+            ]}
+          >
+            {address}
+          </Text>
+          <Text style={[styles.TextFam, { fontSize: 10, color: "#fff" }]}>
+            {community},{city},{country}
+          </Text>
+        </View>
       </View>
       <View style={styles.Card}>
         <View style={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
+          <Text
+            style={[
+              styles.TextFam,
+              { color: "#000E1E", fontSize: 16, marginBottom: 8 },
+            ]}
+          >
             Job Category
           </Text>
 
@@ -644,9 +695,26 @@ const RequestCallOut = (props) => {
                 color="black"
                 placeholder="Select Job Category"
               >
-                {jobCategory ? jobCategory?.team_expertise.map((element,i) => ( //Map job category from db
-                  <Select.Item label={element.skill_name} value={element.skill_name} key={i} onTouchEnd={() => selectJobCategoryPressed(element.id)} />
-                )) : <Select.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />}
+                {jobCategory ? (
+                  jobCategory?.team_expertise.map(
+                    (
+                      element,
+                      i //Map job category from db
+                    ) => (
+                      <Select.Item
+                        label={element.skill_name}
+                        value={element.skill_name}
+                        key={i}
+                        onTouchEnd={() => selectJobCategoryPressed(element.id)}
+                      />
+                    )
+                  )
+                ) : (
+                  <Select.Item
+                    label="Drains blockage- WCs"
+                    value="Drains blockage- WCs"
+                  />
+                )}
               </Select>
             ) : (
               <Select //else request for additional services
@@ -658,7 +726,10 @@ const RequestCallOut = (props) => {
                 color="black"
                 placeholder="Select Request Type"
               >
-                <Select.Item label="Request for quotation" value="Request for quotation" />
+                <Select.Item
+                  label="Request for quotation"
+                  value="Request for quotation"
+                />
                 <Select.Item label="AC" value="AC" />
                 <Select.Item label="Plumbing" value="Plumbing" />
                 <Select.Item label="Electric" value="Electric" />
@@ -670,24 +741,41 @@ const RequestCallOut = (props) => {
             )}
           </View>
 
-          <View style={{paddingTop: "5%"}}>
-          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
-            Job Type
-          </Text> 
-              <Select
-                isDisabled={jobType?.team_expertise && !loadingJobType ? false : true}
-                mode="dialog"
-                onValueChange={onJobTypeValueChange}
-                selectedValue={jobTypeSelect?.value}
-                color="black"
-                placeholder="Select Job Type"
-              >
-                {jobType ? jobType?.team_expertise.map((element,i) => (
-                  <Select.Item label={element.skill_name} value={element.skill_name} key={i} />
-                )) : <Select.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />}
-              </Select>
+          <View style={{ paddingTop: "5%" }}>
+            <Text
+              style={[
+                styles.TextFam,
+                { color: "#000E1E", fontSize: 16, marginBottom: 8 },
+              ]}
+            >
+              Job Type
+            </Text>
+            <Select
+              isDisabled={
+                jobType?.team_expertise && !loadingJobType ? false : true
+              }
+              mode="dialog"
+              onValueChange={onJobTypeValueChange}
+              selectedValue={jobTypeSelect?.value}
+              color="black"
+              placeholder="Select Job Type"
+            >
+              {jobType ? (
+                jobType?.team_expertise.map((element, i) => (
+                  <Select.Item
+                    label={element.skill_name}
+                    value={element.skill_name}
+                    key={i}
+                  />
+                ))
+              ) : (
+                <Select.Item
+                  label="Drains blockage- WCs"
+                  value="Drains blockage- WCs"
+                />
+              )}
+            </Select>
           </View>
-
 
           {state.JobType === "other" ? (
             <View style={{ paddingTop: "3%" }}>
@@ -705,44 +793,81 @@ const RequestCallOut = (props) => {
             </View>
           ) : null}
           <View style={{ height: "3%" }} />
-         
-            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Urgency</Text>
-         
-         <View style={{ height: "2%" }} />
-         
+
+          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
+            Urgency
+          </Text>
+
+          <View style={{ height: "2%" }} />
+
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              width: "100%",
+              justifyContent: "space-between",
+              // paddingHorizontal: "5%",
+            }}
+          >
+            <View style={{ flex: 1, flexDirection: "row", width: "100%" }}>
+              <TouchableOpacity
+                style={styles.circle}
+                onPress={() => setState({ ...state, Urgency: "High" })} // we set our value state to key
+              >
+                {state.Urgency === "High" ? (
+                  <View style={styles.checkedCircle} />
+                ) : null}
+              </TouchableOpacity>
+
+              <Text
+                style={[
+                  styles.TextFam,
+                  { paddingLeft: "2%", paddingRight: "2%", fontSize: 14 },
+                ]}
+              >
+                High
+              </Text>
+              <Icon
+                name="flag"
+                as={<Ionicons name="flag-sharp" />}
+                style={{ fontSize: 16, color: "red", marginTop: -6 }}
+              />
+            </View>
             <View
               style={{
                 flex: 1,
                 flexDirection: "row",
                 width: "100%",
-                justifyContent: 'space-between'
-                // paddingHorizontal: "5%",
+                justifyContent: "flex-end",
               }}
             >
-              <View style={{flex: 1, flexDirection:"row", width: "100%"}}>
-              <TouchableOpacity
-                style={styles.circle}
-                onPress={() => setState({ ...state, Urgency: "High" })} // we set our value state to key
-              >
-                {state.Urgency === "High" ? <View style={styles.checkedCircle} /> : null}
-              </TouchableOpacity>
-
-              <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "2%", fontSize: 14 }]}>High</Text>
-              <Icon name="flag" as={<Ionicons name="flag-sharp" />}  style={{ fontSize: 16, color: "red", marginTop: -6 }} />
-              </View>
-              <View style={{flex: 1, flexDirection:"row", width: "100%", justifyContent: "flex-end"}}>
               <TouchableOpacity
                 style={styles.circle}
                 onPress={() => setState({ ...state, Urgency: "medium" })} // we set our value state to key
               >
-                {state.Urgency === "medium" ? <View style={styles.checkedCircle} /> : null}
+                {state.Urgency === "medium" ? (
+                  <View style={styles.checkedCircle} />
+                ) : null}
               </TouchableOpacity>
-              <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "2%", fontSize: 14 }]}>Medium</Text>
-              <Icon name="flag" as={<Ionicons name="flag-sharp" />} style={{ fontSize: 16, color: "#FFCA5D", marginTop: -6, }} />
-              </View>
+              <Text
+                style={[
+                  styles.TextFam,
+                  { paddingLeft: "2%", paddingRight: "2%", fontSize: 14 },
+                ]}
+              >
+                Medium
+              </Text>
+              <Icon
+                name="flag"
+                as={<Ionicons name="flag-sharp" />}
+                style={{ fontSize: 16, color: "#FFCA5D", marginTop: -6 }}
+              />
             </View>
+          </View>
           <View style={{ height: "3%" }} />
-          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Description</Text>
+          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
+            Description
+          </Text>
           <View style={{ height: "2%" }} />
           <View style={styles.DestxtStyle}>
             <TextInput
@@ -764,7 +889,9 @@ const RequestCallOut = (props) => {
             />
           </View>
           <View style={{ height: "3%" }} />
-          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Images</Text>
+          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
+            Images
+          </Text>
           <View
             style={{
               flexDirection: "row",
@@ -773,42 +900,85 @@ const RequestCallOut = (props) => {
               justifyContent: "space-between",
             }}
           >
-            <TouchableOpacity style={styles.ImageSelectStyle} onPress={CameraSnap}>
-              <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}> Camera </Text>
+            <TouchableOpacity
+              style={styles.ImageSelectStyle}
+              onPress={CameraSnap}
+            >
+              <Text
+                style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}
+              >
+                {" "}
+                Camera{" "}
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.ImageSelectStyle} onPress={selectFromGallery}>
-              <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}> Select Images From Gallery </Text>
+            <TouchableOpacity
+              style={styles.ImageSelectStyle}
+              onPress={selectFromGallery}
+            >
+              <Text
+                style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}
+              >
+                {" "}
+                Select Images From Gallery{" "}
+              </Text>
             </TouchableOpacity>
-            
-              {state.video ? (
-                !videoSaving ? (
-                  <View>
-                    <TouchableOpacity
-                      style={[styles.ImageSelectStyle, { marginBottom: 10 }]}
-                      onPress={showPlayVideoScreen}
+
+            {state.video ? (
+              !videoSaving ? (
+                <View>
+                  <TouchableOpacity
+                    style={[styles.ImageSelectStyle, { marginBottom: 10 }]}
+                    onPress={showPlayVideoScreen}
+                  >
+                    <Text
+                      style={[
+                        styles.TextFam,
+                        { color: "#000E1E", fontSize: 10 },
+                      ]}
                     >
-                      <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>Play Video</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      disabled={state.videoUrl.length}
-                      style={[styles.ImageSelectStyle, state.videoUrl.length ? styles.disabledButton : null]}
-                      onPress={saveVideoCloud}
+                      Play Video
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    disabled={state.videoUrl.length}
+                    style={[
+                      styles.ImageSelectStyle,
+                      state.videoUrl.length ? styles.disabledButton : null,
+                    ]}
+                    onPress={saveVideoCloud}
+                  >
+                    <Text
+                      style={[
+                        styles.TextFam,
+                        {
+                          color: state.videoUrl.length ? "#bbb" : "#000E1E",
+                          fontSize: 10,
+                        },
+                      ]}
                     >
-                      <Text
-                        style={[styles.TextFam, { color: state.videoUrl.length ? "#bbb" : "#000E1E", fontSize: 10 }]}
-                      >
-                        Save Video
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : (
-                  <ActivityIndicator size="large" color="#000" style={{ alignSelf: "center" }} />
-                )
+                      Save Video
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               ) : (
-                <TouchableOpacity style={styles.ImageSelectStyle} onPress={showVideoScreenCallback}>
-                  <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>Add video</Text>
-                </TouchableOpacity>
-              )}
+                <ActivityIndicator
+                  size="large"
+                  color="#000"
+                  style={{ alignSelf: "center" }}
+                />
+              )
+            ) : (
+              <TouchableOpacity
+                style={styles.ImageSelectStyle}
+                onPress={showVideoScreenCallback}
+              >
+                <Text
+                  style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}
+                >
+                  Add video
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
           <View
             style={{
@@ -831,7 +1001,7 @@ const RequestCallOut = (props) => {
               >
                 <Icon
                   name="link"
-                  as={<Ionicons name="link" />} 
+                  as={<Ionicons name="link" />}
                   style={{
                     fontSize: 20,
                     color: state.picture1 === "" ? "#aaa" : "#000E1E",
@@ -861,7 +1031,7 @@ const RequestCallOut = (props) => {
                 }}
               >
                 <Icon
-                  as={<Ionicons name="link" />} 
+                  as={<Ionicons name="link" />}
                   name="link"
                   style={{
                     fontSize: 20,
@@ -901,7 +1071,7 @@ const RequestCallOut = (props) => {
                 }}
               >
                 <Icon
-                  as={<Ionicons name="link" />} 
+                  as={<Ionicons name="link" />}
                   name="link"
                   style={{
                     fontSize: 20,
@@ -932,7 +1102,7 @@ const RequestCallOut = (props) => {
                 }}
               >
                 <Icon
-                  as={<Ionicons name="link" />} 
+                  as={<Ionicons name="link" />}
                   name="link"
                   style={{
                     fontSize: 20,
@@ -953,19 +1123,21 @@ const RequestCallOut = (props) => {
             </TouchableOpacity>
           </View>
           <Box mb={24} mt={4}>
-          <Button isLoading={state.loading} style={styles.SubmitCallout} onPress={() => askSubmitCallout()}>
-            <Text
-              style={{
-                color: "#fff",
-                fontSize: 15,
-                alignSelf: "center",
-              }}
+            <Button
+              isLoading={state.loading}
+              style={styles.SubmitCallout}
+              onPress={() => askSubmitCallout()}
             >
-              {state.Urgency === "medium"
-                ? "Select Date"
-                : "Submit Callout"}
-            </Text>
-          </Button>
+              <Text
+                style={{
+                  color: "#fff",
+                  fontSize: 15,
+                  alignSelf: "center",
+                }}
+              >
+                {state.Urgency === "medium" ? "Select Date" : "Submit Callout"}
+              </Text>
+            </Button>
           </Box>
         </View>
       </View>
@@ -986,7 +1158,11 @@ const RequestCallOut = (props) => {
 
           <TouchableOpacity onPress={() => RemoveImages()}>
             <View style={styles.ButtonSty}>
-              <Text style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}>Remove Image</Text>
+              <Text
+                style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}
+              >
+                Remove Image
+              </Text>
             </View>
           </TouchableOpacity>
           <Text> </Text>
@@ -994,7 +1170,11 @@ const RequestCallOut = (props) => {
 
           <TouchableOpacity onPress={() => setState({ isPicvisible: false })}>
             <View style={styles.ButtonSty}>
-              <Text style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}>Close</Text>
+              <Text
+                style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}
+              >
+                Close
+              </Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -1023,9 +1203,17 @@ const VideoPlayScreen = ({ setVideoPlayScreen, video: uri }) => {
         <Button
           color="#FFCA5D"
           style={{ marginRight: 20 }}
-          onPress={() => (status.isPlaying ? video.current.pauseAsync() : video.current.playAsync())}
-        >{status.isPlaying ? "Pause" : "Play"}</Button>
-        <Button color="#FFCA5D" onPress={() => setVideoPlayScreen(false)} >Close</Button>
+          onPress={() =>
+            status.isPlaying
+              ? video.current.pauseAsync()
+              : video.current.playAsync()
+          }
+        >
+          {status.isPlaying ? "Pause" : "Play"}
+        </Button>
+        <Button color="#FFCA5D" onPress={() => setVideoPlayScreen(false)}>
+          Close
+        </Button>
       </View>
     </View>
   );

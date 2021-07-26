@@ -51,7 +51,7 @@ class OngoingCallout extends React.Component {
       alert(
         "Please select property first from 'Property Details' tab in the menu."
       );
-      this.props.navigation.navigate("HomeNaviagtor");
+      this.props.navigation.navigate("Home");
     }
     link =
       "https://www.queensman.com/phase_2/queens_client_Apis/fetchOngoingCalloutsViaPropertyID.php?property_id=" +

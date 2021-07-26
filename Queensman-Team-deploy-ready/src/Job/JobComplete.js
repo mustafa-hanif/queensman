@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import React, {useState, useRef} from "react";
+import React, { useState, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -14,55 +14,96 @@ import StarRating from "react-native-star-rating";
 import { gql, useMutation } from "@apollo/client";
 import { auth } from "../utils/nhost";
 import { Icon } from "native-base";
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from "@expo/vector-icons";
 // import { takeSnapshotAsync } from "expo";
 // import ExpoPixi from "expo-pixi";
 
-
-const FINISH_JOB = gql`mutation FinishFinalJob($id: Int!, $updater_id: Int!, $callout_id: Int!, $feedback: String!, $rating: Int!, $solution: String!, $signature: String!) {
-  insert_job_history_one(object: {callout_id: $callout_id, updater_id: $updater_id, updated_by: "Ops Team", status_update: "Closed"}) {
-    time
-  }
-  update_callout_by_pk(pk_columns: {id: $callout_id}, _set: {status: "Closed"}) {
-    status
-  }
-  update_job(where: {callout_id: {_eq: $callout_id}}, _set: {solution: $solution, rating: $rating, signature: $signature, feedback: $feedback}) {
-    returning {
-      solution
-    }
-  }
-  update_job_tickets_by_pk(
-    pk_columns: { id: $id }
-    _set: { status: "Closed" }
+const FINISH_JOB = gql`
+  mutation FinishFinalJob(
+    $id: Int!
+    $updater_id: Int!
+    $callout_id: Int!
+    $feedback: String!
+    $rating: Int!
+    $solution: String!
+    $signature: String!
   ) {
-    id
-  }
-}`
-
-const FINISH_JOB_SINGLE = gql `mutation UpdateJobAndJobTicket ($id: Int!, $callout_id: Int!, $feedback: String!, $rating: Int!, $solution: String!, $signature: String!) {
-  update_job(where: {callout_id: {_eq: $callout_id}}, _set: {solution: $solution, rating: $rating, signature: $signature, feedback: $feedback}) {
-    returning {
-      solution
+    insert_job_history_one(
+      object: {
+        callout_id: $callout_id
+        updater_id: $updater_id
+        updated_by: "Ops Team"
+        status_update: "Closed"
+      }
+    ) {
+      time
     }
-  }
-
-  update_job_tickets_by_pk(
+    update_callout_by_pk(
+      pk_columns: { id: $callout_id }
+      _set: { status: "Closed" }
+    ) {
+      status
+    }
+    update_job(
+      where: { callout_id: { _eq: $callout_id } }
+      _set: {
+        solution: $solution
+        rating: $rating
+        signature: $signature
+        feedback: $feedback
+      }
+    ) {
+      returning {
+        solution
+      }
+    }
+    update_job_tickets_by_pk(
       pk_columns: { id: $id }
       _set: { status: "Closed" }
     ) {
       id
     }
-}
-`
+  }
+`;
+
+const FINISH_JOB_SINGLE = gql`
+  mutation UpdateJobAndJobTicket(
+    $id: Int!
+    $callout_id: Int!
+    $feedback: String!
+    $rating: Int!
+    $solution: String!
+    $signature: String!
+  ) {
+    update_job(
+      where: { callout_id: { _eq: $callout_id } }
+      _set: {
+        solution: $solution
+        rating: $rating
+        signature: $signature
+        feedback: $feedback
+      }
+    ) {
+      returning {
+        solution
+      }
+    }
+
+    update_job_tickets_by_pk(
+      pk_columns: { id: $id }
+      _set: { status: "Closed" }
+    ) {
+      id
+    }
+  }
+`;
 const JobComplete = (props) => {
-
-
-  const ticketCount = props.navigation.getParam('ticketCount', {})
-  const workerId = props.navigation.getParam('workerId', null);
-  const ticketId = props.navigation.getParam('ticketDetails', {}).id
-  const clientEmail = props.navigation.getParam('it', {}).client.email
-  const clientPhone = props.navigation.getParam('it', {}).client.phone
-  const signatureCanvas =  useRef();
+  const ticketCount = props.navigation.getParam("ticketCount", {});
+  const workerId = props.navigation.getParam("workerId", null);
+  const ticketId = props.navigation.getParam("ticketDetails", {}).id;
+  const clientEmail = props.navigation.getParam("it", {}).client.email;
+  const clientPhone = props.navigation.getParam("it", {}).client.phone;
+  const signatureCanvas = useRef();
   const [state, setState] = useState({
     starCount: 0,
     feedback: "No Feedback",
@@ -71,14 +112,13 @@ const JobComplete = (props) => {
     strokeColor: 0,
     SignatureUrl: null,
     CallOutID: props.navigation.getParam("QJobID", "Something"),
-    Solution: props.navigation.getParam("Sol", "Something")
-  })
+    Solution: props.navigation.getParam("Sol", "Something"),
+  });
 
-  const [finishJob, { loading, error }] =
-    useMutation(FINISH_JOB);
+  const [finishJob, { loading, error }] = useMutation(FINISH_JOB);
 
-  const [finishJobSingle] = useMutation(FINISH_JOB_SINGLE)
-  
+  const [finishJobSingle] = useMutation(FINISH_JOB_SINGLE);
+
   // const saveCanvas = async ({ width, height }) => {
   //   const options = {
   //     format: "png", /// PNG because the view has a clear background
@@ -97,8 +137,8 @@ const JobComplete = (props) => {
   // };
 
   const onStarRatingPress = (rating) => {
-    setState({...state, starCount: rating});
-  }
+    setState({ ...state, starCount: rating });
+  };
 
   const AlertJobDone = () => {
     Alert.alert(
@@ -117,50 +157,53 @@ const JobComplete = (props) => {
   };
 
   const doneJob = async () => {
-      // saveCanvas()
-      console.log(ticketCount)
-      if(ticketCount == 1) {
-        console.log("One Job")
-        // console.log({
-        //   id: ticketId,
-        //   updater_id: workerId,
-        //   callout_id: state.CallOutID,
-        //   feedback: state.feedback,
-        //   rating: state.starCount,
-        //   solution: state.Solution,
-        //   signature: auth.user().email
-        // })
+    // saveCanvas()
+    console.log(ticketCount);
+    if (ticketCount == 1) {
+      console.log("One Job");
+      // console.log({
+      //   id: ticketId,
+      //   updater_id: workerId,
+      //   callout_id: state.CallOutID,
+      //   feedback: state.feedback,
+      //   rating: state.starCount,
+      //   solution: state.Solution,
+      //   signature: auth.user().email
+      // })
 
-      const form = new FormData()
+      const form = new FormData();
       /*eslint-disable*/
-      form.append("arguments", JSON.stringify({
-        "subject": "Task from app",
-        "email": clientEmail,
-        "description": `Feedback: ${state.feedback}`,
-        "status": "Closed",
-        "lastTicket": true,
-        "score": state.starCount
-      }))
+      form.append(
+        "arguments",
+        JSON.stringify({
+          subject: "Task from app",
+          email: clientEmail,
+          description: `Feedback: ${state.feedback}`,
+          status: "Closed",
+          lastTicket: true,
+          score: state.starCount,
+        })
+      );
 
       try {
         const result = await fetch(
-          'https://www.zohoapis.com/crm/v2/functions/createzohodeskticket/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf',
+          "https://www.zohoapis.com/crm/v2/functions/createzohodeskticket/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf",
           {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'x-hasura-admin-secret': 'd71e216c844d298d91fbae2407698b22'
+              "x-hasura-admin-secret": "d71e216c844d298d91fbae2407698b22",
             },
-            body: form
+            body: form,
           }
         );
         let resultJson = await result.json();
-        let output = resultJson.details.output
-        if(output.substring(0,14) == "No email found") {
-          alert(output)
+        let output = resultJson.details.output;
+        if (output.substring(0, 14) == "No email found") {
+          alert(output);
         }
       } catch (e) {
-        console.log("ERROR")
-        console.log(e)
+        console.log("ERROR");
+        console.log(e);
       }
 
       console.log({
@@ -170,149 +213,156 @@ const JobComplete = (props) => {
         feedback: state.feedback,
         rating: state.starCount,
         solution: state.Solution,
-        signature: auth.user().email
+        signature: auth.user().email,
       });
-        try {
-          await finishJob({variables: {
+      try {
+        await finishJob({
+          variables: {
             id: ticketId,
             updater_id: workerId,
             callout_id: state.CallOutID,
             feedback: state.feedback,
             rating: state.starCount,
             solution: state.Solution,
-            signature: auth.user().email
-          }})
-          setTimeout(() => {
-            props.navigation.navigate("HomeNaviagtor")
-          }, 1000);
-        } catch (e) {
-          console.log(e)
-          alert("Could not submit Job!");
-        }
-      } else {
-        console.log("Many job")
-        const form = new FormData()
-        /*eslint-disable*/
-        form.append("arguments", JSON.stringify({
-          "subject": "Task from app",
-          "email": clientEmail,
-          "description": `Feedback: ${state.feedback}`,
-          "status": "Closed",
-          "lastTicket": false,
-          "score": state.starCount
-        }))
-  
-        try {
-          const result = await fetch(
-            'https://www.zohoapis.com/crm/v2/functions/createzohodeskticket/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf',
-            {
-              method: 'POST',
-              headers: {
-                'x-hasura-admin-secret': 'd71e216c844d298d91fbae2407698b22'
-              },
-              body: form
-            }
-          );
-          let resultJson = await result.json();
-          let output = resultJson.details.output
-          if(output.substring(0,14) == "No email found") {
-            alert(output)
+            signature: auth.user().email,
+          },
+        });
+        setTimeout(() => {
+          props.navigation.navigate("Home");
+        }, 1000);
+      } catch (e) {
+        console.log(e);
+        alert("Could not submit Job!");
+      }
+    } else {
+      console.log("Many job");
+      const form = new FormData();
+      /*eslint-disable*/
+      form.append(
+        "arguments",
+        JSON.stringify({
+          subject: "Task from app",
+          email: clientEmail,
+          description: `Feedback: ${state.feedback}`,
+          status: "Closed",
+          lastTicket: false,
+          score: state.starCount,
+        })
+      );
+
+      try {
+        const result = await fetch(
+          "https://www.zohoapis.com/crm/v2/functions/createzohodeskticket/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf",
+          {
+            method: "POST",
+            headers: {
+              "x-hasura-admin-secret": "d71e216c844d298d91fbae2407698b22",
+            },
+            body: form,
           }
-        } catch (e) {
-          console.log("ERROR")
-          console.log(e)
+        );
+        let resultJson = await result.json();
+        let output = resultJson.details.output;
+        if (output.substring(0, 14) == "No email found") {
+          alert(output);
         }
-  
-        try {
-          await finishJobSingle({variables: {
+      } catch (e) {
+        console.log("ERROR");
+        console.log(e);
+      }
+
+      try {
+        await finishJobSingle({
+          variables: {
             id: ticketId,
             callout_id: state.CallOutID,
             feedback: state.feedback,
             rating: state.starCount,
             solution: state.Solution,
-            signature: auth.user().email
-          }})
-          alert("Service has been successfully completed. Great Job!");
-          props.navigation.navigate("HomeNaviagtor");
-        } catch (e) {
-          console.log(e)
-          alert("Could not submit Job!");
-        }
+            signature: auth.user().email,
+          },
+        });
+        alert("Service has been successfully completed. Great Job!");
+        props.navigation.navigate("Home");
+      } catch (e) {
+        console.log(e);
+        alert("Could not submit Job!");
       }
+    }
   };
 
-    return (
-      <ScrollView scrollEnabled={true} contentContainerStyle={styles.container}>
-        <Text
-          style={{
-            fontSize: 15,
-            fontWeight: "500",
-            color: "#FFCA5D",
-            marginBottom: "1.5%",
-          }}
-        >
-          Rating
-        </Text>
-        <Text
-          style={{
-            fontSize: 12,
-            fontWeight: "500",
-            color: "#001E2B",
-            marginBottom: "1.5%",
-          }}
-        >
-          How would you rate our services?{" "}
-        </Text>
-        <View style={{ height: "4%" }}></View>
-        <View style={{ width: "70%" }}>
-          <StarRating
-            disabled={false}
-            maxStars={5}
-            fullStarColor={"#001E2B"}
-            rating={state.starCount}
-            selectedStar={(rating) => onStarRatingPress(rating)}
-          />
-        </View>
-        <View style={{ height: "4%" }}></View>
-        <Text
-          style={{
-            fontSize: 15,
-            fontWeight: "500",
-            color: "#FFCA5D",
-            marginBottom: "1.5%",
-          }}
-        >
-          Feedback
-        </Text>
-        <View style={{ height: 20 }}></View>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Icon
+  return (
+    <ScrollView scrollEnabled={true} contentContainerStyle={styles.container}>
+      <Text
+        style={{
+          fontSize: 15,
+          fontWeight: "500",
+          color: "#FFCA5D",
+          marginBottom: "1.5%",
+        }}
+      >
+        Rating
+      </Text>
+      <Text
+        style={{
+          fontSize: 12,
+          fontWeight: "500",
+          color: "#001E2B",
+          marginBottom: "1.5%",
+        }}
+      >
+        How would you rate our services?{" "}
+      </Text>
+      <View style={{ height: "4%" }}></View>
+      <View style={{ width: "70%" }}>
+        <StarRating
+          disabled={false}
+          maxStars={5}
+          fullStarColor={"#001E2B"}
+          rating={state.starCount}
+          selectedStar={(rating) => onStarRatingPress(rating)}
+        />
+      </View>
+      <View style={{ height: "4%" }}></View>
+      <Text
+        style={{
+          fontSize: 15,
+          fontWeight: "500",
+          color: "#FFCA5D",
+          marginBottom: "1.5%",
+        }}
+      >
+        Feedback
+      </Text>
+      <View style={{ height: 20 }}></View>
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <Icon
           as={MaterialIcons}
-            name="feedback"
-            style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
-          ></Icon>
-          <TextInput
-            // ref="textInputMobile"
-            style={{ fontSize: 15, color: "#000E1E", width: "83%" }}
-            placeholder="Please type your valuable feedback here.."
-            defaultValue={state.feedback}
-            placeholderTextColor="#000E1E"
-            underlineColorAndroid="transparent"
-            onChangeText={(feedback) => {
-              setState({ ...state, feedback });
-            }} //email set
-          />
-        </View>
-        <View
-          style={{
-            borderBottomColor: "#aaa",
-            borderBottomWidth: 2,
-            width: "100%",
-            paddingTop: "3%",
-          }}
-        ></View>
-        <View style={{ height: "4%" }}></View>
-        {/* <Text
+          name="feedback"
+          style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
+        ></Icon>
+        <TextInput
+          // ref="textInputMobile"
+          style={{ fontSize: 15, color: "#000E1E", width: "83%" }}
+          placeholder="Please type your valuable feedback here.."
+          defaultValue={state.feedback}
+          placeholderTextColor="#000E1E"
+          underlineColorAndroid="transparent"
+          onChangeText={(feedback) => {
+            setState({ ...state, feedback });
+          }} //email set
+        />
+      </View>
+      <View
+        style={{
+          borderBottomColor: "#aaa",
+          borderBottomWidth: 2,
+          width: "100%",
+          paddingTop: "3%",
+        }}
+      ></View>
+      <View style={{ height: "4%" }}></View>
+      {/* <Text
           style={{
             fontSize: 15,
             fontWeight: "500",
@@ -332,15 +382,11 @@ const JobComplete = (props) => {
             strokeWidth={3}
           />
         </View> */}
-        <View style={{ height: "4%" }}></View>
-        <Button
-          onPress={AlertJobDone}
-          title="FINISH THE JOB"
-          color="#FFCA5D"
-        />
-      </ScrollView>
-    );
-  }
+      <View style={{ height: "4%" }}></View>
+      <Button onPress={AlertJobDone} title="FINISH THE JOB" color="#FFCA5D" />
+    </ScrollView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -358,4 +404,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default JobComplete
+export default JobComplete;

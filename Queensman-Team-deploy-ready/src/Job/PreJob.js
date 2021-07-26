@@ -18,7 +18,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  SafeAreaView
+  SafeAreaView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
@@ -27,7 +27,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Modal from "react-native-modal";
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { Content, Icon } from "native-base";
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { auth, storage } from "../utils/nhost";
 
 const GET_NOTES = gql`
@@ -56,40 +56,50 @@ const DELETE_NOTE = gql`
   }
 `;
 
-const FINISH_JOB = gql
-`mutation FinishFinalJob($id: Int!, $updater_id: Int!, $callout_id: Int!) {
-  insert_job_history_one(object: {callout_id: $callout_id, updater_id: $updater_id, updated_by: "Ops Team", status_update: "Closed"}) {
-    time
-  }
-  update_callout_by_pk(pk_columns: {id: $callout_id}, _set: {status: "Closed"}) {
-    status
-  }
-  
-  update_job_tickets_by_pk(
-    pk_columns: { id: $id }
-    _set: { status: "Closed" }
-  ) {
-    id
-  }
-}`
+const FINISH_JOB = gql`
+  mutation FinishFinalJob($id: Int!, $updater_id: Int!, $callout_id: Int!) {
+    insert_job_history_one(
+      object: {
+        callout_id: $callout_id
+        updater_id: $updater_id
+        updated_by: "Ops Team"
+        status_update: "Closed"
+      }
+    ) {
+      time
+    }
+    update_callout_by_pk(
+      pk_columns: { id: $callout_id }
+      _set: { status: "Closed" }
+    ) {
+      status
+    }
 
-const FINISH_JOB_SINGLE = gql `
-mutation UpdateJobAndJobTicket ($id: Int!) {
-  update_job_tickets_by_pk(
+    update_job_tickets_by_pk(
       pk_columns: { id: $id }
       _set: { status: "Closed" }
     ) {
       id
     }
-}
-`
+  }
+`;
 
+const FINISH_JOB_SINGLE = gql`
+  mutation UpdateJobAndJobTicket($id: Int!) {
+    update_job_tickets_by_pk(
+      pk_columns: { id: $id }
+      _set: { status: "Closed" }
+    ) {
+      id
+    }
+  }
+`;
 
 const PreJob = (props) => {
-  const ticketId = props.navigation.getParam("ticketDetails", {}).id
-  const workerId = props.navigation.getParam('workerId', {})
-  const ticket = props.navigation.getParam("ticketDetails", {})
-  const ticketCount = props.navigation.getParam('ticketCount', {})
+  const ticketId = props.navigation.getParam("ticketDetails", {}).id;
+  const workerId = props.navigation.getParam("workerId", {});
+  const ticket = props.navigation.getParam("ticketDetails", {});
+  const ticketCount = props.navigation.getParam("ticketCount", {});
   const pics = Object.fromEntries(
     [...Array(10)].map((_, index) => {
       return [`Pic${index}`, "link"];
@@ -127,11 +137,9 @@ const PreJob = (props) => {
     },
   });
 
-  const [finishJob] =
-  useMutation(FINISH_JOB);
+  const [finishJob] = useMutation(FINISH_JOB);
 
-  const [finishJobSingle] = useMutation(FINISH_JOB_SINGLE)
-
+  const [finishJobSingle] = useMutation(FINISH_JOB_SINGLE);
 
   useEffect(() => {
     fetchNotes();
@@ -179,37 +187,40 @@ const PreJob = (props) => {
 
   const doneJob = async () => {
     // saveCanvas()
-    console.log(ticketCount)
-    if(ticketCount == 1) {
-      console.log("One Job")
-
+    console.log(ticketCount);
+    if (ticketCount == 1) {
+      console.log("One Job");
 
       try {
-        await finishJob({variables: {
-          id: ticketId,
-          updater_id: workerId,
-          callout_id: state.CallOutID,
-        }})
+        await finishJob({
+          variables: {
+            id: ticketId,
+            updater_id: workerId,
+            callout_id: state.CallOutID,
+          },
+        });
         alert("Service has been successfully completed. Great Job!");
-        props.navigation.navigate("HomeNaviagtor");
+        props.navigation.navigate("Home");
       } catch (e) {
-        console.log(e)
+        console.log(e);
         alert("Could not submit Job!");
       }
     } else {
-      console.log("Many job")
+      console.log("Many job");
       try {
-        await finishJobSingle({variables: {
-          id: ticketId,
-        }})
+        await finishJobSingle({
+          variables: {
+            id: ticketId,
+          },
+        });
         alert("Service has been successfully completed. Great Job!");
-        props.navigation.navigate("HomeNaviagtor");
+        props.navigation.navigate("Home");
       } catch (e) {
-        console.log(e)
+        console.log(e);
         alert("Could not submit Job!");
       }
     }
-};
+  };
 
   const PreJobHandler = () => {
     if (state.IsImageuploaded) {
@@ -217,7 +228,7 @@ const PreJob = (props) => {
         QJobID: state.CallOutID,
         it: props.navigation.getParam("it", {}),
         ticketDetails: props.navigation.getParam("ticketDetails", {}),
-        ticketCount: props.navigation.getParam('ticketCount', {}),
+        ticketCount: props.navigation.getParam("ticketCount", {}),
       });
     } else {
       alert("Please upload pre job images first!");
@@ -278,8 +289,8 @@ const PreJob = (props) => {
     console.log({ pictures });
     if (Object.keys(pictures).length > 0) {
       setState({ ...state, IsImageuploaded: true });
-    }else{
-      alert('Please Select an Image First')
+    } else {
+      alert("Please Select an Image First");
     }
 
     return pictures;
@@ -442,7 +453,7 @@ const PreJob = (props) => {
         }}
       >
         <Icon
-        as={Ionicons}
+          as={Ionicons}
           name="ios-newspaper-outline"
           style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
         />
@@ -463,7 +474,7 @@ const PreJob = (props) => {
         />
         <TouchableOpacity onPress={addNote}>
           <Icon
-          as={Ionicons}
+            as={Ionicons}
             name="add-circle"
             style={{ fontSize: 25, color: "#000E1E" }}
           />
@@ -474,100 +485,108 @@ const PreJob = (props) => {
 
   return (
     <ScrollView style={styles.container}>
-       <Heading style={{ fontSize: 20, alignSelf: "center", color: "black", marginVertical:20 }}>
-       Upload Images
-        </Heading>
-        <View style={{ height: "2%" }}></View>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            paddingHorizontal: "5%",
-            opacity: state.IsImageuploaded ? 0.3 : 1,
-          }}
-          pointerEvents={state.IsImageuploaded ? "none" : "auto"}
-        >
-          <TouchableOpacity onPress={cameraSnap}>
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-              as={Ionicons}
-                name="camera"
-                style={{ fontSize: 20, color: "#000E1E", paddingRight: "3%" }}
-              />
-              <Text style={{ fontSize: 13, marginBottom: "1%" }}>Camera</Text>
-            </View>
-          </TouchableOpacity>
-          <Text style={{ fontSize: 13, marginBottom: "1%" }}>OR</Text>
-          <TouchableOpacity
-            onPress={SelectImages}
-            disabled={state.UploadButtonDeactive}
+      <Heading
+        style={{
+          fontSize: 20,
+          alignSelf: "center",
+          color: "black",
+          marginVertical: 20,
+        }}
+      >
+        Upload Images
+      </Heading>
+      <View style={{ height: "2%" }}></View>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          paddingHorizontal: "5%",
+          opacity: state.IsImageuploaded ? 0.3 : 1,
+        }}
+        pointerEvents={state.IsImageuploaded ? "none" : "auto"}
+      >
+        <TouchableOpacity onPress={cameraSnap}>
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
           >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
+            <Icon
               as={Ionicons}
-                name="add-circle"
-                style={{ fontSize: 20, color: "#000E1E", paddingRight: "3%" }}
-              />
-              <Text style={{ fontSize: 13, marginBottom: "1%" }}>
-                Select Image From Gallery
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+              name="camera"
+              style={{ fontSize: 20, color: "#000E1E", paddingRight: "3%" }}
+            />
+            <Text style={{ fontSize: 13, marginBottom: "1%" }}>Camera</Text>
+          </View>
+        </TouchableOpacity>
+        <Text style={{ fontSize: 13, marginBottom: "1%" }}>OR</Text>
+        <TouchableOpacity
+          onPress={SelectImages}
+          disabled={state.UploadButtonDeactive}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              as={Ionicons}
+              name="add-circle"
+              style={{ fontSize: 20, color: "#000E1E", paddingRight: "3%" }}
+            />
+            <Text style={{ fontSize: 13, marginBottom: "1%" }}>
+              Select Image From Gallery
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
 
-        <View
-          style={{
-            width: "100%",
-            paddingHorizontal: "5%",
-            marginTop: "2%",
-            opacity: state.IsImageuploaded ? 0.3 : 1,
-          }}
-        >
-          {[...Array(10)].map((_, i) => {
-            return (
-              <PictureLink
-                key={`Picture ${i}`}
-                label={`Picture ${i}`}
-                picture={state[`Pic${i}`]}
-                toggleGalleryEventModal={toggleGalleryEventModal}
-                index={i}
-              />
-            );
-          })}
-        </View>
-        <View style={{ height: "3%" }}></View>
-        <Button
-          disabled={state.IsImageuploaded}
-          onPress={AlertUploadImage}
-          title="UPLOAD IMAGES"
-          color="#FFCA5D"
-        />
-        <Text
-          style={{
-            fontSize: 15,
-            fontWeight: "500",
-            color: "#FFCA5D",
-            marginBottom: "1.5%",
-            marginTop: "4%",
-          }}
-        >
-          Notes:{" "}
-        </Text>
-        <View  style={{ heigh: "30%", width: "100%" }}>
-          {data?.job_notes && !delNoteLoading ? <FlatList
+      <View
+        style={{
+          width: "100%",
+          paddingHorizontal: "5%",
+          marginTop: "2%",
+          opacity: state.IsImageuploaded ? 0.3 : 1,
+        }}
+      >
+        {[...Array(10)].map((_, i) => {
+          return (
+            <PictureLink
+              key={`Picture ${i}`}
+              label={`Picture ${i}`}
+              picture={state[`Pic${i}`]}
+              toggleGalleryEventModal={toggleGalleryEventModal}
+              index={i}
+            />
+          );
+        })}
+      </View>
+      <View style={{ height: "3%" }}></View>
+      <Button
+        disabled={state.IsImageuploaded}
+        onPress={AlertUploadImage}
+        title="UPLOAD IMAGES"
+        color="#FFCA5D"
+      />
+      <Text
+        style={{
+          fontSize: 15,
+          fontWeight: "500",
+          color: "#FFCA5D",
+          marginBottom: "1.5%",
+          marginTop: "4%",
+        }}
+      >
+        Notes:{" "}
+      </Text>
+      <View style={{ heigh: "30%", width: "100%" }}>
+        {data?.job_notes && !delNoteLoading ? (
+          <FlatList
             data={data?.job_notes || []}
             keyExtractor={(item, index) => `${index}`}
             renderItem={({ item }) => (
@@ -582,7 +601,7 @@ const PreJob = (props) => {
               >
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <Icon
-                  as={Ionicons}
+                    as={Ionicons}
                     name="remove"
                     style={{ fontSize: 12, color: "#aaa" }}
                   />
@@ -594,52 +613,58 @@ const PreJob = (props) => {
 
                 <TouchableOpacity onPress={() => RemoveNotesAlert(item)}>
                   <Icon
-                  as={Ionicons}
+                    as={Ionicons}
                     name="close-circle"
                     style={{ fontSize: 20, color: "#FFCA5D" }}
                   />
                 </TouchableOpacity>
               </View>
             )}
-          ></FlatList> : <ActivityIndicator size="small" color="#aaa" />}
-        </View>
-        <View  style={{ borderBottomWidth: 1, paddingBottom: 10 }}>
+          ></FlatList>
+        ) : (
+          <ActivityIndicator size="small" color="#aaa" />
+        )}
+      </View>
+      <View style={{ borderBottomWidth: 1, paddingBottom: 10 }}>
         {addJobNoteLoading && <ActivityIndicator size="small" color="#aaa" />}
         {!addJobNoteLoading && RenderAddNote()}
-       </View>
-       <View style={{ marginTop: 20, marginBottom: 60}}>
-        {ticket.type == "Deferred" ? <Button onPress={AlertSubmitJob} title = "Submit Job" color="#FFCA5D" /> : 
-        <Button onPress={AlertPreJobHandler} title="NEXT" color="#FFCA5D" />}
+      </View>
+      <View style={{ marginTop: 20, marginBottom: 60 }}>
+        {ticket.type == "Deferred" ? (
+          <Button onPress={AlertSubmitJob} title="Submit Job" color="#FFCA5D" />
+        ) : (
+          <Button onPress={AlertPreJobHandler} title="NEXT" color="#FFCA5D" />
+        )}
+      </View>
+
+      <Modal
+        isVisible={state.isPicvisible}
+        onSwipeComplete={() => setState({ ...state, isPicvisible: false })}
+        swipeDirection={["left", "right", "down"]}
+        onBackdropPress={() => setState({ ...state, isPicvisible: false })}
+      >
+        <View style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}>
+          <Image
+            style={{ width: "80%", height: "80%", alignSelf: "center" }}
+            source={{ uri: state.selectedPic }}
+          />
+          <Text> </Text>
+
+          <Button
+            disabled={state.IsImageuploaded}
+            onPress={() => RemoveImages()}
+            title="REMOVE IMAGE"
+            color="#FFCA5D"
+          />
+          <Text> </Text>
+          <Text> </Text>
+          <Button
+            onPress={() => setState({ ...state, isPicvisible: false })}
+            title="CLOSE"
+            color="#FFCA5D"
+          />
         </View>
-
-        <Modal
-          isVisible={state.isPicvisible}
-          onSwipeComplete={() => setState({ ...state, isPicvisible: false })}
-          swipeDirection={["left", "right", "down"]}
-          onBackdropPress={() => setState({ ...state, isPicvisible: false })}
-        >
-          <View style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}>
-            <Image
-              style={{ width: "80%", height: "80%", alignSelf: "center" }}
-              source={{ uri: state.selectedPic }}
-            />
-            <Text> </Text>
-
-            <Button
-              disabled={state.IsImageuploaded}
-              onPress={() => RemoveImages()}
-              title="REMOVE IMAGE"
-              color="#FFCA5D"
-            />
-            <Text> </Text>
-            <Text> </Text>
-            <Button
-              onPress={() => setState({ ...state, isPicvisible: false })}
-              title="CLOSE"
-              color="#FFCA5D"
-            />
-          </View>
-        </Modal>      
+      </Modal>
     </ScrollView>
   );
 };
@@ -686,7 +711,7 @@ const PictureLink = ({ toggleGalleryEventModal, picture, label, index }) => {
         }}
       >
         <Icon
-        as={Ionicons}
+          as={Ionicons}
           name="link"
           style={{
             fontSize: 20,
