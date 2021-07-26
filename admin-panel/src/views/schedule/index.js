@@ -1,21 +1,21 @@
 // ** React Imports
-import { Fragment, useState, useEffect, useRef } from 'react'
+import { Fragment, useState, useEffect, useRef } from "react"
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client"
 
 // ** Third Party Components
-import classnames from 'classnames'
-import { Row, Col } from 'reactstrap'
+import classnames from "classnames"
+import { Row, Col } from "reactstrap"
 
 // ** Calendar App Component Imports
-import Calendar from './Calendar'
+import Calendar from "./Calendar"
 // import SidebarLeft from './SidebarLeft'
-import AddEventSidebar from './AddEventSidebar'
+import AddEventSidebar from "./AddEventSidebar"
 
 // ** Custom Hooks
-import { useRTL } from '@hooks/useRTL'
+import { useRTL } from "@hooks/useRTL"
 
 // ** Store & Actions
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from "react-redux"
 import {
   fetchEvents,
   // updateEvent,
@@ -24,91 +24,122 @@ import {
   // selectEvent,
   addEvent
   // removeEvent
-} from './store/actions/index'
+} from "./store/actions/index"
 
 // ** Styles
-import '@styles/react/apps/app-calendar.scss'
+import "@styles/react/apps/app-calendar.scss"
 
 // ** CalendarColors
 const calendarsColor = {
-  Business: 'primary',
-  Holiday: 'success',
-  Personal: 'danger',
-  Family: 'warning',
-  ETC: 'info'
+  Business: "primary",
+  Holiday: "success",
+  Personal: "danger",
+  Family: "warning",
+  ETC: "info"
 }
 
 const GET_SCHEDULE = gql`
-query GetSchedule($_gte: date!, $_lte: date!) {
-  scheduler(where: {date_on_calendar: {_gte: $_gte, _lte: $_lte}}) {
-    id
-    start: date_on_calendar
-    startTime: time_on_calendar
-    end: end_date_on_calendar
-    endTime: end_time_on_calendar
-    notes
-    worker {
-      full_name
-    }
-    callout_id
-    callout {
-      property {
-        address
-        id
-      }
-      client_callout_email {
-        email
-        full_name
-      }
-      category
-      video
-      job_type
-    }    
-    job_tickets {
-      name
-      description
+  query GetSchedule($_gte: date!, $_lte: date!) {
+    scheduler(where: { date_on_calendar: { _gte: $_gte, _lte: $_lte } }) {
       id
+      start: date_on_calendar
+      startTime: time_on_calendar
+      end: end_date_on_calendar
+      endTime: end_time_on_calendar
       notes
-      pictures
-      type
       worker {
         full_name
+      }
+      callout_id
+      callout {
+        property {
+          address
+          id
+        }
+        client_callout_email {
+          email
+          full_name
+        }
+        category
+        video
+        job_type
+        picture1
+        picture2
+        picture3
+        picture4
+      }
+      job_tickets {
+        name
+        description
         id
-        color_code
+        notes
+        pictures
+        type
+        worker {
+          full_name
+          id
+          color_code
+        }
       }
     }
   }
-}
 `
 
 const UPDATE_CALLOUT = gql`
-mutation UpdateCallout($notes: String, $callout_id: Int, $callout_by_email: String, $category: String, $job_type: String, $scheduler_id: Int) {
-  update_scheduler(where: {id: {_eq: $scheduler_id}}, _set: {notes: $notes}) {
-    affected_rows
+  mutation UpdateCallout(
+    $notes: String
+    $callout_id: Int
+    $callout_by_email: String
+    $category: String
+    $job_type: String
+    $scheduler_id: Int
+  ) {
+    update_scheduler(
+      where: { id: { _eq: $scheduler_id } }
+      _set: { notes: $notes }
+    ) {
+      affected_rows
+    }
+    update_callout(
+      where: { id: { _eq: $callout_id } }
+      _set: {
+        callout_by_email: $callout_by_email
+        category: $category
+        job_type: $job_type
+      }
+    ) {
+      affected_rows
+    }
   }
-  update_callout(where: {id: {_eq: $callout_id}}, _set: {callout_by_email: $callout_by_email, category: $category, job_type: $job_type}) {
-    affected_rows
-  }
-}
 `
 
 const UPDATE_CALLOUT_DRAG = gql`
-mutation UpdateCalloutDrag($scheduler_id: Int, $date_on_calendar: date, $time_on_calendar: time) {
-  update_scheduler(where: {id: {_eq: $scheduler_id}}, _set: {date_on_calendar: $date_on_calendar, time_on_calendar: $time_on_calendar}) {
-    affected_rows
+  mutation UpdateCalloutDrag(
+    $scheduler_id: Int
+    $date_on_calendar: date
+    $time_on_calendar: time
+  ) {
+    update_scheduler(
+      where: { id: { _eq: $scheduler_id } }
+      _set: {
+        date_on_calendar: $date_on_calendar
+        time_on_calendar: $time_on_calendar
+      }
+    ) {
+      affected_rows
+    }
   }
-}
 `
 
 const DELETE_CALLOUT = gql`
-mutation DeleteCallout($callout_id: Int, $scheduler_id: Int) {
-  delete_scheduler(where: {id: {_eq: $scheduler_id}}) {
-    affected_rows
+  mutation DeleteCallout($callout_id: Int, $scheduler_id: Int) {
+    delete_scheduler(where: { id: { _eq: $scheduler_id } }) {
+      affected_rows
+    }
+    delete_callout(where: { id: { _eq: $callout_id } }) {
+      affected_rows
+    }
   }
-  delete_callout(where: {id: {_eq: $callout_id}}) {
-    affected_rows
-  }
-}
 `
 
 const REQUEST_CALLOUT = gql`
@@ -151,7 +182,7 @@ const REQUEST_CALLOUT = gql`
         date_on_calendar: $date_on_calendar
         time_on_calendar: $time_on_calendar
         end_date_on_calendar: $end_date_on_calendar
-        end_time_on_calendar : $end_time_on_calendar 
+        end_time_on_calendar: $end_time_on_calendar
         notes: $notes
       }
     ) {
@@ -167,14 +198,14 @@ const CalendarComponent = () => {
   //   return state.calendar
   // })
 
-  const [updateCallOut] = useMutation(UPDATE_CALLOUT,  {
+  const [updateCallOut] = useMutation(UPDATE_CALLOUT, {
     refetchQueries: [
-      { 
+      {
         query: GET_SCHEDULE,
         variables: {
-          _gte: new Date().toISOString().split('T')[0],
-          _lte: new Date().toISOString().split('T')[0]
-        } 
+          _gte: new Date().toISOString().split("T")[0],
+          _lte: new Date().toISOString().split("T")[0]
+        }
       }
     ]
   })
@@ -182,35 +213,41 @@ const CalendarComponent = () => {
   const [deleteCallout] = useMutation(DELETE_CALLOUT)
 
   const selectedDates = useRef({
-    _gte: new Date().toISOString().split('T')[0],
-    _lte: new Date().toISOString().split('T')[0]
+    _gte: new Date().toISOString().split("T")[0],
+    _lte: new Date().toISOString().split("T")[0]
   }) //, setSelectedDates] = useState({
-    
+
   const [selectedEvent, selectEvent] = useState({})
 
   const updateEvent = (eventToUpdate) => {
-    updateCallOut({variables: {
-      notes: eventToUpdate.title, 
-      callout_id: eventToUpdate.callout_id, 
-      callout_by_email: eventToUpdate.extendedProps.clientEmail, 
-      category: eventToUpdate.extendedProps.category, 
-      job_type: eventToUpdate.extendedProps.job_type, 
-      scheduler_id: eventToUpdate.id
-    }})
+    updateCallOut({
+      variables: {
+        notes: eventToUpdate.title,
+        callout_id: eventToUpdate.callout_id,
+        callout_by_email: eventToUpdate.extendedProps.clientEmail,
+        category: eventToUpdate.extendedProps.category,
+        job_type: eventToUpdate.extendedProps.job_type,
+        scheduler_id: eventToUpdate.id
+      }
+    })
   }
   const updateEventDrag = (eventToUpdate) => {
-    updateCallOutDrag({variables: {
-      date_on_calendar: eventToUpdate.startStr.split('T')[0],
-      time_on_calendar:eventToUpdate.startStr.split('T')[1].substr(0, 8),
-      scheduler_id: eventToUpdate.id
-    }})
+    updateCallOutDrag({
+      variables: {
+        date_on_calendar: eventToUpdate.startStr.split("T")[0],
+        time_on_calendar: eventToUpdate.startStr.split("T")[1].substr(0, 8),
+        scheduler_id: eventToUpdate.id
+      }
+    })
   }
 
   const removeEvent = (id, callout_id) => {
-    deleteCallout({variables: {
-      callout_id, 
-      scheduler_id: id
-    }})
+    deleteCallout({
+      variables: {
+        callout_id,
+        scheduler_id: id
+      }
+    })
   }
 
   // ** states
@@ -225,27 +262,26 @@ const CalendarComponent = () => {
   const handleAddEventSidebar = () => setAddSidebarOpen(!addSidebarOpen)
 
   // ** LeftSidebar Toggle Function
-  const toggleSidebar = val => setLeftSidebarOpen(val)
+  const toggleSidebar = (val) => setLeftSidebarOpen(val)
 
   // ** Blank Event Object
   const blankEvent = {
-    title: '',
-    start: '',
-    end: '',
+    title: "",
+    start: "",
+    end: "",
     allDay: false,
-    url: '',
+    url: "",
     extendedProps: {
-      calendar: '',
+      calendar: "",
       guests: [],
-      location: '',
-      description: ''
+      location: "",
+      description: ""
     }
   }
 
-  
   const _gte = selectedDates.current._gte
   const _lte = selectedDates.current._lte
-  
+
   const [getSchedule, { loading, data }] = useLazyQuery(GET_SCHEDULE, {
     variables: {
       _gte,
@@ -253,21 +289,20 @@ const CalendarComponent = () => {
     }
   })
 
-  const [requestCalloutApiCall, { loading: requestCalloutLoading, error: mutationError }] = useMutation(
-    REQUEST_CALLOUT,
-    {
-      refetchQueries: [
-        { 
-          query: GET_SCHEDULE,
-          variables: {
-            _gte,
-            _lte
-          } 
+  const [
+    requestCalloutApiCall,
+    { loading: requestCalloutLoading, error: mutationError }
+  ] = useMutation(REQUEST_CALLOUT, {
+    refetchQueries: [
+      {
+        query: GET_SCHEDULE,
+        variables: {
+          _gte,
+          _lte
         }
-      ]
-    }
-  )
-
+      }
+    ]
+  })
 
   // ** refetchEvents
   const refetchEvents = () => {
@@ -281,7 +316,7 @@ const CalendarComponent = () => {
   }
   // ** Fetch Events On Mount
   useEffect(() => {
-  //  console.log(data)
+    //  console.log(data)
     // dispatch(fetchEvents(store.selectedCalendars))
   }, [])
 
@@ -291,20 +326,22 @@ const CalendarComponent = () => {
       _gte: info.start, //new Date(info.start).toISOString().substring(0, 10),
       _lte: info.end // new Date(info.end).toISOString().substring(0, 10)
     }
-    getSchedule({ variables: {
-      _gte: info.start,
-      _lte: info.end
-    }})
+    getSchedule({
+      variables: {
+        _gte: info.start,
+        _lte: info.end
+      }
+    })
     // console.log(data)
   }
-    // const data2 = [...data?.scheduler ?? [], data?.job_tickets ?? ]
-    // console.log(data)
+  // const data2 = [...data?.scheduler ?? [], data?.job_tickets ?? ]
+  // console.log(data)
 
   return (
     <Fragment>
-      <div className='app-calendar overflow-hidden border'>
-        <Row noGutters>        
-          <Col className='position-relative'>
+      <div className="app-calendar overflow-hidden border">
+        <Row noGutters>
+          <Col className="position-relative">
             <Calendar
               loading={loading || requestCalloutLoading}
               isRtl={isRtl}
@@ -325,7 +362,7 @@ const CalendarComponent = () => {
             />
           </Col>
           <div
-            className={classnames('body-content-overlay', {
+            className={classnames("body-content-overlay", {
               show: leftSidebarOpen === true
             })}
             onClick={() => toggleSidebar(false)}

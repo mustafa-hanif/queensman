@@ -14,7 +14,7 @@ import Flatpickr from 'react-flatpickr'
 import { X, Check, Trash, Info } from 'react-feather'
 import Select, { components } from 'react-select'
 import { useForm, Controller } from 'react-hook-form'
-import { Button, Modal, ModalHeader, ModalBody, Card, ListGroup, ListGroupItem, FormGroup, Label, CustomInput, Input, Form, Spinner, Badge, CardBody, CardHeader, CardTitle, Row, Col  } from 'reactstrap'
+import { Media, Button, Modal, ModalHeader, ModalBody, Card, ListGroup, ListGroupItem, FormGroup, Label, CustomInput, Input, Form, Spinner, Badge, CardBody, CardHeader, CardTitle, Row, Col  } from 'reactstrap'
 import AutoComplete from '@components/autocomplete'
 
 // ** Utils
@@ -152,6 +152,7 @@ const AddEventSidebar = props => {
   const [propertyId, setPropertyId] = useState(selectedEvent.extendedProps?.propertyId  || 9999)
   const [workerName, setWorkerName] = useState(selectedEvent.extendedProps?.workerName || '')
   const [jobTickets, setJobTickets] = useState([])
+  const [picture1, setPicture1] = useState(selectedEvent.extendedProps?.picture1)
 
   // const [workerId, setWorkerId] = useState(1)
   const [calloutJobType, setcalloutJobType] = useState({value: selectedEvent.extendedProps?.job_type || "Select...", label: selectedEvent.extendedProps?.job_type || "Select..."})
@@ -252,6 +253,7 @@ const AddEventSidebar = props => {
     setStartPicker(new Date())
     setJobTickets([])
     setEndPicker(new Date())
+    setPicture1(null)
   }
 
   // ** Set sidebar fields
@@ -277,6 +279,7 @@ const AddEventSidebar = props => {
       setStartPicker(new Date(selectedEvent.start))
       setEndPicker(new Date(selectedEvent.end))
       setJobTickets(selectedEvent.extendedProps?.job_tickets || jobTickets)
+      setPicture1(selectedEvent.extendedProps?.picture1 || picture1)
     }
   }
 
@@ -702,6 +705,15 @@ const AddEventSidebar = props => {
                }}
              />
            </FormGroup>
+           <FormGroup style={{flex: 1, justifyContent: "space-between"}}>
+           <div>
+             {picture1 && <img src={picture1} width="100" style={{borderRadius: 10}}/>}
+             {/* {picture2 && <img src={picture2} width="100" style={{borderRadius: 10}}/>} */}
+             {/* {picture3 && <img src={picture3} width="100" style={{borderRadius: 10}}/>} */}
+             {/* {picture4 && <img src={picture4} width="100" style={{borderRadius: 10}}/>} */}
+           </div>
+           </FormGroup>
+           
                {jobTickets && jobTickets.map((job, index) => (
                 <Card className='card-payment' key={index} >
       <CardHeader>

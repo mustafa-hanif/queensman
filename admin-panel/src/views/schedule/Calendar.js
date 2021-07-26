@@ -68,7 +68,7 @@ const Calendar = props => {
     datesSet,
     // selectedEvent,
     eventDataTransform: (eventData => {
-      console.log(events)
+      console.log(eventData)
       const { id, worker, callout_id, start, startTime, notes, callout, job_tickets, end, endTime } = eventData
       const length = job_tickets?.length
       // console.log({
@@ -109,6 +109,10 @@ const Calendar = props => {
         // start,
         job_tickets,
         hasJobs: job_tickets.length,
+        picture1: callout?.picture1,
+        picture2: callout?.picture2,
+        picture3: callout?.picture3,
+        picture4: callout?.picture4,
         callout_id
       }
     }),
