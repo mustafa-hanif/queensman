@@ -151,6 +151,7 @@ const AddEventSidebar = props => {
   const [propertyName, setPropertyName] = useState(selectedEvent.extendedProps?.propertyName  || '')
   const [propertyId, setPropertyId] = useState(selectedEvent.extendedProps?.propertyId  || 9999)
   const [workerName, setWorkerName] = useState(selectedEvent.extendedProps?.workerName || '')
+  const [workerId, setWorkerId] = useState(selectedEvent.extendedProps?.workerId)
   const [jobTickets, setJobTickets] = useState([])
   const [picture1, setPicture1] = useState(selectedEvent.extendedProps?.picture1)
   const [picture2, setPicture2] = useState(selectedEvent.extendedProps?.picture2)
@@ -253,6 +254,7 @@ const AddEventSidebar = props => {
     setClientName('')
     setPropertyName('')
     setWorkerName('')
+    setWorkerId(null)
     setStartPicker(new Date())
     setJobTickets([])
     setEndPicker(new Date())
@@ -273,6 +275,7 @@ const AddEventSidebar = props => {
 
       setTitle(selectedEvent.title.split('by')[0])
       setWorkerName(selectedEvent.extendedProps.workerName)
+      setWorkerId(selectedEvent.extendedProps.workerId)
       setClientName(selectedEvent.extendedProps.clientName)
       setClientEmail(selectedEvent.extendedProps.clientEmail)
       setPropertyName(selectedEvent.extendedProps.propertyName || propertyName)
@@ -346,11 +349,12 @@ const AddEventSidebar = props => {
           job_type: calloutJobType.value,
           propertyName,
           workerName,
+          workerId,
           propertyId
         }
       }
       const propsToUpdate = ['start', 'title', 'callout_id']
-      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'propertyId', 'clientEmail', 'job_type']
+      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'workerId', 'propertyId', 'clientEmail', 'job_type']
   
       updateEvent(eventToUpdate)
       updateEventInCalendar(eventToUpdate, propsToUpdate, extendedPropsToUpdate)
@@ -666,7 +670,7 @@ const AddEventSidebar = props => {
               onClick={e => {
                 onSuggestionItemClick(null, e)
                 setWorkerName(suggestion.full_name)
-                // setWorkerId(suggestion.id)                
+                setWorkerId(suggestion.id)           
               }}
             >
             <span>{suggestion.full_name}{'     '}</span>

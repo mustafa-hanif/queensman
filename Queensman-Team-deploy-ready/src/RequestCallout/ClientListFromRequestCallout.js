@@ -98,9 +98,10 @@ class ClientListClass extends React.Component {
   }
 
   passItem = (item) => {
-    this.props.navigation.navigate('PropertiesListFromRequestCallout', {
-        it: item,
-    });
+    console.log(item)
+    // this.props.navigation.navigate('PropertiesListFromRequestCallout', {
+    //     it: item,
+    // });
 }
 
   async componentDidMount() {

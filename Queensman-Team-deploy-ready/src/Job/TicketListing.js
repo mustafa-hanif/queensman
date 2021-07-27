@@ -42,6 +42,7 @@ query MyQuery($callout_id: Int!) {
 `;
 
 export default function TicketListing(props) {
+  const workerId = props.navigation.getParam("workerId", {})
   const { property_id, client, job_type, id } = props.navigation.getParam(
     "it",
     {}
@@ -174,7 +175,8 @@ export default function TicketListing(props) {
     props.navigation.navigate("Job", {
       it: props.navigation.getParam("it", {}),
       ticketDetails,
-      ticketCount: allTickets?.job_tickets.length
+      ticketCount: allTickets?.job_tickets.length,
+      workerId
     });
   };
   const _tickets = [...(data?.job_tickets ?? []), ...(data?.null_ticket ?? [])];

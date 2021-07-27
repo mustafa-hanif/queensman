@@ -96,13 +96,11 @@ query JobsList($email: String) {
 `;
 
 const JobsList = (props) => {
+  const workerId = props.navigation.getParam("workerId", {})
   const [state, setState] = useState({
     assignedCallouts: [], //Ismain hayn saaray client ke ongoing callouts.
-    Id: "",
     dataAvaible: true,
-    cusID: "",
     selected: null,
-    workerID: 1,
     TotalData: [],
   });
 
@@ -215,8 +213,10 @@ const JobsList = (props) => {
   };
 
   const passItem = (item) => {
+    console.log(item)
     props.navigation.navigate("TicketListing", {
       it: item,
+      workerId
     });
   };
 

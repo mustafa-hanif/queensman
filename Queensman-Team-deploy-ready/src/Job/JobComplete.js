@@ -99,7 +99,7 @@ const FINISH_JOB_SINGLE = gql`
 `;
 const JobComplete = (props) => {
   const ticketCount = props.navigation.getParam("ticketCount", {});
-  const workerId = props.navigation.getParam("workerId", null);
+  const workerId = props.navigation.getParam("workerId", {})
   const ticketId = props.navigation.getParam("ticketDetails", {}).id;
   const clientEmail = props.navigation.getParam("it", {}).client.email;
   const clientPhone = props.navigation.getParam("it", {}).client.phone;

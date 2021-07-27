@@ -338,12 +338,12 @@ const advSearchColumns = [
       sortable: true,
       minWidth: '200px'
     },
-    {
-      name: 'Gender',
-      selector: 'gender',
-      sortable: true,
-      minWidth: '100px'
-    },
+    // {
+    //   name: 'Gender',
+    //   selector: 'gender',
+    //   sortable: true,
+    //   minWidth: '100px'
+    // },
     {
       name: 'Occupation',
       selector: 'occupation',
@@ -351,18 +351,18 @@ const advSearchColumns = [
       minWidth: '250px'
     },
   
-    {
-      name: 'Organization',
-      selector: 'organization',
-      sortable: true,
-      minWidth: '250px'
-    },
-    {
-      name: 'Phone',
-      selector: 'Phone',
-      sortable: true,
-      minWidth: '200px'
-    },
+    // {
+    //   name: 'Organization',
+    //   selector: 'organization',
+    //   sortable: true,
+    //   minWidth: '250px'
+    // },
+    // {
+    //   name: 'Phone',
+    //   selector: 'Phone',
+    //   sortable: true,
+    //   minWidth: '200px'
+    // },
     {
       name: 'Password',
       minWidth: '150px',

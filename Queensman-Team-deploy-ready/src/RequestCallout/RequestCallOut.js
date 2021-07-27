@@ -397,10 +397,10 @@ const RequestCallOut = (props) => {
       return alert("Kindly fill all the required details.");
     }
     if (state.Urgency === "medium") {
-      console.log("HERE@");
-      props.navigation.navigate("SelectSchedule", {
-        state: { ...state, JobType: jobTypeSelect?.value },
-      });
+      console.log(jobTypeSelect?.value);
+      // props.navigation.navigate("SelectSchedule", {
+      //   state: { ...state, JobType: jobTypeSelect?.value },
+      // });
     } else {
       Alert.alert(
         "Callout Request Confirmation.",

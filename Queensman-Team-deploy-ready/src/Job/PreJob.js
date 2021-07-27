@@ -190,7 +190,11 @@ const PreJob = (props) => {
     console.log(ticketCount);
     if (ticketCount == 1) {
       console.log("One Job");
-
+      console.log({
+        id: ticketId,
+        updater_id: workerId,
+        callout_id: state.CallOutID,
+      })
       try {
         await finishJob({
           variables: {
@@ -229,6 +233,7 @@ const PreJob = (props) => {
         it: props.navigation.getParam("it", {}),
         ticketDetails: props.navigation.getParam("ticketDetails", {}),
         ticketCount: props.navigation.getParam("ticketCount", {}),
+        workerId
       });
     } else {
       alert("Please upload pre job images first!");

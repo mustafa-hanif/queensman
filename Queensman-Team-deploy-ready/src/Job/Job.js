@@ -136,7 +136,6 @@ mutation CloseTicket($id: Int!,
 `
 
 const Job = (props) => {
-  // console.log(props.navigation.getParam("ticketDetails"), " ASKJFDHASLDIHASFKAHSKDI")
   const worker_email = auth.user().email
   const [state, setState] = useState({
     Pic1: "photos/0690da3e-9c38-4a3f-ba45-8971697bd925.jpg",
@@ -170,8 +169,7 @@ const Job = (props) => {
 
   const calloutIdFromParam = props.navigation.getParam("it", null);
   const ticket = props.navigation.getParam("ticketDetails", {});
-  console.log(ticket.id)
-  console.log(calloutIdFromParam.id)
+  const workerId = props.navigation.getParam("workerId", {})
   const [ticketNotesArray, setticketNotesArray] = useState(ticket.notes);
 
   // API
@@ -288,6 +286,7 @@ const Job = (props) => {
       it: props.navigation.getParam("it", {}),
       ticketDetails: props.navigation.getParam("ticketDetails", {}),
       ticketCount: props.navigation.getParam('ticketCount', {}),
+      workerId,
     });
     console.log("navigated")
   };
@@ -853,7 +852,7 @@ const Job = (props) => {
             alignSelf: "center",
           }}
         >
-          <Text
+          {ticket?.type != "Deferred" && <Text
             style={{
               alignSelf: "center",
               fontSize: 18,
@@ -862,8 +861,8 @@ const Job = (props) => {
             }}
           >
             Why Are you closing this job?
-          </Text>
-          <TextInput
+          </Text>}
+          {ticket?.type != "Deferred" && <TextInput
             placeholder={"Write your reason here..."}
             multiline={true}
             onChangeText={(val) => {
@@ -878,7 +877,7 @@ const Job = (props) => {
               borderColor: "#DDD",
               marginBottom: 15
             }}
-          ></TextInput>
+          ></TextInput>}
           
           {ticket?.type === "Deferred" && (
             <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Job Type</Text>

@@ -97,6 +97,7 @@ const Calendar = props => {
         start: `${start}T${startTime}`,
         end: endTime ? `${end}T${endTime}` : addHours(`${start} ${startTime}`, 2),
         workerName: worker?.full_name || 'No Worker name',
+        workerId: worker?.id || null,
         backgroundColor: `#${worker?.color_code || `ebcf34`}`,
         clientName: callout.client_callout_email?.full_name || 'No Client name',
         clientEmail:callout.client_callout_email?.email || 'No Client email',
