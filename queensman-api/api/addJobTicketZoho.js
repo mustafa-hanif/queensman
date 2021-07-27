@@ -4,35 +4,19 @@
 
 const fetch = require('node-fetch')
 const FormData = require('form-data');
-// const updateScheduleWithWoker = require('../lib/graphql').updateScheduleWithWoker;
-// const getWorker = require('../lib/graphql').getWorker;
-// const getCallout = require('../lib/graphql').getCallout;
-// const getRelevantWoker = require('../lib/graphql').getRelevantWoker;
 
 const addJobTicketZoho = async (event) => {
   const { event: { data: { new: query } } } = JSON.parse(event.body);
-  const description = query.description;
-  const type = query.type;
-  const worker_email = query.worker_email;
-  //   const calloutId = query.callout_id;
-  //   const workerId = query.worker_id;
-  //   const callout = await getCallout({ callout_id: calloutId });
-  //   const { id: releventWorker, time } = await getRelevantWoker({ callout });
-  //   const nextWorker = workerId ?? releventWorker;
-  //   const worker = await getWorker({ worker_id: nextWorker });
-
-  //   const data = await updateScheduleWithWoker({
-  //     id: schedulerId,
-  //     worker_id: nextWorker,
-  //     callout_id: calloutId,
-  //     worker_email: worker.email
-  //   });
+  const Description = query.description;
+  const Status = query.type;
+  const email = query.client_email;
+  const Subject = query.name
   const form = new FormData()
   form.append('arguments', JSON.stringify({
-    Subject: 'Task from Hasura',
-    Description: `${description}`,
-    Status: `${type}`,
-    email: `${worker_email}`
+    Subject: `${Subject}`,
+    Description: `${Description}`,
+    Status: `${Status}`,
+    email: `${email}`
   }))
 
   try {
@@ -51,26 +35,26 @@ const addJobTicketZoho = async (event) => {
   } catch(e) {
     console.log(e)
   }
-  console.log(query);
-  try {
-    return {
-      statusCode: 200,
-      message: 'Go Serverless v1.0! Your function executed successfully!',
-      result
-    };
-  } catch (e) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify(
-        {
-          error: e,
-          // input: event,
-        },
-        null,
-        2
-      ),
-    };
-  }
+  // console.log(query);
+  // try {
+  //   return {
+  //     statusCode: 200,
+  //     message: 'Go Serverless v1.0! Your function executed successfully!',
+  //     result
+  //   };
+  // } catch (e) {
+  //   return {
+  //     statusCode: 500,
+  //     body: JSON.stringify(
+  //       {
+  //         error: e,
+  //         // input: event,
+  //       },
+  //       null,
+  //       2
+  //     ),
+  //   };
+  // }
 };
 
 module.exports = { addJobTicketZoho }

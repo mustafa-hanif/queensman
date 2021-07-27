@@ -219,6 +219,7 @@ const ADD_CALLOUT = gql`
     $worker_id: Int
     $worker_email: String
     $urgency_level: String
+    $client_email: String
   ) {
     insert_job_tickets_one(
       object: {
@@ -243,6 +244,7 @@ const ADD_CALLOUT = gql`
         status: $status
         worker_id: $worker_id
         worker_email: $worker_email
+        client_email: $client_email
       }
     ) {
       id
@@ -677,7 +679,8 @@ const RequestCallOut = (props) => {
     addCalloutApiCall({
       variables: {
         callout_by_email: auth?.currentSession?.session?.user.email,
-        worker_email: "antony@queensman.com",
+        worker_email: "antony@queensman.com",//add email client
+        client_email: auth?.currentSession?.session?.user.email,
         worker_id: 16,
         description: state.Description,
         category,
