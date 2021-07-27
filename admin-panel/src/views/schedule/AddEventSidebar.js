@@ -89,8 +89,8 @@ mutation UpdateJob($id: Int!, $name: String, $worker_id: Int!, $worker_email: St
 `
 
 const ADD_JOB_TICKET = gql`
-mutation InsertJobTickets($name: String, $description: String, $pictures: _text, $type: String, $notes: _text, $callout_id: Int!, $scheduler_id: Int!, $worker_id: Int!) {
-  insert_job_tickets(objects: {name: $name, description: $description, pictures: $pictures, type: $type, callout_id: $callout_id, notes: $notes, scheduler_id: $scheduler_id, worker_id: $worker_id}) {
+mutation InsertJobTickets($name: String, $description: String, $pictures: _text, $type: String, $notes: jsonb, $callout_id: Int!, $scheduler_id: Int!, $worker_id: Int!) {
+  insert_job_tickets(objects: {name: $name, description: $description, pictures: $pictures, type: $type, callout_id: $callout_id, notes: $notes, scheduler_id: $scheduler_id, worker_id: $worker_id, status: "Open"}) {
     affected_rows
   }
 }

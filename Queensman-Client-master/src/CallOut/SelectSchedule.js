@@ -222,7 +222,20 @@ export default function SelectSchedule(props) {
           })
           .filter(Boolean)
       );
-
+          console.log( {
+            property_id: state.PropertyID,
+            email: auth.user().email,
+            notes: state.Description,
+            time_on_calendar: time,
+            date_on_calendar: selectedDate,
+            category,
+            job_type: state.JobType,
+            status: "Requested",
+            request_time: current.toLocaleDateString(),
+            urgency_level: "Medium",
+            video: state.videoUrl,
+            ...pictures,
+          })
       requestCalloutApiCall({
         variables: {
           property_id: state.PropertyID,

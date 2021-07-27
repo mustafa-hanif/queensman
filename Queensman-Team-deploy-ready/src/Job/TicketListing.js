@@ -137,6 +137,9 @@ export default function TicketListing(props) {
             <Text style={{ fontWeight: "bold" }}>
               {props.name}
             </Text>
+            <Text style={{ fontSize: 12, fontWeight: "bold"}}>
+              {`ID: ${props.id}`}
+            </Text>
             <Text style={{ fontSize: 13 }}>{props?.description}</Text>
         <Text style={{ fontSize: 12 }}>Ticket type: {props?.type}</Text>
         <Text style={{ fontSize: 12 }}>Status: <Text style={ props?.status == "Closed" && {color: 'red'}}>{props?.status}</Text></Text>

@@ -98,7 +98,7 @@ const UPDATE_CALLOUT = gql`
   ) {
     update_scheduler(
       where: { id: { _eq: $scheduler_id } }
-      _set: { notes: $notes }
+      _set: { notes: $notes, worker_id: $worker_id }
     ) {
       affected_rows
     }

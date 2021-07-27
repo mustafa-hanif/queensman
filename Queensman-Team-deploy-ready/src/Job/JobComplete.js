@@ -103,6 +103,10 @@ const JobComplete = (props) => {
   const ticketId = props.navigation.getParam("ticketDetails", {}).id;
   const clientEmail = props.navigation.getParam("it", {}).client.email;
   const clientPhone = props.navigation.getParam("it", {}).client.phone;
+  const jobType = props.navigation.getParam("it", {}).job_type;
+  const subject = `Job Type: ${jobType}`;
+  console.log(jobType)
+  console.log(subject)
   const signatureCanvas = useRef();
   const [state, setState] = useState({
     starCount: 0,
@@ -176,7 +180,7 @@ const JobComplete = (props) => {
       form.append(
         "arguments",
         JSON.stringify({
-          subject: "Task from app",
+          subject,
           email: clientEmail,
           description: `Feedback: ${state.feedback}`,
           status: "Closed",
@@ -227,6 +231,7 @@ const JobComplete = (props) => {
             signature: auth.user().email,
           },
         });
+        alert("Service has been successfully completed. Great Job!");
         setTimeout(() => {
           props.navigation.navigate("Home");
         }, 1000);
@@ -241,7 +246,7 @@ const JobComplete = (props) => {
       form.append(
         "arguments",
         JSON.stringify({
-          subject: "Task from app",
+          subject,
           email: clientEmail,
           description: `Feedback: ${state.feedback}`,
           status: "Closed",
@@ -282,8 +287,10 @@ const JobComplete = (props) => {
             signature: auth.user().email,
           },
         });
-        alert("Service has been successfully completed. Great Job!");
-        props.navigation.navigate("Home");
+        alert("Job ticket has been successfully submitted");
+        setTimeout(() => {
+          props.navigation.navigate("Home");
+        }, 1000);
       } catch (e) {
         console.log(e);
         alert("Could not submit Job!");

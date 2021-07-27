@@ -400,9 +400,12 @@ const RequestCallOut = (props) => {
     }
     if (state.Urgency === "medium") {
       console.log(jobTypeSelect?.value);
-      // props.navigation.navigate("SelectSchedule", {
-      //   state: { ...state, JobType: jobTypeSelect?.value },
-      // });
+      props.navigation.navigate("SelectSchedule", {
+        JobType: jobTypeSelect?.value,
+        clientEmail,
+        property_id,
+        state
+      });
     } else {
       Alert.alert(
         "Callout Request Confirmation.",

@@ -117,11 +117,7 @@ export default function SelectSchedule(props) {
   );
   const [updateCalloutApi, { loading: updateCalloutLoading, error: updatecalloutError }] = useMutation(UPDATE_CALLOUT);
 
-  const state = props.route.params.state;
-  console.log({ state });
-  const commingFrom = props.route.params.commingFrom;
-  const callout_id_fromNotification = props.route.params.callout_id;
-  console.log({ commingFrom, callout_id_fromNotification });
+  const state = props.navigation.getParam("state");
   const formatDate = (date) => {
     return moment(date).format("YYYY-MM-DD");
   };
@@ -183,19 +179,6 @@ export default function SelectSchedule(props) {
   };
 
   const onConfirmButtonPress = async () => {
-    if (commingFrom === "Notification") {
-      updateCalloutApi({
-        variables: {
-          time_on_calendar: time,
-          date_on_calendar: selectedDate,
-          callout_id: callout_id_fromNotification,
-        },
-      })
-        .then((res) => {
-          props.navigation.navigate("HomeNaviagtor");
-        })
-        .catch((err) => console.log({ err }));
-    } else {
       const property_id = await AsyncStorage.getItem("QueensPropertyID");
       let category = "Uncategorized";
       const current = new Date();
@@ -225,28 +208,27 @@ export default function SelectSchedule(props) {
 
       requestCalloutApiCall({
         variables: {
-          property_id: state.PropertyID,
-          email: auth.user().email,
+          property_id: props.navigation.getParam("property_id", {}),
+          email: props.navigation.getParam("clientEmail", {}),
           notes: state.Description,
           time_on_calendar: time,
           date_on_calendar: selectedDate,
           category,
-          job_type: state.JobType,
+          job_type: props.navigation.getParam("JobType", {}),
           status: "Requested",
-          request_time: current.toLocaleDateString(),
+          request_time: new Date().toLocaleDateString(),
           urgency_level: "Medium",
           video: state.videoUrl,
           ...pictures,
         },
       })
         .then((res) => {
-          props.navigation.navigate("HomeNaviagtor");
+          props.navigation.navigate("Home");
           setTimeout(() => {
             SubmittedCalloutAlert();
           }, 500);
         })
         .catch((err) => alert(JSON.stringify({ err })));
-    }
   };
 
   const SubmittedCalloutAlert = () => {

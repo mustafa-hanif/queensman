@@ -635,7 +635,7 @@ const PreJob = (props) => {
         {!addJobNoteLoading && RenderAddNote()}
       </View>
       <View style={{ marginTop: 20, marginBottom: 60 }}>
-        {ticket.type == "Deferred" ? (
+        {ticket.type == "Deferred" || ticket.type == "Material Request" || ticket.type == "Out of scope" ? (
           <Button onPress={AlertSubmitJob} title="Submit Job" color="#FFCA5D" />
         ) : (
           <Button onPress={AlertPreJobHandler} title="NEXT" color="#FFCA5D" />
