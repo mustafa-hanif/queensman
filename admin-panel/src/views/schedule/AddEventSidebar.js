@@ -153,6 +153,9 @@ const AddEventSidebar = props => {
   const [workerName, setWorkerName] = useState(selectedEvent.extendedProps?.workerName || '')
   const [jobTickets, setJobTickets] = useState([])
   const [picture1, setPicture1] = useState(selectedEvent.extendedProps?.picture1)
+  const [picture2, setPicture2] = useState(selectedEvent.extendedProps?.picture2)
+  const [picture3, setPicture3] = useState(selectedEvent.extendedProps?.picture3)
+  const [picture4, setPicture4] = useState(selectedEvent.extendedProps?.picture4)
 
   // const [workerId, setWorkerId] = useState(1)
   const [calloutJobType, setcalloutJobType] = useState({value: selectedEvent.extendedProps?.job_type || "Select...", label: selectedEvent.extendedProps?.job_type || "Select..."})
@@ -254,6 +257,9 @@ const AddEventSidebar = props => {
     setJobTickets([])
     setEndPicker(new Date())
     setPicture1(null)
+    setPicture2(null)
+    setPicture3(null)
+    setPicture4(null)
   }
 
   // ** Set sidebar fields
@@ -280,6 +286,9 @@ const AddEventSidebar = props => {
       setEndPicker(new Date(selectedEvent.end))
       setJobTickets(selectedEvent.extendedProps?.job_tickets || jobTickets)
       setPicture1(selectedEvent.extendedProps?.picture1 || picture1)
+      setPicture2(selectedEvent.extendedProps?.picture2 || picture2)
+      setPicture3(selectedEvent.extendedProps?.picture3 || picture3)
+      setPicture4(selectedEvent.extendedProps?.picture4 || picture4)
     }
   }
 
@@ -705,13 +714,19 @@ const AddEventSidebar = props => {
                }}
              />
            </FormGroup>
-           <FormGroup style={{flex: 1, justifyContent: "space-between"}}>
-           <div>
-             {picture1 && <img src={picture1} width="100" style={{borderRadius: 10}}/>}
-             {/* {picture2 && <img src={picture2} width="100" style={{borderRadius: 10}}/>} */}
-             {/* {picture3 && <img src={picture3} width="100" style={{borderRadius: 10}}/>} */}
-             {/* {picture4 && <img src={picture4} width="100" style={{borderRadius: 10}}/>} */}
-           </div>
+           <FormGroup style={{display: "flex", justifyContent: "space-between"}}>
+             <div style={{width: "100px"}}>
+             {picture1 ? <img src={picture1} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
+             </div>
+             <div style={{width: "100px"}}>
+             {picture2 ? <img src={picture2} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
+             </div>
+             <div style={{width: "100px"}}>
+             {picture3 ? <img src={picture3} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
+             </div>
+             <div style={{width: "100px"}}>
+             {picture4 ? <img src={picture4} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
+             </div>
            </FormGroup>
            
                {jobTickets && jobTickets.map((job, index) => (

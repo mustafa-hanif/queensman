@@ -204,17 +204,7 @@ const DataTableAdvSearch = () => {
       const time_on_calendar = "10:00:00" //10:00:00
       const end_time_on_calendar = addHours(`${date_on_calendar} ${time_on_calendar}`, 4).toTimeString().substr(0, 8)
       const end_date_on_calendar = addHours(`${date_on_calendar} ${time_on_calendar}`, 4).toISOString().substr(0, 10)
-      console.log({
-        property_id: row.property_owneds[0]?.property_id,
-        callout_by: row.id,
-        email: row.email,
-        date_on_calendar,
-        time_on_calendar,
-        end_time_on_calendar,
-        end_date_on_calendar
-      })
-      // await addPlan({
-      //   variables: {
+      // console.log({
       //   property_id: row.property_owneds[0]?.property_id,
       //   callout_by: row.id,
       //   email: row.email,
@@ -222,8 +212,18 @@ const DataTableAdvSearch = () => {
       //   time_on_calendar,
       //   end_time_on_calendar,
       //   end_date_on_calendar
-      //   }
       // })
+      await addPlan({
+        variables: {
+        property_id: row.property_owneds[0]?.property_id,
+        callout_by: row.id,
+        email: row.email,
+        date_on_calendar,
+        time_on_calendar,
+        end_time_on_calendar,
+        end_date_on_calendar
+        }
+      })
       month += 2
     }
     if (!addPlanLoading) {
@@ -232,12 +232,12 @@ const DataTableAdvSearch = () => {
         hideProgressBar: true,
         closeButton: false
       })
-      // await updateClientPlan({
-      //   variables: {
-      //     id: row.id,
-      //     hasPlan: true
-      //   }
-      // })
+      await updateClientPlan({
+        variables: {
+          id: row.id,
+          hasPlan: true
+        }
+      })
     }
     
     currentDate = new Date().toLocaleDateString().split("/")  // "7/11/2021"
