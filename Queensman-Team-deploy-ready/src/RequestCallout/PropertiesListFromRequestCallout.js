@@ -145,7 +145,8 @@ class ClientList extends React.Component {
         community: item.community,
         address: item.address,
         country: item.country,
-        clientID: this.props.navigation.getParam("it", "Something").id
+        clientID: this.props.navigation.getParam("it").id,
+        clientEmail: this.props.navigation.getParam("it").email
     });
 }
 
@@ -237,6 +238,10 @@ class ClientList extends React.Component {
 
           <Text style={{ fontSize: 13, marginBottom: "1%" }}>
             Phone Number: {this.state.Clientdata.phone}
+          </Text>
+
+          <Text style={{ fontSize: 13, marginBottom: "1%" }}>
+            Phone Number: {this.state.Clientdata.email}
           </Text>
         </View>
         <Text

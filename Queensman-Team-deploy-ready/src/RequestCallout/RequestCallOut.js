@@ -272,6 +272,8 @@ const RequestCallOut = (props) => {
   let city = props.navigation.getParam("city", {});
   let property_id = props.navigation.getParam("property_id", {});
   let type = props.navigation.getParam("type", {});
+  const clientID = props.navigation.getParam("clientID");
+  const clientEmail = props.navigation.getParam("clientEmail");
   const [state, setState] = useState({
     Urgency: "",
     OtherJobType: "",
@@ -457,7 +459,7 @@ const RequestCallOut = (props) => {
     requestCalloutApiCall({
       variables: {
         property_id,
-        email: auth.user().email,
+        email: clientEmail,
         notes: state.Description,
         time_on_calendar: null,
         date_on_calendar: null,
@@ -580,54 +582,6 @@ const RequestCallOut = (props) => {
     });
   };
 
-  const addJobTicket = async () => {
-    console.log("HERE 2");
-    let category = "Uncategorized";
-    const pictures = Object.fromEntries(
-      [...Array(4)]
-        .map((_, i) => {
-          const _statePic = state[`picture${i}`];
-          if (_statePic) {
-            const file = expoFileToFormFile(_statePic);
-            storage
-              .put(`/callout_pics/${file.name}`, file)
-              .then(console.log)
-              .catch(console.error);
-            return [
-              `picture${i}`,
-              `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`,
-            ];
-          }
-          return null;
-        })
-        .filter(Boolean)
-    );
-
-    addCalloutApiCall({
-      variables: {
-        callout_by_email: auth?.currentSession?.session?.user.email,
-        description: state.Description,
-        category,
-        job_type: jobCategorySelect.value,
-        status: "Deferred",
-        urgency_level: "Medium",
-        ...pictures,
-      },
-    })
-      .then((res) => {
-        showMessage({
-          message: "Callout Request Submitted",
-          description: "One of our team will be in touch shortly",
-          type: "warning",
-          duration: 3000,
-        });
-        SubmittedCalloutAlert();
-        setTimeout(() => {
-          props.navigation.navigate("Home");
-        }, 4000);
-      })
-      .catch((err) => console.log({ err }));
-  };
 
   if (videoPlayScreen) {
     console.log("will return video play screen");
