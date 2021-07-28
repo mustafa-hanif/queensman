@@ -68,6 +68,7 @@ async function updateScheduleWithEmergencyWoker({
   phone,
   worker_email,
   callout_email,
+  client_name,
   time,
   timestamp,
   date,
@@ -109,7 +110,7 @@ async function updateScheduleWithEmergencyWoker({
     }
     insert_notifications_one(object: {
       worker_email: $worker_email, 
-      text: "An emergency has just been posted, please call the client", 
+      text: "An emergency has just been posted, please call the client with name ${client_name}", 
       type: "worker",
       data: $data
     }) {

@@ -31,6 +31,7 @@ const scheduleCallout = async (event) => {
       callout_id: calloutId,
       callout_email: callout.callout_by_email,
       phone: callout.client_callout_email?.phone,
+      client_name: callout.client_callout_email?.full_name,
       worker_email: worker.email,
       time,
       timestamp: new Date().toISOString(),
