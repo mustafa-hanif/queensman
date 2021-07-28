@@ -89,8 +89,8 @@ mutation UpdateJob($id: Int!, $name: String, $worker_id: Int!, $worker_email: St
 `
 
 const ADD_JOB_TICKET = gql`
-mutation InsertJobTickets($name: String, $description: String, $pictures: _text, $type: String, $notes: jsonb, $callout_id: Int!, $scheduler_id: Int!, $worker_id: Int!) {
-  insert_job_tickets(objects: {name: $name, description: $description, pictures: $pictures, type: $type, callout_id: $callout_id, notes: $notes, scheduler_id: $scheduler_id, worker_id: $worker_id, status: "Open"}) {
+mutation InsertJobTickets($name: String, $description: String, $pictures: _text, $type: String, $notes: jsonb, $callout_id: Int!, $scheduler_id: Int!, $worker_id: Int!, $worker_email: String!) {
+  insert_job_tickets(objects: {name: $name, description: $description, pictures: $pictures, type: $type, callout_id: $callout_id, notes: $notes, scheduler_id: $scheduler_id, worker_id: $worker_id, worker_email: $worker_email, status: "Open"}) {
     affected_rows
   }
 }
@@ -152,13 +152,13 @@ const AddEventSidebar = props => {
   const [propertyId, setPropertyId] = useState(selectedEvent.extendedProps?.propertyId  || 9999)
   const [workerName, setWorkerName] = useState(selectedEvent.extendedProps?.workerName || '')
   const [workerId, setWorkerId] = useState(selectedEvent.extendedProps?.workerId)
+  const [workerEmail, setWorkerEmail] = useState(selectedEvent.extendedProps?.workerEmail)
   const [jobTickets, setJobTickets] = useState([])
   const [picture1, setPicture1] = useState(selectedEvent.extendedProps?.picture1)
   const [picture2, setPicture2] = useState(selectedEvent.extendedProps?.picture2)
   const [picture3, setPicture3] = useState(selectedEvent.extendedProps?.picture3)
   const [picture4, setPicture4] = useState(selectedEvent.extendedProps?.picture4)
 
-  // const [workerId, setWorkerId] = useState(1)
   const [calloutJobType, setcalloutJobType] = useState({value: selectedEvent.extendedProps?.job_type || "Select...", label: selectedEvent.extendedProps?.job_type || "Select..."})
   const { clientLoading, data: allClients, clientError } = useQuery(GET_CLIENT, {
     skip: !open
@@ -236,7 +236,7 @@ const AddEventSidebar = props => {
   }
 
   const handleJobAddEvent = () => {
-    setJobTickets([...jobTickets, {name: "", description: "", notes: [""], pictures: [""], type: "Select...", isSaved: false, newJob: true, worker: {color_code: null, full_name: null, id: null}}])
+    setJobTickets([...jobTickets, {name: "", description: "", notes: [""], pictures: [""], type: "Select...", isSaved: false, newJob: true, worker: {color_code: null, full_name: workerName, id: workerId, email: workerEmail}}])
     
   }
 
@@ -255,6 +255,7 @@ const AddEventSidebar = props => {
     setPropertyName('')
     setWorkerName('')
     setWorkerId(null)
+    setWorkerEmail('')
     setStartPicker(new Date())
     setJobTickets([])
     setEndPicker(new Date())
@@ -276,6 +277,7 @@ const AddEventSidebar = props => {
       setTitle(selectedEvent.title.split('by')[0])
       setWorkerName(selectedEvent.extendedProps.workerName)
       setWorkerId(selectedEvent.extendedProps.workerId)
+      setWorkerEmail(selectedEvent.extendedProps.workerEmail)
       setClientName(selectedEvent.extendedProps.clientName)
       setClientEmail(selectedEvent.extendedProps.clientEmail)
       setPropertyName(selectedEvent.extendedProps.propertyName || propertyName)
@@ -350,11 +352,12 @@ const AddEventSidebar = props => {
           propertyName,
           workerName,
           workerId,
+          workerEmail,
           propertyId
         }
       }
       const propsToUpdate = ['start', 'title', 'callout_id']
-      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'workerId', 'propertyId', 'clientEmail', 'job_type']
+      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'workerId', 'workerEmail', 'propertyId', 'clientEmail', 'job_type']
   
       updateEvent(eventToUpdate)
       updateEventInCalendar(eventToUpdate, propsToUpdate, extendedPropsToUpdate)
@@ -380,7 +383,8 @@ const AddEventSidebar = props => {
             callout_id: selectedEvent?.extendedProps?.callout_id,
             notes: "{}",
             scheduler_id: parseInt(selectedEvent.id),
-            worker_id: jobTicket.worker.id
+            worker_id: workerId,
+            worker_email: workerEmail
           }
         })
         const jobTicket2 = [...jobTickets]
@@ -395,8 +399,8 @@ const AddEventSidebar = props => {
    updateJobTicket({variables: {
       id: jobTicket.id,
       name: jobTicket.name,
-      worker_id: jobTicket.worker.id,
-      worker_email: jobTicket.worker.email,
+      worker_id: workerId,
+      worker_email: workerEmail,
       type: jobTicket.type,
       description: jobTicket.description
     }})
@@ -746,48 +750,7 @@ const AddEventSidebar = props => {
                 <Input type="input" placeholder='Job Name' id='job-name' name="name" value={job.name} onChange={(e) => handleChange(index, e)}/>
               </FormGroup>
             </Col>
-            <Col sm='12'>
-            <FormGroup className='mb-2'>
-                <Label for='worker-name'>Worker Name</Label>
-                {allWorkers?.worker && !workerLoading ? (
-           <AutoComplete
-           suggestions={allWorkers.worker}
-           className='form-control'
-           filterKey='full_name'
-           name="full_name"
-           placeholder="Search Worker Name"
-           value={job?.worker?.full_name}
-           customRender={(
-            suggestion,
-            i,
-            filteredData,
-            activeSuggestion,
-            onSuggestionItemClick,
-            onSuggestionItemHover
-          ) => (
-            <li
-              className={classnames('suggestion-item', {
-                active: filteredData.indexOf(suggestion) === activeSuggestion
-              })}
-              key={i}
-              onMouseEnter={() => onSuggestionItemHover(filteredData.indexOf(suggestion))
-              }
-              onClick={e => {
-                onSuggestionItemClick(null, e)
-                handleWorkChange(index, suggestion.full_name, suggestion.id, suggestion.email)          
-              }}
-            >
-            <span>{suggestion.full_name}{'     '}</span>
-               
-               {/* <Badge color='light-secondary'>
-                {suggestion.email}
-                </Badge> */}
-            </li>
-          )}
-         />
-          ) : <Input type='text' id='disabledInput' disabled placeholder='Worker Name' />}
-              </FormGroup>
-            </Col>
+            
             <Col sm='12'>
               <FormGroup className='mb-2'>
                 <Label for='jobtype'>Job Type</Label>

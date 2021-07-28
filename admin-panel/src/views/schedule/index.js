@@ -50,6 +50,7 @@ const GET_SCHEDULE = gql`
       worker {
         full_name
         id
+        email
       }
       callout_id
       callout {

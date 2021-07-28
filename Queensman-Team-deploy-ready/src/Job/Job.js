@@ -803,14 +803,14 @@ const Job = (props) => {
         color="#FFCA5D"
       />
 
-      {ticket?.type != "Deferred" || ticket?.type != "Material Request" || ticket?.type != "Out of scope" && <View style={{ marginTop: 20, marginBottom: 40 }}>
+       <View style={{ marginTop: 20, marginBottom: 40 }}>
         <Button
           // style={{ width: "20%" }}
           onPress={onStopJobPress}
           title="Stop Job"
           color="#cf142b"
         />
-      </View>}
+      </View>
           </View>}
 
       <Modal
