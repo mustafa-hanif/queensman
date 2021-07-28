@@ -94,6 +94,11 @@ async function updateScheduleWithEmergencyWoker({
         worker_id
       }
     }
+    update_job_tickets(where: {callout_id: {_eq: $callout_id}}, _set: {worker_email: $worker_email, worker_id: $worker_id}) {
+      returning {
+        id
+      }
+    }
     insert_job_worker_one(object: {
       callout_id: $callout_id, 
       worker_id: $worker_id
@@ -144,6 +149,11 @@ async function updateScheduleWithWoker({
     update_scheduler(where: {id: {_eq: $id}}, _set: {worker_id: $worker_id}) {
       returning {
         worker_id
+      }
+    }
+    update_job_tickets(where: {callout_id: {_eq: $callout_id}}, _set: {worker_email: $worker_email, worker_id: $worker_id}) {
+      returning {
+        id
       }
     }
     insert_job_worker_one(object: {callout_id: $callout_id, worker_id: $worker_id}) {
