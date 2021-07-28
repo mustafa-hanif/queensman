@@ -54,6 +54,9 @@ query getJobTickets {
     worker_email
     worker_id
     status
+    worker_email_rel {
+      full_name
+    }
   }
 }
 `
@@ -159,6 +162,15 @@ const advSearchColumns = [
       sortable: true,
       minWidth: '250px'
     },
+    {
+      name: 'Worker Assigned',
+      selector: 'worker_email_rel',
+      sortable: true,
+      minWidth: '250px',
+      cell: row => {
+        return row?.worker_email_rel?.full_name
+      }
+    },
     // {
     //   name: 'Scheduler Id',
     //   selector: 'scheduler_id',
@@ -169,7 +181,14 @@ const advSearchColumns = [
       name: 'Status',
       selector: 'status',
       sortable: true,
-      minWidth: '150px'
+      minWidth: '150px',
+      cell: row => {
+        return (
+          <Badge color={row.status === 'Closed' ? 'light-danger' : 'light-success'} pill>
+            {row.status}
+          </Badge>
+        )
+      }
     },
     // {
     //   name: 'Team Id',
