@@ -42,6 +42,7 @@ query MyQuery($callout_id: Int!) {
 `;
 
 export default function TicketListing(props) {
+  const workerId = props.navigation.getParam("workerId", {})
   const { property_id, client, job_type, id } = props.navigation.getParam(
     "it",
     {}
@@ -136,6 +137,9 @@ export default function TicketListing(props) {
             <Text style={{ fontWeight: "bold" }}>
               {props.name}
             </Text>
+            <Text style={{ fontSize: 12, fontWeight: "bold"}}>
+              {`ID: ${props.id}`}
+            </Text>
             <Text style={{ fontSize: 13 }}>{props?.description}</Text>
         <Text style={{ fontSize: 12 }}>Ticket type: {props?.type}</Text>
         <Text style={{ fontSize: 12 }}>Status: <Text style={ props?.status == "Closed" && {color: 'red'}}>{props?.status}</Text></Text>
@@ -174,7 +178,8 @@ export default function TicketListing(props) {
     props.navigation.navigate("Job", {
       it: props.navigation.getParam("it", {}),
       ticketDetails,
-      ticketCount: allTickets?.job_tickets.length
+      ticketCount: allTickets?.job_tickets.length,
+      workerId
     });
   };
   const _tickets = [...(data?.job_tickets ?? []), ...(data?.null_ticket ?? [])];

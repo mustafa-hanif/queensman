@@ -59,6 +59,7 @@ import Scheduler from "./src/Scheduler";
 import ClientListFromRequestCallout from "./src/RequestCallout/ClientListFromRequestCallout";
 import PropertiesListFromRequestCallout from "./src/RequestCallout/PropertiesListFromRequestCallout";
 import RequestCallOut from "./src/RequestCallout/RequestCallOut";
+import SelectSchedule from "./src/RequestCallout/SelectSchedule";
 import Notification from "./src/Notification";
 
 import getTheme from "./native-base-theme/components";
@@ -210,6 +211,20 @@ const RequestCalloutStackNavigator = createStackNavigator(
       screen: RequestCallOut,
       navigationOptions: ({ navigation }) => ({
         title: "Request Callout",
+
+        headerStyle: {
+          backgroundColor: "#000E1E",
+        },
+        headerTintColor: "#fff",
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }),
+    },
+    SelectSchedule: {
+      screen: SelectSchedule,
+      navigationOptions: ({ navigation }) => ({
+        title: "Select Schedule",
 
         headerStyle: {
           backgroundColor: "#000E1E",

@@ -94,7 +94,9 @@ const STOP_JOB = gql`
     $worker_email: String!,
     $name: String!,
     $desc: String!,
-    $notes: jsonb!
+    $notes: jsonb!,
+    $type: String!,
+    $status: String!
   ) {
     update_job_tickets_by_pk(
       pk_columns: { id: $id }
@@ -108,10 +110,10 @@ const STOP_JOB = gql`
         name: $name,
         description: $desc,
         callout_id: $callout_id, 
-        type: "Deferred", 
+        type: $type, 
         worker_email: $worker_email, 
         notes: [$notes], 
-        status: "Opened" 
+        status: $status 
       }
     ) {
       id
@@ -136,7 +138,6 @@ mutation CloseTicket($id: Int!,
 `
 
 const Job = (props) => {
-  // console.log(props.navigation.getParam("ticketDetails"), " ASKJFDHASLDIHASFKAHSKDI")
   const worker_email = auth.user().email
   const [state, setState] = useState({
     Pic1: "photos/0690da3e-9c38-4a3f-ba45-8971697bd925.jpg",
@@ -170,8 +171,7 @@ const Job = (props) => {
 
   const calloutIdFromParam = props.navigation.getParam("it", null);
   const ticket = props.navigation.getParam("ticketDetails", {});
-  console.log(ticket.id)
-  console.log(calloutIdFromParam.id)
+  const workerId = props.navigation.getParam("workerId", {})
   const [ticketNotesArray, setticketNotesArray] = useState(ticket.notes);
 
   // API
@@ -288,6 +288,7 @@ const Job = (props) => {
       it: props.navigation.getParam("it", {}),
       ticketDetails: props.navigation.getParam("ticketDetails", {}),
       ticketCount: props.navigation.getParam('ticketCount', {}),
+      workerId,
     });
     console.log("navigated")
   };
@@ -484,26 +485,26 @@ const Job = (props) => {
     if (closeJobNote === "") {
       return alert("Please enter a note");
     }
-    console.log({
-      id: ticket.id,
-      notes: {from: auth.user().display_name, message: closeJobNote},
-      status: "Deferred",
-      type: state.type
-    })
 
-    if (ticket.type == "Deferred") {
-      changeJobType({ variables: {
-        id: ticket.id,
-        notes: {from: auth.user().display_name, message: closeJobNote},
-        status: "Deferred",
-        type: state.type
-      }
-      }).then(() => {
-        setstopJobModalVisible(false);
-        // props.navigation.navigate("TicketListing");
-      }).catch(e => {
-        console.log(e)
+    if (state.type != "Deferred") {
+      stopJob({
+        variables: {
+          name: `Defer Ticket of ${ticket.id}`,
+          desc: closeJobNote,
+          id: ticket.id,
+          worker_email: auth.user().email,
+          callout_id: state.JobData.id,
+          notes: {from: auth.user().display_name, message: closeJobNote},
+          status: "Opened",
+          type: state.type
+        },
       })
+        .then((res) => {
+          console.log({ res });
+          setstopJobModalVisible(false);
+          props.navigation.navigate("TicketListing");
+        })
+        .catch(console.log);
     } else {
       stopJob({
         variables: {
@@ -513,6 +514,8 @@ const Job = (props) => {
           worker_email: auth.user().email,
           callout_id: state.JobData.id,
           notes: {from: auth.user().display_name, message: closeJobNote},
+          status: "Opened",
+          type: "Deferred"
         },
       })
         .then((res) => {
@@ -792,7 +795,7 @@ const Job = (props) => {
       >
         Email: {state.W3Email}
       </Text>
-        {ticket.status != "Closed" && <View>
+        {ticket.status != "Closed" && <View style={{marginBottom: 60}}>
         <Button
         style={{ width: "20%" }}
         onPress={AlertStartJob}
@@ -800,14 +803,14 @@ const Job = (props) => {
         color="#FFCA5D"
       />
 
-      <View style={{ marginTop: 20, marginBottom: 40 }}>
+      {ticket?.type != "Deferred" || ticket?.type != "Material Request" || ticket?.type != "Out of scope" && <View style={{ marginTop: 20, marginBottom: 40 }}>
         <Button
           // style={{ width: "20%" }}
           onPress={onStopJobPress}
           title="Stop Job"
           color="#cf142b"
         />
-      </View>
+      </View>}
           </View>}
 
       <Modal
@@ -880,10 +883,7 @@ const Job = (props) => {
             }}
           ></TextInput>
           
-          {ticket?.type === "Deferred" && (
             <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Job Type</Text>
-          )}
-          {ticket?.type === "Deferred" && (
             <View
               style={{
                 flexDirection: "row",
@@ -891,7 +891,16 @@ const Job = (props) => {
                 height: 80,
               }}
             >
-              <View style={{flex: 1, flexDirection:"row", width: "100%", alignItems: "center"}}>
+               <View style={{flex: 1, flexDirection:"row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
+              <TouchableOpacity
+                style={styles.circle}
+                onPress={() => setState({ ...state, type: "Deferred" })} // we set our value state to key
+              >
+                {state.type === "Deferred" ? <View style={styles.checkedCircle} /> : null}
+              </TouchableOpacity>
+              <Text style={{ paddingLeft: "2%", paddingRight: "2%", fontSize: 12 }}>Deferred</Text>              
+              </View>
+              <View style={{flex: 1, flexDirection:"row", width: "100%", justifyContent: "center", alignItems: "center"}}>
               <TouchableOpacity
                 style={styles.circle}
                 onPress={() => setState({ ...state, type: "Material Request" })} // we set our value state to key
@@ -901,7 +910,7 @@ const Job = (props) => {
 
               <Text style={{ paddingLeft: "2%", paddingRight: "2%", fontSize: 12 }}>Material Request</Text>
               </View>
-              <View style={{flex: 1, flexDirection:"row", width: "100%", justifyContent: "flex-end", alignItems: "center"}}>
+              <View style={{flex: 1, flexDirection:"row", width: "100%", justifyContent: "flex-end",marginLeft: 15,  alignItems: "center"}}>
               <TouchableOpacity
                 style={styles.circle}
                 onPress={() => setState({ ...state, type: "Out of scope" })} // we set our value state to key
@@ -911,7 +920,6 @@ const Job = (props) => {
               <Text style={{ paddingLeft: "2%", paddingRight: "2%", fontSize: 12 }}>Out of scope</Text>              
               </View>
             </View>
-          )}
 
           <Button
             style={{ width: "20%" }}

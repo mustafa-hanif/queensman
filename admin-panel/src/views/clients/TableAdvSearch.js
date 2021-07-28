@@ -191,28 +191,28 @@ const DataTableAdvSearch = () => {
 
   const handleAddPlan = async (row) => {
     console.log("meow")
-    let currentDate = new Date().toISOString().split('T')[0].split('-')  //["2021", "07", "01"]
-    let year = parseInt(currentDate[0])
-    let month = parseInt(currentDate[1])
-    console.log(row)
-    for (let i = 0; i < 6; i++) {
+    let year = new Date().getFullYear()
+    let month = new Date().getMonth() + 1
+    let day = new Date().getDate()
+    console.log(day)
+    for (let i = 0; i < 4; i++) {
       if (month % 13 === 0) {
         month = 1
         year++
       }
-      const date_on_calendar = `${year}-${month < 10 ? `0${month}` : month}-01`//new Date().getMonth()+1
+      const date_on_calendar = `${year}-${month < 10 ? `0${month}` : month}-${day}`//new Date().getMonth()+1
       const time_on_calendar = "10:00:00" //10:00:00
       const end_time_on_calendar = addHours(`${date_on_calendar} ${time_on_calendar}`, 4).toTimeString().substr(0, 8)
       const end_date_on_calendar = addHours(`${date_on_calendar} ${time_on_calendar}`, 4).toISOString().substr(0, 10)
-      // console.log({
-      //   property_id: row.property_owneds[0]?.property_id,
-      //   callout_by: row.id,
-      //   email: row.email,
-      //   date_on_calendar,
-      //   time_on_calendar,
-      //   end_time_on_calendar,
-      //   end_date_on_calendar
-      // })
+      console.log({
+        property_id: row.property_owneds[0]?.property_id,
+        callout_by: row.id,
+        email: row.email,
+        date_on_calendar,
+        time_on_calendar,
+        end_time_on_calendar,
+        end_date_on_calendar
+      })
       await addPlan({
         variables: {
         property_id: row.property_owneds[0]?.property_id,
@@ -224,7 +224,8 @@ const DataTableAdvSearch = () => {
         end_date_on_calendar
         }
       })
-      month += 2
+      month += 3
+      day = "01"
     }
     if (!addPlanLoading) {
       toast.success(<ToastComponent title='Plan Added' color='success' icon={<Check />} />, {
@@ -240,40 +241,37 @@ const DataTableAdvSearch = () => {
       })
     }
     
-    currentDate = new Date().toLocaleDateString().split("/")  // "7/11/2021"
+    const currentDate = new Date().toLocaleDateString().split("/")  // "7/11/2021"
     year = parseInt(currentDate[2])
     month = parseInt(currentDate[0])
-    const day = parseInt(currentDate[1])
+    day = parseInt(currentDate[1])
     for (let i = 0; i < 4; i++) {
       if (month % 13 === 0) {
         month = 1
         year++
       }
       const date = new Date(`${month}/${day}/${year}`).toDateString().split(" ")
-      const dateString = `${date[1]} ${date[2]}, ${date[3]}`
-      const form = new FormData()
+      let dateString = ""
+      if (i > 0) {
+        dateString = `${date[1]} 01, ${date[3]}`
+      } else {
+        dateString = `${date[1]} ${date[2]}, ${date[3]}`
+      }
       /*eslint-disable*/
-      console.log(JSON.stringify({
+      console.log({
         "Subject":`Task Client ${date[1]}`,
         "Description":`Task Client ${date[1]}`,
-        "Status":`Idk`,
-        "Due_Date": "Jul 11, 2021",
+        "Status":`Open`,
+        "Due_Date": `${dateString}`,
         "email":`${row.email}`
-      }))
-      form.append("arguments", JSON.stringify({
-        "Subject":`Task Client ${date[1]}`,
-        "Description":`Task Client ${date[1]}`,
-        "Status":`Idk`,
-        "Due_Date":  "Jul 11, 2021",
-        "email":`${row.email}`
-      }))
+      })
 
       try {
         const res = await axios.post('https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/quarterlyTasks', {
-          "Subject":`Task Client ${date[1]}`,
+        "Subject":`Task Client ${date[1]}`,
         "Description":`Task Client ${date[1]}`,
-        "Status":`Idk`,
-        "Due_Date":  `${dateString}`,
+        "Status":`Open`,
+        "Due_Date": `${dateString}`,
         "email":`${row.email}`
         })
       } catch (e) {
@@ -338,12 +336,12 @@ const advSearchColumns = [
       sortable: true,
       minWidth: '200px'
     },
-    {
-      name: 'Gender',
-      selector: 'gender',
-      sortable: true,
-      minWidth: '100px'
-    },
+    // {
+    //   name: 'Gender',
+    //   selector: 'gender',
+    //   sortable: true,
+    //   minWidth: '100px'
+    // },
     {
       name: 'Occupation',
       selector: 'occupation',
@@ -351,18 +349,18 @@ const advSearchColumns = [
       minWidth: '250px'
     },
   
-    {
-      name: 'Organization',
-      selector: 'organization',
-      sortable: true,
-      minWidth: '250px'
-    },
-    {
-      name: 'Phone',
-      selector: 'Phone',
-      sortable: true,
-      minWidth: '200px'
-    },
+    // {
+    //   name: 'Organization',
+    //   selector: 'organization',
+    //   sortable: true,
+    //   minWidth: '250px'
+    // },
+    // {
+    //   name: 'Phone',
+    //   selector: 'Phone',
+    //   sortable: true,
+    //   minWidth: '200px'
+    // },
     {
       name: 'Password',
       minWidth: '150px',

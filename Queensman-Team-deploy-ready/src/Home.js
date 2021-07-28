@@ -116,7 +116,7 @@ const HomeScreen = ({ navigation, workerId }) => {
         >
           <TouchableOpacity
             style={{ flex: 1, paddingRight: "2%" }}
-            onPress={() => AssignCalloutHandler(navigation)}
+            onPress={() => AssignCalloutHandler(navigation, workerId)}
           >
             <View style={[styles.button]}>
               <Image
@@ -309,8 +309,10 @@ const registerForPushNotificationsAsync = async () => {
   return token;
 };
 
-const AssignCalloutHandler = (navigation) => {
-  navigation.navigate("JobList");
+const AssignCalloutHandler = (navigation, workerId) => {  
+  navigation.navigate("JobList", {
+    workerId
+  });
 };
 
 const ServicesHistoryHandler = (navigation) => {
@@ -327,7 +329,7 @@ const InventoryReportHandler = (navigation) => {
   navigation.navigate("ClientList");
 };
 
-const RequestCalloutHandler = (navigation) => {
+const RequestCalloutHandler = (navigation, workerId) => {
   navigation.navigate("ClientListFromRequestCallout");
 };
 

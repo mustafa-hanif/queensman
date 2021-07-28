@@ -190,7 +190,11 @@ const PreJob = (props) => {
     console.log(ticketCount);
     if (ticketCount == 1) {
       console.log("One Job");
-
+      console.log({
+        id: ticketId,
+        updater_id: workerId,
+        callout_id: state.CallOutID,
+      })
       try {
         await finishJob({
           variables: {
@@ -229,6 +233,7 @@ const PreJob = (props) => {
         it: props.navigation.getParam("it", {}),
         ticketDetails: props.navigation.getParam("ticketDetails", {}),
         ticketCount: props.navigation.getParam("ticketCount", {}),
+        workerId
       });
     } else {
       alert("Please upload pre job images first!");
@@ -630,7 +635,7 @@ const PreJob = (props) => {
         {!addJobNoteLoading && RenderAddNote()}
       </View>
       <View style={{ marginTop: 20, marginBottom: 60 }}>
-        {ticket.type == "Deferred" ? (
+        {ticket.type == "Deferred" || ticket.type == "Material Request" || ticket.type == "Out of scope" ? (
           <Button onPress={AlertSubmitJob} title="Submit Job" color="#FFCA5D" />
         ) : (
           <Button onPress={AlertPreJobHandler} title="NEXT" color="#FFCA5D" />

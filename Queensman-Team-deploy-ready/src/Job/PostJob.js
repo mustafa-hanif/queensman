@@ -26,6 +26,7 @@ import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
 
 const PostJob = (props) => {
+  const workerId = props.navigation.getParam("workerId", {})
     const [state, setState] = useState({
       solution: "123",
       Pic1: "link",
@@ -67,7 +68,8 @@ const PostJob = (props) => {
         Sol: state.solution,
         it: props.navigation.getParam("it", {}),
         ticketDetails: props.navigation.getParam("ticketDetails", {}),
-        ticketCount: props.navigation.getParam('ticketCount', {})
+        ticketCount: props.navigation.getParam('ticketCount', {}),
+        workerId
       });
     }
   };

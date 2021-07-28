@@ -49,6 +49,7 @@ const GET_SCHEDULE = gql`
       notes
       worker {
         full_name
+        id
       }
       callout_id
       callout {
@@ -93,10 +94,11 @@ const UPDATE_CALLOUT = gql`
     $category: String
     $job_type: String
     $scheduler_id: Int
+    $worker_id: Int
   ) {
     update_scheduler(
       where: { id: { _eq: $scheduler_id } }
-      _set: { notes: $notes }
+      _set: { notes: $notes, worker_id: $worker_id }
     ) {
       affected_rows
     }
@@ -108,6 +110,9 @@ const UPDATE_CALLOUT = gql`
         job_type: $job_type
       }
     ) {
+      affected_rows
+    }
+    update_job_worker(where: {callout_id: {_eq: $callout_id}}, _set: {worker_id: $worker_id}) {
       affected_rows
     }
   }
@@ -227,7 +232,8 @@ const CalendarComponent = () => {
         callout_by_email: eventToUpdate.extendedProps.clientEmail,
         category: eventToUpdate.extendedProps.category,
         job_type: eventToUpdate.extendedProps.job_type,
-        scheduler_id: eventToUpdate.id
+        scheduler_id: eventToUpdate.id,
+        worker_id: eventToUpdate.extendedProps.workerId
       }
     })
   }
