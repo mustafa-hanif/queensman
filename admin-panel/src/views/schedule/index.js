@@ -40,7 +40,7 @@ const calendarsColor = {
 
 const GET_SCHEDULE = gql`
   query GetSchedule($_gte: date!, $_lte: date!) {
-    scheduler(where: { date_on_calendar: { _gte: $_gte, _lte: $_lte } }) {
+    scheduler(where: {date_on_calendar: {_gte: $_gte, _lte: $_lte}, callout: {status: {_neq: "Closed"}}}) {
       id
       start: date_on_calendar
       startTime: time_on_calendar
