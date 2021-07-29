@@ -196,7 +196,7 @@ export default function TicketListing(props) {
             <TicketCard
               key={item.name}
               onPress={() => onTicketPress(item)}
-              Checked={item.status === 'Opened'}
+              Checked={item.status === 'Open'}
               {...item}
             ></TicketCard>
           ))

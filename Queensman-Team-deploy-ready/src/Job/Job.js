@@ -96,7 +96,8 @@ const STOP_JOB = gql`
     $desc: String!,
     $notes: jsonb!,
     $type: String!,
-    $status: String!
+    $status: String!,
+    $client_email: String!
   ) {
     update_job_tickets_by_pk(
       pk_columns: { id: $id }
@@ -113,7 +114,8 @@ const STOP_JOB = gql`
         type: $type, 
         worker_email: $worker_email, 
         notes: [$notes], 
-        status: $status 
+        status: $status,
+        client_email: $client_email
       }
     ) {
       id
@@ -495,8 +497,9 @@ const Job = (props) => {
           worker_email: auth.user().email,
           callout_id: state.JobData.id,
           notes: {from: auth.user().display_name, message: closeJobNote},
-          status: "Opened",
-          type: state.type
+          status: "Open",
+          type: state.type,
+          client_email: client?.email
         },
       })
         .then((res) => {
@@ -514,8 +517,9 @@ const Job = (props) => {
           worker_email: auth.user().email,
           callout_id: state.JobData.id,
           notes: {from: auth.user().display_name, message: closeJobNote},
-          status: "Opened",
-          type: "Deferred"
+          status: "Open",
+          type: "Deferred",
+          client_email: client?.email
         },
       })
         .then((res) => {

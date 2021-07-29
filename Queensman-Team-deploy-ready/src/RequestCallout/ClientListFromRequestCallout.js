@@ -21,7 +21,7 @@ import { gql, useQuery } from "@apollo/client";
 
 const FETCH_CLIENTS = gql`
   query FetchClients {
-    client(where: { active: { _eq: 1 } }) {
+    client(where: {active: {_eq: 1}, email: {_eq: "murtaza.hanif@techinoviq.com"}}) {
       id
       full_name
       email
@@ -100,6 +100,8 @@ class ClientListClass extends React.Component {
   passItem = (item) => {
     this.props.navigation.navigate('PropertiesListFromRequestCallout', {
         it: item,
+        worker_id: this.props.navigation.getParam("worker_id"),
+        worker_email: this.props.navigation.getParam("worker_email")
     });
 }
 

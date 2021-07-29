@@ -145,8 +145,10 @@ class ClientList extends React.Component {
         community: item.community,
         address: item.address,
         country: item.country,
-        clientID: this.props.navigation.getParam("it").id,
-        clientEmail: this.props.navigation.getParam("it").email
+        client_id: this.props.navigation.getParam("it").id,
+        client_email: this.props.navigation.getParam("it").email,
+        worker_id: this.props.navigation.getParam("worker_id"),
+        worker_email: this.props.navigation.getParam("worker_email")
     });
 }
 

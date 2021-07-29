@@ -30,8 +30,20 @@ const addJobTicketZoho = async (event) => {
       body: form
     }
   );
-  const resultJson = await result.json
-  console.log(resultJson)
+  const resultJson = await result.json()
+  if(resultJson.code === "success") {
+   return {
+    statusCode: 200,
+    code: resultJson?.code,
+    message: resultJson?.message
+  } 
+  } else {
+  return {
+    statusCode: 500,
+    code: resultJson?.code,
+    message: resultJson?.message
+  }
+  }
   } catch(e) {
     console.log(e)
   }

@@ -250,7 +250,7 @@ const HomeScreen = ({ navigation, workerId }) => {
         <View style={{ height: "3%" }}></View>
         <TouchableOpacity
           style={{ width: deviceWidth - deviceWidth / 8, flex: 1 }}
-          onPress={() => RequestCalloutHandler(navigation)}
+          onPress={() => RequestCalloutHandler(navigation, workerId)}
         >
           <View style={styles.button}>
             <Image
@@ -329,8 +329,11 @@ const InventoryReportHandler = (navigation) => {
   navigation.navigate("ClientList");
 };
 
-const RequestCalloutHandler = (navigation, workerId) => {
-  navigation.navigate("ClientListFromRequestCallout");
+const RequestCalloutHandler = (navigation, worker_id) => {
+  navigation.navigate("ClientListFromRequestCallout", {
+    worker_id,
+    worker_email: auth.user().email,
+  });
 };
 
 const onBellIconPress = (navigation) => {

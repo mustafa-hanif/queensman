@@ -250,9 +250,6 @@ const REQUEST_CALLOUT = gql`
             picture4: $picture4
             video: $video
             active: 1
-            job_tickets: {
-              data: { type: "Full Job", name: $notes, status: "Open" }
-            }
           }
         }
         date_on_calendar: $date_on_calendar
@@ -261,10 +258,19 @@ const REQUEST_CALLOUT = gql`
       }
     ) {
       date_on_calendar
+      id
+      callout_id
     }
   }
 `;
 
+const ADD_JOB_TICKET = gql`
+mutation AddJobTicket($callout_id: Int, $scheduler_id: Int, $notes: String, $worker_email: String, $worker_id: Int, $client_email: String) {
+  insert_job_tickets_one(object: {callout_id: $callout_id, scheduler_id: $scheduler_id, type: "Full Job", name: $notes, description: $notes, status: "Open",worker_email: $worker_email, worker_id: $worker_id, client_email: $client_email}) {
+    id
+  }
+}
+`
 const RequestCallOut = (props) => {
   let address = props.navigation.getParam("address", {});
   let community = props.navigation.getParam("community", {});
@@ -272,8 +278,10 @@ const RequestCallOut = (props) => {
   let city = props.navigation.getParam("city", {});
   let property_id = props.navigation.getParam("property_id", {});
   let type = props.navigation.getParam("type", {});
-  const clientID = props.navigation.getParam("clientID");
-  const clientEmail = props.navigation.getParam("clientEmail");
+  const client_id = props.navigation.getParam("client_id");
+  const client_email = props.navigation.getParam("client_email");
+  const worker_id = props.navigation.getParam("worker_id");
+  const worker_email = props.navigation.getParam("worker_email");
   const [state, setState] = useState({
     Urgency: "",
     OtherJobType: "",
@@ -311,13 +319,22 @@ const RequestCallOut = (props) => {
     getJobType,
     { loading: loadingJobType, data: jobType, error: JobTypeError },
   ] = useLazyQuery(GET_JOB_TYPE);
-  const [
-    addCalloutApiCall,
-    { loading: addCalloutApiLoading, error: mutationError },
-  ] = useMutation(ADD_CALLOUT);
 
-  const [requestCalloutApiCall, { loading: requestCalloutLoading }] =
-    useMutation(REQUEST_CALLOUT);
+  const [addJobTicket, { loading: addJobTicketLoading, data: addJobTicketData }] =
+    useMutation(ADD_JOB_TICKET);
+
+  const [requestCalloutApiCall, { loading: requestCalloutLoading, data }] =
+    useMutation(REQUEST_CALLOUT, {
+      onCompleted: (data) => {
+        addJobTicket({variables: {
+          callout_id: data?.insert_scheduler_one?.callout_id,
+          scheduler_id: data?.insert_scheduler_one?.id,
+          notes: state.Description,
+          client_email,
+          worker_id,
+          worker_email
+        }})
+      }})
   const [videoSaving, setVideoSaving] = useState(false);
   const [showVideoScreen, setShowVideoScreen] = useState(false);
   const [jobCategorySelect, setJobCategorySelect] = useState({});
@@ -391,7 +408,6 @@ const RequestCallOut = (props) => {
   };
 
   const askSubmitCallout = () => {
-    console.log("HERE2");
     if (!jobCategorySelect.value) {
       return alert("Please Select Job Category First");
     }
@@ -399,10 +415,11 @@ const RequestCallOut = (props) => {
       return alert("Kindly fill all the required details.");
     }
     if (state.Urgency === "medium") {
-      console.log(jobTypeSelect?.value);
       props.navigation.navigate("SelectSchedule", {
         JobType: jobTypeSelect?.value,
-        clientEmail,
+        client_email,
+        worker_id,
+        worker_email,
         property_id,
         state
       });
@@ -459,6 +476,7 @@ const RequestCallOut = (props) => {
         })
         .filter(Boolean)
     );
+
     requestCalloutApiCall({
       variables: {
         property_id,
@@ -492,12 +510,6 @@ const RequestCallOut = (props) => {
             duration: 3000,
           })
         );
-        // showMessage({
-        //   message: "Callout Request Submitted",
-        //   description: "One of our team will be in touch shortly",
-        //   type: "danger",
-        //   duration: 3000
-        // });
       })
       .catch((err) => console.log({ err }));
   };
@@ -840,7 +852,6 @@ const RequestCallOut = (props) => {
               numberOfLines={1}
               underlineColorAndroid="transparent"
               onChangeText={(Description) => {
-                console.log(Description);
                 setState({ ...state, Description });
               }} // email set
             />

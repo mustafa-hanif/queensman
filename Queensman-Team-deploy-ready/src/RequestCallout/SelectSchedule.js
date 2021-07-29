@@ -44,63 +44,73 @@ const UPDATE_CALLOUT = gql`
 `;
 
 const REQUEST_CALLOUT = gql`
-mutation AddCallout(
-  $property_id: Int
-  $date_on_calendar: date
-  $notes: String
-  $time_on_calendar: time
-  $email: String
-  $category: String
-  $job_type: String
-  $status: String
-  $picture1: String
-  $picture2: String
-  $picture3: String
-  $picture4: String
-  $video: String
-  $request_time: timestamp
-  $urgency_level: String
-) {
-  insert_scheduler_one(
-    object: {
-      callout: {
-        data: {
-          callout_by_email: $email
-          property_id: $property_id
-          category: $category
-          job_type: $job_type
-          status: $status
-          request_time: $request_time
-          urgency_level: $urgency_level
-          picture1: $picture1
-          picture2: $picture2
-          picture3: $picture3
-          picture4: $picture4
-          video: $video
-          active: 1    
-          job_tickets: {
-            data: {
-              type: "Full Job"
-              name: $notes
-              status: "Open"
-            } 
+  mutation AddCallout(
+    $property_id: Int
+    $date_on_calendar: date
+    $notes: String
+    $time_on_calendar: time
+    $email: String
+    $category: String
+    $job_type: String
+    $status: String
+    $picture1: String
+    $picture2: String
+    $picture3: String
+    $picture4: String
+    $video: String
+    $request_time: timestamp
+    $urgency_level: String
+  ) {
+    insert_scheduler_one(
+      object: {
+        callout: {
+          data: {
+            callout_by_email: $email
+            property_id: $property_id
+            category: $category
+            job_type: $job_type
+            status: $status
+            request_time: $request_time
+            urgency_level: $urgency_level
+            description: $notes
+            picture1: $picture1
+            picture2: $picture2
+            picture3: $picture3
+            picture4: $picture4
+            video: $video
+            active: 1
           }
         }
+        date_on_calendar: $date_on_calendar
+        time_on_calendar: $time_on_calendar
+        notes: $notes
       }
-      date_on_calendar: $date_on_calendar
-      time_on_calendar: $time_on_calendar
-      notes: $notes
+    ) {
+      date_on_calendar
+      id
+      callout_id
     }
-  ) {
-    date_on_calendar
+  }
+`;
+
+const ADD_JOB_TICKET = gql`
+mutation AddJobTicket($callout_id: Int, $scheduler_id: Int, $notes: String, $worker_email: String, $worker_id: Int, $client_email: String) {
+  insert_job_tickets_one(object: {callout_id: $callout_id, scheduler_id: $scheduler_id, type: "Full Job", name: $notes, description: $notes, status: "Open",worker_email: $worker_email, worker_id: $worker_id, client_email: $client_email}) {
+    id
   }
 }
-`;
+`
 
 export default function SelectSchedule(props) {
   const [selectedDate, setselectedDate] = useState(null);
   const [modalVisible, setmodalVisible] = useState(false);
   const [markedDate, setmarkedDate] = useState({});
+  const client_email = props.navigation.getParam("client_email");
+  const worker_id = props.navigation.getParam("worker_id");
+  const worker_email = props.navigation.getParam("worker_email");
+  console.log(client_email)
+  console.log(worker_id)
+  console.log(worker_email)
 
   const [date, setDate] = useState(() => {
     const now = new Date();
@@ -112,39 +122,28 @@ export default function SelectSchedule(props) {
   const [show, setShow] = useState(false);
   const [time, settime] = useState(null);
 
-  const [requestCalloutApiCall, { loading: requestCalloutLoading, error: mutationError }] = useMutation(
-    REQUEST_CALLOUT
-  );
-  const [updateCalloutApi, { loading: updateCalloutLoading, error: updatecalloutError }] = useMutation(UPDATE_CALLOUT);
+  const [addJobTicket, { loading: addJobTicketLoading, data: addJobTicketData }] =
+    useMutation(ADD_JOB_TICKET);
+
+  const [requestCalloutApiCall, { loading: requestCalloutLoading, data }] =
+    useMutation(REQUEST_CALLOUT, {
+      onCompleted: (data) => {
+        addJobTicket({variables: {
+          callout_id: data?.insert_scheduler_one?.callout_id,
+          scheduler_id: data?.insert_scheduler_one?.id,
+          notes: state.Description,
+          client_email,
+          worker_id,
+          worker_email
+        }})
+      }})
 
   const state = props.navigation.getParam("state");
   const formatDate = (date) => {
     return moment(date).format("YYYY-MM-DD");
   };
 
-  const GetCurrentDate = () => {
-    return "2020-08-01";
-    return formatDate(new Date());
-  };
 
-  const GetOneYearFromNow = () => {
-    return formatDate(new Date(new Date().setFullYear(new Date().getFullYear() + 1)));
-  };
-
-  // const { loading, data, error } = useQuery(GET_SCHEDULE, {
-  //   variables: {
-  //     _gte: GetCurrentDate(),
-  //     _lte: GetOneYearFromNow(),
-  //   },
-  // });
-
-  // console.log({
-  //   loading,
-  //   data: data?.scheduler.map((val) => {
-  //     return { [val.start]: { selected: true, marked: true } };
-  //   }),
-  //   error,
-  // });
 
   const setMarkedDATE = (date) => {
     const mark = markedDate;
@@ -209,7 +208,7 @@ export default function SelectSchedule(props) {
       requestCalloutApiCall({
         variables: {
           property_id: props.navigation.getParam("property_id", {}),
-          email: props.navigation.getParam("clientEmail", {}),
+          email: client_email,
           notes: state.Description,
           time_on_calendar: time,
           date_on_calendar: selectedDate,
@@ -317,7 +316,7 @@ export default function SelectSchedule(props) {
     />
   }, [show]);
 
-  if (requestCalloutLoading || updateCalloutLoading) {
+  if (requestCalloutLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator color={colors.brandPrimary} size="large" />

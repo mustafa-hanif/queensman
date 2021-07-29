@@ -198,7 +198,7 @@ const HomeScreenStackNavigator = () => {
       <HomeScreenStack.Screen options={{ headerShown: false }} name="HomeNaviagtor" component={HomeScreen} />
       <HomeScreenStack.Screen name="Notification" component={Notification} />
       <HomeScreenStack.Screen name="VideoScreen" component={VideoScreen} />
-      <HomeScreenStack.Screen name="RequestCallOut" component={RequestCallOut} />
+      <HomeScreenStack.Screen name="RequestCallOut" component={RequestCallOut} options={({ route }) => ({ title: route.params.name })} />
       <HomeScreenStack.Screen
         options={{ title: "Services History" }}
         name="CalloutHistory"

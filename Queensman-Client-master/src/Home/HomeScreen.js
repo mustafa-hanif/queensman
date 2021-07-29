@@ -113,8 +113,12 @@ const registerForPushNotificationsAsync = async () => {
   throw new Error("Must use physical device for Push Notifications");
 };
 
-const requestCallOutPress = (navigation, obj) => {
-  navigation.navigate("RequestCallOut", obj);
+const requestCallOutPress = (navigation, {additionalServices}) => {
+  if(!additionalServices) { //if false 
+    navigation.navigate("RequestCallOut", {name: 'Request Callout', additionalServices});  
+  } else { //if true
+    navigation.navigate("RequestCallOut", {name: 'Additional Request', additionalServices});
+  }
 };
 
 const onGoingCallOutPress = (navigation) => {

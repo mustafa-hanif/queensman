@@ -184,13 +184,14 @@ const GET_PROPERTIES = gql`
           id
           country
         }
+        id
       }
     }
   }
 `;
 
 const GET_PROPERTY_BY_ID = gql`
-  query FetchPropertyById($id: Int = 10) {
+  query FetchPropertyById($id: Int!) {
     property_owned_by_pk(id: $id) {
       property {
         address
@@ -198,6 +199,7 @@ const GET_PROPERTY_BY_ID = gql`
         community
         country
         category: type
+        id
       }
       id
       owner_id
@@ -240,7 +242,7 @@ const ADD_CALLOUT = gql`
         }
         name: "Request quotation"
         description: $description
-        type: "Deferred"
+        type: $job_type
         status: $status
         worker_id: $worker_id
         worker_email: $worker_email
@@ -253,55 +255,65 @@ const ADD_CALLOUT = gql`
 `;
 
 const REQUEST_CALLOUT = gql`
-  mutation AddCallout(
-    $property_id: Int
-    $date_on_calendar: date
-    $notes: String
-    $time_on_calendar: time
-    $email: String
-    $category: String
-    $job_type: String
-    $status: String
-    $picture1: String
-    $picture2: String
-    $picture3: String
-    $picture4: String
-    $video: String
-    $request_time: timestamp
-    $urgency_level: String
-  ) {
-    insert_scheduler_one(
-      object: {
-        callout: {
-          data: {
-            callout_by_email: $email
-            property_id: $property_id
-            category: $category
-            job_type: $job_type
-            status: $status
-            request_time: $request_time
-            urgency_level: $urgency_level
-            description: $notes
-            picture1: $picture1
-            picture2: $picture2
-            picture3: $picture3
-            picture4: $picture4
-            video: $video
-            active: 1
-            job_tickets: { data: { type: "Full Job", name: $notes, status: "Open" } }
-          }
+mutation AddCallout(
+  $property_id: Int
+  $date_on_calendar: date
+  $notes: String
+  $time_on_calendar: time
+  $email: String
+  $category: String
+  $job_type: String
+  $status: String
+  $picture1: String
+  $picture2: String
+  $picture3: String
+  $picture4: String
+  $video: String
+  $request_time: timestamp
+  $urgency_level: String
+) {
+  insert_scheduler_one(
+    object: {
+      callout: {
+        data: {
+          callout_by_email: $email
+          property_id: $property_id
+          category: $category
+          job_type: $job_type
+          status: $status
+          request_time: $request_time
+          urgency_level: $urgency_level
+          description: $notes
+          picture1: $picture1
+          picture2: $picture2
+          picture3: $picture3
+          picture4: $picture4
+          video: $video
+          active: 1
         }
-        date_on_calendar: $date_on_calendar
-        time_on_calendar: $time_on_calendar
-        notes: $notes
       }
-    ) {
-      date_on_calendar
+      date_on_calendar: $date_on_calendar
+      time_on_calendar: $time_on_calendar
+      notes: $notes
     }
+  ) {
+    date_on_calendar
+    id
+    callout_id
   }
+}
 `;
 
+const ADD_JOB_TICKET = gql`
+mutation AddJobTicket($callout_id: Int, $scheduler_id: Int, $notes: String, $client_email: String) {
+  insert_job_tickets_one(object: {callout_id: $callout_id, scheduler_id: $scheduler_id, type: "Full Job", name: $notes, description: $notes, status: "Open", client_email: $client_email}) {
+    id
+  }
+}
+`
+
 const RequestCallOut = (props) => {
+  console.log(props.route.params)
   const [state, setState] = useState({
     PropertyDetails: [],
     property_type: "",
@@ -330,7 +342,6 @@ const RequestCallOut = (props) => {
     Email: "",
     UserName: "",
     Mobile: "",
-    PropertyDetailLoading: false,
     CalloutID: "",
     loading: false,
     isPicvisible: false, // veiw image app kay lia
@@ -340,12 +351,19 @@ const RequestCallOut = (props) => {
   });
   const { loading: jobCategoryLoading, data: jobCategory, error: jobCategoryError } = useQuery(GET_JOB_CATEGORY);
   const [getJobType, { loading: loadingJobType, data: jobType, error: JobTypeError }] = useLazyQuery(GET_JOB_TYPE);
-  const [loadProperty, { loading: loadingSingleProperty, data: selectedProperty, error: propertyError }] =
-    useLazyQuery(GET_PROPERTY_BY_ID);
-
   const [addCalloutApiCall, { loading: addCalloutApiLoading, error: mutationError }] = useMutation(ADD_CALLOUT);
-
-  const [requestCalloutApiCall, { loading: requestCalloutLoading }] = useMutation(REQUEST_CALLOUT);
+  const [addJobTicket, { loading: addJobTicketLoading, data: addJobTicketData }] =
+  useMutation(ADD_JOB_TICKET);
+  const [requestCalloutApiCall, { loading: requestCalloutLoading, data }] =
+  useMutation(REQUEST_CALLOUT, {
+    onCompleted: (data) => {
+      addJobTicket({variables: {
+        callout_id: data?.insert_scheduler_one?.callout_id,
+        scheduler_id: data?.insert_scheduler_one?.id,
+        notes: state.Description,
+        client_email: auth.user().email,
+      }})
+    }})
   const [videoSaving, setVideoSaving] = useState(false);
   const [showVideoScreen, setShowVideoScreen] = useState(false);
   const [jobCategorySelect, setJobCategorySelect] = useState({});
@@ -360,10 +378,8 @@ const RequestCallOut = (props) => {
   };
 
   const selectJobCategoryPressed = (id) => {
-    console.log(id);
     // setJobCategorySelect({value, label:value})
     getJobType({ variables: { skill_parent: id } });
-    console.log(jobType?.team_expertise);
   };
 
   const user = auth?.currentSession?.session?.user;
@@ -376,23 +392,14 @@ const RequestCallOut = (props) => {
     variables: { email },
   });
 
+  const [loadProperty, { loading: loadingSingleProperty, data: selectedProperty, error: propertyError }] =
+  useLazyQuery(GET_PROPERTY_BY_ID, {
+    variables: {id: allProperties?.client?.[0]?.property_owneds?.[0]?.id}
+  });
   // Did mount - Select the first property of the client, or use the one in async storage
   useEffect(() => {
-    setState({
-      ...state,
-      PropertyDetailLoading: true,
-    });
     const loadSelectedProperty = async (properties) => {
-      let property_ID = await AsyncStorage.getItem("QueensPropertyID"); // assign customer id here
-      if (!property_ID) {
-        property_ID = properties?.[0]?.property?.id;
-      }
-      setState({
-        ...state,
-        customerEmail: email,
-        PropertyID: property_ID,
-      });
-      loadProperty({ variables: { id: property_ID } });
+      loadProperty();
     };
     if (allProperties) {
       loadSelectedProperty(allProperties?.client?.[0]?.property_owneds);
@@ -402,9 +409,8 @@ const RequestCallOut = (props) => {
   // Once we have a selected property - Load it in the local state
   // TODO: This is not necessary, we can use the selected property directly
   useEffect(() => {
-    // console.log({ selectedProperty });
-    if (selectedProperty) {
-      const propertyid = selectedProperty?.property_owned_by_pk?.id;
+    if (!loadingSingleProperty && selectedProperty) {
+      const propertyid = selectedProperty?.property_owned_by_pk?.property?.id;
       const propertyDetails = selectedProperty?.property_owned_by_pk?.property;
       const { category, address, community, city, country } = propertyDetails;
       setState({ ...state, PropertyDetails: propertyDetails });
@@ -416,10 +422,9 @@ const RequestCallOut = (props) => {
         city,
         country,
         PropertyID: propertyid,
-        PropertyDetailLoading: false,
       }));
     }
-  }, [selectedProperty]);
+  }, [selectedProperty,loadingSingleProperty]);
 
   const selectFromGallery = async () => {
     if (Constants.platform.ios) {
@@ -477,7 +482,6 @@ const RequestCallOut = (props) => {
   };
 
   const askSubmitCallout = () => {
-    console.log("HERE");
     if (!jobCategorySelect.value) {
       return alert("Please Select Job Category First");
     }
@@ -503,7 +507,7 @@ const RequestCallOut = (props) => {
         { cancelable: false }
       );
     } else {
-      addJobTicket();
+      addJobTicketFunc();
     }
   };
 
@@ -530,7 +534,7 @@ const RequestCallOut = (props) => {
           const _statePic = state[`picture${i}`];
           if (_statePic) {
             const file = expoFileToFormFile(_statePic);
-            storage.put(`/callout_pics/${file.name}`, file).then(console.log).catch(console.error);
+            storage.put(`/callout_pics/${file.name}`, file).then().catch(console.error);
             return [`picture${i}`, `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`];
           }
           return null;
@@ -659,8 +663,7 @@ const RequestCallOut = (props) => {
     });
   };
 
-  const addJobTicket = async () => {
-    console.log("HERE 2");
+  const addJobTicketFunc = async () => {
     const category = "Uncategorized";
     const pictures = Object.fromEntries(
       [...Array(4)]
@@ -685,7 +688,7 @@ const RequestCallOut = (props) => {
         description: state.Description,
         category,
         job_type: jobCategorySelect.value,
-        status: "Deferred",
+        status: "Additional Request",
         urgency_level: "Medium",
         ...pictures,
       },
@@ -718,7 +721,7 @@ const RequestCallOut = (props) => {
       <View style={{ backgroundColor: "#000", paddingHorizontal: "10%", paddingVertical: "10%" }}>
         <FlashMessage position="top" />
         <Text style={[styles.TextFam, { color: "#FFCA5D", fontSize: 10 }]}>Callout Address</Text>
-        {!state.PropertyDetailLoading ? (
+        {!loadingSingleProperty && selectedProperty ? (
           <View style={{}}>
             <Text style={[styles.TextFam, { fontSize: 16, fontWeight: "bold", color: "#fff" }]}>{state.address}</Text>
             <Text style={[styles.TextFam, { fontSize: 10, color: "#fff" }]}>
@@ -726,9 +729,9 @@ const RequestCallOut = (props) => {
             </Text>
           </View>
         ) : (
-          <Text style={[styles.TextFam, { fontSize: 20, fontWeight: "bold", color: "#fff" }]}>
-            Loading please wait...
-          </Text>
+          <View>
+          <ActivityIndicator size="small" color="white" style={{ alignSelf: "center" }} />
+          </View>
         )}
       </View>
       <View style={styles.Card}>

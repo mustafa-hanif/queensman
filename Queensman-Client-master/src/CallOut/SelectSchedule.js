@@ -72,19 +72,13 @@ mutation AddCallout(
           status: $status
           request_time: $request_time
           urgency_level: $urgency_level
+          description: $notes
           picture1: $picture1
           picture2: $picture2
           picture3: $picture3
           picture4: $picture4
           video: $video
-          active: 1    
-          job_tickets: {
-            data: {
-              type: "Full Job"
-              name: $notes
-              status: "Open"
-            } 
-          }
+          active: 1
         }
       }
       date_on_calendar: $date_on_calendar
@@ -93,9 +87,19 @@ mutation AddCallout(
     }
   ) {
     date_on_calendar
+    id
+    callout_id
   }
 }
 `;
+
+const ADD_JOB_TICKET = gql`
+mutation AddJobTicket($callout_id: Int, $scheduler_id: Int, $notes: String, $client_email: String) {
+  insert_job_tickets_one(object: {callout_id: $callout_id, scheduler_id: $scheduler_id, type: "Full Job", name: $notes, description: $notes, status: "Open", client_email: $client_email}) {
+    id
+  }
+}
+`
 
 export default function SelectSchedule(props) {
   const [selectedDate, setselectedDate] = useState(null);
@@ -112,16 +116,30 @@ export default function SelectSchedule(props) {
   const [show, setShow] = useState(false);
   const [time, settime] = useState(null);
 
-  const [requestCalloutApiCall, { loading: requestCalloutLoading, error: mutationError }] = useMutation(
-    REQUEST_CALLOUT
-  );
+  const [addJobTicket, { loading: addJobTicketLoading, data: addJobTicketData }] =
+    useMutation(ADD_JOB_TICKET);
+
+  const [requestCalloutApiCall, { loading: requestCalloutLoading, data }] =
+  useMutation(REQUEST_CALLOUT, {
+    onCompleted: (data) => {
+      console.log({
+        callout_id: data?.insert_scheduler_one?.callout_id,
+        scheduler_id: data?.insert_scheduler_one?.id,
+        notes: state.Description,
+        client_email: auth.user().email,
+      })
+      addJobTicket({variables: {
+        callout_id: data?.insert_scheduler_one?.callout_id,
+        scheduler_id: data?.insert_scheduler_one?.id,
+        notes: state.Description,
+        client_email: auth.user().email,
+      }})
+    }})
   const [updateCalloutApi, { loading: updateCalloutLoading, error: updatecalloutError }] = useMutation(UPDATE_CALLOUT);
 
   const state = props.route.params.state;
-  console.log({ state });
   const commingFrom = props.route.params.commingFrom;
   const callout_id_fromNotification = props.route.params.callout_id;
-  console.log({ commingFrom, callout_id_fromNotification });
   const formatDate = (date) => {
     return moment(date).format("YYYY-MM-DD");
   };
@@ -215,7 +233,7 @@ export default function SelectSchedule(props) {
             const _statePic = state[`picture${i}`];
             if (_statePic) {
               const file = expoFileToFormFile(_statePic);
-              storage.put(`/callout_pics/${file.name}`, file).then(console.log).catch(console.error);
+              storage.put(`/callout_pics/${file.name}`, file).then().catch(console.error);
               return [`picture${i}`, `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`];
             }
             return null;
@@ -329,13 +347,10 @@ export default function SelectSchedule(props) {
   };
 
   const onDayPress = (day) => {
-    console.log({ day });
     setselectedDate(day.dateString);
     setMarkedDATE(day.dateString);
     setShow(true);
   };
-
-  console.log({ show });
 
   const dateComponent = React.useMemo(() => {
     return show && <DateTimePicker

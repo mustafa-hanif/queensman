@@ -119,6 +119,43 @@ const UPDATE_CALLOUT = gql`
   }
 `
 
+const UPDATE_CALLOUT_AND_JOB_TICKET = gql`
+  mutation UpdateCallout(
+    $notes: String
+    $callout_id: Int
+    $callout_by_email: String
+    $category: String
+    $job_type: String
+    $scheduler_id: Int
+    $worker_id: Int
+    $worker_email: String
+  ) {
+    update_scheduler(
+      where: { id: { _eq: $scheduler_id } }
+      _set: { notes: $notes, worker_id: $worker_id }
+    ) {
+      affected_rows
+    }
+    update_callout(
+      where: { id: { _eq: $callout_id } }
+      _set: {
+        callout_by_email: $callout_by_email
+        category: $category
+        job_type: $job_type
+      }
+    ) {
+      affected_rows
+    }
+    update_job_worker(where: {callout_id: {_eq: $callout_id}}, _set: {worker_id: $worker_id}) {
+      affected_rows
+    }
+    update_job_tickets(where: {callout_id: {_eq: $callout_id}}, _set: {worker_email: $worker_email, worker_id: $worker_id}) {
+      affected_rows
+    }
+  }
+`
+
+
 const UPDATE_CALLOUT_DRAG = gql`
   mutation UpdateCalloutDrag(
     $scheduler_id: Int
@@ -215,6 +252,17 @@ const CalendarComponent = () => {
       }
     ]
   })
+  const [updateCalloutAndJobTicket] = useMutation(UPDATE_CALLOUT_AND_JOB_TICKET, {
+    refetchQueries: [
+      {
+        query: GET_SCHEDULE,
+        variables: {
+          _gte: new Date().toISOString().split("T")[0],
+          _lte: new Date().toISOString().split("T")[0]
+        }
+      }
+    ]
+  })
   const [updateCallOutDrag] = useMutation(UPDATE_CALLOUT_DRAG)
   const [deleteCallout] = useMutation(DELETE_CALLOUT)
 
@@ -226,6 +274,33 @@ const CalendarComponent = () => {
   const [selectedEvent, selectEvent] = useState({})
 
   const updateEvent = (eventToUpdate) => {
+    console.log(eventToUpdate)
+    if (eventToUpdate.extendedProps?.jobTickets.length === 0) {
+      updateCallOut({
+        variables: {
+          notes: eventToUpdate.title,
+          callout_id: eventToUpdate.callout_id,
+          callout_by_email: eventToUpdate.extendedProps.clientEmail,
+          category: eventToUpdate.extendedProps.category,
+          job_type: eventToUpdate.extendedProps.job_type,
+          scheduler_id: eventToUpdate.id,
+          worker_id: eventToUpdate.extendedProps.workerId
+        }
+      })
+    } else {
+      updateCalloutAndJobTicket({
+        variables: {
+          notes: eventToUpdate.title,
+          callout_id: eventToUpdate.callout_id,
+          callout_by_email: eventToUpdate.extendedProps.clientEmail,
+          category: eventToUpdate.extendedProps.category,
+          job_type: eventToUpdate.extendedProps.job_type,
+          scheduler_id: eventToUpdate.id,
+          worker_id: eventToUpdate.extendedProps.workerId,
+          worker_email: eventToUpdate.extendedProps.workerEmail
+        }
+      })
+    }
     updateCallOut({
       variables: {
         notes: eventToUpdate.title,

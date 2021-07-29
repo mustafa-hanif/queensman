@@ -37,6 +37,7 @@ const ToastComponent = ({ title, icon, color }) => (
   </Fragment>
 )
 
+
 const GET_CALLOUT = gql`
   query GetCallout($id: Int!) {
     callout_by_pk(id: $id) {
@@ -130,7 +131,12 @@ const AddEventSidebar = props => {
     removeEvent
   } = props
 
-  // ** Vars
+  // ** Component
+  const CalloutPicture = ({picture}) => {
+    return <div style={{width: "100px"}}>
+     {picture ? <img src={picture} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
+     </div>
+  }
   // const selectedEvent = store.selectedEvent
   const { register, errors, handleSubmit } = useForm()
 
@@ -353,11 +359,12 @@ const AddEventSidebar = props => {
           workerName,
           workerId,
           workerEmail,
-          propertyId
+          propertyId,
+          jobTickets
         }
       }
       const propsToUpdate = ['start', 'title', 'callout_id']
-      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'workerId', 'workerEmail', 'propertyId', 'clientEmail', 'job_type']
+      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'workerId', 'workerEmail', 'propertyId', 'clientEmail', 'job_type', 'jobTickets']
   
       updateEvent(eventToUpdate)
       updateEventInCalendar(eventToUpdate, propsToUpdate, extendedPropsToUpdate)
@@ -723,18 +730,9 @@ const AddEventSidebar = props => {
              />
            </FormGroup>
            <FormGroup style={{display: "flex", justifyContent: "space-between"}}>
-             <div style={{width: "100px"}}>
-             {picture1 ? <img src={picture1} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
-             </div>
-             <div style={{width: "100px"}}>
-             {picture2 ? <img src={picture2} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
-             </div>
-             <div style={{width: "100px"}}>
-             {picture3 ? <img src={picture3} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
-             </div>
-             <div style={{width: "100px"}}>
-             {picture4 ? <img src={picture4} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
-             </div>
+             {[picture1, picture2, picture3, picture4].map(picture => (
+              <CalloutPicture picture={picture} />
+             ))}
            </FormGroup>
            
                {jobTickets && jobTickets.map((job, index) => (
