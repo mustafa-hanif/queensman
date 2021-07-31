@@ -203,6 +203,7 @@ const REQUEST_CALLOUT = gql`
     $picture4: String
     $request_time: timestamp
     $urgency_level: String
+    $worker_id: Int
   ) {
     insert_scheduler_one(
       object: {
@@ -220,6 +221,12 @@ const REQUEST_CALLOUT = gql`
             picture3: $picture3
             picture4: $picture4
             active: 1
+            description: $notes
+            job_worker: {
+              data: {
+                worker_id: $worker_id
+              }
+            }
           }
         }
         date_on_calendar: $date_on_calendar
@@ -227,6 +234,7 @@ const REQUEST_CALLOUT = gql`
         end_date_on_calendar: $end_date_on_calendar
         end_time_on_calendar: $end_time_on_calendar
         notes: $notes
+        worker_id: $worker_id
       }
     ) {
       date_on_calendar

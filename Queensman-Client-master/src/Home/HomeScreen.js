@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions, Platform, Alert } from "react-native";
 import { Content, Icon } from "native-base";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
@@ -171,6 +171,7 @@ const UPDATE_TOKEN = gql`
 `;
 
 const HomeScreen = ({ navigation }) => {
+  const [email, setEmail] = useState("")
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
   const [updateToken, { loading: mutationLoading, error: mutationError }] = useMutation(UPDATE_TOKEN);
@@ -191,6 +192,7 @@ const HomeScreen = ({ navigation }) => {
         const user = JSON.parse(await AsyncStorage.getItem("QueensUser"));
         const email = user?.user?.email;
         updateToken({ variables: { token, email } });
+        setEmail(email)
       })
       .catch(alert);
 
@@ -199,7 +201,7 @@ const HomeScreen = ({ navigation }) => {
       Notifications.removeNotificationSubscription(responseListener.current);
     };
   }, []);
-
+  
   return (
     <View style={styles.container}>
       <FlashMessage position="center" />
@@ -217,7 +219,8 @@ const HomeScreen = ({ navigation }) => {
           <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
             <Image source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }}></Image>
           </TouchableOpacity>
-          <View style={{ flexDirection: "row" }}>
+          <Text style={{color: "white", fontWeight: "bold", fontSize: 12}}>{email}</Text>
+          <View style={{ flexDirection: "row"}}>
             <TouchableOpacity onPress={() => AlertLogout(navigation)}>
               <Icon as={Ionicons} name="power" style={{ fontSize: 25, color: "#FFCA5D" }}></Icon>
             </TouchableOpacity>

@@ -183,6 +183,7 @@ const Job = (props) => {
   ] = useMutation(START_JOB);
 
   const [stopJobModalVisible, setstopJobModalVisible] = useState(false);
+  const [loadingModalVisible, setLoadingModalVisible] = useState(false)
   const [addNote, { Notesdata, loading: addNoteLoading, error: addNoteError }] =
     useMutation(ADD_TICKET_NOTE);
 
@@ -250,6 +251,16 @@ const Job = (props) => {
     });
   }, [data?.callout_by_pk?.job_worker]);
 
+  const AlertError = () => {
+    Alert.alert(
+      "Error",
+      "An error occured while submitting.",
+      [
+        { text: "Go back", onPress: () => props.navigation.navigate("JobList") },
+      ],
+      { cancelable: false }
+    );
+  }
   const AlertStartJob = () => {
     Alert.alert(
       "Start the Job.",
@@ -483,13 +494,47 @@ const Job = (props) => {
     setstopJobModalVisible(true);
   };
 
-  const onFinalSubmitButton = () => {
+  const onFinalSubmitButton = async () => {
     if (closeJobNote === "") {
       return alert("Please enter a note");
     }
+    setLoadingModalVisible(true)
+    const form = new FormData();
+    /*eslint-disable*/
+    form.append(
+      "arguments",
+      JSON.stringify({
+        subject: `Defer Ticket of ${ticket.id}`,
+        email: client?.email,
+        description: `Note: ${closeJobNote} \n Ticket Type: ${state.type}`,
+        status: "Open",
+        lastTicket: false,
+      })
+    );
 
+    try {
+      const result = await fetch(
+        "https://www.zohoapis.com/crm/v2/functions/createzohodeskticket/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf",
+        {
+          method: "POST",
+          headers: {
+            "x-hasura-admin-secret": "d71e216c844d298d91fbae2407698b22",
+          },
+          body: form,
+        }
+      );
+      let resultJson = await result.json();
+      let output = resultJson.details.output;
+      if (output.substring(0, 14) == "No email found") {
+        alert(output);
+      }
+    } catch (e) {
+      console.log("ERROR");
+      console.log(e);
+    }
     if (state.type != "Deferred") {
-      stopJob({
+      try {
+      await stopJob({
         variables: {
           name: `Defer Ticket of ${ticket.id}`,
           desc: closeJobNote,
@@ -502,14 +547,16 @@ const Job = (props) => {
           client_email: client?.email
         },
       })
-        .then((res) => {
-          console.log({ res });
-          setstopJobModalVisible(false);
-          props.navigation.navigate("TicketListing");
-        })
-        .catch(console.log);
+      setstopJobModalVisible(false);
+      setLoadingModalVisible(false);
+      props.navigation.navigate("TicketListing");
+    } catch(e) {
+      console.log(e)
+    }
+      
     } else {
-      stopJob({
+      try {
+      await stopJob({
         variables: {
           name: `Defer Ticket of ${ticket.id}`,
           desc: closeJobNote,
@@ -522,12 +569,12 @@ const Job = (props) => {
           client_email: client?.email
         },
       })
-        .then((res) => {
-          console.log({ res });
           setstopJobModalVisible(false);
-          props.navigation.navigate("TicketListing");
-        })
-        .catch(console.log);
+          props.navigation.navigate("TicketListing")
+          setLoadingModalVisible(false)
+    } catch(e) {
+      console.log(e)
+    }
     }
   };
   return (
@@ -844,6 +891,13 @@ const Job = (props) => {
               </Text>
             </View>
           </TouchableOpacity>
+        </View>
+      </Modal>
+      <Modal isVisible={loadingModalVisible}
+      onBackButtonPress={()=>setLoadingModalVisible(false)}
+      >
+        <View style={{flex: 1, alignItems: "center", justifyContent: "center"}}>
+          <ActivityIndicator size="large" color="#FFCA5D" />
         </View>
       </Modal>
       <Modal
