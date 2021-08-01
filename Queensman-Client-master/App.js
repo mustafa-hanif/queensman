@@ -1,9 +1,12 @@
+/* eslint-disable import/first */
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 /* eslint-disable import/order */
 /* eslint-disable no-use-before-define */
+const version = "v0.1";
 import React, { PureComponent } from "react";
 import { Text, View, SafeAreaView, Image, TouchableOpacity, Linking } from "react-native";
-import { Icon, NativeBaseProvider, extendTheme } from "native-base";
+import { Icon, Box, NativeBaseProvider, extendTheme } from "native-base";
 import AppLoading from "expo-app-loading";
 import * as Font from "expo-font";
 import { Asset } from "expo-asset";
@@ -83,6 +86,9 @@ export default class App extends PureComponent {
         <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">
           <NativeBaseProvider theme={theme}>
             <AppContainer />
+            <Box ml="auto" mr={12}>
+              <Text>{version}</Text>
+            </Box>
           </NativeBaseProvider>
         </NhostApolloProvider>
       </NhostAuthProvider>
@@ -198,7 +204,11 @@ const HomeScreenStackNavigator = () => {
       <HomeScreenStack.Screen options={{ headerShown: false }} name="HomeNaviagtor" component={HomeScreen} />
       <HomeScreenStack.Screen name="Notification" component={Notification} />
       <HomeScreenStack.Screen name="VideoScreen" component={VideoScreen} />
-      <HomeScreenStack.Screen name="RequestCallOut" component={RequestCallOut} options={({ route }) => ({ title: route.params.name })} />
+      <HomeScreenStack.Screen
+        name="RequestCallOut"
+        component={RequestCallOut}
+        options={({ route }) => ({ title: route.params.name })}
+      />
       <HomeScreenStack.Screen
         options={{ title: "Services History" }}
         name="CalloutHistory"

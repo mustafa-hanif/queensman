@@ -2,6 +2,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
+const version = "v0.1";
 import React, { PureComponent } from "react";
 // import * as SplashScreen from "expo-splash-screen";
 import {
@@ -24,7 +25,7 @@ import {
 import { DrawerItems, createDrawerNavigator } from "react-navigation-drawer";
 import { createStackNavigator } from "react-navigation-stack";
 
-import { Icon, NativeBaseProvider, extendTheme } from "native-base";
+import { Icon, Box, NativeBaseProvider, extendTheme } from "native-base";
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import AppLoading from "expo-app-loading";
 
@@ -118,6 +119,9 @@ export default class App extends PureComponent {
         <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">
           <NativeBaseProvider theme={theme}>
             <AppContainer />
+            <Box ml="auto" mr={12}>
+              <Text>{version}</Text>
+            </Box>
           </NativeBaseProvider>
         </NhostApolloProvider>
       </NhostAuthProvider>
