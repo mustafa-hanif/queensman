@@ -33,7 +33,9 @@
     "expo-image-picker-multiple": "^1.4.1",
     "expo-linear-gradient": "~9.1.0",
     "expo-location": "~12.0.4",
+    "expo-media-library": "~12.0.2",
     "expo-notifications": "~0.11.6",
+    "expo-permissions": "~12.0.1",
     "expo-pixi": "^1.1.0",
     "hoist-non-react-statics": "*",
     "install": "^0.13.0",
@@ -55,6 +57,7 @@
     "react-native-screens": "~3.0.0",
     "react-native-signature-canvas": "^1.4.2",
     "react-native-star-rating": "^1.1.0",
+    "react-native-svg": "12.1.0",
     "react-native-view-shot": "3.1.2",
     "react-native-web": "~0.13.12",
     "react-native-whc-toast": "^1.0.0",
@@ -64,8 +67,7 @@
     "styled-components": "^5.3.0",
     "styled-system": "^5.1.5",
     "unimodules": "^1.0.0",
-    "unimodules-permissions-interface": "~6.1.0",
-    "react-native-svg": "12.1.0"
+    "unimodules-permissions-interface": "~6.1.0"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",

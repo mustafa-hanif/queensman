@@ -118,7 +118,7 @@ const PreJob = (props) => {
     isPicvisible: false, //veiw image app kay lia
     picturename: "",
     CallOutID: CallOutIdFromParams,
-    IsImageuploaded: true,
+    IsImageuploaded: false,
     selectedNo: 0,
     NoteItem: {
       key: "hay",

@@ -56,6 +56,10 @@ const GET_JOBS_LIST = gql`
         country
         city
       }
+      schedulers {
+        date_on_calendar
+        time_on_calendar
+      }
     }
   }
 `;
@@ -90,6 +94,10 @@ query JobsList($email: String) {
       community
       country
       city
+    }
+    schedulers {
+      date_on_calendar
+      time_on_calendar
     }
   }
 }
@@ -409,6 +417,47 @@ const JobsList = (props) => {
                           {dayjs(item.request_time).format("DD/MM/YYYY")}
                         </Text>
                       </View>
+                      {item?.schedulers?.[0]?.date_on_calendar ? 
+                      <View>
+                        <Text
+                          style={[
+                            styles.TextFam,
+                            {
+                              fontSize: 9,
+                              color: "#aaa",
+                              paddingRight: "5%",
+                              alignSelf: "center",
+                            },
+                          ]}
+                        >
+                          Schedule time :{" "}
+                          {dayjs(`${item?.schedulers?.[0]?.date_on_calendar}`).format("DD/MM/YYYY")}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.TextFam,
+                            {
+                              fontSize: 9,
+                              color: "#aaa",
+                              paddingRight: "5%",
+                              alignSelf: "center",
+                            },
+                          ]}
+                        >
+                          Schedule time :{" "}
+                          {item?.schedulers?.[0]?.time_on_calendar}
+                        </Text>
+                        </View>
+               : <Text style={[
+                styles.TextFam,
+                {
+                  fontSize: 9,
+                  color: "#aaa",
+                  paddingRight: "5%",
+                  alignSelf: "center",
+                },
+              ]}
+            >No scheduled time</Text>}
                     </View>
                   </TouchableOpacity>
                   <Text> </Text>

@@ -545,7 +545,7 @@ const RequestCallOut = (props) => {
       alert("Sorry, we need camera roll permissions to make this work!");
     }
 
-    const { status: status2 } = await Camera.requestCameraPermissionsAsync();
+    const { status: status2 } = await Camera.requestPermissionsAsync();
     if (status2 !== "granted") {
       alert("Sorry, we need camera roll permissions to make this work!");
     }

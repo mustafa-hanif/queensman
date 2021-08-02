@@ -110,7 +110,7 @@ const JobComplete = (props) => {
   const signatureCanvas = useRef();
   const [state, setState] = useState({
     starCount: 0,
-    feedback: "No Feedback",
+    feedback: "",
     signature: null,
     image: null,
     strokeColor: 0,
