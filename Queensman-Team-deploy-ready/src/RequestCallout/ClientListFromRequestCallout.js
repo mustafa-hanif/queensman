@@ -21,7 +21,7 @@ import { gql, useQuery } from "@apollo/client";
 
 const FETCH_CLIENTS = gql`
   query FetchClients {
-    client(where: {active: {_eq: 1}, email: {_eq: "murtaza.hanif@techinoviq.com"}}) {
+    client(where: {active: {_eq: 1}}) {
       id
       full_name
       email
