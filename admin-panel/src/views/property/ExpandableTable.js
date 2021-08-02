@@ -72,7 +72,7 @@ export const ExpandableTable = ({ data, openModalAlert }) => {
         {/* <Col lg="3">
         {prop_count > 0 && <StatsHorizontal icon={<Home size={21} />} color='primary' stats={prop_count} statTitle='Properties' />}
         </Col> */}
-        <Card className='col col-5'>
+        <Card className='col col-5 mb-0 pb-2'>
            <CollapseDefault data={property_owneds_modified} />
           </Card>
       </div>
