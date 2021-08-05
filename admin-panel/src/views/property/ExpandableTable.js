@@ -74,7 +74,7 @@ export const ExpandableTable = ({ data, openModalAlert }) => {
         </Col> */}
         <Card className='col col-5 mb-0 pb-2'>
            <CollapseDefault data={property_owneds_modified} />
-          </Card>
+        </Card>
       </div>
     )
   }

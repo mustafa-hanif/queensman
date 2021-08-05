@@ -98,6 +98,22 @@ functions:
           method: post
           cors: true
 
+  uploadDocument:
+    handler: handler.uploadDocument
+    events:
+      - http:
+          path: /uploadDocument
+          method: post
+          cors: true
+
+  downloadDocument:
+    handler: handler.downloadDocument
+    events:
+      - http:
+          path: /downloadDocument
+          method: post
+          cors: true
+
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
