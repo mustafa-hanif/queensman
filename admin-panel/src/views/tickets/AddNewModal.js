@@ -30,7 +30,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
   const CloseBtn = <X className='cursor-pointer' size={15} onClick={closeModal} />   
 
   const options = [
-    {value: 'Deffered', label: 'Deffered'},
+    {value: 'Deferred', label: 'Deferred'},
     {value: 'Material Request', label: 'Material Request'},
     {value: 'Patch Job', label: 'Patch Job'},
     {value: 'Full Job', label: 'Full Job'}
@@ -101,7 +101,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
               <Briefcase size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input id='description' placeholder='Web Developer' name="description" value={row?.description} onChange={handleChange}/>
+          <Input id='description' placeholder='Web Developer' type="textarea" name="description" value={row?.description} onChange={handleChange}/>
         </InputGroup>
       </FormGroup>   
       <FormGroup>
@@ -111,7 +111,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
                 theme={selectThemeColors}
                 className='react-select'
                 classNamePrefix='select'
-                defaultValue={{value: row?.type, label: row?.type ? row.type : "Deffered"}}
+                defaultValue={{value: row?.type, label: row?.type ? row.type : "Deferred"}}
                 options={options}
                 isClearable={false}
             />

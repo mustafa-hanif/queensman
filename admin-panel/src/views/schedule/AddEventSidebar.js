@@ -134,7 +134,7 @@ const AddEventSidebar = props => {
   // ** Component
   const CalloutPicture = ({picture}) => {
     return <div style={{width: "100px"}}>
-     {picture ? <img src={picture} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
+     {picture ? <a href={picture} target="_blank"><img src={picture} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/></a> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
      </div>
   }
   // const selectedEvent = store.selectedEvent
@@ -193,7 +193,7 @@ const AddEventSidebar = props => {
   ]
   
   const jobTypeOptions = [
-    {value: 'Deffered', label: 'Deffered'},
+    {value: 'Deferred', label: 'Deferred'},
     {value: 'Material Request', label: 'Material Request'},
     {value: 'Patch Job', label: 'Patch Job'},
     {value: 'Full Job', label: 'Full Job'}
@@ -682,7 +682,8 @@ const AddEventSidebar = props => {
               onClick={e => {
                 onSuggestionItemClick(null, e)
                 setWorkerName(suggestion.full_name)
-                setWorkerId(suggestion.id)           
+                setWorkerId(suggestion.id)       
+                setWorkerEmail(suggestion.email)    
               }}
             >
             <span>{suggestion.full_name}{'     '}</span>

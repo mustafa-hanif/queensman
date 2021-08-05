@@ -41,13 +41,14 @@ import AddNewModal from './AddNewModal'
 import ButtonGroup from 'reactstrap/lib/ButtonGroup'
 import { months } from 'moment'
 import Badge from 'reactstrap/lib/Badge'
+import TabsVerticalLeft from './TabsVerticalLeft'
 
 const GET_JOB_TICKETS = gql`
 query getJobTickets {
   job_tickets(order_by: {id: desc}) {
     id
+    notes
     name
-    scheduler_id
     callout_id
     description
     type
@@ -56,6 +57,39 @@ query getJobTickets {
     status
     worker_email_rel {
       full_name
+    }
+    callout {
+      id
+      property_id
+      job_type
+      description
+      status
+      request_time
+      urgency_level
+      picture1
+      picture2
+      picture3
+      picture4
+      client: client_callout_email {
+        full_name
+        email
+        phone
+      }
+      job: callout_job {
+        instructions
+      }
+      property {
+        id
+        address
+        community
+        country
+        city
+      }
+      schedulers {
+        id
+        date_on_calendar
+        time_on_calendar
+      }
     }
   }
 }
@@ -92,6 +126,8 @@ const DataTableAdvSearch = () => {
   const [addJobTicket, {loading: addJobTicketLoading}] = useMutation(ADD_JOB_TICKET, {refetchQueries:[{query: GET_JOB_TICKETS}]})
   const [deleteJobTicket, {loading: deleteJobLoading}] = useMutation(DELETE_JOB_TICKET, {refetchQueries:[{query: GET_JOB_TICKETS}]})
   const [modal, setModal] = useState(false)
+  const [detailsModal, setDetailsModal] = useState(false)
+  const [modalDetails, setModalDetails] = useState(null)
   const [searchName, setSearchName] = useState('')
   const [searchEmail, setSearchEmail] = useState('')
   const [searchType, setSearchType] = useState('')
@@ -113,9 +149,16 @@ const DataTableAdvSearch = () => {
     setModalAlert(true)
   }
   
-    const closeModal = () => {
-        setModal(!modal)
-    }
+  const closeModal = () => {
+      setModal(!modal)
+  }
+
+  //** Function to open details modal */
+  const openDetailsModal = (item) => {
+    console.log(item)
+    setDetailsModal(true)
+    setModalDetails(item) //set row value 
+  }
 
   // ** Function to handle Modal toggle
   const handleModal = (row) => { 
@@ -123,7 +166,7 @@ const DataTableAdvSearch = () => {
       setRow(row)
       setTimeout(() => {
         setModal(!modal) 
-      }, 200)
+      }, 10)
       setToAddNewJobTicket(false)
     }
 
@@ -144,12 +187,12 @@ const advSearchColumns = [
     //   sortable: true,
     //   minWidth: '200px'
     // },
-    {
-      name: 'Name',
-      selector: 'name',
-      sortable: true,
-      minWidth: '200px'
-    },
+    // {
+    //   name: 'Name',
+    //   selector: 'name',
+    //   sortable: true,
+    //   minWidth: '200px'
+    // },
     {
       name: 'Type',
       selector: 'type',
@@ -160,7 +203,16 @@ const advSearchColumns = [
       name: 'Description',
       selector: 'description',
       sortable: true,
-      minWidth: '250px'
+      minWidth: '150px',
+      wrap: true,
+      cell: row => {
+        if (row?.type === 'Deferred') {
+          return `${row?.description}; ${row?.name}`
+        } else {
+          return row?.description
+        }
+        
+      }
     },
     {
       name: 'Worker Assigned',
@@ -335,7 +387,7 @@ const advSearchColumns = [
       pageLinkClassName={'page-link'}
       breakClassName='page-item'
       breakLinkClassName='page-link'
-      containerClassName={'pagination react-paginate separated-pagination pagination-sm justify-content-end pr-1 mt-1'}
+      containerClassName={'pagination react-paginate separated-pagination pagination-sm justify-content-center pr-1 mt-1'}
     />
   )
 
@@ -522,6 +574,9 @@ const advSearchColumns = [
           paginationDefaultPage={currentPage + 1}
           paginationComponent={CustomPagination}
           data={dataToRender()}
+          onRowClicked={(row) => openDetailsModal(row)}
+          highlightOnHover={true}
+          pointerOnHover={true}
           // selectableRowsComponent={BootstrapCheckbox}
         /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Job Ticket information</h4>}
        
@@ -555,6 +610,14 @@ const advSearchColumns = [
               Cancel
             </Button>
           </ModalFooter>
+        </Modal>
+      </div>
+      <div className='vertically-centered-modal'>
+      <Modal isOpen={detailsModal} toggle={() => setDetailsModal(!detailsModal)} className='modal-dialog-centered modal-xl'>
+          <ModalHeader className="d-flex justify-content-center">Job Details</ModalHeader>
+          <ModalBody>
+           <TabsVerticalLeft item={modalDetails} />
+          </ModalBody>
         </Modal>
       </div>
     </Fragment>

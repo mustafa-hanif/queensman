@@ -123,7 +123,7 @@ const UPDATE_CALLOUT = gql`
 `
 
 const UPDATE_CALLOUT_AND_JOB_TICKET = gql`
-  mutation UpdateCallout(
+  mutation UpdateCalloutAndJobTicket(
     $notes: String
     $callout_id: Int
     $callout_by_email: String
@@ -295,7 +295,8 @@ const CalendarComponent = () => {
           category: eventToUpdate.extendedProps.category,
           job_type: eventToUpdate.extendedProps.job_type,
           scheduler_id: eventToUpdate.id,
-          worker_id: eventToUpdate.extendedProps.workerId
+          worker_id: eventToUpdate.extendedProps.workerId,
+          worker_email: eventToUpdate.extendedProps.workerEmail
         }
       })
     } else {
@@ -312,17 +313,6 @@ const CalendarComponent = () => {
         }
       })
     }
-    updateCallOut({
-      variables: {
-        notes: eventToUpdate.title,
-        callout_id: eventToUpdate.callout_id,
-        callout_by_email: eventToUpdate.extendedProps.clientEmail,
-        category: eventToUpdate.extendedProps.category,
-        job_type: eventToUpdate.extendedProps.job_type,
-        scheduler_id: eventToUpdate.id,
-        worker_id: eventToUpdate.extendedProps.workerId
-      }
-    })
   }
   const updateEventDrag = (eventToUpdate) => {
     updateCallOutDrag({
