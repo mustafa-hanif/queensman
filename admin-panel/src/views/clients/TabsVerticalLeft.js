@@ -155,10 +155,10 @@ const Document = ({ row }) => {
     }
 
     fetch("https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/downloadDocument", requestOptions)
-      .then(response => response.json())
+      .then(response => response.text())
       .then(result => { 
-        console.log(result)
-        const output = JSON.parse(result.details.output).file
+        // console.log(result)
+        const output = atob(result)
         const fileUrl = window.URL.createObjectURL(new Blob([output]))
         const link = document.createElement('a')
         link.href = fileUrl
