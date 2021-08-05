@@ -1,9 +1,12 @@
 {
   "dependencies": {
+    "axios": "^0.21.1",
     "date-fns": "^2.22.1",
     "expo-server-sdk": "^3.6.0",
+    "form-data": "^4.0.0",
     "nhost-js-sdk": "^3.1.0",
     "node-fetch": "^2.6.1",
+    "request": "^2.88.2",
     "zcrmsdk": "^1.1.0"
   },
   "devDependencies": {

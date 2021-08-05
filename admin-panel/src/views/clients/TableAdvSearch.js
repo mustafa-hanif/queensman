@@ -74,6 +74,9 @@ query GetClient {
     contract_start_date
     contract_end_date
     sign_up_time
+    documents {
+      document_name
+    }
     property_owneds {
       property {
         address
