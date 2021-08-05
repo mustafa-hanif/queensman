@@ -92,8 +92,9 @@ const Calendar = props => {
       const clientName = callout?.client_callout_email?.full_name
       const jobType = callout?.job_type
       const wokerName = worker?.full_name
-      const title = `${clientName}\n${jobType}\nAssigned to: \n${wokerName}`
-
+      const assignedTo = wokerName ? `Assigned to: \n${wokerName}` : 'Unassigned'
+      const title = `${clientName} \n${jobType} \n${assignedTo}`
+      console.log(worker?.teams?.team_color)
       return {
         allDay: false,
         // end: `${start}T${'00:00:00.000Z'}`,
@@ -104,7 +105,7 @@ const Calendar = props => {
         workerName: worker?.full_name || 'No Worker name',
         workerId: worker?.id || null,
         workerEmail: worker?.email || null,
-        backgroundColor: `#${worker?.color_code || `756300`}`,
+        backgroundColor: `${worker?.teams?.[0]?.team_color ?? `#756300`}`,
         clientName: callout.client_callout_email?.full_name || 'No Client name',
         clientEmail:callout.client_callout_email?.email || 'No Client email',
         category: callout?.category || "Uncategorized",
