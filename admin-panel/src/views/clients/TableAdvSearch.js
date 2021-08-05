@@ -44,6 +44,7 @@ import AddNewModal from './AddNewModal'
 import ButtonGroup from 'reactstrap/lib/ButtonGroup'
 import { months } from 'moment'
 import axios from 'axios'
+import TabsVerticalLeft from './TabsVerticalLeft'
 
 const GET_CLIENT = gql`
 query GetClient {
@@ -56,9 +57,31 @@ query GetClient {
     organization
     phone
     password
+    active
     hasPlan
+    sec_email
+    sec_phone
+    account_type
+    age_range
+    family_size
+    ages_of_children
+    earning_bracket
+    nationality
+    years_expatriate
+    years_native
+    referred_by
+    other_properties
+    contract_start_date
+    contract_end_date
+    sign_up_time
     property_owneds {
-      property_id
+      property {
+        address
+        community
+        city
+        country
+        id
+      }
     }
   }
 }
@@ -162,6 +185,8 @@ const DataTableAdvSearch = () => {
   const [rowId, setRowId] = useState(null)
 
   const [modalAlert, setModalAlert] = useState(null)
+  const [detailsModal, setDetailsModal] = useState(false)
+  const [modalDetails, setModalDetails] = useState(null)
 
   const toggleModal = () => {
       setModalAlert(!modalAlert)
@@ -175,6 +200,12 @@ const DataTableAdvSearch = () => {
     const closeModal = () => {
         setModal(!modal)
     }
+
+  //** Function to open details modal */
+  const openDetailsModal = (item) => {
+    setDetailsModal(true)
+    setModalDetails(item) //set row value 
+  }
 
   // ** Function to handle Modal toggle
   const handleModal = (row) => { 
@@ -322,13 +353,7 @@ const advSearchColumns = [
       name: 'Id',
       selector: 'id',
       sortable: true,
-      minWidth: '10px'
-    },
-    {
-      name: 'Email',
-      selector: 'email',
-      sortable: true,
-      minWidth: '200px'
+      minWidth: '5px'
     },
     {
       name: 'Full Name',
@@ -336,45 +361,69 @@ const advSearchColumns = [
       sortable: true,
       minWidth: '200px'
     },
-    // {
-    //   name: 'Gender',
-    //   selector: 'gender',
-    //   sortable: true,
-    //   minWidth: '100px'
-    // },
     {
-      name: 'Occupation',
-      selector: 'occupation',
+      name: 'Email',
+      selector: 'email',
       sortable: true,
-      minWidth: '250px'
+      minWidth: '230px'
     },
-  
-    // {
-    //   name: 'Organization',
-    //   selector: 'organization',
-    //   sortable: true,
-    //   minWidth: '250px'
-    // },
-    // {
-    //   name: 'Phone',
-    //   selector: 'Phone',
-    //   sortable: true,
-    //   minWidth: '200px'
-    // },
     {
       name: 'Password',
       minWidth: '150px',
       cell: row => {
         const [eye, setEye] = useState(true)
-        return (
-        <>
-            {row?.password !== 'null' && row?.password &&  
+        if (row?.password && row?.password !== 'null') {
+          return (
             <div className='d-flex w-100 justify-content-between'>
             {eye ? <span>{row?.password.split('').map(value => "*")}</span> : <span>{row.password}</span>}
             {eye ? <Eye size={15} onClick={() => { setEye(!eye) }}/> : <EyeOff size={15} onClick={() => { setEye(!eye) }} />}
             </div>
-            }
-        </>
+          )
+        } else {
+          return (
+            <div className='d-flex w-100 justify-content-between'>No password</div>
+          )
+        }
+            
+      }
+    },
+    {
+      name: 'Phone',
+      selector: 'phone',
+      sortable: true,
+      minWidth: '150px'
+    },
+    {
+      name: 'Account Type',
+      selector: 'account_type',
+      sortable: true,
+      minWidth: '160px',
+      cell: row => {
+        const [eye, setEye] = useState(true)
+        if (row?.account_type && row?.account_type !== 'null') {
+          return (
+            <div>
+            {row?.account_type}
+            </div>
+          )
+        } else {
+          return (
+            <div>Null</div>
+          )
+        }
+            
+      }
+    },
+    {
+      name: 'Active/Inactive',
+      selector: 'active',
+      sortable: true,
+      minWidth: '100px',
+      cell: row => {
+        return (
+          <>
+          {row?.active == 1 ? "Active" : "Inactive"}
+          </>
         )
       }
     },
@@ -758,6 +807,9 @@ const advSearchColumns = [
           paginationDefaultPage={currentPage + 1}
           paginationComponent={CustomPagination}
           data={dataToRender()}
+          onRowClicked={(row) => openDetailsModal(row)}
+          highlightOnHover={true}
+          pointerOnHover={true}
           // selectableRowsComponent={BootstrapCheckbox}
         /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Client information</h4>}
        
@@ -791,6 +843,14 @@ const advSearchColumns = [
               Cancel
             </Button>
           </ModalFooter>
+        </Modal>
+      </div>
+      <div className='vertically-centered-modal'>
+      <Modal isOpen={detailsModal} toggle={() => setDetailsModal(!detailsModal)} className='modal-dialog-centered modal-xl'>
+          <ModalHeader className="d-flex justify-content-center">Client Details</ModalHeader>
+          <ModalBody>
+           <TabsVerticalLeft item={modalDetails} />
+          </ModalBody>
         </Modal>
       </div>
     </Fragment>
