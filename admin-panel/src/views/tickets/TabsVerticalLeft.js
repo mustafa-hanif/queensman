@@ -36,9 +36,9 @@ const TabsVerticalLeft = ({item}) => {
      </div>
   }
 
-  const client = item.callout.client
-  const callout = item.callout
-  const schedule = item.callout.schedulers[0]
+  const client = item?.callout?.client
+  const callout = item?.callout
+  const schedule = item?.callout?.schedulers[0]
   const {id, notes, name, callout_id, description, type, worker_email, status } = item
   const job_ticket = {id, notes, name, callout_id, description, type, worker_email, status}
   // const property_owneds = item.callout.property
@@ -96,13 +96,13 @@ const TabsVerticalLeft = ({item}) => {
         <TabPane tabId='1'>
         <h1>Job Ticket Details</h1>
             <ListGroup flush>
-            {Object.keys(job_ticket).map(itemKey => {
+            {job_ticket && Object.keys(job_ticket).map(itemKey => {
               if ((![""].includes(itemKey))) {
                 if ((["notes"].includes(itemKey)) && job_ticket["notes"]?.length > 0) {
                   <ListGroupItem>Notes: </ListGroupItem>
-                  return job_ticket["notes"].map(note => (
+                  return job_ticket?.["notes"].map(note => (
                   <ListGroupItem>
-                    <span style={{fontWeight: "bold"}}>Notes: </span>From: {note.from}; Message: {note.message}
+                    <span style={{fontWeight: "bold"}}>Notes: </span>From: {note?.from}; Message: {note?.message}
                   </ListGroupItem>
                   ))
                 } else {
@@ -120,7 +120,7 @@ const TabsVerticalLeft = ({item}) => {
         <TabPane tabId='2'>
         <h1>Client Details</h1>
             <ListGroup flush>
-               {Object.keys(client).map(itemKey => {
+               {client && Object.keys(client).map(itemKey => {
               if (!(["__typename"].includes(itemKey))) {
                   return (
                       <ListGroupItem>
@@ -134,7 +134,7 @@ const TabsVerticalLeft = ({item}) => {
         <TabPane tabId='3'>
         <h1>Job Details</h1>
             <ListGroup flush>
-            {Object.keys(callout).map(itemKey => {
+            {callout && Object.keys(callout).map(itemKey => {
               if (!(["client", "property", "job", "schedulers", "__typename"].includes(itemKey))) {
                 if ((["picture1", "picture2", "picture3", "picture4"].includes(itemKey))) {
                   return (
