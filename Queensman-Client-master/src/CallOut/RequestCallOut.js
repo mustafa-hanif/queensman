@@ -323,6 +323,7 @@ const RequestCallOut = (props) => {
     Urgency: props.route.params.additionalServices ? "Medium" : "",
     OtherJobType: "",
     Description: "",
+    character: 0,
     to: "aalvi@queensman.com",
     subject: "Callout from Queensman Spades",
     message: "Just checking hehe",
@@ -485,7 +486,7 @@ const RequestCallOut = (props) => {
     if (!jobCategorySelect.value) {
       return alert("Please Select Job Category!");
     }
-    if (!jobTypeSelect?.value) {
+    if (!props.route.params.additionalServices && !jobTypeSelect?.value) {
       return alert("Please Select Job Type!")
     }
     if (state.Urgency === "") {
@@ -903,11 +904,16 @@ const RequestCallOut = (props) => {
               placeholderTextColor="#8c8c8c"
               multiline
               numberOfLines={3}
+              maxLength={150}
+              allowFontScaling={false}
               underlineColorAndroid="transparent"
               onChangeText={(Description) => {
                 setState({ ...state, Description });
               }} // email set
             />
+          </View>
+          <View style={{flexDirection: "row"}}>
+          <Text style={{fontSize: 12, color: "#bbb", marginTop: 2}}>Character count: {state.Description.length}/150 </Text>{state.Description.length == 150 && <Text style={{fontSize: 12, color: "red", marginTop: 2}}>Character limit reached</Text>}
           </View>
           <View style={{ height: "3%" }} />
           <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Images<Text style={{color: "red"}}>*</Text></Text>
