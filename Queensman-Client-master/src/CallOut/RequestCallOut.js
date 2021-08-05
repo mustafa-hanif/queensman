@@ -222,6 +222,7 @@ const ADD_CALLOUT = gql`
     $worker_email: String
     $urgency_level: String
     $client_email: String
+    $job_type2: String
   ) {
     insert_job_tickets_one(
       object: {
@@ -240,9 +241,9 @@ const ADD_CALLOUT = gql`
             urgency_level: $urgency_level
           }
         }
-        name: "Request quotation"
+        name: "Additional Request"
         description: $description
-        type: $job_type
+        type: $job_type2
         status: $status
         worker_id: $worker_id
         worker_email: $worker_email
@@ -533,7 +534,19 @@ const RequestCallOut = (props) => {
         { cancelable: false }
       );
     } else {
-      addJobTicketFunc();
+      Alert.alert(
+        "Confirmation.",
+        "Kindly click YES to make request.",
+        [
+          {
+            text: "Cancel",
+            onPress: () => console.log("Cancel Pressed"),
+            style: "cancel",
+          },
+          { text: "Yes", onPress: () => addJobTicketFunc() },
+        ],
+        { cancelable: false }
+      );
     }
   };
 
@@ -703,6 +716,7 @@ const RequestCallOut = (props) => {
   };
 
   const addJobTicketFunc = async () => {
+    setState({...state, loading: true})
     const category = "Uncategorized";
     const pictures = Object.fromEntries(
       [...Array(4)]
@@ -727,12 +741,14 @@ const RequestCallOut = (props) => {
         description: state.Description,
         category,
         job_type: jobCategorySelect.value,
-        status: "Additional Request",
+        job_type2: "Additional Request",
+        status: "Open",
         urgency_level: "Medium",
         ...pictures,
       },
     })
       .then((res) => {
+        setState({...state, loading: false})
         showMessage({
           message: "Callout Request Submitted",
           description: "One of our team will be in touch shortly",
@@ -828,12 +844,12 @@ const RequestCallOut = (props) => {
                 placeholder="Select Request Type"
               >
                 <Select.Item label="Request for quotation" value="Request for quotation" />
-                <Select.Item label="AC" value="AC" />
+                {/* <Select.Item label="AC" value="AC" />
                 <Select.Item label="Plumbing" value="Plumbing" />
                 <Select.Item label="Electric" value="Electric" />
                 <Select.Item label="Woodworks" value="Woodworks" />
                 <Select.Item label="Paintworks" value="Paintworks" />
-                <Select.Item label="Masonry" value="Masonry" />
+                <Select.Item label="Masonry" value="Masonry" /> */}
                 <Select.Item label="Other" value="other" />
               </Select>
             )}
@@ -1162,7 +1178,7 @@ const RequestCallOut = (props) => {
             </TouchableOpacity>
           </View>
           <Box mb={24} mt={4}>
-            <Button isLoading={state.loading} style={styles.SubmitCallout} onPress={() => askSubmitCallout()}>
+            {state.loading ? <ActivityIndicator size="small" color="#FFCA5D" style={{ alignSelf: "center" }} /> : <Button isLoading={state.loading} style={styles.SubmitCallout} onPress={() => askSubmitCallout()}>
               <Text
                 style={{
                   color: "#fff",
@@ -1176,7 +1192,7 @@ const RequestCallOut = (props) => {
                   ? "Submit Callout"
                   : "Make Request"}
               </Text>
-            </Button>
+            </Button>}
           </Box>
         </View>
       </View>
