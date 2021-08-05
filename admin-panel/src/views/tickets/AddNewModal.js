@@ -101,7 +101,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
               <Briefcase size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input id='description' placeholder='Web Developer' name="description" value={row?.description} onChange={handleChange}/>
+          <Input id='description' placeholder='Web Developer' type="textarea" name="description" value={row?.description} onChange={handleChange}/>
         </InputGroup>
       </FormGroup>   
       <FormGroup>
