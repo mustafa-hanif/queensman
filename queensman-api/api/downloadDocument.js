@@ -17,7 +17,7 @@ const downloadDocument = async (event) => {
 
   const response = await fetch('https://www.zohoapis.com/crm/v2/functions/uploaddocument/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf', requestOptions);
   const text = await response.json();
-  const file = JSON.parse(text.details.output).file;
+  const file = text.details.output;
   return {
     statusCode: 200,
     headers: {

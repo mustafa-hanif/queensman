@@ -79,6 +79,7 @@ async function updateScheduleWithEmergencyWoker({
       $callout_id: Int!, 
       $worker_email: String!, 
       $time: time!,
+      $client_name: String!,
       $timestamp: timestamp!,
       $date: date!, 
       $data: json!
@@ -115,7 +116,7 @@ async function updateScheduleWithEmergencyWoker({
     }
     insert_notifications_one(object: {
       worker_email: $worker_email, 
-      text: "An emergency has just been posted, please call the client with name ${client_name}", 
+      text: $client_name, 
       type: "worker",
       data: $data
     }) {
@@ -132,6 +133,7 @@ async function updateScheduleWithEmergencyWoker({
       callout_email,
       time,
       timestamp,
+      client_name: `An emergency has just been posted, please call the client with name ${client_name}`,
       date,
       data: { phone: phone, type: 'call' },
     }
@@ -214,6 +216,7 @@ async function getCallout({ callout_id }) {
       status
       job_type
       client_callout_email {
+        full_name
         phone
       }
     }

@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import { useState } from "react"
 import AppCollapse from "@components/app-collapse"
 import {
@@ -158,8 +159,9 @@ const Document = ({ row }) => {
       .then(response => response.text())
       .then(result => { 
         // console.log(result)
-        const output = atob(result)
-        const fileUrl = window.URL.createObjectURL(new Blob([output]))
+        const enc = atob(result)
+        const file = b64toBlob(result, "application/pdf")
+        const fileUrl = window.URL.createObjectURL(file)
         const link = document.createElement('a')
         link.href = fileUrl
         link.setAttribute('download', 'contract.pdf')
@@ -174,6 +176,30 @@ const Document = ({ row }) => {
     return <Spinner />
   }
   return <Button.Ripple onClick={downloadContract} color='primary' style={{ width: 300 }}>Download Contract</Button.Ripple>
+}
+
+function b64toBlob(b64Data, contentType, sliceSize) {
+  contentType = contentType || ""
+  sliceSize = sliceSize || 512
+
+  const byteCharacters = atob(b64Data)
+  const byteArrays = []
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize)
+
+    const byteNumbers = new Array(slice.length)
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i)
+    }
+
+    const byteArray = new Uint8Array(byteNumbers)
+
+    byteArrays.push(byteArray)
+  }
+
+  
+  return new File(byteArrays, "pot", { type: contentType })
 }
 
 export default TabsVerticalLeft
