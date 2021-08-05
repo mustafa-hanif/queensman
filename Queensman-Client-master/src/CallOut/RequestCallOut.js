@@ -255,62 +255,72 @@ const ADD_CALLOUT = gql`
 `;
 
 const REQUEST_CALLOUT = gql`
-mutation AddCallout(
-  $property_id: Int
-  $date_on_calendar: date
-  $notes: String
-  $time_on_calendar: time
-  $email: String
-  $category: String
-  $job_type: String
-  $status: String
-  $picture1: String
-  $picture2: String
-  $picture3: String
-  $picture4: String
-  $video: String
-  $request_time: timestamp
-  $urgency_level: String
-) {
-  insert_scheduler_one(
-    object: {
-      callout: {
-        data: {
-          callout_by_email: $email
-          property_id: $property_id
-          category: $category
-          job_type: $job_type
-          status: $status
-          request_time: $request_time
-          urgency_level: $urgency_level
-          description: $notes
-          picture1: $picture1
-          picture2: $picture2
-          picture3: $picture3
-          picture4: $picture4
-          video: $video
-          active: 1
-        }
-      }
-      date_on_calendar: $date_on_calendar
-      time_on_calendar: $time_on_calendar
-      notes: $notes
-    }
+  mutation AddCallout(
+    $property_id: Int
+    $date_on_calendar: date
+    $notes: String
+    $time_on_calendar: time
+    $email: String
+    $category: String
+    $job_type: String
+    $status: String
+    $picture1: String
+    $picture2: String
+    $picture3: String
+    $picture4: String
+    $video: String
+    $request_time: timestamp
+    $urgency_level: String
   ) {
-    date_on_calendar
-    id
-    callout_id
+    insert_scheduler_one(
+      object: {
+        callout: {
+          data: {
+            callout_by_email: $email
+            property_id: $property_id
+            category: $category
+            job_type: $job_type
+            status: $status
+            request_time: $request_time
+            urgency_level: $urgency_level
+            description: $notes
+            picture1: $picture1
+            picture2: $picture2
+            picture3: $picture3
+            picture4: $picture4
+            video: $video
+            active: 1
+          }
+        }
+        date_on_calendar: $date_on_calendar
+        time_on_calendar: $time_on_calendar
+        notes: $notes
+      }
+    ) {
+      date_on_calendar
+      id
+      callout_id
+    }
   }
-}
 `;
 
 const ADD_JOB_TICKET = gql`
-mutation AddJobTicket($callout_id: Int, $scheduler_id: Int, $notes: String, $client_email: String) {
-  insert_job_tickets_one(object: {callout_id: $callout_id, scheduler_id: $scheduler_id, type: "Full Job", name: $notes, description: $notes, status: "Open", client_email: $client_email}) {
-    id
+  mutation AddJobTicket($callout_id: Int, $scheduler_id: Int, $notes: String, $client_email: String) {
+    insert_job_tickets_one(
+      object: {
+        callout_id: $callout_id
+        scheduler_id: $scheduler_id
+        type: "Full Job"
+        name: $notes
+        description: $notes
+        status: "Open"
+        client_email: $client_email
+      }
+    ) {
+      id
+    }
   }
-}
-`
+`;
 
 const RequestCallOut = (props) => {
   const [state, setState] = useState({
@@ -352,18 +362,19 @@ const RequestCallOut = (props) => {
   const { loading: jobCategoryLoading, data: jobCategory, error: jobCategoryError } = useQuery(GET_JOB_CATEGORY);
   const [getJobType, { loading: loadingJobType, data: jobType, error: JobTypeError }] = useLazyQuery(GET_JOB_TYPE);
   const [addCalloutApiCall, { loading: addCalloutApiLoading, error: mutationError }] = useMutation(ADD_CALLOUT);
-  const [addJobTicket, { loading: addJobTicketLoading, data: addJobTicketData }] =
-  useMutation(ADD_JOB_TICKET);
-  const [requestCalloutApiCall, { loading: requestCalloutLoading, data }] =
-  useMutation(REQUEST_CALLOUT, {
+  const [addJobTicket, { loading: addJobTicketLoading, data: addJobTicketData }] = useMutation(ADD_JOB_TICKET);
+  const [requestCalloutApiCall, { loading: requestCalloutLoading, data }] = useMutation(REQUEST_CALLOUT, {
     onCompleted: (data) => {
-      addJobTicket({variables: {
-        callout_id: data?.insert_scheduler_one?.callout_id,
-        scheduler_id: data?.insert_scheduler_one?.id,
-        notes: state.Description,
-        client_email: auth.user().email,
-      }})
-    }})
+      addJobTicket({
+        variables: {
+          callout_id: data?.insert_scheduler_one?.callout_id,
+          scheduler_id: data?.insert_scheduler_one?.id,
+          notes: state.Description,
+          client_email: auth.user().email,
+        },
+      });
+    },
+  });
   const [videoSaving, setVideoSaving] = useState(false);
   const [showVideoScreen, setShowVideoScreen] = useState(false);
   const [jobCategorySelect, setJobCategorySelect] = useState({});
@@ -392,10 +403,15 @@ const RequestCallOut = (props) => {
     variables: { email },
   });
 
-  const [loadProperty, { loading: loadingSingleProperty, data: selectedProperty, error: propertyError }] =
-  useLazyQuery(GET_PROPERTY_BY_ID, {
-    variables: {id: allProperties?.client?.[0]?.property_owneds?.[0]?.id}
-  });
+  const [loadProperty, { loading: loadingSingleProperty, data: selectedProperty, error: propertyError }] = useLazyQuery(
+    GET_PROPERTY_BY_ID,
+    {
+      variables: { id: allProperties?.client?.[0]?.property_owneds?.[0]?.id },
+    }
+  );
+
+  const [videoDurationinMillis, setvideoDurationinMillis] = useState("0:00");
+
   // Did mount - Select the first property of the client, or use the one in async storage
   useEffect(() => {
     const loadSelectedProperty = async (properties) => {
@@ -424,7 +440,7 @@ const RequestCallOut = (props) => {
         PropertyID: propertyid,
       }));
     }
-  }, [selectedProperty,loadingSingleProperty]);
+  }, [selectedProperty, loadingSingleProperty]);
 
   const selectFromGallery = async () => {
     if (Constants.platform.ios) {
@@ -473,7 +489,7 @@ const RequestCallOut = (props) => {
   };
 
   const toggleGalleryEventModal = (vale, no) => {
-    console.log(vale, no)
+    console.log(vale, no);
     setState({
       ...state,
       isPicvisible: !state.isPicvisible,
@@ -487,7 +503,7 @@ const RequestCallOut = (props) => {
       return alert("Please Select Job Category!");
     }
     if (!props.route.params.additionalServices && !jobTypeSelect?.value) {
-      return alert("Please Select Job Type!")
+      return alert("Please Select Job Type!");
     }
     if (state.Urgency === "") {
       return alert("Please Select Urgency!");
@@ -496,7 +512,7 @@ const RequestCallOut = (props) => {
       return alert("Please add Description!");
     }
     if (state.picture1 === "") {
-      return alert("Please upload atleast one image!")
+      return alert("Please upload atleast one image!");
     }
     if (!props.route.params.additionalServices) {
       if (state.Urgency === "medium") {
@@ -595,25 +611,25 @@ const RequestCallOut = (props) => {
       setState({
         ...state,
         picture1: "",
-        isPicvisible: false
+        isPicvisible: false,
       });
     } else if (state.selectedNo === 2) {
       setState({
         ...state,
         picture2: "",
-        isPicvisible: false
+        isPicvisible: false,
       });
     } else if (state.selectedNo === 3) {
       setState({
         ...state,
         picture3: "",
-        isPicvisible: false
+        isPicvisible: false,
       });
     } else if (state.selectedNo === 4) {
       setState({
         ...state,
         picture4: "",
-        isPicvisible: false
+        isPicvisible: false,
       });
     }
   };
@@ -660,6 +676,12 @@ const RequestCallOut = (props) => {
     return { uri: localUri, name: filename, type };
   };
 
+  function millisToMinutesAndSeconds(millis) {
+    var minutes = Math.floor(millis / 60000);
+    var seconds = ((millis % 60000) / 1000).toFixed(0);
+    return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+  }
+
   const saveVideoCloud = () => {
     const file = expoFileToFormFile(state.video, "video");
     // console.log(`/callout_videos/${file.name}`);
@@ -674,6 +696,10 @@ const RequestCallOut = (props) => {
       ...state,
       videoUrl: `https://backend-8106d23e.nhost.app/storage/o/callout_videos/${file.name}`,
     });
+  };
+
+  const onDeleteVideo = () => {
+    setState({ ...state, video: "" });
   };
 
   const addJobTicketFunc = async () => {
@@ -695,7 +721,7 @@ const RequestCallOut = (props) => {
     addCalloutApiCall({
       variables: {
         callout_by_email: auth?.currentSession?.session?.user.email,
-        worker_email: "antony@queensman.com",//add email client
+        worker_email: "antony@queensman.com", //add email client
         client_email: auth?.currentSession?.session?.user.email,
         worker_id: 16,
         description: state.Description,
@@ -727,7 +753,16 @@ const RequestCallOut = (props) => {
   }
 
   if (showVideoScreen) {
-    return <VideoScreen setShowVideoScreen={setShowVideoScreen} saveVideo={saveVideo} />;
+    return (
+      <VideoScreen
+        getDuration={(time) => {
+          console.log("time in mili seconds", time);
+          setvideoDurationinMillis(millisToMinutesAndSeconds(time));
+        }}
+        setShowVideoScreen={setShowVideoScreen}
+        saveVideo={saveVideo}
+      />
+    );
   }
   return (
     <ScrollView style={{ height: "100%" }}>
@@ -743,7 +778,7 @@ const RequestCallOut = (props) => {
           </View>
         ) : (
           <View>
-          <ActivityIndicator size="small" color="white" style={{ alignSelf: "center" }} />
+            <ActivityIndicator size="small" color="white" style={{ alignSelf: "center" }} />
           </View>
         )}
       </View>
@@ -751,7 +786,7 @@ const RequestCallOut = (props) => {
         <View style={styles.container} showsVerticalScrollIndicator={false}>
           <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
             {!props.route.params.additionalServices ? "Job Category" : "Request Type"}
-            <Text style={{color: "red"}}>*</Text>
+            <Text style={{ color: "red" }}>*</Text>
           </Text>
 
           <View>
@@ -806,7 +841,9 @@ const RequestCallOut = (props) => {
 
           {!props.route.params.additionalServices && (
             <View style={{ paddingTop: "5%" }}>
-              <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>Job Type<Text style={{color: "red"}}>*</Text></Text>
+              <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
+                Job Type<Text style={{ color: "red" }}>*</Text>
+              </Text>
               <Select
                 isDisabled={!(jobType?.team_expertise && !loadingJobType)}
                 mode="dialog"
@@ -844,7 +881,9 @@ const RequestCallOut = (props) => {
           ) : null}
           {!props.route.params.additionalServices && <View style={{ height: "3%" }} />}
           {!props.route.params.additionalServices && (
-            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Urgency<Text style={{color: "red"}}>*</Text></Text>
+            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
+              Urgency<Text style={{ color: "red" }}>*</Text>
+            </Text>
           )}
           {!props.route.params.additionalServices && <View style={{ height: "2%" }} />}
           {!props.route.params.additionalServices && (
@@ -889,7 +928,9 @@ const RequestCallOut = (props) => {
             </View>
           )}
           <View style={{ height: "3%" }} />
-          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Description<Text style={{color: "red"}}>*</Text></Text>
+          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
+            Description<Text style={{ color: "red" }}>*</Text>
+          </Text>
           <View style={{ height: "2%" }} />
           <View style={styles.DestxtStyle}>
             <TextInput
@@ -903,6 +944,7 @@ const RequestCallOut = (props) => {
               placeholder="Type description here ...."
               placeholderTextColor="#8c8c8c"
               multiline
+              value={state.Description}
               numberOfLines={3}
               maxLength={150}
               allowFontScaling={false}
@@ -912,11 +954,18 @@ const RequestCallOut = (props) => {
               }} // email set
             />
           </View>
-          <View style={{flexDirection: "row"}}>
-          <Text style={{fontSize: 12, color: "#bbb", marginTop: 2}}>Character count: {state.Description.length}/150 </Text>{state.Description.length == 150 && <Text style={{fontSize: 12, color: "red", marginTop: 2}}>Character limit reached</Text>}
+          <View style={{ flexDirection: "row" }}>
+            <Text style={{ fontSize: 12, color: "#bbb", marginTop: 2 }}>
+              Character count: {state.Description.length}/150{" "}
+            </Text>
+            {state.Description.length == 150 && (
+              <Text style={{ fontSize: 12, color: "red", marginTop: 2 }}>Character limit reached</Text>
+            )}
           </View>
           <View style={{ height: "3%" }} />
-          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Images<Text style={{color: "red"}}>*</Text></Text>
+          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
+            Images<Text style={{ color: "red" }}>*</Text>
+          </Text>
           <View
             style={{
               flexDirection: "row",
@@ -939,7 +988,9 @@ const RequestCallOut = (props) => {
                       style={[styles.ImageSelectStyle, { marginBottom: 10 }]}
                       onPress={showPlayVideoScreen}
                     >
-                      <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>Play Video</Text>
+                      <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>
+                        Play Video {videoDurationinMillis}
+                      </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       disabled={state.videoUrl.length}
@@ -951,6 +1002,9 @@ const RequestCallOut = (props) => {
                       >
                         Save Video
                       </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.ImageSelectStyle, { marginTop: 10 }]} onPress={onDeleteVideo}>
+                      <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}>Delete Video</Text>
                     </TouchableOpacity>
                   </View>
                 ) : (
