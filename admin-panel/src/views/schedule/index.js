@@ -31,7 +31,7 @@ import "@styles/react/apps/app-calendar.scss"
 
 // ** CalendarColors
 const calendarsColor = {
-  Business: "primary",
+  Green: "primary",
   Holiday: "success",
   Personal: "danger",
   Family: "warning",
@@ -51,6 +51,9 @@ const GET_SCHEDULE = gql`
         full_name
         id
         email
+        teams {
+          team_color
+        }
       }
       callout_id
       callout {

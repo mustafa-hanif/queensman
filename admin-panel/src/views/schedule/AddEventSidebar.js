@@ -145,7 +145,7 @@ const AddEventSidebar = props => {
 
   const [url, setUrl] = useState(selectedEvent.url || '')
   const [desc, setDesc] = useState(selectedEvent.extendedProps?.description || '')
-  const [title, setTitle] = useState(selectedEvent.title || false)
+  const [title, setTitle] = useState((selectedEvent?.title ?? '').replace(/\n/g, ' '))
   const [guests, setGuests] = useState(selectedEvent.extendedProps?.guests || '')
   const [allDay, setAllDay] = useState(selectedEvent.allDay || false)
   const [location, setLocation] = useState(selectedEvent.extendedProps?.location || '')
