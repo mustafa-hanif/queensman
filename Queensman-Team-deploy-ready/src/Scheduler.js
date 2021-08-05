@@ -61,16 +61,17 @@ const App = (props) => {
   }, [data])
 
   const renderItem = (item, index) => {
+    console.log(item)
       let color_code = 'grey'
-    return (
-      <TouchableOpacity
+      return item.data.map(item => (
+        <TouchableOpacity
         style={[styles.item, { backgroundColor: color_code }]}
       >
-        <Text style={{ color: 'white' }}>Callout ID: {item.data[0].callout_id}</Text>
-        <Text style={{ color: 'white' }}>Ops Team ID: {item.data[0].worker_id}</Text>
-        <Text style={{ color: 'white' }}>Notes: {item.data[0].notes}</Text>
+        <Text style={{ color: 'white' }}>Callout ID: {item.callout_id}</Text>
+        <Text style={{ color: 'white' }}>Ops Team ID: {item.worker_id}</Text>
+        <Text style={{ color: 'white' }}>Notes: {item.notes}</Text>
       </TouchableOpacity>
-    );
+      ))
   }
 
   const renderEmptyData = () => {
@@ -95,21 +96,22 @@ const App = (props) => {
 
 
   const loadItems = (day) => {
+    // console.log(state.schedules.filter(val => { return val.date_on_calendar === "2021-08-06" }))
     setTimeout(() => {
       for (let i = 0; i < state.dates.length; i++) {
         const strTime = state.dates[i];
         if (!state.items[strTime]) {
           let backup = state.schedules
           state.items[strTime] = [];
-          state.markedDates[strTime] = {selected: true, marked: true};
           let result = backup.filter(val => { return val.date_on_calendar === strTime })
-          const numItems = result.length;
-          for (let j = 0; j < numItems; j++) {
+          const dot = []
+          result.map(res => dot.push({color: "blue", selectedDotColor: 'white'}))
+          console.log(strTime,result)
+          state.markedDates[strTime] = {dots:dot,selected: false, marked: true};
             state.items[strTime].push({
               data: result,
               // height: Math.max(80)
             });
-          }
         }
       }
       const newItems = {};
@@ -123,6 +125,7 @@ const App = (props) => {
     if (!loading) {
       return (
         <Agenda
+        markingType={'multi-dot'}
           style={{ marginTop: 20, height: "100%" }}
           items={state.items}
           loadItemsForMonth={loadItems}

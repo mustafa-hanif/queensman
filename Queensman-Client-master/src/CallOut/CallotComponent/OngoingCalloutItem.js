@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, Modal, Text, View, Image, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Box, VStack, HStack, Icon } from "native-base";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function OngoingCalloutItem(props) {
   console.log(props.route.params.it)
@@ -11,7 +12,7 @@ export default function OngoingCalloutItem(props) {
       selectedPic: "",
       isPicvisible: false, //veiw image app kay lia
     })
-  toggleGalleryEventModal = (value) => {
+  const toggleGalleryEventModal = (value) => {
     setState({ ...state, isPicvisible: !state.isPicvisible, selectedPic: value });
   };
 
@@ -24,116 +25,133 @@ export default function OngoingCalloutItem(props) {
             <VStack>
               <View style={{ alignSelf: "center" }}>
                 <Text style={[styles.TextFam, { fontSize: 17, fontWeight: "bold" }]}>
-                  {state.OngoingCallOutData?.Client_property?.address}
+                  {state.OngoingCallOutData?.property?.address}
                 </Text>
                 <Text style={[styles.TextFam, { fontSize: 10, color: "#aaa" }]}>
-                  {state.OngoingCallOutData?.Client_property?.community},
-                  {state.OngoingCallOutData?.Client_property?.city},
-                  {state.OngoingCallOutData?.Client_property?.country}
+                  {state.OngoingCallOutData?.property?.community},
+                  {state.OngoingCallOutData?.property?.city},
+                  {state.OngoingCallOutData?.property?.country}
                 </Text>
               </View>
               <HStack>
-                    <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Callout ID</Text>
-                    <Text style={styles.TextFam}>{state.OngoingCallOutData?.Client_property?.id}</Text>
+                    <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Callout ID: </Text>
+                    <Text style={styles.TextFam, { color: "#8c8c8c" }}>{state.OngoingCallOutData?.id}</Text>
               </HStack>
 
               <HStack >
                     <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Urgency Level</Text>
 
-                  <View style={{ flexDirection: "row", alignItems: "center", alignSelf: "flex-end" }}>
-                    <Text style={styles.TextFam}>{state.OngoingCallOutData?.Client_property?.urgency_level} </Text>
+                  <View style={{ flexDirection: "row", alignItems: "center", alignSelf: "flex-end", alignItems: "center" }}>
+                    <Text style={styles.TextFam}>{state.OngoingCallOutData?.property?.urgency_level} </Text>
                     <Icon
+                      as={<Ionicons name="flag-sharp" />}
                       name="flag"
                       style={{
                         fontSize: 24,
                         color:
-                          state.OngoingCallOutData?.Client_property?.urgency_level == "High"
+                          state.OngoingCallOutData?.property?.urgency_level == "High"
                             ? "red"
-                            : state.OngoingCallOutData?.Client_property?.urgency_level == "Scheduled"
+                            : state.OngoingCallOutData?.property?.urgency_level == "Medium"
                             ? "#aaa"
                             : "#FFCA5D",
+                            alignItems: "center"
                       }}
                     ></Icon>
                   </View>
               </HStack>
               <HStack>
-                    <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Request Time</Text>
+                    <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Request Time: </Text>
                   <Text style={[styles.TextFam, { alignSelf: "flex-end" }]}>
-                    {state.OngoingCallOutData?.Client_property?.request_time}
+                    {state.OngoingCallOutData?.property?.request_time}
                   </Text>
               </HStack>
-              {state.OngoingCallOutData?.Client_property?.status == "Planned" ? (
+              {state.OngoingCallOutData?.property?.status == "Planned" ? (
                 <HStack>
-                      <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Planned Time</Text>
+                      <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Planned Time: </Text>
                     <Text style={[styles.TextFam, { alignSelf: "flex-end" }]}>
-                      {state.OngoingCallOutData?.Client_property?.planned_time}
+                      {state.OngoingCallOutData?.property?.planned_time}
                     </Text>
                 </HStack>
               ) : null}
               <HStack>
-                    <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Status</Text>
+                    <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Status: </Text>
                   <Text style={[styles.TextFam, { alignSelf: "flex-end" }]}>
-                    {state.OngoingCallOutData?.Client_property?.status}
+                    {state.OngoingCallOutData?.status}
                   </Text>
               </HStack>
               <HStack>
-                <VStack>
-                  <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Description</Text>
-                  <Text style={styles.TextFam}>{state.OngoingCallOutData?.Client_property?.description}</Text>
-                </VStack>
+                  <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Description: </Text>
+                  <Text style={styles.TextFam}>{state.OngoingCallOutData?.description}</Text>
               </HStack>
               <HStack >
                 <VStack>
                   <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Pictures</Text>
                   <Text> </Text>
+                  {state.OngoingCallOutData?.picture1 ? 
                     <TouchableOpacity
-                      onPress={() =>
-                        toggleGalleryEventModal(state.OngoingCallOutData?.Client_property?.picture1)
-                      }
-                    >
-                      <Image
-                        style={styles.ImageStyle}
-                        source={{ uri: state.OngoingCallOutData?.Client_property?.picture1 }}
-                        resizeMode="contain"
-                      />
-                    </TouchableOpacity>
+                    onPress={() =>
+                      toggleGalleryEventModal(state.OngoingCallOutData?.picture1)
+                    }
+                  >
+                    <Image
+                      style={styles.ImageStyle}
+                      source={{
+                        uri: state.OngoingCallOutData?.picture1,
+                      }}
+                      resizeMode="contain"
+                   />
+                  </TouchableOpacity>
+                  : <Text>No Picture</Text>}
+                  
                     <Text> </Text>
+                    {state.OngoingCallOutData?.picture2 ? 
                     <TouchableOpacity
-                      onPress={() =>
-                        toggleGalleryEventModal(state.OngoingCallOutData?.Client_property?.picture2)
-                      }
-                    >
-                      <Image
-                        style={styles.ImageStyle}
-                        source={{ uri: state.OngoingCallOutData?.Client_property?.picture2 }}
-                        resizeMode="contain"
-                      />
-                    </TouchableOpacity>
+                    onPress={() =>
+                      toggleGalleryEventModal(state.OngoingCallOutData?.picture2)
+                    }
+                  >
+                    <Image
+                      style={styles.ImageStyle}
+                      source={{
+                        uri: state.OngoingCallOutData?.picture2,
+                      }}
+                      resizeMode="contain"
+                   />
+                  </TouchableOpacity>
+                  : <Text>No Picture</Text>}
                     <Text> </Text>
                   <View style={{ height: "1%" }}></View>
+                  {state.OngoingCallOutData?.picture3 ? 
                     <TouchableOpacity
-                      onPress={() =>
-                        toggleGalleryEventModal(state.OngoingCallOutData?.Client_property?.picture3)
-                      }
-                    >
-                      <Image
-                        style={styles.ImageStyle}
-                        source={{ uri: state.OngoingCallOutData?.Client_property?.picture3 }}
-                        resizeMode="contain"
-                      />
-                    </TouchableOpacity>
+                    onPress={() =>
+                      toggleGalleryEventModal(state.OngoingCallOutData?.picture3)
+                    }
+                  >
+                    <Image
+                      style={styles.ImageStyle}
+                      source={{
+                        uri: state.OngoingCallOutData?.picture3,
+                      }}
+                      resizeMode="contain"
+                   />
+                  </TouchableOpacity>
+                  : <Text>No Picture</Text>}
                     <Text> </Text>
+                    {state.OngoingCallOutData?.picture4 ? 
                     <TouchableOpacity
-                      onPress={() =>
-                        toggleGalleryEventModal(state.OngoingCallOutData?.Client_property?.picture4)
-                      }
-                    >
-                      <Image
-                        style={styles.ImageStyle}
-                        source={{ uri: state.OngoingCallOutData?.Client_property?.picture4 }}
-                        resizeMode="contain"
-                      />
-                    </TouchableOpacity>
+                    onPress={() =>
+                      toggleGalleryEventModal(state.OngoingCallOutData?.picture4)
+                    }
+                  >
+                    <Image
+                      style={styles.ImageStyle}
+                      source={{
+                        uri: state.OngoingCallOutData?.picture4,
+                      }}
+                      resizeMode="contain"
+                   />
+                  </TouchableOpacity>
+                  : <Text>No Picture</Text>}
                     <Text> </Text>
                 </VStack>
               </HStack>
@@ -142,7 +160,7 @@ export default function OngoingCalloutItem(props) {
         </View>
 
         <Modal
-          isVisible={state.isPicvisible}
+          visible={state.isPicvisible}
           onSwipeComplete={() => setState({...state, isPicvisible: false })}
           swipeDirection={["left", "right", "down"]}
           onBackdropPress={() => setState({...state, isPicvisible: false })}
