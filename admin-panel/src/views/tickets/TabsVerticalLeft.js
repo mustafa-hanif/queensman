@@ -98,11 +98,21 @@ const TabsVerticalLeft = ({item}) => {
             <ListGroup flush>
             {Object.keys(job_ticket).map(itemKey => {
               if ((![""].includes(itemKey))) {
+                if ((["notes"].includes(itemKey)) && job_ticket["notes"]?.length > 0) {
+                  <ListGroupItem>Notes: </ListGroupItem>
+                  return job_ticket["notes"].map(note => (
+                  <ListGroupItem>
+                    <span style={{fontWeight: "bold"}}>Notes: </span>From: {note.from}; Message: {note.message}
+                  </ListGroupItem>
+                  ))
+                } else {
                   return (
-                      <ListGroupItem>
-                          {itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}: {job_ticket[itemKey] ? job_ticket[itemKey] : "N/A"}
-                      </ListGroupItem>
-                  )
+                    <ListGroupItem>
+                        <span style={{fontWeight: "bold"}}>{itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}:</span> {job_ticket[itemKey] ? job_ticket[itemKey] : "N/A"}
+                    </ListGroupItem>
+                )
+                }
+                  
               }
               })}
             </ListGroup>
@@ -114,7 +124,7 @@ const TabsVerticalLeft = ({item}) => {
               if (!(["__typename"].includes(itemKey))) {
                   return (
                       <ListGroupItem>
-                          {itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}: {client[itemKey] ? client[itemKey] : "N/A"}
+                          <span style={{fontWeight: "bold"}}>{itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}:</span> {client[itemKey] ? client[itemKey] : "N/A"}
                       </ListGroupItem>
                   )
               }
@@ -133,7 +143,7 @@ const TabsVerticalLeft = ({item}) => {
                 }
                   return (
                       <ListGroupItem>
-                          {itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}: {callout[itemKey] ? callout[itemKey] : "N/A"}
+                          <span style={{fontWeight: "bold"}}>{itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}:</span> {callout[itemKey] ? callout[itemKey] : "N/A"}
                       </ListGroupItem>
                   )
               }

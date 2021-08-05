@@ -187,23 +187,32 @@ const advSearchColumns = [
     //   sortable: true,
     //   minWidth: '200px'
     // },
-    {
-      name: 'Name',
-      selector: 'name',
-      sortable: true,
-      minWidth: '200px'
-    },
+    // {
+    //   name: 'Name',
+    //   selector: 'name',
+    //   sortable: true,
+    //   minWidth: '200px'
+    // },
     {
       name: 'Type',
       selector: 'type',
       sortable: true,
-      minWidth: '100px'
+      minWidth: '200px'
     },
     {
       name: 'Description',
       selector: 'description',
       sortable: true,
-      minWidth: '500px'
+      minWidth: '150px',
+      wrap: true,
+      cell: row => {
+        if (row?.type === 'Deferred') {
+          return `${row?.description}; ${row?.name}`
+        } else {
+          return row?.description
+        }
+        
+      }
     },
     {
       name: 'Worker Assigned',
@@ -378,7 +387,7 @@ const advSearchColumns = [
       pageLinkClassName={'page-link'}
       breakClassName='page-item'
       breakLinkClassName='page-link'
-      containerClassName={'pagination react-paginate separated-pagination pagination-sm justify-content-end pr-1 mt-1'}
+      containerClassName={'pagination react-paginate separated-pagination pagination-sm justify-content-center pr-1 mt-1'}
     />
   )
 

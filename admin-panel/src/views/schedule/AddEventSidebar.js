@@ -193,7 +193,7 @@ const AddEventSidebar = props => {
   ]
   
   const jobTypeOptions = [
-    {value: 'Deffered', label: 'Deffered'},
+    {value: 'Deferred', label: 'Deferred'},
     {value: 'Material Request', label: 'Material Request'},
     {value: 'Patch Job', label: 'Patch Job'},
     {value: 'Full Job', label: 'Full Job'}
