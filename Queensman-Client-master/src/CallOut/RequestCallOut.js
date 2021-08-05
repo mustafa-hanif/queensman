@@ -565,6 +565,21 @@ const RequestCallOut = (props) => {
     );
   };
 
+  const SubmittedMakeRequestAlert = () => {
+    Alert.alert(
+      "Callout Request Submitted.",
+      "One of our team will be in touch shortly.",
+      [
+        {
+          text: "Ok",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   const submitCallout = async () => {
     const category = "Uncategorized";
     const pictures = Object.fromEntries(
@@ -597,24 +612,10 @@ const RequestCallOut = (props) => {
       },
     })
       .then((res) => {
-        // SubmittedCalloutAlert();
+        SubmittedMakeRequestAlert();
         props.navigation.navigate(
           "HomeNaviagtor",
-          showMessage({
-            message: "Callout Request Submitted",
-            description: "One of our team will be in touch shortly",
-            type: "danger",
-            style: { height: "20%", flexDirection: "row", alignItems: "center" },
-            textStyle: { textAlignVertical: "center" },
-            duration: 3000,
-          })
         );
-        // showMessage({
-        //   message: "Callout Request Submitted",
-        //   description: "One of our team will be in touch shortly",
-        //   type: "danger",
-        //   duration: 3000
-        // });
       })
       .catch((err) => console.log({ err }));
   };
@@ -749,12 +750,6 @@ const RequestCallOut = (props) => {
     })
       .then((res) => {
         setState({...state, loading: false})
-        showMessage({
-          message: "Callout Request Submitted",
-          description: "One of our team will be in touch shortly",
-          type: "warning",
-          duration: 3000,
-        });
         SubmittedCalloutAlert();
         setTimeout(() => {
           props.navigation.navigate("HomeNaviagtor");
