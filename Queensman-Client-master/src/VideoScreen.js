@@ -8,9 +8,13 @@ import { Audio } from "expo-av";
 import { Icon } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 
-const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
+const VideoScreen = ({ setShowVideoScreen, saveVideo, getDuration }) => {
   const [hasPermission, setHasPermission] = useState(null);
   const [recording, setRecording] = useState(false);
+  const [duration, setduration] = useState({
+    startduration: 0,
+    endduration: 0,
+  });
   const camera = useRef(null);
 
   useEffect(() => {
@@ -22,9 +26,14 @@ const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
   }, []);
 
   const startRecording = () => {
+    var d = new Date();
+    var time = d.getTime();
+    setduration({ ...duration, startduration: time });
+
     camera.current
       .recordAsync({ maxDuration: 30, quality: Camera.Constants.VideoQuality["720p"] })
       .then((video) => {
+        console.log({ video });
         setShowVideoScreen(false);
         saveVideo(video);
       })
@@ -35,6 +44,9 @@ const VideoScreen = ({ setShowVideoScreen, saveVideo }) => {
   };
 
   const stopRecording = () => {
+    var d = new Date();
+    var time = d.getTime();
+    getDuration(time - duration.startduration);
     setRecording(false);
     camera.current.stopRecording();
   };
