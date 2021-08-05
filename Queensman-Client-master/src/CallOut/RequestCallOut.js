@@ -313,7 +313,6 @@ mutation AddJobTicket($callout_id: Int, $scheduler_id: Int, $notes: String, $cli
 `
 
 const RequestCallOut = (props) => {
-  console.log(props.route.params)
   const [state, setState] = useState({
     PropertyDetails: [],
     property_type: "",
@@ -473,6 +472,7 @@ const RequestCallOut = (props) => {
   };
 
   const toggleGalleryEventModal = (vale, no) => {
+    console.log(vale, no)
     setState({
       ...state,
       isPicvisible: !state.isPicvisible,
@@ -483,10 +483,19 @@ const RequestCallOut = (props) => {
 
   const askSubmitCallout = () => {
     if (!jobCategorySelect.value) {
-      return alert("Please Select Job Category First");
+      return alert("Please Select Job Category!");
     }
-    if (state.picture1 === "" || state.Urgency === "") {
-      return alert("Kindly fill all the required details.");
+    if (!jobTypeSelect?.value) {
+      return alert("Please Select Job Type!")
+    }
+    if (state.Urgency === "") {
+      return alert("Please Select Urgency!");
+    }
+    if (state.Description === "") {
+      return alert("Please add Description!");
+    }
+    if (state.picture1 === "") {
+      return alert("Please upload atleast one image!")
     }
     if (!props.route.params.additionalServices) {
       if (state.Urgency === "medium") {
@@ -585,24 +594,27 @@ const RequestCallOut = (props) => {
       setState({
         ...state,
         picture1: "",
+        isPicvisible: false
       });
     } else if (state.selectedNo === 2) {
       setState({
         ...state,
         picture2: "",
+        isPicvisible: false
       });
     } else if (state.selectedNo === 3) {
       setState({
         ...state,
         picture3: "",
+        isPicvisible: false
       });
     } else if (state.selectedNo === 4) {
       setState({
         ...state,
         picture4: "",
+        isPicvisible: false
       });
     }
-    setState({ ...state, isPicvisible: false });
   };
 
   const CameraSnap = async () => {
@@ -738,6 +750,7 @@ const RequestCallOut = (props) => {
         <View style={styles.container} showsVerticalScrollIndicator={false}>
           <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
             {!props.route.params.additionalServices ? "Job Category" : "Request Type"}
+            <Text style={{color: "red"}}>*</Text>
           </Text>
 
           <View>
@@ -792,7 +805,7 @@ const RequestCallOut = (props) => {
 
           {!props.route.params.additionalServices && (
             <View style={{ paddingTop: "5%" }}>
-              <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>Job Type</Text>
+              <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>Job Type<Text style={{color: "red"}}>*</Text></Text>
               <Select
                 isDisabled={!(jobType?.team_expertise && !loadingJobType)}
                 mode="dialog"
@@ -830,7 +843,7 @@ const RequestCallOut = (props) => {
           ) : null}
           {!props.route.params.additionalServices && <View style={{ height: "3%" }} />}
           {!props.route.params.additionalServices && (
-            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Urgency</Text>
+            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Urgency<Text style={{color: "red"}}>*</Text></Text>
           )}
           {!props.route.params.additionalServices && <View style={{ height: "2%" }} />}
           {!props.route.params.additionalServices && (
@@ -875,7 +888,7 @@ const RequestCallOut = (props) => {
             </View>
           )}
           <View style={{ height: "3%" }} />
-          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Description</Text>
+          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Description<Text style={{color: "red"}}>*</Text></Text>
           <View style={{ height: "2%" }} />
           <View style={styles.DestxtStyle}>
             <TextInput
@@ -884,21 +897,20 @@ const RequestCallOut = (props) => {
                 color: "#8c8c8c",
                 width: "90%",
                 fontFamily: "Helvetica",
-                paddingTop: "2%",
+                // padding: "2%",
               }}
               placeholder="Type description here ...."
               placeholderTextColor="#8c8c8c"
               multiline
-              numberOfLines={1}
+              numberOfLines={3}
               underlineColorAndroid="transparent"
               onChangeText={(Description) => {
-                console.log(Description);
                 setState({ ...state, Description });
               }} // email set
             />
           </View>
           <View style={{ height: "3%" }} />
-          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Images</Text>
+          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Images<Text style={{color: "red"}}>*</Text></Text>
           <View
             style={{
               flexDirection: "row",
@@ -1131,7 +1143,7 @@ const RequestCallOut = (props) => {
           <Text> </Text>
           <Text> </Text>
 
-          <TouchableOpacity onPress={() => setState({ isPicvisible: false })}>
+          <TouchableOpacity onPress={() => setState({ ...state, isPicvisible: false })}>
             <View style={styles.ButtonSty}>
               <Text style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}>Close</Text>
             </View>

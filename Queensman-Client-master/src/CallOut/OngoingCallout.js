@@ -10,13 +10,26 @@ import PTRView from "react-native-pull-to-refresh";
 
 const GET_CALLOUT = gql`
   query GetCallout($callout_by_email: String!) {
-    callout(where: { callout_by_email: { _eq: $callout_by_email } }) {
+    callout(where: {callout_by_email: {_eq: $callout_by_email}}) {
       job_type
+      id
+      urgency_level
+      picture1
+      picture2
+      picture3
+      picture4
+      status
       description
-      schedulers(order_by: { date_on_calendar: desc }) {
+      schedulers(order_by: {date_on_calendar: desc}) {
         date_on_calendar
         time_on_calendar
         id
+      }
+      property {
+        address
+        city
+        community
+        country
       }
     }
   }
