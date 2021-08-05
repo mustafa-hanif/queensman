@@ -230,12 +230,14 @@ const DataTableAdvSearch = () => {
     let day = new Date().getDate()
     console.log(day)
     for (let i = 0; i < 4; i++) {
-      if (month % 13 === 0) {
+      if (month >= 13) {
         month = 1
         year++
       }
       const date_on_calendar = `${year}-${month < 10 ? `0${month}` : month}-${day}`//new Date().getMonth()+1
       const time_on_calendar = "10:00:00" //10:00:00
+      console.log({date_on_calendar})
+      console.log({time_on_calendar})
       const end_time_on_calendar = addHours(`${date_on_calendar} ${time_on_calendar}`, 4).toTimeString().substr(0, 8)
       const end_date_on_calendar = addHours(`${date_on_calendar} ${time_on_calendar}`, 4).toISOString().substr(0, 10)
       console.log({
@@ -280,7 +282,7 @@ const DataTableAdvSearch = () => {
     month = parseInt(currentDate[0])
     day = parseInt(currentDate[1])
     for (let i = 0; i < 4; i++) {
-      if (month % 13 === 0) {
+      if (month >= 13) {
         month = 1
         year++
       }

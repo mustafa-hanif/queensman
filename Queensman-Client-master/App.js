@@ -3,7 +3,7 @@
 /* eslint-disable no-console */
 /* eslint-disable import/order */
 /* eslint-disable no-use-before-define */
-const version = "v0.2";
+const version = "v0.3";
 import React, { PureComponent } from "react";
 import { Text, View, SafeAreaView, Image, TouchableOpacity, Linking } from "react-native";
 import { Icon, Box, NativeBaseProvider, extendTheme } from "native-base";
@@ -441,9 +441,12 @@ const AppDrawerNavigator = () => {
       drawerContent={(props) => <CustomDrawerComponent {...props} />}
     >
       <AppDrawer.Screen name="Home" component={HomeScreenStackNavigator} />
-      <AppDrawer.Screen name="PropertyDetails" component={PropertyDetails} />
+      {/* <AppDrawer.Screen name="PropertyDetails" component={PropertyDetails} />
       <AppDrawer.Screen name="ContactUs" component={ContactUs} />
-      <AppDrawer.Screen name="Settings" component={SettingStackNavigator} />
+      <AppDrawer.Screen name="Settings" component={SettingStackNavigator} /> */}
+      <AppDrawer.Screen name="Property Details" component={HomeScreenStackNavigator} />
+      <AppDrawer.Screen name="Contac tUs" component={HomeScreenStackNavigator} />
+      <AppDrawer.Screen name="Settings" component={HomeScreenStackNavigator} />
     </AppDrawer.Navigator>
   );
 };
