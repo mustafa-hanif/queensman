@@ -98,7 +98,7 @@ const TabsVerticalLeft = ({item}) => {
             <ListGroup flush>
             {job_ticket && Object.keys(job_ticket).map(itemKey => {
               if ((![""].includes(itemKey))) {
-                if ((["notes"].includes(itemKey)) && job_ticket["notes"]?.length > 0) {
+                if ((["notes"].includes(itemKey)) && job_ticket["notes"]?.length > 0 && job_ticket["notes"] !== "{}") {
                   <ListGroupItem>Notes: </ListGroupItem>
                   return job_ticket?.["notes"].map(note => (
                   <ListGroupItem>
