@@ -28,7 +28,7 @@ const TabsVerticalLeft = ({item}) => {
   </div>
   )
 
-  const CollapseDefault = ({data}) => <AppCollapse data={data} type='border' />
+  // const CollapseDefault = ({data}) => <AppCollapse data={data} type='border' />
 
   const CalloutPicture = ({picture}) => {
     return <div style={{width: "250px", margin:4}}>
@@ -41,22 +41,22 @@ const TabsVerticalLeft = ({item}) => {
   const schedule = item.callout.schedulers[0]
   const {id, notes, name, callout_id, description, type, worker_email, status } = item
   const job_ticket = {id, notes, name, callout_id, description, type, worker_email, status}
-  const property_owneds = item.callout.property
-    const prop_count = property_owneds.length
-    const property_owneds_modified = prop_count !== 0 ? {
-            title: `Property id: ${property_owneds.id} Adddress: ${property_owneds.address}`,
-            content: (
-              <RowContent data={property_owneds} count={property_owneds.length}/>
-            )
-          } : [
-        {
-        title: `No data Available`,
-        content: (
-          <div>
-        </div>
-        )
-      }
-    ]
+  // const property_owneds = item.callout.property
+  //   const prop_count = property_owneds.length
+  //   const property_owneds_modified = prop_count !== 0 ? {
+  //           title: `Property id: ${property_owneds.id} Adddress: ${property_owneds.address}`,
+  //           content: (
+  //             <RowContent data={property_owneds} count={property_owneds.length}/>
+  //           )
+  //         } : [
+  //       {
+  //       title: `No data Available`,
+  //       content: (
+  //         <div>
+  //       </div>
+  //       )
+  //     }
+  //   ]
 
   return (
     <div className='nav-vertical'>
