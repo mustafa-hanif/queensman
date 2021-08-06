@@ -160,7 +160,7 @@ const GetContractCopy = () => {
   });
   const openContractCopy = () => {
     const document_id = data?.client?.[0]?.documents?.document_name.split(", ")[1];
-    Linking.openURL(`https://queensman-icemelt72.vercel.app/download-contract/${document_id}`);
+    Linking.openURL(`https://queensman-git-login-icemelt72.vercel.app/download-contract/${document_id}`);
   };
   return <Button onPress={openContractCopy}>Contract Copy</Button>;
 };
