@@ -35,7 +35,7 @@
     "expo-location": "~12.0.4",
     "expo-media-library": "~12.0.2",
     "expo-notifications": "~0.11.6",
-    "expo-permissions": "~12.0.1",
+    "expo-permissions": "~12.1.1",
     "expo-pixi": "^1.1.0",
     "hoist-non-react-statics": "*",
     "install": "^0.13.0",

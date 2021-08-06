@@ -33,37 +33,42 @@ export default function NotificationList({ item, updateNotifications: reloadNoti
   }
   return (
     <>
-      {!item?.isRead && <View><View style={{flex: 0.9}}><TouchableOpacity 
+      {!item?.isRead && 
+      <View>
+        <View style={{flex: 1}}>
+        <TouchableOpacity 
         onPress={() => {
           item.data.type === "call" && call({number: item.data.phone, prompt:true})
         }}>
         <View style={[styles.row, viewStyle]}>
           <View style={{ flex: 2 }}>
-            <Text style={[[styles.text, textStyle, { fontWeight: "bold"}]]} numberOfLines={2}>
+            <Text style={[[styles.text, textStyle, { fontWeight: "bold"}]]} numberOfLines={4}>
               {item.text}
             </Text>
           </View>
           <View style={[styles.time, dotStyle]}>
-            <Text style={[styles.timeText, textStyle]} numberOfLines={2}>
-              {item?.data?.type === "call" ?
+          <Text style={[styles.timeText, textStyle]} numberOfLines={2}>
+                  {`${formatDistance(new Date(), new Date(item.created_at), { includeSeconds: true })} ago`}
+                </Text>
+            
+              {item?.data?.type === "call" &&
                 <Icon
                   name="call"
                   as={Ionicons}
                   style={{ fontSize: 25, color: "blue", paddingRight: "4%" }}
                 />
-                :
-                formatDistance(new Date(), new Date(item.created_at), { includeSeconds: true }) + " ago"
                 }
-            </Text>
           </View>
         </View>
       </TouchableOpacity>
-      </View>
-      <View style={{flex: 0.1}}>
-        <Pressable onPress={()=>markAsRead(item.id)}>
-          <Text style={{color: 'red'}}>Dismiss</Text>
+      <View style={{ marginTop: -12, marginBottom: 15}}>
+        <Pressable onPress={()=>markAsRead(item.id)} style={{alignItems: "center"}}>
+          <Text style={{color: 'black', backgroundColor: "#8FACFF", width: 100, textAlign: "center", marginTop: 3, height:25, textAlignVertical: "center", borderRadius: 5}}>Dismiss</Text>
         </Pressable>
-      </View></View>}
+      </View>
+      </View>
+      
+      </View>}
       {/* {isPop && (
         <View style={styles.popUp}>
           <Text style={[[styles.text, textStyle, {fontWeight: 'bold'}]]}>
@@ -87,7 +92,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     width: "95%",
     borderRadius: 15,
-    backgroundColor: "#eee",
+    backgroundColor: "white",
     alignSelf: "center",
     marginBottom: 12,
   },

@@ -70,7 +70,7 @@ export default function PropertiesList(props) {
   }
 
   const getCombinedData = () => {
-    const data1 = owned_properties.client_by_pk.property_owneds?.map((val) => {
+    const data1 = owned_properties?.client_by_pk?.property_owneds?.map((val) => {
       return {
         property_id: val.property.id,
         city: val.property.city,
@@ -81,7 +81,7 @@ export default function PropertiesList(props) {
       };
     });
 
-    const data2 = owned_properties.client_by_pk.leases?.map((val) => {
+    const data2 = owned_properties?.client_by_pk?.leases?.map((val) => {
       return {
         property_id: val.property.id,
         city: val.property.city,

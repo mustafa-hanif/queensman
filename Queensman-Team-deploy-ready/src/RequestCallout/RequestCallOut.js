@@ -467,6 +467,7 @@ const RequestCallOut = (props) => {
 
   const submitCallout = async () => {
     let category = "Uncategorized";
+    setState({...state, loading: true})
     const pictures = Object.fromEntries(
       [...Array(4)]
         .map((_, i) => {
@@ -490,7 +491,7 @@ const RequestCallOut = (props) => {
     requestCalloutApiCall({
       variables: {
         property_id,
-        email: clientEmail,
+        email: client_email,
         notes: state.Description,
         time_on_calendar: null,
         date_on_calendar: null,
@@ -505,6 +506,7 @@ const RequestCallOut = (props) => {
     })
       .then((res) => {
         // SubmittedCalloutAlert();
+        setState({...state, loading: false})
         props.navigation.navigate(
           "Home",
           showMessage({
