@@ -138,7 +138,6 @@ const TabsVerticalLeft = ({ item }) => {
 
 const Document = ({ row }) => {
   const [loading, setloading] = useState(false)
-  console.log(row?.documents)
   const documentId = (row?.documents?.document_name ?? '').split(', ')[1]
   const downloadContract = () => {
     setloading(true)
@@ -146,7 +145,7 @@ const Document = ({ row }) => {
     myHeaders.append("Content-Type", "application/x-www-form-urlencoded")
 
     const urlencoded = new URLSearchParams()
-    urlencoded.append("document_id", "216996000000029037")
+    urlencoded.append("document_id", documentId)
 
     const requestOptions = {
       method: 'POST',

@@ -104,8 +104,8 @@ class GenerateReport extends React.Component {
         <View style={{ height: "10%" }} />
 
         <View style={{ width: "100%", height: "100%" }}>
-          <Button onPress={this.PerfReporthandle}>Monthly Services</Button>
-          <View style={{ height: "10%" }} />
+          {/* <Button onPress={this.PerfReporthandle}>Monthly Services</Button>
+          <View style={{ height: "10%" }} /> */}
 
           <Button onPress={() => this.toggleReportModel(1)}>Property Management</Button>
 
@@ -113,9 +113,11 @@ class GenerateReport extends React.Component {
 
           <Button onPress={() => this.toggleReportModel(2)}>Market Analysis</Button>
 
-          <View style={{ height: "10%" }} />
+          {/* <View style={{ height: "10%" }} />
 
-          <Button onPress={() => this.HandleMaterialwarranty()}>Material Warranty</Button>
+          <Button onPress={() => this.HandleMaterialwarranty()}>Material Warranty</Button> */}
+          <View style={{ height: "10%" }} />
+          <GetContractCopy />
         </View>
       </ScrollView>
     );
@@ -138,6 +140,29 @@ const LoadProperties = ({ setPropertyId }) => {
   });
 
   return <></>;
+};
+
+const GET_CONTRACT_COPY = gql`
+  query MyQuery($email: String) {
+    client(where: { email: { _eq: $email } }) {
+      documents {
+        document_name
+      }
+    }
+  }
+`;
+
+const GetContractCopy = () => {
+  const user = auth?.currentSession?.session?.user;
+  const email = user?.email;
+  const { loading, data, error } = useQuery(GET_CONTRACT_COPY, {
+    variables: { email },
+  });
+  const openContractCopy = () => {
+    const document_id = data?.client?.[0]?.documents?.document_name.split(", ")[1];
+    Linking.openURL(`https://queensman-icemelt72.vercel.app/download-contract/${document_id}`);
+  };
+  return <Button onPress={openContractCopy}>Contract Copy</Button>;
 };
 
 const GET_PROPERTIES = gql`
