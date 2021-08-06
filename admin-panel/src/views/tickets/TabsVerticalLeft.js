@@ -141,6 +141,14 @@ const TabsVerticalLeft = ({item}) => {
                     <CalloutPicture picture={callout[itemKey]} />
                   )
                 }
+                if ((["video"].includes(itemKey))) {
+                  return (
+                    <div>
+                      <p style={{fontWeight: "bold", fontSize: 18, margin: 0, marginTop: 10}}>Video: </p>
+                   <video width="250" controls src={callout[itemKey]} />
+                   </div>
+                  )
+                }
                   return (
                       <ListGroupItem>
                           <span style={{fontWeight: "bold"}}>{itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}:</span> {callout[itemKey] ? callout[itemKey] : "N/A"}

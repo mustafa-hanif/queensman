@@ -70,6 +70,7 @@ query getJobTickets {
       picture2
       picture3
       picture4
+      video
       client: client_callout_email {
         full_name
         email
