@@ -112,7 +112,7 @@ const TabsVerticalLeft = ({ item }) => {
                 )
               }
             })}
-            {item?.documents?.document_name && <Document document={item.documents?.document_name} />}
+            {item?.documents?.document_name && <Document row={item} />}
           </ListGroup>
         </TabPane>
         <TabPane tabId="2">
@@ -139,6 +139,7 @@ const TabsVerticalLeft = ({ item }) => {
 const Document = ({ row }) => {
   const [loading, setloading] = useState(false)
   const documentId = (row?.documents?.document_name ?? '').split(', ')[1]
+  const name = row?.full_name
   const downloadContract = () => {
     setloading(true)
     const myHeaders = new Headers()
@@ -158,12 +159,11 @@ const Document = ({ row }) => {
       .then(response => response.text())
       .then(result => { 
         // console.log(result)
-        const enc = atob(result)
         const file = b64toBlob(result, "application/pdf")
         const fileUrl = window.URL.createObjectURL(file)
         const link = document.createElement('a')
         link.href = fileUrl
-        link.setAttribute('download', 'contract.pdf')
+        link.setAttribute('download', `${name} contract.pdf`)
         document.body.appendChild(link)
         link.click()
         setloading(false)
