@@ -1,7 +1,5 @@
-const AWS = require('aws-sdk');
-AWS.config.update({ region: 'us-east-1' });
 var calloutTemplate = require('../templates/callout_details').calloutTemplate;
-
+var sendEmail = require('./sendEmail').sendEmail;
 const calloutEmail = async ({ callout, worker }) => {
   const params = {
     Destination: { /* required */
@@ -34,7 +32,7 @@ const calloutEmail = async ({ callout, worker }) => {
   };
 
   // Create the promise and SES service object
-  const sendPromise = new AWS.SES({ apiVersion: '2010-12-01' }).sendEmail(params).promise();
+  const sendPromise = sendEmail(params);
 
   // Handle promise's fulfilled/rejected states
   try {
