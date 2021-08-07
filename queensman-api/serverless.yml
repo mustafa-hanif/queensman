@@ -113,6 +113,14 @@ functions:
           path: /downloadDocument
           method: post
           cors: true
+  
+  sendWelcomeEmail:
+    handler: handler.sendWelcomeEmail
+    events:
+      - http:
+          path: /sendWelcomeEmail
+          method: post
+          cors: true
 
 
 #    The following are a few example events you can configure
