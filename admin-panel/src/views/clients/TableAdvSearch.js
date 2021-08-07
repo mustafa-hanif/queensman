@@ -91,10 +91,62 @@ query GetClient {
 `
 
 const UPDATE_CLIENT = gql`
-mutation UpdateClient($id: Int!, $email: String, $full_name: String, $gender: String, $occupation: String, $organization: String, $phone: String, $password: String) {
-    update_client_by_pk(pk_columns: {id: $id}, _set: {email: $email, full_name: $full_name, gender: $gender, occupation: $occupation, organization: $organization, phone: $phone, password: $password}) {
+mutation UpdateClient(
+$id:Int!,
+$email: String,
+$full_name: String,
+$gender: String,
+$occupation: String,
+$organization: String,
+$phone: String,
+$active: smallint,
+$sec_email: String,
+$sec_phone: String,
+$account_type: String,
+$age_range: String,
+$family_size: Int,
+$ages_of_children: String,
+$earning_bracket: String,
+$nationality: String,
+$years_expatriate: Int,
+$years_native: Int,
+$referred_by: Int,
+$other_properties: String,
+$contract_start_date: date,
+$contract_end_date: date,
+$sign_up_time: timestamp,
+$password: String) {
+   update_client_by_pk(pk_columns:{
+      id:$id
+   },
+   _set:{
+    id: $id,
+    email: $email,
+    full_name: $full_name,
+    gender: $gender,
+    occupation: $occupation,
+    organization: $organization,
+    phone: $phone,
+    password: $password,
+    active: $active,
+    sec_email: $sec_email,
+    sec_phone: $sec_phone,
+    account_type: $account_type,
+    age_range: $age_range,
+    family_size: $family_size,
+    ages_of_children: $ages_of_children,
+    earning_bracket: $earning_bracket,
+    nationality: $nationality,
+    years_expatriate: $years_expatriate,
+    years_native: $years_native,
+    referred_by: $referred_by,
+    other_properties: $other_properties,
+    contract_start_date: $contract_start_date,
+    contract_end_date: $contract_end_date,
+    sign_up_time: $sign_up_time,
+   }) {
       id
-    }
+   }
   }
   `
 const ADD_CLIENT = gql`
@@ -440,9 +492,9 @@ const advSearchColumns = [
         return (
                 <div className="d-flex w-100 align-items-center">
                   <ButtonGroup size="sm" >
-                  <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
+                  {/* <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
                   <Trash size={15} />
-                  </Button>
+                  </Button> */}
                   <Button color='primary' className="btn-icon" size="sm">
                   <Edit size={15} onClick={() => handleModal(row)} />
                   </Button>
@@ -481,14 +533,36 @@ const advSearchColumns = [
   const handleUpdate = (updatedRow) => {
     updateClient({variables: {
         id: updatedRow.id,
-        email: updatedRow.email, 
-        full_name: updatedRow.full_name, 
-        occupation: updatedRow.occupation, 
-        organization: updatedRow.organization, 
+        email: updatedRow.email,
+        full_name: updatedRow.full_name,
         gender: updatedRow.gender,
+        occupation: updatedRow.occupation,
+        organization: updatedRow.organization,
         phone: updatedRow.phone,
-        password: updatedRow.password
-      }})
+        password: updatedRow.password,
+        active: updatedRow.active,
+        sec_email: updatedRow.sec_email,
+        sec_phone: updatedRow.sec_phone,
+        account_type: updatedRow.account_type,
+        age_range: updatedRow.age_range,
+        family_size: updatedRow.family_size,
+        ages_of_children: updatedRow.ages_of_children,
+        earning_bracket: updatedRow.earning_bracket,
+        nationality: updatedRow.nationality,
+        years_expatriate: updatedRow.years_expatriate,
+        years_native: updatedRow.years_native,
+        referred_by: updatedRow.referred_by,
+        other_properties: updatedRow.other_properties,
+        contract_start_date: updatedRow.contract_start_date,
+        contract_end_date: updatedRow.contract_end_date,
+        sign_up_time: updatedRow.sign_up_time,
+      }}).then(() => {
+        toast.success(<ToastComponent title='Client Updated' color='success' icon={<Check />} />, {
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeButton: false
+        })
+      })
       dataToRender()
       if (!clientLoading) {
           

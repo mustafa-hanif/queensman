@@ -58,6 +58,13 @@ const TabsVerticalLeft = ({item}) => {
   //     }
   //   ]
 
+  const ItemValue = ({item, itemKey}) => (
+    <ListGroupItem>
+    <span style={{fontWeight: "bold"}}>
+      {itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}: </span> 
+      {item[itemKey] ? item[itemKey] : "N/A"}
+    </ListGroupItem>
+  )
   return (
     <div className='nav-vertical'>
       <Nav tabs className='nav-left'>
@@ -117,9 +124,7 @@ const TabsVerticalLeft = ({item}) => {
                   ))
                 } else {
                   return (
-                    <ListGroupItem>
-                        <span style={{fontWeight: "bold"}}>{itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}:</span> {job_ticket[itemKey] ? job_ticket[itemKey] : "N/A"}
-                    </ListGroupItem>
+                    <ItemValue item={job_ticket} itemKey={itemKey} />
                 )
                 }
                   
@@ -133,9 +138,7 @@ const TabsVerticalLeft = ({item}) => {
                {client && Object.keys(client).map(itemKey => {
               if (!(["__typename"].includes(itemKey))) {
                   return (
-                      <ListGroupItem>
-                          <span style={{fontWeight: "bold"}}>{itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}:</span> {client[itemKey] ? client[itemKey] : "N/A"}
-                      </ListGroupItem>
+                    <ItemValue item={client} itemKey={itemKey} />
                   )
               }
               })}
@@ -160,9 +163,7 @@ const TabsVerticalLeft = ({item}) => {
                   )
                 }
                   return (
-                      <ListGroupItem>
-                          <span style={{fontWeight: "bold"}}>{itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}:</span> {callout[itemKey] ? callout[itemKey] : "N/A"}
-                      </ListGroupItem>
+                    <ItemValue item={callout} itemKey={itemKey} />
                   )
               }
               })}
@@ -174,9 +175,7 @@ const TabsVerticalLeft = ({item}) => {
             {schedule && Object.keys(schedule).map(itemKey => {
               if (!(["__typename"].includes(itemKey))) {
                   return (
-                      <ListGroupItem>
-                          <span style={{fontWeight: "bold"}}>{itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}:</span> {schedule[itemKey] ? schedule[itemKey] : "N/A"}
-                      </ListGroupItem>
+                    <ItemValue item={schedule} itemKey={itemKey} />
                   )
               }
               })}
