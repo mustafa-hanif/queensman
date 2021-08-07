@@ -5,6 +5,7 @@ const updateScheduleWithWoker = require('../lib/graphql').updateScheduleWithWoke
 const getWorker = require('../lib/graphql').getWorker;
 const getCallout = require('../lib/graphql').getCallout;
 const getRelevantWoker = require('../lib/graphql').getRelevantWoker;
+const calloutEmail = require('../lib/calloutEmail').calloutEmail;
 const updateScheduleWithEmergencyWoker = require('../lib/graphql').updateScheduleWithEmergencyWoker;
 
 const scheduleCallout = async (event) => {
@@ -46,6 +47,8 @@ const scheduleCallout = async (event) => {
       time,
     });
   }
+  // Send Email
+  await calloutEmail({ callout, worker });
   // console.log(data);
   try {
     return {

@@ -191,6 +191,10 @@ async function getWorker({ worker_id }) {
     `query GetWorker($id: Int!) {
     worker_by_pk(id: $id) {
       email
+      full_name
+      isEmergency
+      phone
+      color_code
     }
   }  
   `,
@@ -212,13 +216,25 @@ async function getCallout({ callout_id }) {
   const { errors, data } = await fetchGraphQL(
     `query GetCallout($callout_id: Int!) {
     callout_by_pk(id: $callout_id) {
+      id
       urgency_level
       status
       job_type
+      description
       client_callout_email {
         full_name
         phone
+        email
+        id
       }
+      property {
+        address
+        id
+        community
+        city
+        country
+      }
+      request_time
     }
   }
     
