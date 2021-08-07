@@ -91,6 +91,16 @@ const TabsVerticalLeft = ({item}) => {
             Job Details
           </NavLink>
         </NavItem>
+        <NavItem>
+          <NavLink
+            active={active === '4'}
+            onClick={() => {
+              toggle('4')
+            }}
+          >
+            Scheduled Time
+          </NavLink>
+        </NavItem>
       </Nav>
       <TabContent activeTab={active}>
         <TabPane tabId='1'>
@@ -152,6 +162,20 @@ const TabsVerticalLeft = ({item}) => {
                   return (
                       <ListGroupItem>
                           <span style={{fontWeight: "bold"}}>{itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}:</span> {callout[itemKey] ? callout[itemKey] : "N/A"}
+                      </ListGroupItem>
+                  )
+              }
+              })}
+            </ListGroup>
+        </TabPane>
+        <TabPane tabId='4'>
+        <h1>Schedule Details</h1>
+            <ListGroup flush>
+            {schedule && Object.keys(schedule).map(itemKey => {
+              if (!(["__typename"].includes(itemKey))) {
+                  return (
+                      <ListGroupItem>
+                          <span style={{fontWeight: "bold"}}>{itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}:</span> {schedule[itemKey] ? schedule[itemKey] : "N/A"}
                       </ListGroupItem>
                   )
               }

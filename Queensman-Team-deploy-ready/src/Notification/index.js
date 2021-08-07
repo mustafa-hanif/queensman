@@ -10,7 +10,7 @@ import { auth } from "../utils/nhost";
 
 const GET_NOTIFICATIONS = gql`
 query GetWorkerNotifications($worker_email: String!) {
-  notifications(where: {worker_email: {_eq: $worker_email}, isRead: {_eq: false}, id: {_gte: 239}}, order_by: {id: desc}, limit: 10) {
+  notifications(where: {worker_email: {_eq: $worker_email}, isRead: {_eq: false}}, order_by: {id: desc}) {
     text
     created_at
     data
@@ -61,7 +61,6 @@ export default function index() {
       />}>
       {data?.notifications == undefined || loading ? <><Text style={{textAlign: 'center', marginVertical: 20, fontSize: 20, fontWeight: 'bold'}}>Loading</Text><ActivityIndicator size="large" color="#FFCA5D" /></> : <View>
       {notifications.length >= 1 && !loading ? <Text style={{textAlign: 'center', marginTop: 20, fontSize: 20}}>You have <Text style={{color: "red", fontWeight: 'bold'}}>{unReadNotif} unread</Text> notifications</Text> : <Text style={{textAlign: 'center', marginTop: 20, fontSize: 20}}>You have no new Notification. Pull down to refresh</Text>}
-      {notifications.length >= 1 && <Text style={{fontSize: 15, textAlign: 'center', marginBottom: 20}}>Long press the notification to mark as read</Text>}
       <View style={{ paddingHorizontal: 20, paddingBottom: 20, }}>
          {notifications.map((item, i) => {
          return (
