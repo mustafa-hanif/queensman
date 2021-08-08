@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, Fragment, forwardRef, useContext } from 'react'
+import { useState, Fragment, forwardRef, useContext, useRef } from 'react'
 
 
 // ** Custom Components
@@ -9,6 +9,7 @@ import Avatar from '@components/avatar'
 import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
 import { toast } from 'react-toastify'
+import Exportqs from '../extensions/import-export/Exportqs'
 import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check } from 'react-feather'
 import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 
@@ -55,6 +56,7 @@ query getJobTickets {
     worker_email
     worker_id
     status
+    created_at
     worker_email_rel {
       full_name
     }
@@ -558,10 +560,44 @@ const DataTableAdvSearch = () => {
       setSearchStatus(value)
     }
   }
+  //for export data
 
+  const createExportObject = (DataTojson) => {
+    const objectsToExport = []
+
+    for (const keys in DataTojson) {
+      objectsToExport.push({
+        id: DataTojson[keys].id.toString(),
+        type: DataTojson[keys].type,
+        status: DataTojson[keys].status,
+        description: DataTojson[keys].description,
+        urgency_level: DataTojson[keys]?.callout?.urgency_level,
+        worker_assigned: DataTojson[keys]?.worker_email_rel?.full_name,
+        CreationDate: DataTojson[keys].created_at
+
+      })
+
+    }
+    //   console.log((objectsToExport))
+    return (objectsToExport)
+
+  }
+  const dataToExport = () => {
+    if (
+      searchName.length ||
+      description.length ||
+      searchEmail.length ||
+      searchType.length || searchStatus.length
+    ) {
+      return createExportObject(filteredData)
+    } else {
+      return createExportObject(data?.job_tickets)
+    }
+  }
   return (
     <Fragment>
       <Card>
+
         <CardHeader className='border-bottom'>
           <CardTitle tag='h4'>Advance Search</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
@@ -571,6 +607,7 @@ const DataTableAdvSearch = () => {
             </Button>
           </div>
         </CardHeader>
+
         <CardBody>
           <Row form className='mt-1 mb-50'>
             <Col lg='4' md='6'>
@@ -631,6 +668,7 @@ const DataTableAdvSearch = () => {
             </Col>
           </Row>
         </CardBody>
+        <Exportqs InData={dataToExport()}></Exportqs>
         {!loading ? <DataTable
           noHeader
           pagination
