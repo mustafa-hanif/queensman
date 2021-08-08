@@ -68,8 +68,7 @@ const Calendar = props => {
     datesSet,
     // selectedEvent,
     eventDataTransform: (eventData => {
-      console.log(eventData)
-      const { id, worker, callout_id, start, startTime, notes, callout, job_tickets, end, endTime } = eventData
+      const { id, worker, callout_id, start, startTime, blocked, callout, job_tickets, end, endTime } = eventData
       const length = job_tickets?.length
       // console.log({
       //   allDay: false,
@@ -94,7 +93,7 @@ const Calendar = props => {
       const wokerName = worker?.full_name
       const assignedTo = wokerName ? `Assigned to: \n${wokerName}` : 'Unassigned'
       const title = `${clientName} \n${jobType} \n${assignedTo}`
-      console.log(worker?.teams?.team_color)
+      const color = worker?.teams?.[0]?.team_color ?? worker?.teams_member?.team_color
       return {
         allDay: false,
         // end: `${start}T${'00:00:00.000Z'}`,
@@ -105,7 +104,7 @@ const Calendar = props => {
         workerName: worker?.full_name || 'No Worker name',
         workerId: worker?.id || null,
         workerEmail: worker?.email || null,
-        backgroundColor: `${worker?.teams?.[0]?.team_color ?? `#756300`}`,
+        backgroundColor: `${color ?? `#756300`}`,
         clientName: callout.client_callout_email?.full_name || 'No Client name',
         clientEmail:callout.client_callout_email?.email || 'No Client email',
         category: callout?.category || "Uncategorized",
@@ -116,6 +115,7 @@ const Calendar = props => {
         // start: new Date(`${start} ${startTime}`).toISOString(),
         // start,
         job_tickets,
+        blocked,
         hasJobs: job_tickets.length,
         picture1: callout?.picture1,
         picture2: callout?.picture2,

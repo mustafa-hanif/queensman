@@ -54,6 +54,9 @@ const GET_SCHEDULE = gql`
         teams {
           team_color
         }
+        teams_member {
+          team_color
+        }
       }
       callout_id
       callout {
@@ -98,10 +101,11 @@ const UPDATE_CALLOUT = gql`
     $job_type: String
     $scheduler_id: Int
     $worker_id: Int
+    $blocked: Boolean = false
   ) {
     update_scheduler(
       where: { id: { _eq: $scheduler_id } }
-      _set: { notes: $notes, worker_id: $worker_id }
+      _set: { notes: $notes, worker_id: $worker_id, blocked: $blocked }
     ) {
       affected_rows
     }
@@ -295,7 +299,8 @@ const CalendarComponent = () => {
           job_type: eventToUpdate.extendedProps.job_type,
           scheduler_id: eventToUpdate.id,
           worker_id: eventToUpdate.extendedProps.workerId,
-          worker_email: eventToUpdate.extendedProps.workerEmail
+          worker_email: eventToUpdate.extendedProps.workerEmail,
+          blocked: eventToUpdate.extendedProps.blocked
         }
       })
     } else {

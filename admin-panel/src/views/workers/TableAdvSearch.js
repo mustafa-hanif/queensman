@@ -55,24 +55,33 @@ query GetWorker {
       role
       phone
       password
-      color_code
+      teams {
+        team_color
+      }
+      teams_member {
+        team_color
+      }
+    }
+  }
+`
+const CLEAR_EMERGENCY_WORKER = gql`
+  mutation UpdateWorker($emergencyId: Int!) {
+    clear_emergency: update_worker_by_pk(pk_columns: {id: $emergencyId}, _set: {isEmergency: false}) {
+      email
     }
   }
 `
 
 const UPDATE_WORKER = gql`
-mutation UpdateWorker($id: Int!, $description: String, $emergencyId: Int!, $email: String, $full_name: String, $isEmergency: Boolean, $password: String, $phone: String, $role: String, $team_id: Int, $active: smallint, $color_code: String) {
-  abba_biryani: update_worker_by_pk(pk_columns: {id: $emergencyId}, _set: {isEmergency: false}) {
-     email
-   }
-   update_worker_by_pk(pk_columns: {id: $id}, _set: {description: $description, email: $email, full_name: $full_name, password: $password, phone: $phone, role: $role, team_id: $team_id, isEmergency: $isEmergency, active: $active,, color_code: $color_code}) {
+mutation UpdateWorker($id: Int!, $description: String, $email: String, $full_name: String, $isEmergency: Boolean, $password: String, $phone: String, $role: String, $team_id: Int, $active: smallint) {
+   update_worker_by_pk(pk_columns: {id: $id}, _set: {description: $description, email: $email, full_name: $full_name, password: $password, phone: $phone, role: $role, team_id: $team_id, isEmergency: $isEmergency, active: $active}) {
      id
    }
  }
 `
 const ADD_WORKER = gql`
-mutation AddWorker($description: String, $email: String, $full_name: String, $isEmergency: Boolean, $password: String, $phone: String, $role: String, $team_id: Int, $active: smallint, $color_code: String) {
-    insert_worker_one(object: {description: $description, email: $email, full_name: $full_name, isEmergency: $isEmergency, password: $password, phone: $phone, role: $role, team_id: $team_id, active: $active, color_code: $color_code}) {
+mutation AddWorker($description: String, $email: String, $full_name: String, $isEmergency: Boolean, $password: String, $phone: String, $role: String, $team_id: Int, $active: smallint) {
+    insert_worker_one(object: {description: $description, email: $email, full_name: $full_name, isEmergency: $isEmergency, password: $password, phone: $phone, role: $role, team_id: $team_id, active: $active}) {
       id
     }
   }
@@ -90,6 +99,7 @@ const DataTableAdvSearch = () => {
 
         // ** States
   const { loading, data, error } = useQuery(GET_WORKER)
+  const [clearEmergency, {loading: emergencyworkerLoading}] = useMutation(CLEAR_EMERGENCY_WORKER)
   const [updateWorker, {loading: workerLoading}] = useMutation(UPDATE_WORKER, {refetchQueries:[{query: GET_WORKER}]})
   const [addWorker, {loading: addWorkerLoading}] = useMutation(ADD_WORKER, {refetchQueries:[{query: GET_WORKER}]})
   const [deleteWorker, {loading: deleteWorkerLoading}] = useMutation(DELETE_WORKER, {refetchQueries:[{query: GET_WORKER}]})
@@ -163,36 +173,6 @@ const advSearchColumns = [
       sortable: true,
       minWidth: '250px'
     },
-  
-    // {
-    //   name: 'Team Id',
-    //   selector: 'team_id',
-    //   sortable: true,
-    //   minWidth: '250px'
-    // },
-    // {
-    //   name: 'Active',
-    //   selector: 'active',
-    //   sortable: true,
-    //   minWidth: '200px',
-    //   cell: row => {
-    //       if (row.active === 1) {
-    //         return (
-    //             <Badge color={'light-success'} pill>
-    //                 Active
-    //             </Badge>
-    //           )
-    //       } else {
-    //         return (
-    //             <Badge color={'light-danger'} pill>
-    //                 Unactive
-    //             </Badge>
-    //           )
-    //       }
-         
-        
-    //   }
-    // },
     {
         name: 'Emergency Team',
         selector: 'isEmergency',
@@ -208,18 +188,14 @@ const advSearchColumns = [
       },
       {
         name: 'Team',
-        selector: 'color_code',
+        selector: 'teams',
         sortable: true,
         minWidth: '50px',
         cell: row => {
+          const color = row?.teams?.[0]?.team_color ?? row?.teams_member?.team_color
+          console.log('color', row)
           return (
-            <>
-            {row?.color_code ? <Badge color='info' pill style={{backgroundColor: `#${row.color_code}`}}>
-            {' '}
-          </Badge> : <Badge color='info' pill>
-            {' '}
-          </Badge>}
-            </>
+            color && <Badge pill style={{backgroundColor: color}}>{' '}</Badge>
           )
         }
       },
@@ -273,31 +249,36 @@ const advSearchColumns = [
     ) {
       return filteredData
     } else {
+      console.log(data.worker)
       return data?.worker
     }
   }
 
   const handleUpdate = (updatedRow) => {
-    const emergencyId = data?.worker.filter(value => value.isEmergency === true)[0].id
-    updateWorker({variables: {
-        active: updatedRow.active,
-        description: updatedRow.description,
-        email: updatedRow.email,
-        full_name: updatedRow.full_name,
-        id: updatedRow.id,
-        isEmergency: updatedRow.isEmergency,
-        team_id: updatedRow.team_id,
-        role: updatedRow.role,
-        phone: updatedRow.phone,
-        color_code: updatedRow.color_code,
-        password: updatedRow.password,
-        emergencyId
-        }})
-      dataToRender()
-      if (!workerLoading) {
-          
-        setModal(!modal)
+    if (updatedRow.isEmergency) {
+      const emergencyId = data?.worker.filter(value => value.isEmergency === true)?.[0]?.id
+      if (emergencyId) {
+        clearEmergency({ variables: emergencyId })
       }
+    }
+    
+    updateWorker({variables: {
+      active: updatedRow.active,
+      description: updatedRow.description,
+      email: updatedRow.email,
+      full_name: updatedRow.full_name,
+      id: updatedRow.id,
+      isEmergency: updatedRow.isEmergency,
+      team_id: updatedRow.team_id,
+      role: updatedRow.role,
+      phone: updatedRow.phone,
+      password: updatedRow.password
+    }})
+    dataToRender()
+    if (!workerLoading) {
+        
+      setModal(!modal)
+    }
   }
 
   const addWorkerRecord = () => {
@@ -311,7 +292,6 @@ const advSearchColumns = [
         team_id: null,
         role: null,
         phone: "",
-        color_code: null,
         password: ""
     })
     setTimeout(() => {
@@ -330,7 +310,6 @@ const advSearchColumns = [
         team_id: newRow.team_id,
         role: newRow.role,
         phone: newRow.phone,
-        color_code: newRow.color_code,
         password: newRow.password
       }})
       dataToRender()

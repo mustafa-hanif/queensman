@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable consistent-return */
 /* eslint-disable no-nested-ternary */
@@ -613,9 +614,7 @@ const RequestCallOut = (props) => {
     })
       .then((res) => {
         SubmittedMakeRequestAlert();
-        props.navigation.navigate(
-          "HomeNaviagtor",
-        );
+        props.navigation.navigate("HomeNaviagtor");
       })
       .catch((err) => console.log({ err }));
   };
@@ -691,9 +690,9 @@ const RequestCallOut = (props) => {
   };
 
   function millisToMinutesAndSeconds(millis) {
-    var minutes = Math.floor(millis / 60000);
-    var seconds = ((millis % 60000) / 1000).toFixed(0);
-    return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+    const minutes = Math.floor(millis / 60000);
+    const seconds = ((millis % 60000) / 1000).toFixed(0);
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   }
 
   const saveVideoCloud = () => {
@@ -717,7 +716,7 @@ const RequestCallOut = (props) => {
   };
 
   const addJobTicketFunc = async () => {
-    setState({...state, loading: true})
+    setState({ ...state, loading: true });
     const category = "Uncategorized";
     const pictures = Object.fromEntries(
       [...Array(4)]
@@ -736,7 +735,7 @@ const RequestCallOut = (props) => {
     addCalloutApiCall({
       variables: {
         callout_by_email: auth?.currentSession?.session?.user.email,
-        worker_email: "antony@queensman.com", //add email client
+        worker_email: "antony@queensman.com", // add email client
         client_email: auth?.currentSession?.session?.user.email,
         worker_id: 16,
         description: state.Description,
@@ -749,7 +748,7 @@ const RequestCallOut = (props) => {
       },
     })
       .then((res) => {
-        setState({...state, loading: false})
+        setState({ ...state, loading: false });
         SubmittedCalloutAlert();
         setTimeout(() => {
           props.navigation.navigate("HomeNaviagtor");
@@ -1173,21 +1172,25 @@ const RequestCallOut = (props) => {
             </TouchableOpacity>
           </View>
           <Box mb={24} mt={4}>
-            {state.loading ? <ActivityIndicator size="small" color="#FFCA5D" style={{ alignSelf: "center" }} /> : <Button isLoading={state.loading} style={styles.SubmitCallout} onPress={() => askSubmitCallout()}>
-              <Text
-                style={{
-                  color: "#fff",
-                  fontSize: 15,
-                  alignSelf: "center",
-                }}
-              >
-                {state.Urgency === "medium"
-                  ? "Select Date"
-                  : !props.route.params.additionalServices
-                  ? "Submit Callout"
-                  : "Make Request"}
-              </Text>
-            </Button>}
+            {state.loading ? (
+              <ActivityIndicator size="small" color="#FFCA5D" style={{ alignSelf: "center" }} />
+            ) : (
+              <Button isLoading={state.loading} style={styles.SubmitCallout} onPress={() => askSubmitCallout()}>
+                <Text
+                  style={{
+                    color: "#fff",
+                    fontSize: 15,
+                    alignSelf: "center",
+                  }}
+                >
+                  {state.Urgency === "medium"
+                    ? "Select Date"
+                    : !props.route.params.additionalServices
+                    ? "Submit Callout"
+                    : "Make Request"}
+                </Text>
+              </Button>
+            )}
           </Box>
         </View>
       </View>
