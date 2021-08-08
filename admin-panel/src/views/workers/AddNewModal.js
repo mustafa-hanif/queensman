@@ -40,12 +40,12 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
   ]
 
   const colorOptions = [
-    {value: '34eb40', label: 'Green'},
-    {value: 'c21dd1', label: 'Purple'},
-    {value: 'ebcf34', label: 'Yellow'},
-    {value: '3440eb', label: 'Dark Blue'},
-    {value: 'd11d1d', label: 'Red'},
-    {value: 'info', label: 'Light Blue'}
+    {value: '1', label: 'Green'},
+    // {value: 'Purple', label: 'Purple'},
+    // {value: 'Yellow', label: 'Yellow'},
+    {value: '2', label: 'Blue'},
+    {value: '3', label: 'Red'},
+    {value: '4', label: 'Orange'}
   ]
 
   const handleChange = (e) => {
@@ -69,7 +69,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
     setRow(null)
   }
 
-
+  const color = row?.teams?.[0]?.team_color ?? row?.teams_member?.team_color
   return (
     <Modal
       isOpen={open}
@@ -112,7 +112,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
               <Briefcase size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input id='description' placeholder='Web Developer' name="description" value={row?.description} onChange={handleChange}/>
+          <Input id='description' placeholder='Description' name="description" value={row?.description} onChange={handleChange}/>
         </InputGroup>
       </FormGroup>   
       <FormGroup>
@@ -153,11 +153,11 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
       <FormGroup>
         <Label>Team</Label>
             <Select
-                onChange={ (e) => handleSelectedChange(e, 'color_code')}
+                onChange={ (e) => handleSelectedChange(e, 'team_id')}
                 theme={selectThemeColors}
                 className='react-select'
                 classNamePrefix='select'
-                defaultValue={{value: row?.color_code, label: row?.color_code ? "Blue" : "Green"}}
+                defaultValue={{value: color, label: color}}
                 options={colorOptions}
                 isClearable={false}
             />

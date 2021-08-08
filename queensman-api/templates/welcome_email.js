@@ -83,7 +83,7 @@ const welcomeEmail = (clientName) => {
                 <tr>
                   <td class="sm-py-32 sm-px-24" style="font-family: 'Roboto Condensed', -apple-system, 'Segoe UI', sans-serif; padding: 48px; text-align: center;" align="center">
                     <a href="https://queensman.com">
-                      <img src="https://queensman-icemelt72.vercel.app/static/media/qslogo.30f8f0eb.png" width="100" alt="Vuexy Admin" style="border: 0; max-width: 100%; line-height: 100%; vertical-align: middle;">
+                      <img src="https://queensman-icemelt72.vercel.app/static/media/qslogo.30f8f0eb.png" width="100" alt="Queensman Logo" style="border: 0; max-width: 100%; line-height: 100%; vertical-align: middle;">
                     </a>
                   </td>
                 </tr>

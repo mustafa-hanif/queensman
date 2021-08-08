@@ -158,6 +158,7 @@ const AddEventSidebar = props => {
   const [propertyId, setPropertyId] = useState(selectedEvent.extendedProps?.propertyId  || 9999)
   const [workerName, setWorkerName] = useState(selectedEvent.extendedProps?.workerName || '')
   const [workerId, setWorkerId] = useState(selectedEvent.extendedProps?.workerId)
+  const [blocked, setBlocked] = useState(selectedEvent.extendedProps?.blocked)
   const [workerEmail, setWorkerEmail] = useState(selectedEvent.extendedProps?.workerEmail)
   const [jobTickets, setJobTickets] = useState([])
   const [picture1, setPicture1] = useState(selectedEvent.extendedProps?.picture1)
@@ -181,16 +182,14 @@ const AddEventSidebar = props => {
 
   const [updateJobTicket] = useMutation(UPDATE_JOB_TICKET)
 
-  // ** Select callout jobtype
-  const calloutJobTypeOptions = [
-    {value:"Water Leakage", label: "Water Leakage"},
-    {value:"Pumps problem (pressure low)", label: "Pumps problem (pressure low)"},
-    {value:"Drains blockage- WCs", label: "Drains blockage- WCs"},
-    {value:"Drains Blockage – Sinks, floor traps", label: "Drains Blockage – Sinks, floor traps"},
-    {value:"AC Services Request", label: "AC Services Request"},
-    {value:"AC not cooling", label: "AC not cooling"},
-    {value:"AC Thermostat not functioning", label: "AC Thermostat not functioning"}
-  ]
+  const { jobTypeLoading, data: calloutJobTypeOptions, error: jobTypeError } = useQuery(gql`query JobTypes {
+    team_expertise {
+      label: skill_name
+      value: skill_name
+    }
+  }`, {
+    skip: !open
+  })
   
   const jobTypeOptions = [
     {value: 'Deferred', label: 'Deferred'},
@@ -243,7 +242,7 @@ const AddEventSidebar = props => {
   }
 
   const handleJobAddEvent = () => {
-    setJobTickets([...jobTickets, {name: "", description: "", notes: [""], pictures: [""], type: "Select...", isSaved: false, newJob: true, worker: {color_code: null, full_name: workerName, id: workerId, email: workerEmail}}])
+    setJobTickets([...jobTickets, {name: "", description: "", notes: [""], pictures: [""], type: "Select...", isSaved: false, newJob: true, worker: {full_name: workerName, id: workerId, email: workerEmail}}])
     
   }
 
@@ -274,7 +273,7 @@ const AddEventSidebar = props => {
 
   // ** Set sidebar fields
   const handleSelectedEvent = () => {
-    console.log(selectedEvent)
+    console.log(1, selectedEvent.extendedProps)
     if (Object.keys(selectedEvent ?? {}).length) {
       setTimeout(() => {
         setContentLoading(false)  
@@ -361,11 +360,12 @@ const AddEventSidebar = props => {
           workerId,
           workerEmail,
           propertyId,
-          jobTickets
+          jobTickets,
+          blocked
         }
       }
       const propsToUpdate = ['start', 'title', 'callout_id']
-      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'workerId', 'workerEmail', 'propertyId', 'clientEmail', 'job_type', 'jobTickets']
+      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'workerId', 'workerEmail', 'propertyId', 'clientEmail', 'job_type', 'jobTickets', 'blocked']
   
       updateEvent(eventToUpdate)
       updateEventInCalendar(eventToUpdate, propsToUpdate, extendedPropsToUpdate)
@@ -539,7 +539,7 @@ const AddEventSidebar = props => {
         >
            <FormGroup>
              <Label for='title'>
-               Notes <span className='text-danger'>*</span>
+               Title <span className='text-danger'>*</span>
              </Label>
             <Input
                id='title'
@@ -559,7 +559,7 @@ const AddEventSidebar = props => {
              <Select
                id='label'
                defaultValue={{value:calloutJobType.value, label:calloutJobType.label}}
-               options={calloutJobTypeOptions}
+               options={calloutJobTypeOptions?.team_expertise ?? []}
                theme={selectThemeColors}
                className='react-select'
                classNamePrefix='select'
@@ -731,9 +731,13 @@ const AddEventSidebar = props => {
                }}
              />
            </FormGroup>
+           <FormGroup>
+             <Input type='checkbox' id='blocked' onChange={() => setBlocked(!blocked)} checked={blocked} />
+             <Label for='blocked'>Should we block this slot from any booking?</Label>
+           </FormGroup>
            <FormGroup style={{display: "flex", justifyContent: "space-between"}}>
              {[picture1, picture2, picture3, picture4].map(picture => (
-              <CalloutPicture picture={picture} />
+              <CalloutPicture key={picture} picture={picture} />
              ))}
            </FormGroup>
            

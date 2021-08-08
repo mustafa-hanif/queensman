@@ -194,7 +194,12 @@ async function getWorker({ worker_id }) {
       full_name
       isEmergency
       phone
-      color_code
+      teams {
+        team_color
+      }
+      teams_member {
+        team_color
+      }
     }
   }  
   `,
@@ -324,7 +329,7 @@ async function getRelevantWoker({ callout, date, time }) {
         'GetTeams',
         { _contains: job_type, offset }
       );
-      workerId = teams.teams?.[0].worker?.id;
+      workerId = teams.teams?.[0]?.worker?.id;
 
       //  - Get all schedule by this worker sorted by date
       const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());

@@ -3,6 +3,8 @@ import { useState } from 'react'
 
 // ** Third Party Components
 import moment from 'moment'
+import Flatpickr from 'react-flatpickr'
+import { useForm } from 'react-hook-form'
 import { User, Briefcase, Mail, Lock, X, Key, Phone, Code, Info, Calendar} from 'react-feather'
 import {
   Button,
@@ -10,6 +12,7 @@ import {
   ModalHeader,
   ModalBody,
   FormGroup,
+  Form,
   InputGroup,
   InputGroupAddon,
   InputGroupText,
@@ -27,9 +30,17 @@ import '@styles/react/libs/flatpickr/flatpickr.scss'
 
 const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord}) => {
 
+  const [contract_start_date, set_contract_start_date] = useState(new Date())
+  const [contract_end_date, set_contract_end_date] = useState(new Date())
   const options = [
     {value: '1', label: 'Active'},
     {value: '0', label: 'Unactive'}
+  ]
+  
+  const accountTypeOptions = [
+    {value: 'Investor', label: 'Investor'},
+    {value: 'Residential Lessee', label: 'Residential Lessee'},
+    {value: 'None', label: 'None'}
   ]
   
   
@@ -48,7 +59,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
     setRow(rowValue)
 }
 
-  const handleSubmit = () => {
+  const onSubmit = () => {
     // setRow(row)
     if (toAddNewRecord) {
       handleAddRecord(row)
@@ -58,6 +69,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
     setRow(null)
   }
 
+  const { register, errors, handleSubmit } = useForm()
 
   return (
     <Modal
@@ -71,6 +83,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
         <h5 className='modal-title'>{toAddNewRecord ? 'New Record' : 'Update Record'}</h5>
       </ModalHeader>
       <ModalBody className='flex-grow-1'>
+        <Form onSubmit={handleSubmit(onSubmit)}>
         <Row>
         <Col>
       <FormGroup>
@@ -78,7 +91,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
         <InputGroup>
           <InputGroupAddon addonType='prepend'>
           </InputGroupAddon>
-          <Input id='id' placeholder='Bruce Wayne' name="id" value={row?.id} disabled />
+          <Input id='id' placeholder='id' name="id" value={row?.id} disabled />
         </InputGroup>
       </FormGroup>
       </Col>
@@ -91,21 +104,24 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
               <User size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input id='full-name' placeholder='Bruce Wayne' name="full_name" value={row?.full_name} onChange={handleChange}/>
+          <Input id='full-name' placeholder='Aman Alvi' name="full_name" value={row?.full_name} onChange={handleChange}   
+          innerRef={register({ required: true })}
+          invalid={errors.full_name && true}/>
         </InputGroup>
       </FormGroup>
       </Col>
       <Col>
       <FormGroup>
         <Label for='account-type'>Account Type</Label>
-        <InputGroup>
-          <InputGroupAddon addonType='prepend'>
-            <InputGroupText>
-              <User size={15} />
-            </InputGroupText>
-          </InputGroupAddon>
-          <Input id='account-type' placeholder='Bruce Wayne' name="account_type" value={row?.account_type} onChange={handleChange}/>
-        </InputGroup>
+            <Select
+                onChange={ (e) => handleSelectedChange(e, 'account_type')}
+                theme={selectThemeColors}
+                className='react-select'
+                classNamePrefix='select'
+                defaultValue={{value: row?.account_type ? row?.account_type : "None", label: row?.account_type ? row?.account_type : "None"}}
+                options={accountTypeOptions}
+                isClearable={false}
+            />
       </FormGroup>
       </Col>
       </Row>
@@ -120,7 +136,10 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
                 <Mail size={15} />
               </InputGroupText>
             </InputGroupAddon>
-            <Input type='email' name="email" id='email' placeholder='brucewayne@email.com' value={row?.email} onChange={handleChange}/>
+            <Input type='email' name="email" id='email' placeholder='brucewayne@email.com' value={row?.email} onChange={handleChange} 
+               innerRef={register({ required: true })}
+               invalid={errors.email && true}
+            />
           </InputGroup>
         </FormGroup>
         </Col>
@@ -146,7 +165,9 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
               <Key size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input id='gender' placeholder='Gender' name="gender" value={row?.gender} onChange={handleChange}/>
+          <Input id='gender' placeholder='Gender' name="gender" value={row?.gender} onChange={handleChange} 
+           innerRef={register({ required: true })}
+           invalid={errors.gender && true}/>
         </InputGroup>
       </FormGroup> 
         </Col>
@@ -162,7 +183,9 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
               <Phone size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input id='phone' placeholder='Phone' name="phone" value={row?.phone} onChange={handleChange}/>
+          <Input id='phone' placeholder='Phone' name="phone" value={row?.phone} onChange={handleChange} 
+           innerRef={register({ required: true })}
+           invalid={errors.phone && true}/>
         </InputGroup>
       </FormGroup> 
         </Col>
@@ -175,7 +198,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
                 <Phone size={15} />
               </InputGroupText>
             </InputGroupAddon>
-            <Input id='sec_phone' placeholder='Secondary Phone' name="sec_phone" value={row?.sec_phone} onChange={handleChange}/>
+            <Input id='sec_phone' placeholder='Secondary Phone' name="sec_phone" type="number" value={row?.sec_phone} onChange={handleChange}/>
           </InputGroup>
         </FormGroup>
         </Col>
@@ -350,7 +373,23 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
                 <Calendar size={15} />
               </InputGroupText>
             </InputGroupAddon>
-            <Input id='contract_start_date' placeholder='Contract Start Date' name="contract_start_date" value={row?.contract_start_date} onChange={handleChange}/>
+            <Flatpickr
+               required
+               id='contract_start_date'
+                //tag={Flatpickr}
+               name='contract_start_date'
+               className='form-control'
+               onChange={(date, dateStr, instance) => {
+                const e = { target: {name: instance.input.name, value: dateStr}}
+                handleChange(e)
+               }}
+               value={row?.contract_start_date}
+               options={{
+                 dateFormat: 'Y-m-d'
+               }}
+               placeholder='Contract Start Date'
+             />
+            {/* <Input id='contract_start_date' placeholder='Contract Start Date' name="contract_start_date" value={row?.contract_start_date} onChange={handleChange}/> */}
           </InputGroup>
         </FormGroup>
         </Col>
@@ -363,7 +402,23 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
                 <Calendar size={15} />
               </InputGroupText>
             </InputGroupAddon>
-            <Input id='contract_end_date' placeholder='Contract End Date' name="contract_end_date" value={row?.contract_end_date} onChange={handleChange}/>
+            <Flatpickr
+               required
+               id='contract_end_date'
+                //tag={Flatpickr}
+               name='contract_end_date'
+               className='form-control'
+               onChange={(date, dateStr, instance) => {
+                const e = { target: {name: instance.input.name, value: dateStr}}
+                handleChange(e)
+               }}
+               value={row?.contract_end_date}
+               options={{
+                 dateFormat: 'Y-m-d'
+               }}
+               placeholder='Contract End Date'
+             />
+            {/* <Input id='contract_end_date' placeholder='Contract End Date' name="contract_end_date" value={row?.contract_end_date} onChange={handleChange}/> */}
           </InputGroup>
         </FormGroup>
         </Col>
@@ -381,7 +436,9 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
         </FormGroup>
         </Col>
       </Row> 
-      <FormGroup>
+      <Row>
+        <Col>
+        <FormGroup>
         <Label for='password'>Password</Label>
         <InputGroup>
           <InputGroupAddon addonType='prepend'>
@@ -389,9 +446,20 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
               <Lock size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input id='password' placeholder='Password' name="password" value={row?.password} onChange={handleChange}/>
+          <Input id='password' placeholder='Password' name="password" value={row?.password} onChange={handleChange} 
+          innerRef={register({ required: true })}
+          invalid={errors.password && true}
+          />
         </InputGroup>
-      </FormGroup>  
+      </FormGroup>
+        </Col>
+        <Col>
+        </Col>
+        <Col>
+        </Col>
+      </Row>
+      
+
       <FormGroup>
         <Label for='active'>Active</Label>
             <Select
@@ -402,14 +470,17 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
                 defaultValue={{value: row?.active, label: row?.active ? "Active" : "Unactive"}}
                 options={options}
                 isClearable={false}
-            />
+                innerRef={register({ required: true })}
+                invalid={errors.active && true}
+                />
       </FormGroup>     
-      <Button className='mr-1' color='primary' onClick={handleSubmit} >
+      <Button className='mr-1' color='primary' type="submit" >
         {toAddNewRecord ? 'Submit' : 'Update'}
       </Button>
       <Button color='secondary' onClick={closeModal} outline>
         Cancel
       </Button>
+      </Form>
     </ModalBody>
     </Modal>
   )

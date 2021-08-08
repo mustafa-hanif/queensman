@@ -219,7 +219,11 @@ const HomeScreenStackNavigator = () => {
         name="CalloutOngoing"
         component={OngoingCallout}
       />
-      <HomeScreenStack.Screen name="SelectSchedule" component={SelectSchedule} />
+      <HomeScreenStack.Screen
+        options={{ title: "Select Time for the callout" }}
+        name="SelectSchedule"
+        component={SelectSchedule}
+      />
       <HomeScreenStack.Screen name="OngoingcalloutItem" component={OngoingCalloutItem} />
       <HomeScreenStack.Screen name="CalloutHistoryItem" component={CallOutHistoryItem} />
       <HomeScreenStack.Screen options={{ title: "Reports" }} name="CalloutReportItem" component={GenerateReport} />

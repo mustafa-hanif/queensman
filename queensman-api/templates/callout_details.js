@@ -1,5 +1,7 @@
 const dateFns = require('date-fns');
-const calloutTemplate = (callout, worker) => `<!DOCTYPE html>
+const calloutTemplate = (callout, worker) => {
+  const color = worker?.teams?.[0]?.team_color ?? worker?.teams_member?.team_color
+  return `<!DOCTYPE html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
   <head>
@@ -83,7 +85,7 @@ const calloutTemplate = (callout, worker) => `<!DOCTYPE html>
               <tr>
                 <td class="sm-py-32 sm-px-24" style="font-family: 'Roboto Condensed', -apple-system, 'Segoe UI', sans-serif; padding: 48px; text-align: center;" align="center">
                   <a href="https://queensman.com">
-                    <img src="https://queensman-icemelt72.vercel.app/static/media/qslogo.30f8f0eb.png" width="100" alt="Vuexy Admin" style="border: 0; max-width: 100%; line-height: 100%; vertical-align: middle;">
+                    <img src="https://queensman-icemelt72.vercel.app/static/media/qslogo.30f8f0eb.png" width="100" alt="Queensman Logo" style="border: 0; max-width: 100%; line-height: 100%; vertical-align: middle;">
                   </a>
                 </td>
               </tr>
@@ -133,7 +135,7 @@ const calloutTemplate = (callout, worker) => `<!DOCTYPE html>
 
                           Worker phone: ${worker?.phone}<br />
 
-                          Worker team color: <span style="background-color: #${worker?.color_code}; width: 24px; height: 24px;     display: inline-block;"></span><br />
+                          Worker team color: <span style="background-color: ${color}; width: 24px; height: 24px;     display: inline-block;"></span><br />
                         </p>
                         <!-- <a href="https://pixinvent.com?reset_password_url" style="display: block; font-size: 14px; line-height: 100%; margin-bottom: 24px; --text-opacity: 1; color: #ecc65d; color: rgba(115, 103, 240, var(--text-opacity)); text-decoration: none;">https://pixinvent.com?reset_password_url</a> -->
                         <!-- <table style="font-family: ''Roboto Condensed'',Arial,sans-serif;" cellpadding="0" cellspacing="0" role="presentation">
@@ -174,6 +176,7 @@ const calloutTemplate = (callout, worker) => `<!DOCTYPE html>
     </div>
   </body>
 
-</html>`;
+</html>`
+}
 
 module.exports = { calloutTemplate };
