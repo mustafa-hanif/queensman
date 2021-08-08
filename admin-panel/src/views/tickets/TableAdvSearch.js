@@ -121,17 +121,18 @@ mutation deleteJobTicket($id: Int!) {
 
 const DataTableAdvSearch = () => {
 
-        // ** States
+  // ** States
   const { loading, data, error } = useQuery(GET_JOB_TICKETS)
-  const [updateJobTicket, {loading: updateJobTicketLoading}] = useMutation(UPDATE_JOB_TICKET, {refetchQueries:[{query: GET_JOB_TICKETS}]})
-  const [addJobTicket, {loading: addJobTicketLoading}] = useMutation(ADD_JOB_TICKET, {refetchQueries:[{query: GET_JOB_TICKETS}]})
-  const [deleteJobTicket, {loading: deleteJobLoading}] = useMutation(DELETE_JOB_TICKET, {refetchQueries:[{query: GET_JOB_TICKETS}]})
+  const [updateJobTicket, { loading: updateJobTicketLoading }] = useMutation(UPDATE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
+  const [addJobTicket, { loading: addJobTicketLoading }] = useMutation(ADD_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
+  const [deleteJobTicket, { loading: deleteJobLoading }] = useMutation(DELETE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
   const [modal, setModal] = useState(false)
   const [detailsModal, setDetailsModal] = useState(false)
   const [modalDetails, setModalDetails] = useState(null)
   const [searchName, setSearchName] = useState('')
   const [searchEmail, setSearchEmail] = useState('')
   const [searchType, setSearchType] = useState('')
+  const [searchStatus, setSearchStatus] = useState('')
   const [description, setDescription] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
   const [filteredData, setFilteredData] = useState([])
@@ -142,16 +143,16 @@ const DataTableAdvSearch = () => {
   const [modalAlert, setModalAlert] = useState(null)
 
   const toggleModal = () => {
-      setModalAlert(!modalAlert)
+    setModalAlert(!modalAlert)
   }
 
   const openModalAlert = (id) => {
     setRowId(id)
     setModalAlert(true)
   }
-  
+
   const closeModal = () => {
-      setModal(!modal)
+    setModal(!modal)
   }
 
   //** Function to open details modal */
@@ -162,20 +163,20 @@ const DataTableAdvSearch = () => {
   }
 
   // ** Function to handle Modal toggle
-  const handleModal = (row) => { 
+  const handleModal = (row) => {
     console.log(row)
-      setRow(row)
-      setTimeout(() => {
-        setModal(!modal) 
-      }, 10)
-      setToAddNewJobTicket(false)
-    }
+    setRow(row)
+    setTimeout(() => {
+      setModal(!modal)
+    }, 10)
+    setToAddNewJobTicket(false)
+  }
 
   // ** Function to handle Pagination
   const handlePagination = page => setCurrentPage(page.selected)
-  
-    // ** Table Columns
-const advSearchColumns = [
+
+  // ** Table Columns
+  const advSearchColumns = [
     {
       name: 'Id',
       selector: 'id',
@@ -212,7 +213,7 @@ const advSearchColumns = [
         } else {
           return row?.description
         }
-        
+
       }
     },
     {
@@ -230,25 +231,32 @@ const advSearchColumns = [
     //   sortable: true,
     //   minWidth: '150px'
     // },
-   {
+    {
       name: 'Status',
       selector: 'status',
       sortable: true,
       minWidth: '150px',
       cell: row => {
         return (
-          <Badge color={row.status === 'Closed' ? 'light-danger' : 'light-success'} pill>
+          <Badge color={row.status === 'Open' ? 'light-danger' : (row.status === 'In Progress' ? 'light-warning' : 'light-success')} pill>
             {row.status}
           </Badge>
         )
       }
     },
-    // {
-    //   name: 'Team Id',
-    //   selector: 'team_id',
-    //   sortable: true,
-    //   minWidth: '250px'
-    // },
+    {
+      name: 'Urgency',
+      selector: 'urgency',
+      sortable: true,
+      minWidth: '50px',
+      cell: row => {
+        return (
+          <Badge color={row?.callout?.urgency_level === 'High' ? 'light-danger' : 'light-success'} pill>
+            {row?.callout?.urgency_level}
+          </Badge>
+        )
+      }
+    },
     // {
     //   name: 'Active',
     //   selector: 'active',
@@ -268,8 +276,8 @@ const advSearchColumns = [
     //             </Badge>
     //           )
     //       }
-         
-        
+
+
     //   }
     // },
     {
@@ -278,18 +286,18 @@ const advSearchColumns = [
       allowOverflow: true,
       cell: row => {
         return (
-                <div className="d-flex w-100 align-items-center">
-                  <ButtonGroup size="sm" >
-                  <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
-                  <Trash size={15} />
-                  </Button>
-                  <Button color='primary' className="btn-icon" size="sm">
-                  <Edit size={15} onClick={() => handleModal(row)} />
-                  </Button>
-                </ButtonGroup>
-                
-                </div>
-          
+          <div className="d-flex w-100 align-items-center">
+            <ButtonGroup size="sm" >
+              <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
+                <Trash size={15} />
+              </Button>
+              <Button color='primary' className="btn-icon" size="sm">
+                <Edit size={15} onClick={() => handleModal(row)} />
+              </Button>
+            </ButtonGroup>
+
+          </div>
+
         )
       }
     }
@@ -301,7 +309,7 @@ const advSearchColumns = [
       searchName.length ||
       description.length ||
       searchEmail.length ||
-      searchType.length    
+      searchType.length || searchStatus.length
     ) {
       return filteredData
     } else {
@@ -310,61 +318,67 @@ const advSearchColumns = [
   }
 
   const handleUpdate = (updatedRow) => {
-    updateJobTicket({variables: {
+    updateJobTicket({
+      variables: {
         description: updatedRow.description,
         worker_email: updatedRow.worker_email,
         name: updatedRow.name,
         type: updatedRow.type,
         id: updatedRow.id
-        }})
-      dataToRender()
-      if (!updateJobTicketLoading) {
-        setModal(!modal)
       }
+    })
+    dataToRender()
+    if (!updateJobTicketLoading) {
+      setModal(!modal)
+    }
   }
 
   const addJobTicketRecord = () => {
     setToAddNewJobTicket(true)
     setRow({
-        description: "",
-        worker_email: "",
-        name: "",        
-        type: "Deferred"
+      description: "",
+      worker_email: "",
+      name: "",
+      type: "Deferred"
     })
     setTimeout(() => {
-      setModal(!modal) 
+      setModal(!modal)
     }, 200)
   }
 
 
   const handleAddJobTicket = (newRow) => {
     console.log(newRow)
-    addJobTicket({variables: {
+    addJobTicket({
+      variables: {
         description: newRow.description,
         worker_email: newRow.worker_email,
         name: newRow.name,
         type: newRow.type
-      }})
-      dataToRender()
-      if (!addJobTicketLoading) {
-        setModal(!modal)
       }
+    })
+    dataToRender()
+    if (!addJobTicketLoading) {
+      setModal(!modal)
+    }
   }
 
   const handleDeleteJobTicket = (id) => {
 
-      deleteJobTicket({variables: {
+    deleteJobTicket({
+      variables: {
         id
-      }})
+      }
+    })
     toast.error(<ToastComponent title='Job Ticket Removed' color='danger' icon={<Trash />} />, {
       autoClose: 2000,
       hideProgressBar: true,
       closeButton: false
     })
     dataToRender()
-      if (!deleteJobLoading) {
-        toggleModal()
-      }
+    if (!deleteJobLoading) {
+      toggleModal()
+    }
   }
 
 
@@ -397,7 +411,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchType.length)  {
+      if (searchEmail.length || searchName.length || description.length || searchType.length) {
         return filteredData
       } else {
         return data?.job_tickets
@@ -427,12 +441,12 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || description.length || searchType.length)  {
-      return filteredData
-    } else {
-      return data?.job_tickets
+      if (searchEmail.length || searchName.length || description.length || searchType.length) {
+        return filteredData
+      } else {
+        return data?.job_tickets
+      }
     }
-  }
 
     setSearchEmail(value)
     if (value.length) {
@@ -457,7 +471,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchType.length) {
+      if (searchEmail.length || searchName.length || description.length || searchType.length) {
         return filteredData
       } else {
         return data?.job_tickets
@@ -487,12 +501,12 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || description.length || searchType.length) {
-      return filteredData
-    } else {
+      //   if (searchEmail.length || searchName.length || description.length || searchType.length) {
+      //    return filteredData
+      //  } else {
       return data?.job_tickets
+      //   }
     }
-  }
 
     setSearchType(value)
     if (value.length) {
@@ -507,8 +521,41 @@ const advSearchColumns = [
           return includes
         } else return null
       })
+
       setFilteredData([...updatedData])
+
       setSearchType(value)
+    }
+  }
+  //handle status filter
+  const handleStatusFilter = e => {
+    const value = e.target.value
+    let updatedData = []
+    const dataToFilter = () => {
+      //   if (searchEmail.length || searchName.length || description.length || searchType.length) {
+      //    return filteredData
+      //  } else {
+      return data?.job_tickets
+      //   }
+    }
+
+    setSearchStatus(value)
+    if (value.length) {
+      updatedData = dataToFilter().filter(item => {
+        const startsWith = item.status?.toLowerCase().startsWith(value.toLowerCase())
+
+        const includes = item.status?.toLowerCase().includes(value.toLowerCase())
+
+        if (startsWith) {
+          return startsWith
+        } else if (!startsWith && includes) {
+          return includes
+        } else return null
+      })
+      console.log(updatedData)
+      setFilteredData([...updatedData])
+      // console.log(filteredData)
+      setSearchStatus(value)
     }
   }
 
@@ -559,12 +606,32 @@ const advSearchColumns = [
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='type'>Type:</Label>
-                <Input id='type' placeholder='San Diego' value={searchType} onChange={handleTypeFilter} />
+                <Input id='type' type='select' value={searchType} onChange={handleTypeFilter}>
+                  <option></option>
+                  <option>Deferred</option>
+                  <option>Additional Request</option>
+                  <option>Full Job</option>
+                  <option>Material Request</option>
+                  <option>Request for quotation</option>
+                  <option>Patch Job</option>
+                </Input>
+              </FormGroup>
+            </Col>
+            <Col lg='4' md='6'>
+              <FormGroup>
+                <Label for='Status'>Status:</Label>
+                <Input id='status' type='select' value={searchStatus} onChange={handleStatusFilter}>
+                  <option></option>
+                  <option>Open</option>
+                  <option>Closed</option>
+                  <option>In Progress</option>
+
+                </Input>
               </FormGroup>
             </Col>
           </Row>
         </CardBody>
-        {!loading ?  <DataTable
+        {!loading ? <DataTable
           noHeader
           pagination
           // selectableRows
@@ -573,24 +640,24 @@ const advSearchColumns = [
           className='react-dataTable'
           sortIcon={<ChevronDown size={10} />}
           paginationDefaultPage={currentPage + 1}
-          paginationComponent={CustomPagination}
+          //   paginationComponent={CustomPagination}
           data={dataToRender()}
           onRowClicked={(row) => openDetailsModal(row)}
           highlightOnHover={true}
           pointerOnHover={true}
-          // selectableRowsComponent={BootstrapCheckbox}
+        // selectableRowsComponent={BootstrapCheckbox}
         /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Job Ticket information</h4>}
-       
+
       </Card>
-      <AddNewModal 
-      open={modal} 
-      handleModal={handleModal} 
-      handleAddJobTicket={handleAddJobTicket} 
-      toAddNewJobTicket={toAddNewJobTicket} 
-      closeModal={closeModal} 
-      row={row} 
-      setRow={setRow} 
-      handleUpdate={handleUpdate}
+      <AddNewModal
+        open={modal}
+        handleModal={handleModal}
+        handleAddJobTicket={handleAddJobTicket}
+        toAddNewJobTicket={toAddNewJobTicket}
+        closeModal={closeModal}
+        row={row}
+        setRow={setRow}
+        handleUpdate={handleUpdate}
       />
       <div className='theme-modal-danger'>
         <Modal
@@ -614,10 +681,10 @@ const advSearchColumns = [
         </Modal>
       </div>
       <div className='vertically-centered-modal'>
-      <Modal isOpen={detailsModal} toggle={() => setDetailsModal(!detailsModal)} className='modal-dialog-centered modal-xl'>
+        <Modal isOpen={detailsModal} toggle={() => setDetailsModal(!detailsModal)} className='modal-dialog-centered modal-xl'>
           <ModalHeader className="d-flex justify-content-center">Job Details</ModalHeader>
           <ModalBody>
-           <TabsVerticalLeft item={modalDetails} />
+            <TabsVerticalLeft item={modalDetails} />
           </ModalBody>
         </Modal>
       </div>
