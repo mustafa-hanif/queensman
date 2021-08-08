@@ -151,7 +151,7 @@ const TabsVerticalLeft = ({item}) => {
               if (!(["client", "property", "job", "schedulers", "__typename"].includes(itemKey))) {
                 if ((["picture1", "picture2", "picture3", "picture4"].includes(itemKey))) {
                   return (
-                    <CalloutPicture picture={callout[itemKey]} />
+                    <CalloutPicture key={itemKey} picture={callout[itemKey]} />
                   )
                 }
                 if ((["video"].includes(itemKey))) {
