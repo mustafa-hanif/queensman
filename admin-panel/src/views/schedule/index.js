@@ -83,7 +83,6 @@ const GET_SCHEDULE = gql`
         worker {
           full_name
           id
-          color_code
         }
       }
     }

@@ -26,6 +26,7 @@ import {
   Check
 } from "react-feather"
 import {
+  Badge,
   Card,
   CardHeader,
   CardBody,
@@ -183,23 +184,53 @@ const UPDATE_CLIENT = gql`
 `
 const ADD_CLIENT = gql`
   mutation AddClient(
+    $email: String
     $full_name: String
     $gender: String
-    $email: String
     $occupation: String
     $organization: String
     $phone: String
+    $active: smallint
+    $sec_email: String
+    $sec_phone: String
+    $account_type: String
+    $age_range: String
+    $family_size: Int
+    $ages_of_children: String
+    $earning_bracket: String
+    $nationality: String
+    $years_expatriate: Int
+    $years_native: Int
+    $referred_by: Int
+    $other_properties: String
+    $contract_start_date: date
+    $contract_end_date: date
     $password: String
   ) {
     insert_client_one(
       object: {
+        email: $email
         full_name: $full_name
         gender: $gender
-        email: $email
         occupation: $occupation
         organization: $organization
         phone: $phone
         password: $password
+        active: $active
+        sec_email: $sec_email
+        sec_phone: $sec_phone
+        account_type: $account_type
+        age_range: $age_range
+        family_size: $family_size
+        ages_of_children: $ages_of_children
+        earning_bracket: $earning_bracket
+        nationality: $nationality
+        years_expatriate: $years_expatriate
+        years_native: $years_native
+        referred_by: $referred_by
+        other_properties: $other_properties
+        contract_start_date: $contract_start_date
+        contract_end_date: $contract_end_date
       }
     ) {
       id
@@ -309,6 +340,32 @@ const DataTableAdvSearch = () => {
 
   const toggleModal = () => {
     setModalAlert(!modalAlert)
+  }
+
+  const SuccessToast = ({ data }) => {
+    return (
+      <Fragment>
+        <div className='toastify-header'>
+          <div className='title-wrapper'>
+            <Avatar size='sm' color='success' icon={<Check size={12} />} />
+            <h6 className='toast-title'>Form Submitted!</h6>
+          </div>
+        </div>
+        <div className='toastify-body'>
+          <ul className='list-unstyled mb-0'>
+            <li>
+              <strong>firstName</strong>: {data.firstName}
+            </li>
+            <li>
+              <strong>lastName</strong>: {data.lastName}
+            </li>
+            <li>
+              <strong>email</strong>: {data.email}
+            </li>
+          </ul>
+        </div>
+      </Fragment>
+    )
   }
 
   const openModalAlert = (id) => {
@@ -571,10 +628,14 @@ const DataTableAdvSearch = () => {
       name: "Active/Inactive",
       selector: "active",
       sortable: true,
-      minWidth: "100px",
-      cell: (row) => {
-        return <>{row?.active == 1 ? "Active" : "Inactive"}</>;
-      },
+      minWidth: "150px",
+      cell: row => {
+        return (
+          <Badge color={row?.active == 1 ? 'light-success' :  'light-danger'} pill>
+            {row?.active == 1 ? "Active" : "Inactive"}
+          </Badge>
+        )
+      }
     },
     {
       name: "Actions",
@@ -644,86 +705,99 @@ const DataTableAdvSearch = () => {
   };
 
   const handleUpdate = (updatedRow) => {
-    updateClient({
-      variables: {
-        id: updatedRow.id,
-        email: updatedRow.email,
-        full_name: updatedRow.full_name,
-        gender: updatedRow.gender,
-        occupation: updatedRow.occupation,
-        organization: updatedRow.organization,
-        phone: updatedRow.phone,
-        password: updatedRow.password,
-        active: updatedRow.active,
-        sec_email: updatedRow.sec_email,
-        sec_phone: updatedRow.sec_phone,
-        account_type: updatedRow.account_type,
-        age_range: updatedRow.age_range,
-        family_size: updatedRow.family_size,
-        ages_of_children: updatedRow.ages_of_children,
-        earning_bracket: updatedRow.earning_bracket,
-        nationality: updatedRow.nationality,
-        years_expatriate: updatedRow.years_expatriate,
-        years_native: updatedRow.years_native,
-        referred_by: updatedRow.referred_by,
-        other_properties: updatedRow.other_properties,
-        contract_start_date: updatedRow.contract_start_date,
-        contract_end_date: updatedRow.contract_end_date,
-        sign_up_time: updatedRow.sign_up_time,
-      },
-    }).then(() => {
-      toast.success(
-        <ToastComponent
-          title="Client Updated"
-          color="success"
-          icon={<Check />}
-        />,
-        {
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeButton: false,
-        }
-      );
-    });
-    dataToRender();
-    if (!clientLoading) {
-      setModal(!modal);
-    }
+    // auth.requestPasswordChange(updatedRow.email)
+    // console.log(updatedRow)
+    // updateClient({
+    //   variables: {
+    //     id: updatedRow.id,
+    //     email: updatedRow.email,
+    //     full_name: updatedRow.full_name,
+    //     gender: updatedRow.gender,
+    //     occupation: updatedRow.occupation,
+    //     organization: updatedRow.organization,
+    //     phone: updatedRow.phone,
+    //     password: updatedRow.password,
+    //     active: updatedRow.active,
+    //     sec_email: updatedRow.sec_email,
+    //     sec_phone: updatedRow.sec_phone,
+    //     account_type: updatedRow.account_type,
+    //     age_range: updatedRow.age_range,
+    //     family_size: updatedRow.family_size,
+    //     ages_of_children: updatedRow.ages_of_children,
+    //     earning_bracket: updatedRow.earning_bracket,
+    //     nationality: updatedRow.nationality,
+    //     years_expatriate: updatedRow.years_expatriate,
+    //     years_native: updatedRow.years_native,
+    //     referred_by: updatedRow.referred_by,
+    //     other_properties: updatedRow.other_properties,
+    //     contract_start_date: updatedRow.contract_start_date,
+    //     contract_end_date: updatedRow.contract_end_date,
+    //     sign_up_time: updatedRow.sign_up_time,
+    //   },
+    // }).then(() => {
+    //   toast.success(
+    //     <ToastComponent
+    //       title="Client Updated"
+    //       color="success"
+    //       icon={<Check />}
+    //     />,
+    //     {
+    //       autoClose: 2000,
+    //       hideProgressBar: true,
+    //       closeButton: false,
+    //     }
+    //   );
+    // });
+    // dataToRender();
+    // if (!clientLoading) {
+    //   setModal(!modal);
+    // }
   };
 
   const addClientRecord = () => {
     setToAddNewRecord(true);
-    setRow({
-      full_name: "",
-      email: "",
-      occupation: "",
-      organization: "",
-      gender: "",
-      phone: "",
-      password: "",
-    });
+    setRow({active: 1});
     setTimeout(() => {
       setModal(!modal);
     }, 200);
   };
 
   const handleAddRecord = (newRow) => {
+    console.log("Addin")
     addClient({
       variables: {
-        email: newRow.email,
-        full_name: newRow.full_name,
-        occupation: newRow.occupation,
-        organization: newRow.organization,
-        gender: newRow.gender,
-        phone: newRow.phone,
-        password: newRow.password,
+        email: newRow?.email,
+        full_name: newRow?.full_name,
+        gender: newRow?.gender,
+        occupation: newRow?.occupation,
+        organization: newRow?.organization,
+        phone: newRow?.phone,
+        password: newRow?.password,
+        active: newRow?.active,
+        sec_email: newRow?.sec_email,
+        sec_phone: newRow?.sec_phone,
+        account_type: newRow?.account_type,
+        age_range: newRow?.age_range,
+        family_size: newRow?.family_size,
+        ages_of_children: newRow?.ages_of_children,
+        earning_bracket: newRow?.earning_bracket,
+        nationality: newRow?.nationality,
+        years_expatriate: newRow?.years_expatriate,
+        years_native: newRow?.years_native,
+        referred_by: newRow?.referred_by,
+        other_properties: newRow?.other_properties,
+        contract_start_date: newRow?.contract_start_date,
+        contract_end_date: newRow?.contract_end_date
       },
-    });
-    auth.register({
-      email: newRow.email,
-      password: newRow.password,
-      options: { userData: { display_name: newRow.full_name } },
-    });
+    }).then(() => {
+      auth.register({
+        email: newRow.email,
+        password: newRow.password,
+        options: { userData: { display_name: newRow.full_name } },
+      });
+      toast.success(<SuccessToast data={newRow} />, { hideProgressBar: true })
+    })
+    
     const url = 'https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendWelcomeEmail';
     const data = new URLSearchParams()
     data.set('clientName', newRow.full_name)
