@@ -2,45 +2,50 @@ var sendEmail = require('../lib/sendEmail').sendEmail;
 var welcomeEmailTemplate = require('../templates/welcome_email').welcomeEmail;
 
 const sendWelcomeEmail = async (event) => {
-  const { clientEmail, clientName } = event.body;
-  const params = {
-    Destination: { /* required */
-      CcAddresses: [
-        'murtaza.hanif@techinoviq.com',
+  console.log(event.body)
+  try {
+    const u = new URLSearchParams(event.body);
+    const clientEmail = u.get('clientEmail');
+    const clientName = u.get('clientName');
+    const params = {
+      Destination: { /* required */
+        CcAddresses: [
+          'murtaza.hanif@techinoviq.com',
+        /* more items */
+        ],
+        ToAddresses: [
+          'icemelt7@gmail.com',
+          clientEmail
+        /* more items */
+        ]
+      },
+      Message: { /* required */
+        Body: { /* required */
+          Html: {
+            Charset: 'UTF-8',
+            Data: welcomeEmailTemplate(clientName)
+          },
+        },
+        Subject: {
+          Charset: 'UTF-8',
+          Data: `${clientName.split(' ')[0]}, Welcome to Queensman Spades!`
+        }
+      },
+      Source: 'Gathra Nyahuma <gnyahuma@queensman.com>', /* required */
+      ReplyToAddresses: [
+        'gnyahuma@queensman.com',
       /* more items */
       ],
-      ToAddresses: [
-        'icemelt7@gmail.com',
-        clientEmail
-      /* more items */
-      ]
-    },
-    Message: { /* required */
-      Body: { /* required */
-        Html: {
-          Charset: 'UTF-8',
-          Data: welcomeEmailTemplate(clientName)
-        },
-      },
-      Subject: {
-        Charset: 'UTF-8',
-        Data: `${clientName.split(' ')[0]}, Welcome to Queensman Spades!`
-      }
-    },
-    Source: 'gnyahuma@queensman.com', /* required */
-    ReplyToAddresses: [
-      'gnyahuma@queensman.com',
-    /* more items */
-    ],
-  };
-
-  try {
-    const email = await sendEmail(params);
+    };
+    await sendEmail(params);
     return {
       status: 200,
-      body: email,
+      body: {
+        message: 'Email sent succesfuly'
+      },
     }
   } catch (e) {
+    console.log(e);
     return {
       status: 500,
       body: e
