@@ -1245,9 +1245,9 @@ const DataTableAdvSearch = () => {
         <Modal
           isOpen={detailsModal}
           toggle={() => setDetailsModal(!detailsModal)}
-          className="modal-dialog-centered modal-xl"
+          className="modal-dialog-centered modal-xl modal-primary"
         >
-          <ModalHeader className="d-flex justify-content-center">
+          <ModalHeader className="d-flex justify-content-center"  toggle={() => setDetailsModal(!detailsModal)}>
             Client Details
           </ModalHeader>
           <ModalBody>

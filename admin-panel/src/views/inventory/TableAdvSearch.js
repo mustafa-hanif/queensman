@@ -969,7 +969,7 @@ const DataTableAdvSearch = () => {
           />
         ) : (
           <h4 className="d-flex text-center align-items-center justify-content-center mb-5">
-            Loading Client information
+            Loading Inventory information
           </h4>
         )}
       </Card>
@@ -1013,8 +1013,8 @@ const DataTableAdvSearch = () => {
           toggle={() => setDetailsModal(!detailsModal)}
           className="modal-dialog-centered modal-xl"
         >
-          <ModalHeader className="d-flex justify-content-center">
-            Client Details
+          <ModalHeader className="d-flex justify-content-center"  toggle={() => setDetailsModal(!detailsModal)}>
+            Inventory Details
           </ModalHeader>
           <ModalBody>
             <TabsVerticalLeft item={modalDetails} allProperty={allProperty} />
