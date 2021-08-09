@@ -339,8 +339,9 @@ const HomeScreen = ({ navigation }) => {
                   styles.TextStyles,
                 ]}
               >
-                Reports and Documents
+                Reports and
               </Text>
+              <Text style={[{ alignSelf: "center", fontSize: 12, color: "#000E1E" }, styles.TextStyles]}>Documents</Text>
             </View>
           </TouchableOpacity>
         </View>
