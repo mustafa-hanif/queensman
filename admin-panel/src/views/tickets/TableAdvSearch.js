@@ -560,8 +560,8 @@ const DataTableAdvSearch = () => {
       setSearchStatus(value)
     }
   }
-  //for export data
-
+  //for export data start
+//=================================
   const createExportObject = (DataTojson) => {
     const objectsToExport = []
 
@@ -594,6 +594,8 @@ const DataTableAdvSearch = () => {
       return createExportObject(data?.job_tickets)
     }
   }
+    //for export data end
+//=================================
   return (
     <Fragment>
       <Card>
