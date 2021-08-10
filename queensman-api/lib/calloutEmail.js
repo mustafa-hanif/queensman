@@ -1,6 +1,6 @@
 var calloutTemplate = require('../templates/callout_details').calloutTemplate;
 var sendEmail = require('./sendEmail').sendEmail;
-const calloutEmail = async ({ callout, worker }) => {
+const calloutEmail = async ({ callout, worker, time }) => {
   const params = {
     Destination: { /* required */
       CcAddresses: [
@@ -16,7 +16,7 @@ const calloutEmail = async ({ callout, worker }) => {
       Body: { /* required */
         Html: {
           Charset: 'UTF-8',
-          Data: calloutTemplate(callout, worker)
+          Data: calloutTemplate(callout, worker, time)
         },
       },
       Subject: {

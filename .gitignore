@@ -10,3 +10,6 @@ nmig
 packager-info.json
 Queensman-Client-master/.expo/packager-info.json
 .DS_Store
+
+.nhost
+api/node_modules

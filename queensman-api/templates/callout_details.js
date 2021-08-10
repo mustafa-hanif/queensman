@@ -1,5 +1,5 @@
 const dateFns = require('date-fns');
-const calloutTemplate = (callout, worker) => {
+const calloutTemplate = (callout, worker, time) => {
   const color = worker?.teams?.[0]?.team_color ?? worker?.teams_member?.team_color
   return `<!DOCTYPE html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -114,7 +114,7 @@ const calloutTemplate = (callout, worker) => {
 
                           Description: ${callout?.description}<br />
 
-                          Request Time: ${dateFns.format(new Date(callout?.request_time), 'MMM, dd, yyyy hh:mm:ss aa')}<br />
+                          Request Time: ${dateFns.format(new Date(`${callout?.request_time.split('T')[0]}T${time}`), 'MMM, dd, yyyy hh:mm:ss aa')}<br />
                         </p><p>
                           <strong>Property Details</strong><br />
                           Property ID: ${callout?.property?.id}<br />

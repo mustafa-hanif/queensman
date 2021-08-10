@@ -6,7 +6,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-use-before-define */
 import React, { useState, useEffect } from "react";
-import { format, parseISO, differenceInHours } from "date-fns";
+import { format, parseISO, parse, differenceInHours } from "date-fns";
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { Calendar, CalendarList, Agenda } from "react-native-calendars";
 import { Box, Modal, Button } from "native-base";
@@ -298,12 +298,15 @@ export default function SelectSchedule(props) {
   // console.log({ markedDate });
 
   const Confirmmodal = () => {
+    if (!time) {
+      return null;
+    }
     return (
       <Modal isOpen={time} onClose={() => settime(null)}>
         <Modal.Content justifyContent="center" pr={4}>
           <Text style={{ ...styles.heading }}>Schedule the service for</Text>
           <Text style={{ ...styles.heading }}>
-            {moment(selectedDate).format("Do MMMM, YYYY")} at {time}
+            {moment(selectedDate).format("Do MMMM, YYYY")} at {format(parse(time, "HH:mm:ss", new Date()), "hh:mm aa")}
           </Text>
           <Button onPress={() => onConfirmButtonPress()} width={200} mx="auto" mt={4} mb={4}>
             <Text style={{ fontWeight: "bold", fontSize: 18 }}>Confirm</Text>
