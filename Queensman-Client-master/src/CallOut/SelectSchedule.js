@@ -119,7 +119,7 @@ const ADD_JOB_TICKET = gql`
 export default function SelectSchedule(props) {
   const [selectedDate, setselectedDate] = useState(null);
   const [modalVisible, setmodalVisible] = useState(false);
-  const [markedDate, setmarkedDate] = useState({});
+  const [markedDate, setmarkedDate] = useState(false);
 
   const [date, setDate] = useState(() => {
     const now = new Date();
@@ -374,8 +374,8 @@ export default function SelectSchedule(props) {
     );
   }
   return (
-    <View style={{ flex: 1 }}>
-      <View>
+    <Box style={{ flex: 1 }}>
+      <Box>
         <CalendarList
           minDate={Date.now()}
           pastScrollRange={0}
@@ -408,27 +408,30 @@ export default function SelectSchedule(props) {
           }}
           enableSwipeMonths={false}
         />
-      </View>
-      <Confirmmodal />
-      <Modal isOpen={markedDate} onClose={() => setmarkedDate(false)}>
-        <Modal.Content>
-          <Box pt={4} pr={6}>
-            {slots.map((slot) => (
-              <Button
-                key={slot.time}
-                mb={8}
-                mx="auto"
-                width={240}
-                isDisabled={slot.disabled}
-                onPress={() => selectSlot(slot.time)}
-              >
-                {slot.text}
-              </Button>
-            ))}
-          </Box>
-        </Modal.Content>
-      </Modal>
-    </View>
+      </Box>
+      <Box>
+        <Confirmmodal />
+
+        <Modal isOpen={markedDate} onClose={() => setmarkedDate(false)}>
+          <Modal.Content>
+            <Box pt={4} pr={6}>
+              {slots.map((slot) => (
+                <Button
+                  key={slot.time}
+                  mb={8}
+                  mx="auto"
+                  width={240}
+                  isDisabled={slot.disabled}
+                  onPress={() => selectSlot(slot.time)}
+                >
+                  {slot.text}
+                </Button>
+              ))}
+            </Box>
+          </Modal.Content>
+        </Modal>
+      </Box>
+    </Box>
   );
 }
 
