@@ -1,5 +1,5 @@
 // ** React Import
-import { useEffect, useRef, memo, Fragment } from 'react'
+import { useEffect, useRef, memo, Fragment, useState } from 'react'
 
 // ** Full Calendar & it's Plugins
 import FullCalendar from '@fullcalendar/react'
@@ -13,7 +13,7 @@ import Avatar from '@components/avatar'
 
 // ** Third Party Components
 import { toast } from 'react-toastify'
-import { Card, CardBody } from 'reactstrap'
+import { Card, CardBody, Spinner } from 'reactstrap'
 import { Menu, Check } from 'react-feather'
 
 // ** Toast Component
@@ -31,12 +31,14 @@ const ToastComponent = ({ title, icon, color }) => (
 const Calendar = props => {
   // ** Refs
   const calendarRef = useRef(null)
-
   // ** Props
   const {
     events,
     isRtl,
+    loading,
+    // store,
     datesSet,
+    selectedEvent,
     calendarsColor,
     calendarApi,
     setCalendarApi,
@@ -44,7 +46,8 @@ const Calendar = props => {
     blankEvent,
     toggleSidebar,
     selectEvent,
-    updateEvent
+    updateEvent,
+    updateEventDrag
   } = props
 
   // ** UseEffect checks for CalendarAPI Update
@@ -54,24 +57,75 @@ const Calendar = props => {
     }
   }, [calendarApi])
 
+  const addHours = (date, hours) => {
+    return new Date(new Date(date).setHours(new Date(date).getHours() + hours)).toISOString()
+  }
+
   // ** calendarOptions(Props)
   const calendarOptions = {
     events,
-    initialDate: '2020-08-01',
+    // initialDate: '2020-08-01',
     datesSet,
+    // selectedEvent,
     eventDataTransform: (eventData => {
-      const { id, worker: { full_name: workerName }, callout_id, start, startTime, title } = eventData
+      const { id, worker, callout_id, start, startTime, blocked, callout, job_tickets, end, endTime } = eventData
+      const length = job_tickets?.length
+      // console.log({
+      //   allDay: false,
+      //   // end: `${start}T${'00:00:00.000Z'}`,
+      //   id,
+      //   title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
+      //   start: `${start}T${startTime}`,
+      //   // end: endTime ? `${start}T${endTime.}`
+      //   end: endTime ? `${end}T${endTime}` : addHours(`${start} ${startTime}`, 2),
+      //   workerName: worker?.full_name || 'No Worker name',
+      //   clientName: callout.client_callout_email?.full_name || 'No Client name',
+      //   category: callout?.category || "Uncategorized",
+      //   propertyName: callout.property?.address || 'No Porperty',
+      //   propertyId: callout.property?.id || 0,
+      //   videoUrl: callout.video,
+      //   job_tickets,
+        
+      //   callout_id
+      // })
+      const clientName = callout?.client_callout_email?.full_name
+      const jobType = callout?.job_type
+      const wokerName = worker?.full_name
+      const assignedTo = wokerName ? `Assigned to: \n${wokerName}` : 'Unassigned'
+      const title = `${clientName} \n${jobType} \n${assignedTo}`
+      const color = worker?.teams?.[0]?.team_color ?? worker?.teams_member?.team_color
       return {
+        allDay: false,
+        // end: `${start}T${'00:00:00.000Z'}`,
         id,
-        title: `${title} by ${workerName}`,
+        title: `${title}${length > 0 ? `; ${length} job ticket ${length > 1 ? 's' : ''}` : ''}`, 
         start: `${start}T${startTime}`,
-        extendedProps: {
-          callout_id
-        }
+        end: endTime ? `${end}T${endTime}` : addHours(`${start} ${startTime}`, 2),
+        workerName: worker?.full_name || 'No Worker name',
+        workerId: worker?.id || null,
+        workerEmail: worker?.email || null,
+        backgroundColor: `${color ?? `#756300`}`,
+        clientName: callout.client_callout_email?.full_name || 'No Client name',
+        clientEmail:callout.client_callout_email?.email || 'No Client email',
+        category: callout?.category || "Uncategorized",
+        job_type: callout?.job_type || "No Type",
+        propertyName: callout.property?.address || 'No Property',
+        propertyId: callout.property?.id || 0,
+        videoUrl: callout.video,
+        // start: new Date(`${start} ${startTime}`).toISOString(),
+        // start,
+        job_tickets,
+        blocked,
+        hasJobs: job_tickets.length,
+        picture1: callout?.picture1,
+        picture2: callout?.picture2,
+        picture3: callout?.picture3,
+        picture4: callout?.picture4,
+        callout_id
       }
     }),
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
-    initialView: 'listMonth',
+    initialView: 'timeGridWeek',
     headerToolbar: {
       start: 'sidebarToggle, prev,next, title',
       end: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
@@ -80,7 +134,7 @@ const Calendar = props => {
       Enable dragging and resizing event
       ? Docs: https://fullcalendar.io/docs/editable
     */
-    editable: false,
+    editable: true,
 
     /*
       Enable resizing event from start
@@ -108,18 +162,20 @@ const Calendar = props => {
 
     // eventClassNames({ event: calendarEvent }) {
     //   // eslint-disable-next-line no-underscore-dangle
-    //   const colorName = calendarsColor[calendarEvent._def.extendedProps.calendar]
+    //   console.log(calendarEvent)
+    //   const colorName = calendarEvent.extendedProps?.color_code
 
     //   return [
     //     // Background Color
-    //     `bg-light-${colorName}`
+    //     `bg-${colorName}`
     //   ]
     // },
 
     eventClick({ event: clickedEvent }) {
-      console.log(clickedEvent)
+      console.log(clickedEvent, 'bonga')
       selectEvent(clickedEvent)
-      handleAddEventSidebar()
+        handleAddEventSidebar()
+      
 
       // * Only grab required field otherwise it goes in infinity loop
       // ! Always grab all fields rendered by form (even if it get `undefined`) otherwise due to Vue3/Composition API you might get: "object is not extensible"
@@ -139,10 +195,14 @@ const Calendar = props => {
     },
 
     dateClick(info) {
+      console.log(info)
+      const time = new Date(info.dateStr).toTimeString().substr(0, 8)
+      const date = info.dateStr.substring(0, 10)
+      
       const ev = blankEvent
       ev.start = info.date
-      ev.end = info.date
-      dispatch(selectEvent(ev))
+      ev.end = new Date(addHours(`${date} ${time}`, 2))
+      selectEvent(ev)
       handleAddEventSidebar()
     },
 
@@ -151,8 +211,8 @@ const Calendar = props => {
       ? Docs: https://fullcalendar.io/docs/eventDrop
       ? We can use `eventDragStop` but it doesn't return updated event so we have to use `eventDrop` which returns updated event
     */
-    eventDrop({ event: droppedEvent }) {
-      dispatch(updateEvent(droppedEvent))
+    eventDrop({ event: droppedEvent}) {
+      updateEventDrag(droppedEvent)
       toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
         autoClose: 2000,
         hideProgressBar: true,
@@ -165,7 +225,7 @@ const Calendar = props => {
       ? Docs: https://fullcalendar.io/docs/eventResize
     */
     eventResize({ event: resizedEvent }) {
-      dispatch(updateEvent(resizedEvent))
+      updateEventDrag(resizedEvent)
       toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
         autoClose: 2000,
         hideProgressBar: true,
@@ -182,6 +242,7 @@ const Calendar = props => {
   return (
     <Card className='shadow-none border-0 mb-0 rounded-0'>
       <CardBody className='pb-0'>
+        {loading && <Spinner />}
         <FullCalendar {...calendarOptions} />{' '}
       </CardBody>
     </Card>

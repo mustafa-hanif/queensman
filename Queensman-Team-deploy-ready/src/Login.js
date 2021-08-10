@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from "react";
 import {
   StyleSheet,
@@ -16,10 +17,10 @@ import {
 import { Font, Constants } from "expo";
 import { LinearGradient } from "expo-linear-gradient";
 import { Content, Icon } from "native-base";
-import { LocalAuthentication } from "expo";
-import axios from "axios";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import { auth } from "./utils/nhost";
 let deviceWidth = Dimensions.get("window").width;
 let deviceHeight = Dimensions.get("window").height;
 
@@ -30,20 +31,16 @@ export default class Login extends React.Component {
     super(props);
 
     this.state = {
-      email: "",
-      password: "",
+      email: "antony@queensman.com",
+      password: "123456789",
       phoneno: "97148721301",
       passwordcheck: "",
       loading: false, //put true to start loading  false to end loading
       clientID: "",
       showPassword: true,
       workerID: "",
+      user: {}
     };
-  }
-
-  async componentDidMount() {
-    // this.setState({ loading: true });
-    console.log("HEREERERE");
   }
 
   toggleSwitch = () => {
@@ -52,53 +49,17 @@ export default class Login extends React.Component {
 
   proceedFunction = () => {
     this.setState({ loading: true });
-    let link =
-      "https://www.queensman.com/phase_2/queens_worker_Apis/login.php?email=" +
-      this.state.email +
-      "&password=" +
-      this.state.password;
-    console.log(link);
-    axios.get(link).then((result) => {
-      console.log(result.data.server_response);
-      if (result.data.server_response != -1) {
-        if (
-          result.data.server_response.id != -1 ||
-          result.data.server_response.id != "undefined"
-        ) {
-          this.setState({
-            workerID: result.data.server_response.id,
-          });
-          //Taseen is workerID ko aagay ki screens main pass kardio.
-          console.log("d1");
-          this._storeData(result.data.server_response);
-          console.log("dn");
-
-          //   this.props.navigation.navigate('AppDrawer')
-        }
-      } else {
-        alert("Provided information is wrong!");
+    const { email, password } = this.state;
+    auth
+      .login({ email, password })
+      .then(async (user) => {
+        this.setState({ user, loading: false });
+        console.log(user);
         this.setState({ loading: false });
-      }
-    });
-  };
-
-  _storeData = async (id) => {
-    console.log("d2" + id);
-    if (id == -1) {
-      id = "5";
-    }
-
-    try {
-      console.log("d3");
-      await AsyncStorage.setItem("QueensmanWorkerID", id);
-      console.log("d4");
-      alert("Successfull Login");
-      this.setState({ loading: false });
-
-      this.props.navigation.navigate("AppDrawer");
-    } catch (error) {
-      // Error saving data
-    }
+        await AsyncStorage.setItem("QueensUser", JSON.stringify(user));
+        this.props.navigation.navigate("AppDrawer");
+      })
+      .catch((err) => console.log(err));
   };
 
   CallUsFunction = () => {
@@ -151,6 +112,7 @@ export default class Login extends React.Component {
               }}
               placeholder="Email"
               autoCapitalize="none"
+              value={this.state.email}
               underlineColorAndroid="transparent"
               onChangeText={(email) => {
                 this.setState({ email });
@@ -183,6 +145,7 @@ export default class Login extends React.Component {
               placeholder="Password"
               autoCapitalize="none"
               secureTextEntry={this.state.showPassword}
+              value={this.state.password}
               underlineColorAndroid="transparent"
               onChangeText={(password) => {
                 this.setState({ password });
@@ -190,26 +153,28 @@ export default class Login extends React.Component {
             />
             {this.state.showPassword ? (
               <Icon
+              as={Ionicons}
                 onPress={this.toggleSwitch}
                 name="eye-off"
                 style={{
-                  paddingTop: "2%",
-                  fontSize: 25,
+                  
+                  fontSize: 18,
                   color: "#000E1E",
                   paddingRight: "4%",
                 }}
-              ></Icon>
+              />
             ) : (
               <Icon
+              as={Ionicons}
                 onPress={this.toggleSwitch}
                 name="eye"
                 style={{
-                  paddingTop: "2%",
-                  fontSize: 25,
+                  
+                  fontSize: 18,
                   color: "#000E1E",
                   paddingRight: "4%",
                 }}
-              ></Icon>
+              />
             )}
           </View>
         </ImageBackground>

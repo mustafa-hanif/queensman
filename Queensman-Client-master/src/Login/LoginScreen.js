@@ -1,3 +1,7 @@
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable consistent-return */
+/* eslint-disable react/no-access-state-in-setstate */
+/* eslint-disable react/no-unused-state */
 /* eslint-disable no-lonely-if */
 /* eslint-disable no-console */
 /* eslint-disable no-alert */
@@ -13,20 +17,15 @@ import {
   TouchableOpacity,
   Linking,
   ActivityIndicator,
-  KeyboardAvoidingView,
 } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
-import NetInfo from "@react-native-community/netinfo";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { Icon } from "native-base";
-import axios from "axios";
-import * as LocalAuthentication from "expo-local-authentication";
-import Constants from "expo-constants";
-
+import { Ionicons } from "@expo/vector-icons";
 import { auth } from "../utils/nhost";
-import { endpoint } from "../constants/Endpoint";
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
@@ -60,9 +59,9 @@ export default class LoginScreen extends React.Component {
     super(props);
 
     this.state = {
-      email: "",
+      email: "murtaza.hanif@techinoviq.com",
       emailpage: true,
-      password: "",
+      password: "123456789",
       phoneno: "97148721301",
       passwordcheck: "",
       newpassword: "check",
@@ -109,7 +108,7 @@ export default class LoginScreen extends React.Component {
       .catch((err) => {
         alert("Error signing in. The password you entered might be incorrect. ");
         console.log("error signing in!: ", err);
-        this.setState({ loading: false });
+        this.setState({ ...this.state, loading: false });
       });
   };
 
@@ -143,7 +142,7 @@ export default class LoginScreen extends React.Component {
 
   render() {
     return (
-      <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
+      <View style={styles.container} behavior="padding" enabled>
         {/* background gradinet   */}
         <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
 
@@ -207,23 +206,21 @@ export default class LoginScreen extends React.Component {
                   {this.state.showPassword ? (
                     <Icon
                       onPress={this.toggleSwitch}
+                      as={<Ionicons name="eye-off" />}
                       name="eye-off"
                       style={{
-                        paddingTop: "2%",
                         fontSize: 25,
                         color: "#000E1E",
-                        paddingRight: "4%",
                       }}
                     />
                   ) : (
                     <Icon
                       onPress={this.toggleSwitch}
+                      as={<Ionicons name="eye" />}
                       name="eye"
                       style={{
-                        paddingTop: "2%",
                         fontSize: 25,
                         color: "#000E1E",
-                        paddingRight: "4%",
                       }}
                     />
                   )}
@@ -289,7 +286,11 @@ export default class LoginScreen extends React.Component {
                 alignItems: "center",
               }}
             >
-              <Text style={{ fontSize: 11, fontFamily: "Helvetica", color: "#fff" }}>Feel free to email us at </Text>
+              <Text style={{ 
+                fontSize: 11, 
+                fontFamily: "Helvetica", 
+                color: "#fff" 
+              }}>Feel free to email us at </Text>
               <Text
                 style={{
                   fontSize: 11,
@@ -302,7 +303,7 @@ export default class LoginScreen extends React.Component {
             </View>
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     );
   }
 }

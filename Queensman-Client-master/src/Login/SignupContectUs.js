@@ -20,7 +20,7 @@ export default class SignupContectUs extends React.Component {
             PhoneNo: '',
             Name: '',
            
-            OldPass:this.props.navigation.getParam('UserPassword', 'Something'),
+            OldPass:this.props.route.params.UserPassword,
         })
 
     }

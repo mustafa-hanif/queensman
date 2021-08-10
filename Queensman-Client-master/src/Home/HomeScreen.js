@@ -1,11 +1,13 @@
-import React, { useEffect, useRef } from "react";
-import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions, Platform } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions, Platform, Alert } from "react-native";
+import { Content, Icon } from "native-base";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { gql, useMutation } from "@apollo/client";
 import * as Notifications from "expo-notifications";
 import { LinearGradient } from "expo-linear-gradient";
-import Toast from "react-native-whc-toast";
+import FlashMessage from "react-native-flash-message";
 import Constants from "expo-constants";
 
 const deviceWidth = Dimensions.get("window").width;
@@ -15,7 +17,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingHorizontal: "5%",
+    marginHorizontal: "5%",
     paddingVertical: "10%",
     // justifyContent: 'center'
   },
@@ -25,12 +27,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: "5%",
   },
   TextStyles: {
-    shadowColor: "rgba(0,0,0, .4)", // IOS
-    textShadowOffset: { height: 1, width: 1 }, // IOS
-    shadowOpacity: 1, // IOS
-    shadowRadius: 1, // IOS
-    elevation: 3, // Android
-    fontFamily: "Helvetica",
+    // shadowColor: "rgba(0,0,0, .4)", // IOS
+    // textShadowOffset: { height: 1, width: 1 }, // IOS
+    // shadowOpacity: 1, // IOS
+    // shadowRadius: 1, // IOS
+    // elevation: 3, // Android
+    // fontFamily: "Helvetica",
   },
   bottomView: {
     // shadowColor: 'rgba(0,0,0, .4)', // IOS
@@ -111,8 +113,12 @@ const registerForPushNotificationsAsync = async () => {
   throw new Error("Must use physical device for Push Notifications");
 };
 
-const requestCallOutPress = (navigation) => {
-  navigation.navigate("RequestCallOut");
+const requestCallOutPress = (navigation, {additionalServices}) => {
+  if(!additionalServices) { //if false 
+    navigation.navigate("RequestCallOut", {name: 'Request Callout', additionalServices});  
+  } else { //if true
+    navigation.navigate("RequestCallOut", {name: 'Additional Request', additionalServices});
+  }
 };
 
 const onGoingCallOutPress = (navigation) => {
@@ -127,6 +133,33 @@ const CallOutReportPress = (navigation) => {
   navigation.navigate("CalloutReportItem");
 };
 
+const AlertLogout = (navigation) => {
+  Alert.alert(
+    "Logout.",
+    "Are you sure you want to logout?",
+    [
+      {
+        text: "No",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel",
+      },
+      { text: "Yes", onPress: () => logout(navigation) },
+    ],
+    { cancelable: false }
+  );
+};
+
+const logout = async (navigation) => {
+  try {
+    await AsyncStorage.removeItem("QueensUser");
+    setTimeout(() => {
+      navigation.navigate("Login");
+    }, 500);
+  } catch (error) {
+    // Error saving data
+  }
+};
+
 const UPDATE_TOKEN = gql`
   mutation MyMutation($token: String!, $email: String!) {
     update_client(where: { email: { _eq: $email } }, _set: { expo_token: $token }) {
@@ -138,18 +171,14 @@ const UPDATE_TOKEN = gql`
 `;
 
 const HomeScreen = ({ navigation }) => {
+  const [email, setEmail] = useState("")
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
   const [updateToken, { loading: mutationLoading, error: mutationError }] = useMutation(UPDATE_TOKEN);
-  console.log(mutationLoading, mutationError);
   useEffect(() => {
-    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-      console.log(notification);
-    });
+    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {});
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(async (response) => {
-      console.log(response);
-    });
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(async (response) => {});
 
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
@@ -162,9 +191,8 @@ const HomeScreen = ({ navigation }) => {
       .then(async (token) => {
         const user = JSON.parse(await AsyncStorage.getItem("QueensUser"));
         const email = user?.user?.email;
-        console.log({ variables: { token, email } });
         updateToken({ variables: { token, email } });
-        console.log(token);
+        setEmail(email)
       })
       .catch(alert);
 
@@ -173,31 +201,40 @@ const HomeScreen = ({ navigation }) => {
       Notifications.removeNotificationSubscription(responseListener.current);
     };
   }, []);
-
+  
   return (
     <View style={styles.container}>
-      <Toast
-        textStyle={{
-          color: "#fff",
-        }}
-        style={{
-          backgroundColor: "#FFCA5D",
-        }}
-      />
+      <FlashMessage position="center" />
       {/* background gradinet   */}
       <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
 
       <View style={styles.Name}>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-            <Image source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }} />
+            <Image source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }}></Image>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
-            <Image
-              source={require("../../assets/Home/notifications.png")}
-              style={{ tintColor: "#FFCA5D", height: 25, width: 25 }}
-            />
-          </TouchableOpacity>
+          <Text style={{color: "white", fontWeight: "bold", fontSize: 12}}>{email}</Text>
+          <View style={{ flexDirection: "row"}}>
+            <TouchableOpacity onPress={() => AlertLogout(navigation)}>
+              <Icon as={Ionicons} name="power" style={{ fontSize: 25, color: "#FFCA5D" }}></Icon>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => navigation.navigate("Notification")}>
+              <Icon as={Ionicons} name="notifications-outline" style={{ fontSize: 25, color: "#FFCA5D" }}></Icon>
+              {/* <Image
+                resizeMode={"contain"}
+                tintColor={"#FFCA5D"}
+                source={require("../assets/Home/notifications.png")}
+                style={{ height: 25, width: 25 }}
+              ></Image> */}
+              {/* <Text style={{color: "#FFCA5D", marginTop: -19, fontSize: 10 }}>    1</Text> */}
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={{ flexDirection: "row", paddingTop: "7%" }}>
           <Image source={require("../../assets/Login/Queensman_logo3.png")} style={{ height: 50, width: 50 }} />
@@ -210,7 +247,10 @@ const HomeScreen = ({ navigation }) => {
       <View style={{ height: "10%" }} />
       <View animation="fadeInUpBig" iterationCount={1} duration={1000} style={{ flex: 1 }}>
         <View style={[styles.bottomView]}>
-          <TouchableOpacity style={{ flex: 1 }} onPress={() => requestCallOutPress(navigation)}>
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            onPress={() => requestCallOutPress(navigation, { additionalServices: false })}
+          >
             <View style={[styles.button]}>
               <Image
                 source={require("../../assets/Home/calloutHome.png")}
@@ -299,11 +339,39 @@ const HomeScreen = ({ navigation }) => {
                   styles.TextStyles,
                 ]}
               >
-                Reports
+                Reports and
               </Text>
+              <Text style={[{ alignSelf: "center", fontSize: 12, color: "#000E1E" }, styles.TextStyles]}>Documents</Text>
             </View>
           </TouchableOpacity>
         </View>
+      </View>
+      <View style={{ height: "3%" }} />
+      <View style={[styles.bottomView]}>
+        <TouchableOpacity
+          style={{ flex: 1 }}
+          onPress={() => requestCallOutPress(navigation, { additionalServices: true })}
+        >
+          <View style={styles.button}>
+            <Image
+              source={require("../../assets/Home/pendingHome.png")}
+              style={{ height: 40, width: 40, alignSelf: "center" }}
+            />
+            <Text
+              style={[
+                {
+                  alignSelf: "center",
+                  fontSize: 12,
+                  color: "#000E1E",
+                  marginTop: "4%",
+                },
+                styles.TextStyles,
+              ]}
+            >
+              Request of Additional Services
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
     </View>
   );

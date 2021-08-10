@@ -1,6 +1,6 @@
 {
-  "resource": "/sendNotification",
-  "path": "/sendNotification",
+  "resource": "/scheduleCallout",
+  "path": "/scheduleCallout",
   "httpMethod": "POST",
   "headers": {
       "Accept": "*/*",
@@ -112,6 +112,6 @@
       "domainName": "y8sr1kom3g.execute-api.us-east-1.amazonaws.com",
       "apiId": "y8sr1kom3g"
   },
-  "body": "{\n    \"email\": \"azamkhan\",\n    \"type\": \"worker\"\n}",
+  "body": "{\"event\":{\"session_variables\":{\"x-hasura-role\":\"user\",\"x-hasura-user-id\":\"f9828997-90a1-4c52-9ed8-6fb7d0a0de4c\"},\"op\":\"INSERT\",\"data\":{\"old\":null,\"new\":{\"worker_id\":null,\"end_date_on_calendar\":null,\"end_time_on_calendar\":null,\"date_on_calendar\":null,\"id\":575,\"notes\":\"Hi\",\"confirmed\":false,\"callout_id\":3361,\"time_on_calendar\":null}},\"trace_context\":{\"trace_id\":\"400ed89f6f3eb64f\",\"span_id\":\"955c21f03195f565\"}},\"created_at\":\"2021-07-18T14:23:21.863985Z\",\"id\":\"11c662e0-1448-49e8-89e1-60d698233745\",\"delivery_info\":{\"max_retries\":0,\"current_retry\":0},\"trigger\":{\"name\":\"schedule_callout\"},\"table\":{\"schema\":\"public\",\"name\":\"scheduler\"}}",
   "isBase64Encoded": false
 }

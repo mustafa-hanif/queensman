@@ -1,28 +1,132 @@
-import React, { useState } from "react";
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-shadow */
+/* eslint-disable no-use-before-define */
+import { formatDistance } from "date-fns";
+import React from "react";
+import { Icon, IconButton } from "native-base";
+import { Ionicons } from "@expo/vector-icons";
+import call from "react-native-phone-call";
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from "react-native";
+import FlashMessage, { showMessage } from "react-native-flash-message";
+import { gql, useMutation } from "@apollo/client";
 
-export default function NotificationList({ item, viewStyle, textStyle, dotStyle }) {
+const UPDATE_NOTIFICATIONS = gql`
+  mutation UpdateNotifications($id: Int!) {
+    update_notifications_by_pk(pk_columns: { id: $id }, _set: { isRead: true }) {
+      id
+    }
+  }
+`;
+
+const CONFIRM_CALLOUT = gql`
+  mutation ConfirmCallout($scheduler_id: Int!) {
+    update_scheduler_by_pk(pk_columns: { id: $scheduler_id }, _set: { confirmed: true }) {
+      id
+    }
+  }
+`;
+
+export default function NotificationList({
+  item,
+  onNoButtonPress,
+  setNotifications,
+  reloadNotification,
+  notifications,
+  viewStyle,
+  index,
+  textStyle,
+  dotStyle,
+}) {
+  const [updateNotifications] = useMutation(UPDATE_NOTIFICATIONS, {
+    onCompleted: () => {
+      reloadNotification();
+    },
+  });
+  const [confirmCalout, { loading: confirmCalloutLoading, error: confirmcalloutError }] = useMutation(CONFIRM_CALLOUT);
+
+  const onConfirmPress = (val) => {
+    updateNotifications({
+      variables: {
+        id: val.id,
+      },
+    });
+    confirmCalout({
+      variables: {
+        scheduler_id: val.data.scheduler_id,
+      },
+    })
+      .then((res) => console.log(res))
+      .catch(console.log);
+  };
+
+  const markAsRead = (id) => {
+    showMessage({
+      message: "Notification marked as read",
+      type: "success",
+    });
+    const item = [...notifications];
+    item[index].isRead = true;
+    setNotifications(item);
+    updateNotifications({
+      variables: {
+        id,
+      },
+    });
+  };
+
   return (
     <>
-      <TouchableOpacity onPress={() => {}}>
-        <View style={[styles.row, viewStyle]}>
-          <View style={{ flex: 2 }}>
-            <Text style={[[styles.text, textStyle, { fontWeight: "bold" }]]} numberOfLines={2}>
-              {item.title}
-            </Text>
-            <Text style={[[styles.text, textStyle]]} numberOfLines={2}>
-              {item.description}
-            </Text>
+      <FlashMessage position="top" />
+      {!item?.isRead && (
+        <TouchableOpacity onLongPress={() => markAsRead(item.id)}>
+          <View style={styles.container}>
+            <View style={[styles.row, viewStyle]}>
+              <View style={{ flex: 2 }}>
+                <Text style={[[styles.text, textStyle, { fontWeight: "bold" }]]} numberOfLines={3}>
+                  {item.text}
+                </Text>
+              </View>
+              <View style={[styles.time, dotStyle]}>
+                <Text style={[styles.timeText, textStyle]} numberOfLines={2}>
+                  {`${formatDistance(new Date(), new Date(item.created_at), { includeSeconds: true })} ago`}
+                </Text>
+                {item?.data?.type === "call" && (
+                  <Icon
+                    name="call"
+                    as={Ionicons}
+                    style={{ fontSize: 25, color: "blue", paddingRight: "4%" }}
+                    onPress={() => {
+                      call({ number: item.data.phone, prompt: true });
+                    }}
+                  />
+                )}
+              </View>
+            </View>
+            {item?.data.type === "client_confirm" && (
+              <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 10 }}>
+                <Text>Do you confirm?</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    onConfirmPress && onConfirmPress(item);
+                  }}
+                  style={styles.buttonstyle}
+                >
+                  <Text style={styles.buttonstyle}>Yes</Text>
+                </TouchableOpacity>
+                <Text>Do you want to reschedule?</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    onNoButtonPress && onNoButtonPress(item);
+                  }}
+                  style={styles.buttonstyle}
+                >
+                  <Text style={styles.buttonstyle}>Yes</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
-          <Text> </Text>
-
-          <View style={[styles.time, dotStyle]}>
-            <Text style={[styles.timeText, textStyle]} numberOfLines={2}>
-              {item.date}
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      )}
       {/* {isPop && (
         <View style={styles.popUp}>
           <Text style={[[styles.text, textStyle, {fontWeight: 'bold'}]]}>
@@ -42,18 +146,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderBottomWidth: 1,
     borderBottomColor: "lightgray",
-    paddingTop: 16,
-    paddingBottom: 32,
+    paddingVertical: 32,
     paddingHorizontal: 16,
     width: "95%",
     borderRadius: 15,
-    backgroundColor: "#fff",
+    backgroundColor: "white",
     alignSelf: "center",
     marginBottom: 12,
   },
   text: {
     marginLeft: 1,
-    fontFamily: "Helvetica",
+    // fontFamily: "Helvetica",
   },
   time: {
     marginRight: 1,
@@ -63,20 +166,20 @@ const styles = StyleSheet.create({
   },
   timeText: {
     opacity: 0.4,
-    fontFamily: "Helvetica",
+    // fontFamily: "Helvetica",
   },
   dot: {
     height: 12,
     width: 12,
     borderRadius: 12,
-    backgroundColor: "#fff",
+    backgroundColor: "#eee",
     marginTop: 4,
   },
   unDot: {
     height: 12,
     width: 12,
     borderRadius: 12,
-    backgroundColor: "#fff",
+    backgroundColor: "#eee",
     marginTop: 4,
   },
   popUp: {
@@ -85,6 +188,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     justifyContent: "center",
     position: "absolute",
-    backgroundColor: "#fff",
+    backgroundColor: "#eee",
   },
 });

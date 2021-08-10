@@ -13,8 +13,40 @@ const Routes = [
     component: lazy(() => import('../../views/Home'))
   },
   {
+    path: '/download-contract/:document_id',
+    component: lazy(() => import('../../views/DownloadContract')),
+    layout: 'BlankLayout',
+    meta: {
+      publicRoute: true
+    }
+  },
+  {
     path: '/clients',
     component: lazy(() => import('../../views/clients'))
+  },
+  {
+    path: '/tickets',
+    component: lazy(() => import('../../views/tickets'))
+  },
+  {
+    path: '/monthreports',
+    component: lazy(() => import('../../views/monthreports'))
+  },
+  {
+    path: '/inventory',
+    component: lazy(() => import('../../views/inventory'))
+  },
+  {
+    path: '/property',
+    component: lazy(() => import('../../views/property'))
+  },
+  {
+    path: '/workers',
+    component: lazy(() => import('../../views/workers'))
+  },
+  {
+    path: '/services',
+    component: lazy(() => import('../../views/services'))
   },
   {
     path: '/login',

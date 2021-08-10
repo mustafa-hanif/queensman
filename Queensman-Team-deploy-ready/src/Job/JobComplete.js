@@ -1,225 +1,414 @@
-import React from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, AsyncStorage, KeyboardAvoidingView, TextInput, Button, Alert, Platform, AppState, Image } from 'react-native';
-import StarRating from 'react-native-star-rating';
-
-import { Content, Icon } from 'native-base';
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
+import React, { useState, useRef } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Button,
+  Alert,
+  ScrollView,
+} from "react-native";
+import StarRating from "react-native-star-rating";
+import { gql, useMutation } from "@apollo/client";
+import { auth } from "../utils/nhost";
+import { Icon } from "native-base";
+import { MaterialIcons } from "@expo/vector-icons";
 // import { takeSnapshotAsync } from "expo";
-import { captureRef as takeSnapshotAsync } from "react-native-view-shot";
-import axios from 'axios';
-import * as ExpoPixi from 'expo-pixi';
+// import ExpoPixi from "expo-pixi";
 
-const isAndroid = Platform.OS === 'android';
-function uuidv4() {
-    //https://stackoverflow.com/a/2117523/4047926
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = (Math.random() * 16) | 0,
-            v = c == 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-    });
-}
-
-
-export default class JobComplete extends React.Component {
-
-    constructor(props) {
-        super(props)
-        this.state = {
-            starCount: null,
-            feedback: "",
-            signature: null,
-            image: null,
-            strokeColor: 0,
-            appState: AppState.currentState,
-            SignatureUrl: null,
-            CallOutID: this.props.navigation.getParam('QJobID', 'Something'),
-            WorkerID: this.props.navigation.getParam('workerId', 'Something'),
-            Solution: this.props.navigation.getParam('Sol', 'Something'),
-        };
+const FINISH_JOB = gql`
+  mutation FinishFinalJob(
+    $id: Int!
+    $updater_id: Int!
+    $callout_id: Int!
+    $feedback: String!
+    $rating: Int!
+    $solution: String!
+    $signature: String!
+  ) {
+    insert_job_history_one(
+      object: {
+        callout_id: $callout_id
+        updater_id: $updater_id
+        updated_by: "Ops Team"
+        status_update: "Closed"
+      }
+    ) {
+      time
     }
-    handleAppStateChangeAsync = nextAppState => {
-        if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
-            if (isAndroid && this.sketch) {
-                this.setState({ appState: nextAppState, id: uuidv4(), lines: this.sketch.lines });
-                return;
-            }
-        }
-        this.setState({ appState: nextAppState });
-    };
+    update_callout_by_pk(
+      pk_columns: { id: $callout_id }
+      _set: { status: "Closed" }
+    ) {
+      status
+    }
+    update_job(
+      where: { callout_id: { _eq: $callout_id } }
+      _set: {
+        solution: $solution
+        rating: $rating
+        signature: $signature
+        feedback: $feedback
+      }
+    ) {
+      returning {
+        solution
+      }
+    }
+    update_job_tickets_by_pk(
+      pk_columns: { id: $id }
+      _set: { status: "Closed" }
+    ) {
+      id
+    }
+  }
+`;
 
-    componentDidMount() {
-        AppState.addEventListener('change', this.handleAppStateChangeAsync);
+const FINISH_JOB_SINGLE = gql`
+  mutation UpdateJobAndJobTicket(
+    $id: Int!
+    $callout_id: Int!
+    $feedback: String!
+    $rating: Int!
+    $solution: String!
+    $signature: String!
+  ) {
+    update_job(
+      where: { callout_id: { _eq: $callout_id } }
+      _set: {
+        solution: $solution
+        rating: $rating
+        signature: $signature
+        feedback: $feedback
+      }
+    ) {
+      returning {
+        solution
+      }
     }
 
-    componentWillUnmount() {
-        AppState.removeEventListener('change', this.handleAppStateChangeAsync);
+    update_job_tickets_by_pk(
+      pk_columns: { id: $id }
+      _set: { status: "Closed" }
+    ) {
+      id
     }
+  }
+`;
+const JobComplete = (props) => {
+  const ticketCount = props.navigation.getParam("ticketCount", {});
+  const workerId = props.navigation.getParam("workerId", {})
+  const ticketId = props.navigation.getParam("ticketDetails", {}).id;
+  const clientEmail = props.navigation.getParam("it", {}).client.email;
+  const clientPhone = props.navigation.getParam("it", {}).client.phone;
+  const jobType = props.navigation.getParam("it", {}).job_type;
+  const subject = `Job Type: ${jobType}`;
+  console.log(jobType)
+  console.log(subject)
+  const signatureCanvas = useRef();
+  const [state, setState] = useState({
+    starCount: 0,
+    feedback: "",
+    signature: null,
+    image: null,
+    strokeColor: 0,
+    SignatureUrl: null,
+    CallOutID: props.navigation.getParam("QJobID", "Something"),
+    Solution: props.navigation.getParam("Sol", "Something"),
+  });
 
-    onReady = () => {
-        console.log('ready!');
-    };
+  const [finishJob, { loading, error }] = useMutation(FINISH_JOB);
 
-    onStarRatingPress(rating) {
-        this.setState({
-            starCount: rating
+  const [finishJobSingle] = useMutation(FINISH_JOB_SINGLE);
+
+  // const saveCanvas = async ({ width, height }) => {
+  //   const options = {
+  //     format: "png", /// PNG because the view has a clear background
+  //     quality: 0.1, /// Low quality works because it's just a line
+  //     result: "tmpfile",
+  //     height,
+  //     width,
+  //   };
+  //   /// Using 'Expo.takeSnapShotAsync', and our view 'this.sketch' we can get a uri of the image
+  //   const uri = await signatureCanvas.takeSnapshotAsync(sketch, options);
+  //   console.log(uri);
+  //   setState({
+  //     SignatureUrl: uri,
+  //   });
+  //   console.log(SignatureUrl);
+  // };
+
+  const onStarRatingPress = (rating) => {
+    setState({ ...state, starCount: rating });
+  };
+
+  const AlertJobDone = () => {
+    Alert.alert(
+      "Job Completion.",
+      "Are you sure you want to finish the job?",
+      [
+        {
+          text: "No",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
         },
-            () => {
-                console.log(this.state.starCount + " " + rating)
+        { text: "Yes", onPress: () => doneJob() },
+      ],
+      { cancelable: false }
+    );
+  };
 
+  const doneJob = async () => {
+    // saveCanvas()
+    console.log(ticketCount);
+    if (ticketCount == 1) {
+      console.log("One Job");
+      // console.log({
+      //   id: ticketId,
+      //   updater_id: workerId,
+      //   callout_id: state.CallOutID,
+      //   feedback: state.feedback,
+      //   rating: state.starCount,
+      //   solution: state.Solution,
+      //   signature: auth.user().email
+      // })
 
-            })
-
-    }
-
-
-
-    AlertJobDone = () => {
-        Alert.alert(
-            "Job Completion.",
-            "Are you sure you want to finish the job?",
-            [
-                {
-                    text: 'No',
-                    onPress: () => console.log('Cancel Pressed'),
-                    style: 'cancel',
-                },
-                { text: 'Yes', onPress: () => this.DoneJob() },
-            ],
-            { cancelable: false },
-        );
-    }
-
-    DoneJob = async () => {
-        let localUri = this.state.SignatureUrl
-        let filename = localUri.split('/').pop();
-        let match = /\.(\w+)$/.exec(filename);
-        let type = match ? `image/${match[1]}` : `image`;
-
-        let formData = new FormData();
-        formData.append('photo', { uri: localUri, name: filename, type });
-        console.log(formData)
-        link = "https://www.queensman.com/phase_2/queens_worker_Apis/finishJob.php?callout_id=" + this.state.CallOutID + "&worker_id=" + this.state.WorkerID + "&solution=" + this.state.Solution
-        console.log(link)
-        axios.get(link).then((result) => {
-            console.log(result.data)
+      const form = new FormData();
+      /*eslint-disable*/
+      form.append(
+        "arguments",
+        JSON.stringify({
+          subject,
+          email: clientEmail,
+          description: `Feedback: ${state.feedback}`,
+          status: "Closed",
+          lastTicket: true,
+          score: state.starCount,
         })
-        link = "https://www.queensman.com/phase_2/queens_worker_Apis/recordCustomerFeedback.php?callout_id=" + this.state.CallOutID + "&rating=" + this.state.starCount + "&feedback=" + this.state.feedback + "&signature=" + filename
-        console.log(link)
-        axios.get(link).then((result) => {
-            console.log(result.data)
-            alert("Service has been successfully completed. Great Job!")
-            this.props.navigation.navigate('HomeNaviagtor')
-        })
-        link = "https://www.queensman.com/phase_2/queens_worker_Apis/uploadSignature.php"
-        console.log(link)
-        return await fetch(link, {
-            method: 'POST',
-            body: formData,
-            header: {
-                'content-type': 'multipart/form-data',
+      );
+
+      try {
+        const result = await fetch(
+          "https://www.zohoapis.com/crm/v2/functions/createzohodeskticket/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf",
+          {
+            method: "POST",
+            headers: {
+              "x-hasura-admin-secret": "d71e216c844d298d91fbae2407698b22",
             },
-        }).then((result) => {
-            console.log(result.data);
-        })
-
-
-    }
-
-    onChange = async ({ width, height }) => {
-        const options = {
-            format: 'png', /// PNG because the view has a clear background
-            quality: 0.1, /// Low quality works because it's just a line
-            result: 'tmpfile',
-            height,
-            width
-        };
-        /// Using 'Expo.takeSnapShotAsync', and our view 'this.sketch' we can get a uri of the image
-        const uri = await takeSnapshotAsync(this.sketch, options);
-        console.log(uri)
-        this.setState({
-            SignatureUrl: uri
-        })
-        console.log(this.state.SignatureUrl)
-    };
-
-
-    render() {
-
-        return (
-            <Content scrollEnabled={true} contentContainerStyle={styles.container}>
-                <Text style={{ fontSize: 15, fontWeight: '500', color: '#FFCA5D', marginBottom: '1.5%' }}>Rating</Text>
-                <Text style={{ fontSize: 12, fontWeight: '500', color: '#001E2B', marginBottom: '1.5%' }}>How would you rate our services? </Text>
-                <View style={{ height: '4%' }}></View>
-                <View style={{ width: '70%' }}>
-                    <StarRating
-                        disabled={false}
-                        maxStars={5}
-                        fullStarColor={'#001E2B'}
-                        rating={this.state.starCount}
-                        selectedStar={(rating) => this.onStarRatingPress(rating)}
-                    />
-                </View>
-                <View style={{ height: '4%' }}></View>
-                <Text style={{ fontSize: 15, fontWeight: '500', color: '#FFCA5D', marginBottom: '1.5%' }}>Feedback</Text>
-                <View style={{ height: 20 }}></View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-                    <Icon name="contacts" style={{ fontSize: 25, color: '#000E1E', paddingRight: "4%" }}></Icon>
-                    <TextInput
-                        ref="textInputMobile"
-                        style={{ fontSize: 15, color: '#000E1E', width: '83%' }}
-                        placeholder='Please type your valuable feedback here..'
-                        defaultValue={this.state.feedback}
-                        placeholderTextColor='#000E1E'
-                        underlineColorAndroid="transparent"
-                        onChangeText={(feedback) => { this.setState({ feedback }); }}//email set
-                    />
-                </View>
-                <View style={{ borderBottomColor: '#aaa', borderBottomWidth: 2, width: '100%', paddingTop: '3%', }}></View>
-                <View style={{ height: '4%' }}></View>
-                <Text style={{ fontSize: 15, fontWeight: '500', color: '#FFCA5D', marginBottom: '1.5%' }}>Signature</Text>
-
-                <View style={styles.sketchContainer}>
-                    <ExpoPixi.Signature
-                        ref={ref => (this.sketch = ref)}
-                        style={styles.sketch}
-                        strokeColor={'#000E1E'}
-                        strokeAlpha={1}
-                        onReady={this.onReady}
-                        onChange={this.onChange}
-                    />
-                </View>
-                <View style={{ height: '4%' }}></View>
-                <Button
-                    color="#FFCA5D"
-                    title="CLEAR"
-                    style={styles.button}
-                    onPress={() => {
-                        this.sketch.clear();
-                    }}
-                />
-                <View style={{ height: '4%' }}></View>
-                <Button
-                    onPress={this.AlertJobDone}
-                    title="FINISH THE JOB"
-                    color="#FFCA5D"
-                />
-            </Content >
+            body: form,
+          }
         );
-    }
-}
+        let resultJson = await result.json();
+        let output = resultJson.details.output;
+        if (output.substring(0, 14) == "No email found") {
+          alert(output);
+        }
+      } catch (e) {
+        console.log("ERROR");
+        console.log(e);
+      }
 
+      console.log({
+        id: ticketId,
+        updater_id: workerId,
+        callout_id: state.CallOutID,
+        feedback: state.feedback,
+        rating: state.starCount,
+        solution: state.Solution,
+        signature: auth.user().email,
+      });
+      try {
+        await finishJob({
+          variables: {
+            id: ticketId,
+            updater_id: workerId,
+            callout_id: state.CallOutID,
+            feedback: state.feedback,
+            rating: state.starCount,
+            solution: state.Solution,
+            signature: auth.user().email,
+          },
+        });
+        alert("Service has been successfully completed. Great Job!");
+        setTimeout(() => {
+          props.navigation.navigate("Home");
+        }, 1000);
+      } catch (e) {
+        console.log(e);
+        alert("Could not submit Job!");
+      }
+    } else {
+      console.log("Many job");
+      const form = new FormData();
+      /*eslint-disable*/
+      form.append(
+        "arguments",
+        JSON.stringify({
+          subject,
+          email: clientEmail,
+          description: `Feedback: ${state.feedback}`,
+          status: "Closed",
+          lastTicket: false,
+          score: state.starCount,
+        })
+      );
+
+      try {
+        const result = await fetch(
+          "https://www.zohoapis.com/crm/v2/functions/createzohodeskticket/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf",
+          {
+            method: "POST",
+            headers: {
+              "x-hasura-admin-secret": "d71e216c844d298d91fbae2407698b22",
+            },
+            body: form,
+          }
+        );
+        let resultJson = await result.json();
+        let output = resultJson.details.output;
+        if (output.substring(0, 14) == "No email found") {
+          alert(output);
+        }
+      } catch (e) {
+        console.log("ERROR");
+        console.log(e);
+      }
+
+      try {
+        await finishJobSingle({
+          variables: {
+            id: ticketId,
+            callout_id: state.CallOutID,
+            feedback: state.feedback,
+            rating: state.starCount,
+            solution: state.Solution,
+            signature: auth.user().email,
+          },
+        });
+        alert("Job ticket has been successfully submitted");
+        setTimeout(() => {
+          props.navigation.navigate("Home");
+        }, 1000);
+      } catch (e) {
+        console.log(e);
+        alert("Could not submit Job!");
+      }
+    }
+  };
+
+  return (
+    <ScrollView scrollEnabled={true} contentContainerStyle={styles.container}>
+      <Text
+        style={{
+          fontSize: 15,
+          fontWeight: "500",
+          color: "#FFCA5D",
+          marginBottom: "1.5%",
+        }}
+      >
+        Rating
+      </Text>
+      <Text
+        style={{
+          fontSize: 12,
+          fontWeight: "500",
+          color: "#001E2B",
+          marginBottom: "1.5%",
+        }}
+      >
+        How would you rate our services?{" "}
+      </Text>
+      <View style={{ height: "4%" }}></View>
+      <View style={{ width: "70%" }}>
+        <StarRating
+          disabled={false}
+          maxStars={5}
+          fullStarColor={"#001E2B"}
+          rating={state.starCount}
+          selectedStar={(rating) => onStarRatingPress(rating)}
+        />
+      </View>
+      <View style={{ height: "4%" }}></View>
+      <Text
+        style={{
+          fontSize: 15,
+          fontWeight: "500",
+          color: "#FFCA5D",
+          marginBottom: "1.5%",
+        }}
+      >
+        Feedback
+      </Text>
+      <View style={{ height: 20 }}></View>
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <Icon
+          as={MaterialIcons}
+          name="feedback"
+          style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
+        ></Icon>
+        <TextInput
+          // ref="textInputMobile"
+          style={{ fontSize: 15, color: "#000E1E", width: "83%" }}
+          placeholder="Please type your valuable feedback here.."
+          defaultValue={state.feedback}
+          placeholderTextColor="#000E1E"
+          underlineColorAndroid="transparent"
+          onChangeText={(feedback) => {
+            setState({ ...state, feedback });
+          }} //email set
+        />
+      </View>
+      <View
+        style={{
+          borderBottomColor: "#aaa",
+          borderBottomWidth: 2,
+          width: "100%",
+          paddingTop: "3%",
+        }}
+      ></View>
+      <View style={{ height: "4%" }}></View>
+      {/* <Text
+          style={{
+            fontSize: 15,
+            fontWeight: "500",
+            color: "#FFCA5D",
+            marginBottom: "1.5%",
+          }}
+        >
+          Signature
+        </Text>
+
+        <View style={styles.sketchContainer}>
+          <ExpoPixi.Signature
+            ref={signatureCanvas}
+            style={styles.sketch}
+            strokeColor={"#000E1E"}
+            strokeAlpha={1}
+            strokeWidth={3}
+          />
+        </View> */}
+      <View style={{ height: "4%" }}></View>
+      <Button onPress={AlertJobDone} title="FINISH THE JOB" color="#FFCA5D" />
+    </ScrollView>
+  );
+};
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        marginTop: '5%',
-        paddingHorizontal: '5%'
-    },
-    sketch: {
-        flex: 1,
-    },
-    sketchContainer: {
-        height: '30%',
-        backgroundColor: '#f1f1f1'
-    },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingTop: "5%",
+    paddingHorizontal: "5%",
+  },
+  sketch: {
+    flex: 1,
+  },
+  sketchContainer: {
+    height: "30%",
+    backgroundColor: "#f1f1f1",
+  },
 });
+
+export default JobComplete;

@@ -1,0 +1,117 @@
+{
+  "resource": "/sendNotification",
+  "path": "/sendNotification",
+  "httpMethod": "POST",
+  "headers": {
+      "Accept": "*/*",
+      "Accept-Encoding": "gzip, deflate, br",
+      "CloudFront-Forwarded-Proto": "https",
+      "CloudFront-Is-Desktop-Viewer": "true",
+      "CloudFront-Is-Mobile-Viewer": "false",
+      "CloudFront-Is-SmartTV-Viewer": "false",
+      "CloudFront-Is-Tablet-Viewer": "false",
+      "CloudFront-Viewer-Country": "AE",
+      "Content-Type": "application/json",
+      "Host": "y8sr1kom3g.execute-api.us-east-1.amazonaws.com",
+      "Postman-Token": "574fd4e5-8782-46b3-86c4-220d92b23101",
+      "User-Agent": "PostmanRuntime/7.28.0",
+      "Via": "1.1 d761f6d12fd9cb2ef9a6358d934bb870.cloudfront.net (CloudFront)",
+      "X-Amz-Cf-Id": "hyu71-NhodcEerAaYnZtYdOhAEA4D7fZ8s8ewBfTDSfy8Oo7RHfXxA==",
+      "X-Amzn-Trace-Id": "Root=1-609c1abf-6929bc202b385ade4d5be694",
+      "X-Forwarded-For": "94.204.107.231, 52.46.55.88",
+      "X-Forwarded-Port": "443",
+      "X-Forwarded-Proto": "https"
+  },
+  "multiValueHeaders": {
+      "Accept": [
+          "*/*"
+      ],
+      "Accept-Encoding": [
+          "gzip, deflate, br"
+      ],
+      "CloudFront-Forwarded-Proto": [
+          "https"
+      ],
+      "CloudFront-Is-Desktop-Viewer": [
+          "true"
+      ],
+      "CloudFront-Is-Mobile-Viewer": [
+          "false"
+      ],
+      "CloudFront-Is-SmartTV-Viewer": [
+          "false"
+      ],
+      "CloudFront-Is-Tablet-Viewer": [
+          "false"
+      ],
+      "CloudFront-Viewer-Country": [
+          "AE"
+      ],
+      "Content-Type": [
+          "application/json"
+      ],
+      "Host": [
+          "y8sr1kom3g.execute-api.us-east-1.amazonaws.com"
+      ],
+      "Postman-Token": [
+          "574fd4e5-8782-46b3-86c4-220d92b23101"
+      ],
+      "User-Agent": [
+          "PostmanRuntime/7.28.0"
+      ],
+      "Via": [
+          "1.1 d761f6d12fd9cb2ef9a6358d934bb870.cloudfront.net (CloudFront)"
+      ],
+      "X-Amz-Cf-Id": [
+          "hyu71-NhodcEerAaYnZtYdOhAEA4D7fZ8s8ewBfTDSfy8Oo7RHfXxA=="
+      ],
+      "X-Amzn-Trace-Id": [
+          "Root=1-609c1abf-6929bc202b385ade4d5be694"
+      ],
+      "X-Forwarded-For": [
+          "94.204.107.231, 52.46.55.88"
+      ],
+      "X-Forwarded-Port": [
+          "443"
+      ],
+      "X-Forwarded-Proto": [
+          "https"
+      ]
+  },
+  "queryStringParameters": null,
+  "multiValueQueryStringParameters": null,
+  "pathParameters": null,
+  "stageVariables": null,
+  "requestContext": {
+      "resourceId": "7uc4h1",
+      "resourcePath": "/sendNotification",
+      "httpMethod": "POST",
+      "extendedRequestId": "fOkd-FbIIAMFzBg=",
+      "requestTime": "12/May/2021:18:13:19 +0000",
+      "path": "/dev/sendNotification",
+      "accountId": "366559116147",
+      "protocol": "HTTP/1.1",
+      "stage": "dev",
+      "domainPrefix": "y8sr1kom3g",
+      "requestTimeEpoch": 1620843199799,
+      "requestId": "977de262-92c7-4c64-82cf-bb9f6ac4d7da",
+      "identity": {
+          "cognitoIdentityPoolId": null,
+          "accountId": null,
+          "cognitoIdentityId": null,
+          "caller": null,
+          "sourceIp": "94.204.107.231",
+          "principalOrgId": null,
+          "accessKey": null,
+          "cognitoAuthenticationType": null,
+          "cognitoAuthenticationProvider": null,
+          "userArn": null,
+          "userAgent": "PostmanRuntime/7.28.0",
+          "user": null
+      },
+      "domainName": "y8sr1kom3g.execute-api.us-east-1.amazonaws.com",
+      "apiId": "y8sr1kom3g"
+  },
+  "body": "{\"event\":{\"session_variables\":{\"x-hasura-role\":\"admin\"},\"op\":\"INSERT\",\"data\":{\"old\":null,\"new\":{\"worker_email\":\"azamkhan@queensman.com\",\"text\":\"hi\",\"client_email\":null,\"id\":8,\"type\":\"worker\"}},\"trace_context\":{\"trace_id\":\"311a9ffefe2f38cc\",\"span_id\":\"7f3030a12ff0135e\"}},\"created_at\":\"2021-06-01T19:49:23.301575Z\",\"id\":\"c2b6a966-3322-4a17-b75c-184918511b3f\",\"delivery_info\":{\"max_retries\":0,\"current_retry\":0},\"trigger\":{\"name\":\"send_notification\"},\"table\":{\"schema\":\"public\",\"name\":\"notifications\"}}",
+  "isBase64Encoded": false
+}

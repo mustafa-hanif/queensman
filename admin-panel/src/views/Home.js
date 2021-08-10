@@ -1,47 +1,51 @@
-import { Card, CardHeader, CardBody, CardTitle, CardText, CardLink } from 'reactstrap'
+import { Row, Col } from 'reactstrap'
 
+import StatsCard from '@src/views/ui-elements/cards/statistics/StatsCard'
+import '@styles/react/libs/charts/apex-charts.scss'
+import '@styles/base/pages/dashboard-ecommerce.scss'
 const Home = () => {
   return (
-    <div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Kick start your project hi 🚀</CardTitle>
-        </CardHeader>
-        <CardBody>
-          <CardText>All the best for your new project.</CardText>
-          <CardText>
-            Please make sure to read our{' '}
-            <CardLink
-              href='https://pixinvent.com/demo/vuexy-react-admin-dashboard-template/documentation/'
-              target='_blank'
-            >
-              Template Documentation
-            </CardLink>{' '}
-            to understand where to go from here and how to use our template.
-          </CardText>
-        </CardBody>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Want to integrate JWT? 🔒</CardTitle>
-        </CardHeader>
-        <CardBody>
-          <CardText>
-            We carefully crafted JWT flow so you can implement JWT with ease and with minimum efforts.
-          </CardText>
-          <CardText>
-            Please read our{' '}
-            <CardLink
-              href='https://pixinvent.com/demo/vuexy-react-admin-dashboard-template/documentation/development/auth'
-              target='_blank'
-            >
-              JWT Documentation
-            </CardLink>{' '}
-            to get more out of JWT authentication.
-          </CardText>
-        </CardBody>
-      </Card>
+    <div id='dashboard-ecommerce'>
+      <Row className='match-height'>
+        <Col xl='12' md='12' xs='12'>
+          <StatsCard cols={{ xl: '3', sm: '6' }} />
+        </Col>
+      </Row>
+      <Row className='match-height'>
+        <Col lg='4' md='12'>
+          <Row className='match-height'>
+            <Col lg='6' md='3' xs='6'>
+              {/* <OrdersBarChart warning={colors.warning.main} /> */}
+            </Col>
+            <Col lg='6' md='3' xs='6'>
+              {/* <ProfitLineChart info={colors.info.main} /> */}
+            </Col>
+            <Col lg='12' md='6' xs='12'>
+              {/* <Earnings success={colors.success.main} /> */}
+            </Col>
+          </Row>
+        </Col>
+        <Col lg='8' md='12'>
+          {/* <RevenueReport primary={colors.primary.main} warning={colors.warning.main} /> */}
+        </Col>
+      </Row>
+      <Row className='match-height'>
+        <Col lg='8' xs='12'>
+          {/* <CompanyTable /> */}
+        </Col>
+        <Col lg='4' md='6' xs='12'>
+          {/* <CardMeetup /> */}
+        </Col>
+        <Col lg='4' md='6' xs='12'>
+          {/* <CardBrowserStates colors={colors} trackBgColor={trackBgColor} /> */}
+        </Col>
+        <Col lg='4' md='6' xs='12'>
+          {/* <GoalOverview success={colors.success.main} /> */}
+        </Col>
+        <Col lg='4' md='6' xs='12'>
+          {/* <CardTransactions /> */}
+        </Col>
+      </Row>
     </div>
   )
 }

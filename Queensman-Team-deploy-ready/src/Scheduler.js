@@ -1,99 +1,80 @@
+/* eslint-disable no-unused-vars */
 
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Agenda } from 'react-native-calendars';
 import axios from 'axios'
-export default class App extends Component {
-  constructor(props) {
-    super(props);
+import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
+import { auth } from "./utils/nhost";
 
-    this.state = {
-      items: {},
-      schedules: [],
-      names: [],
-      dates: [],
-      colors: [],
-      length: 0,
-      markedDates: {},
-      isLoading: false,
-    };
 
+const GET_SCHEDULE = gql`
+query GetSchedule($id: Int!) {
+  scheduler(where: {time_on_calendar: {_is_null: false}, worker_id: {_eq: $id}}) {
+    callout_id
+    date_on_calendar
+    time_on_calendar
+    worker_id
+    notes
   }
+}
+`
 
-  componentDidMount() {
-    let name = new Array();
-    let schedule = new Array();
-    let date = new Array();
-    let  markedDates= new Array();
-    let colors = new Array();
-    axios.get('https://www.queensman.com/phase_2/queens_admin_Apis/fetchAllSchedule.php')
-      .then(response => {
-        for (let userObject of response.data.server_response) {
-          let item = userObject.schedule.callout_id + ' / ' + userObject.schedule.worker_id + ' / ' + userObject.schedule.notes
-          name.push(item)
-          schedule.push(userObject.schedule);
-          date.push(userObject.schedule.date_on_calendar)
-          colors.push(userObject.schedule.color_code)
-          console.log(userObject)
-        }
-        console.log("gg")
-        this.setState({
-          length: response.data.server_response.length,
-          schedules: schedule,
-          names: name,
-          dates: date,
-          isLoading: true,
-          colors: colors
-        })
+const App = (props) => {
+  const workerId = props.navigation.getParam("workerId", {})
+
+  const {loading, data, error} = useQuery(GET_SCHEDULE, {variables: {
+    id: workerId
+  }})
+
+  const [state, setState] = useState({
+    items: {},
+    schedules: [],
+    names: [],
+    dates: [],
+    colors: [],
+    length: 0,
+    markedDates: {},
+    isLoading: false,
+  })
+
+  useEffect(() => {
+    
+    if(!loading) {
+      let name = []
+      let schedule = []
+      let date = []
+      data?.scheduler.map(userObject => {
+        let item = userObject.callout_id + ' / ' + userObject.worker_id + ' / ' + userObject.notes
+        name.push(item)
+        schedule.push(userObject);
+        date.push(userObject.date_on_calendar)
       })
-      .catch(err => {
-        console.log(err)
-      })
-
-  }
-
-  render() {
-    if (this.state.isLoading) {
-      return (
-        <Agenda
-          style={{ marginTop: 20 }}
-          items={this.state.items}
-          loadItemsForMonth={this.loadItems.bind(this)}
-          selected={new Date()}
-          renderEmptyData={this.renderEmptyData.bind(this)}
-          renderItem={this.renderItem.bind(this)}
-          rowHasChanged={this.rowHasChanged.bind(this)}
-          markedDates={this.state.markedDates}
-        />
-      );
+          setState({...state,
+            length: data?.scheduler.length,
+            schedules: schedule,
+            names: name,
+            dates: date,
+            isLoading: true,
+          })
     }
-    return (
-      <ActivityIndicator />
-    );
+  }, [data])
 
-  }
-
-  renderItem(item, index) {
-    console.log(index)
-    let color_code = '';
-    if (item.data[0].color_code !== null) {
-      color_code = '#' + item.data[0].color_code.toUpperCase()
-    }
-    else {
-      color_code = 'grey'
-    }
-    return (
-      <TouchableOpacity
-        style={[styles.item, { backgroundColor: color_code }, { height: item.height }]}
+  const renderItem = (item, index) => {
+    console.log(item)
+      let color_code = 'grey'
+      return item.data.map(item => (
+        <TouchableOpacity
+        style={[styles.item, { backgroundColor: color_code }]}
       >
-        <Text style={{ color: 'white' }}>Callout ID: {item.data[0].callout_id}</Text>
-        <Text style={{ color: 'white' }}>Ops Team ID: {item.data[0].worker_id}</Text>
-        <Text style={{ color: 'white' }}>Notes: {item.data[0].notes}</Text>
+        <Text style={{ color: 'white' }}>Callout ID: {item.callout_id}</Text>
+        <Text style={{ color: 'white' }}>Ops Team ID: {item.worker_id}</Text>
+        <Text style={{ color: 'white' }}>Notes: {item.notes}</Text>
       </TouchableOpacity>
-    );
+      ))
   }
 
-  renderEmptyData() {
+  const renderEmptyData = () => {
     return (
      <View>
  <Text style={{ color: 'black', alignSelf: 'center', paddingTop: '5%' }}>No schedule for this date.</Text>
@@ -104,42 +85,63 @@ export default class App extends Component {
     );
   }
 
-  rowHasChanged(r1, r2) {
+  const rowHasChanged = (r1, r2) => {
     return r1.name !== r2.name;
   }
 
-  timeToString(time) {
+  const timeToString = (time) => {
     const date = new Date(time);
     return date.toISOString().split('T')[0];
   }
 
 
-  loadItems(day) {
+  const loadItems = (day) => {
+    // console.log(state.schedules.filter(val => { return val.date_on_calendar === "2021-08-06" }))
     setTimeout(() => {
-      for (let i = 0; i < this.state.dates.length; i++) {
-        const strTime = this.state.dates[i];
-        if (!this.state.items[strTime]) {
-          let backup = this.state.schedules
-          this.state.items[strTime] = [];
-          this.state.markedDates[strTime] = {selected: true, marked: true};
+      for (let i = 0; i < state.dates.length; i++) {
+        const strTime = state.dates[i];
+        if (!state.items[strTime]) {
+          let backup = state.schedules
+          state.items[strTime] = [];
           let result = backup.filter(val => { return val.date_on_calendar === strTime })
-          const numItems = result.length;
-          for (let j = 0; j < numItems; j++) {
-            this.state.items[strTime].push({
+          const dot = []
+          result.map(res => dot.push({color: "blue", selectedDotColor: 'white'}))
+          console.log(strTime,result)
+          state.markedDates[strTime] = {dots:dot,selected: false, marked: true};
+            state.items[strTime].push({
               data: result,
-              height: Math.max(80)
+              // height: Math.max(80)
             });
-          }
         }
       }
       const newItems = {};
-      Object.keys(this.state.items).forEach(key => { newItems[key] = this.state.items[key]; });
-      this.setState({
+      Object.keys(state.items).forEach(key => { newItems[key] = state.items[key]; });
+      setState({...state,
         items: newItems,
       });
     }, 1000);
   }
 
+    if (!loading) {
+      return (
+        <Agenda
+        markingType={'multi-dot'}
+          style={{ marginTop: 20, height: "100%" }}
+          items={state.items}
+          loadItemsForMonth={loadItems}
+          selected={new Date()}
+          renderEmptyData={renderEmptyData}
+          renderItem={renderItem}
+          rowHasChanged={rowHasChanged}
+          markedDates={state.markedDates}
+        />
+      );
+    } else {
+      return (
+        <ActivityIndicator size="large" color="#FFCA5D" />
+      );  
+    }
+    
 }
 
 const styles = StyleSheet.create({
@@ -153,9 +155,11 @@ const styles = StyleSheet.create({
     marginTop: 17
   },
   emptyDate: {
-    height: 15,
+    // height: 15,
     flex: 1,
     paddingTop: 30,
     backgroundColor: 'gray',
   }
 });
+
+export default App;

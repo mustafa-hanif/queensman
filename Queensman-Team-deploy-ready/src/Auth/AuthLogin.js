@@ -1,13 +1,15 @@
+/* eslint-disable react/prop-types */
 import React from "react";
 import {
   StyleSheet,
-  Text,
   View,
   ActivityIndicator,
   Dimensions,
+  LogBox,
 } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
+import { auth } from "../utils/nhost";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 let deviceWidth = Dimensions.get("window").width;
@@ -16,16 +18,25 @@ let deviceHeight = Dimensions.get("window").height;
 export default class AuthLogin extends React.Component {
   constructor() {
     super();
+    LogBox.ignoreAllLogs(true);
     this.loadApp();
   }
 
   async componentDidMount() {
-    console.log("yeFireHo rha Kia");
-    const WorkerID = await AsyncStorage.getItem("QueensmanWorkerID");
-    console.log(WorkerID);
-    if (WorkerID == "asd" || WorkerID == null)
-      this.props.navigation.navigate("Login");
-    else this.props.navigation.navigate("AppDrawer");
+    try {
+      // const user = await AsyncStorage.getItem("QueensUser");
+      const email = auth?.currentSession?.session?.user.email;
+      // const email = user && JSON.parse(user).email;
+      console.log({ email });
+      console.log("In AuthLogin", { email });
+      if (email) {
+        this.props.navigation.navigate("AppDrawer");
+      } else {
+        this.props.navigation.navigate("Login");
+      }
+    } catch (error) {
+      console.error(error);
+    }
 
     //Login  ko hata kar  AppDrawer kardana kud home kulay ga
   }

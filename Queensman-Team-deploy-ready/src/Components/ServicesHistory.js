@@ -11,18 +11,8 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import {
-  Container,
-  Header,
-  Content,
-  List,
-  ListItem,
-  Row,
   Icon,
-  Col,
-  Left,
-  Right,
-  Button,
-  Picker,
+  Select,
 } from "native-base";
 import axios from "axios";
 
@@ -153,7 +143,7 @@ export default class ServicesHistory extends React.Component {
   async componentDidMount() {
     const WorkerID = await AsyncStorage.getItem("QueensmanWorkerID"); // assign customer id here
     this.setState({ loading: true, workerID: WorkerID });
-    link =
+    let link =
       "https://www.queensman.com/phase_2/queens_worker_Apis/fetchServicesHistoryViaWorkerID.php?ID=" +
       this.state.workerID;
     console.log(link);
@@ -198,23 +188,19 @@ export default class ServicesHistory extends React.Component {
             Sort
           </Text>
 
-          <Picker
+          <Select
             note
             mode="dialog"
             style={{ marginTop: "1%", fontSize: 20 }}
-            itemStyle={{
-              // fontFamily: 'serif',
-              fontSize: 20,
-            }}
             selectedValue={this.state.selected}
             onValueChange={this.onValueChange.bind(this)}
           >
-            <Picker.Item label="Select" value="Select" />
-            <Picker.Item label="Date" value="date" />
-            <Picker.Item label="Urgency Level:Medium" value="medium" />
-            <Picker.Item label="Urgency Level:High" value="high" />
-            <Picker.Item label="Urgency Level:Scheduled" value="scheduled" />
-          </Picker>
+            <Select.Item label="Select" value="Select" />
+            <Select.Item label="Date" value="date" />
+            <Select.Item label="Urgency Level:Medium" value="medium" />
+            <Select.Item label="Urgency Level:High" value="high" />
+            <Select.Item label="Urgency Level:Scheduled" value="scheduled" />
+          </Select>
         </View>
         {!this.state.dataAvaible ? (
           <Text

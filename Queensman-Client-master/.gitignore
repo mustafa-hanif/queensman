@@ -10,5 +10,6 @@ node_modules/
 .expo-shared
 .vscode
 .idea
+ ../.DS_Store
 .DS_Store
 packager-info.json

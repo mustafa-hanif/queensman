@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "589706709526",
+    "project_id": "queensman-teams",
+    "storage_bucket": "queensman-teams.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:589706709526:android:0db5cbf6bbfd5897dd8337",
+        "android_client_info": {
+          "package_name": "com.techinoviq.queensmanworker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "589706709526-lgbqmk9o7rpgfj1uph5v5ve1m7ala753.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALndM0R5-qLZU8Q-OmKYniQFMKewTRBmA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "589706709526-lgbqmk9o7rpgfj1uph5v5ve1m7ala753.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

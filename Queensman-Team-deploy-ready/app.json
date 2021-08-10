@@ -24,11 +24,14 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.skynners.queensmanworker"
+      "bundleIdentifier": "com.techinoviq.queensmanworker"
     },
     "android": {
-      "package": "com.skynners.queensmanworker"
+      "package": "com.techinoviq.queensmanworker",
+      "googleServicesFile": "./google-services.json",
+      "permissions": ["ACCESS_BACKGROUND_LOCATION", "CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"]
     },
     "description": ""
   }
 }
+

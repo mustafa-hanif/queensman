@@ -1,7 +1,8 @@
 // ** React Imports
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { gql, useQuery } from "@apollo/client"
+import Cleave from 'cleave.js/react'
+import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client"
 
 // ** Custom Components
 import Avatar from '@components/avatar'
@@ -10,21 +11,15 @@ import Avatar from '@components/avatar'
 import classnames from 'classnames'
 import { toast } from 'react-toastify'
 import Flatpickr from 'react-flatpickr'
-import { X, Check, Trash } from 'react-feather'
+import { X, Check, Trash, Info } from 'react-feather'
 import Select, { components } from 'react-select'
 import { useForm, Controller } from 'react-hook-form'
-import { Button, Modal, ModalHeader, ModalBody, Card, ListGroup, ListGroupItem, FormGroup, Label, CustomInput, Input, Form, Spinner } from 'reactstrap'
+import { Media, Button, Modal, ModalHeader, ModalBody, Card, ListGroup, ListGroupItem, FormGroup, Label, CustomInput, Input, Form, Spinner, Badge, CardBody, CardHeader, CardTitle, Row, Col  } from 'reactstrap'
+import AutoComplete from '@components/autocomplete'
 
 // ** Utils
 import { selectThemeColors, isObjEmpty } from '@utils'
 
-// ** Avatar Images
-import img1 from '@src/assets/images/avatars/1-small.png'
-import img2 from '@src/assets/images/avatars/3-small.png'
-import img3 from '@src/assets/images/avatars/5-small.png'
-import img4 from '@src/assets/images/avatars/7-small.png'
-import img5 from '@src/assets/images/avatars/9-small.png'
-import img6 from '@src/assets/images/avatars/11-small.png'
 
 // ** Styles Imports
 import '@styles/react/libs/react-select/_react-select.scss'
@@ -42,8 +37,9 @@ const ToastComponent = ({ title, icon, color }) => (
   </Fragment>
 )
 
+
 const GET_CALLOUT = gql`
-  query MyQuery($id: Int!) {
+  query GetCallout($id: Int!) {
     callout_by_pk(id: $id) {
       pre_pics {
         picture_location
@@ -65,31 +61,60 @@ const GET_CALLOUT = gql`
   }
 `
 
-const params = {
-  slidesPerView: 5,
-  spaceBetween: 50,
-  pagination: {
-    clickable: true
-  },
-  breakpoints: {
-    1024: {
-      slidesPerView: 4,
-      spaceBetween: 40
-    },
-    768: {
-      slidesPerView: 3,
-      spaceBetween: 30
-    },
-    640: {
-      slidesPerView: 2,
-      spaceBetween: 20
-    },
-    320: {
-      slidesPerView: 1,
-      spaceBetween: 10
+const GET_CLIENT = gql`
+query GetClient {
+  client {
+    full_name
+    email
+    id
+  }
+}
+`
+
+const GET_WORKER = gql`
+query GetWorker {
+  worker {
+    full_name
+    id
+    email
+  }
+}
+`
+
+const UPDATE_JOB_TICKET = gql`
+mutation UpdateJob($id: Int!, $name: String, $worker_id: Int!, $worker_email: String, $type: String, $description: String) {
+  update_job_tickets_by_pk(pk_columns: {id: $id}, _set: {name: $name, worker_id: $worker_id, worker_email: $worker_email, type: $type, description: $description}) {
+    id
+  }
+}
+`
+
+const ADD_JOB_TICKET = gql`
+mutation InsertJobTickets($name: String, $description: String, $pictures: _text, $type: String, $notes: jsonb, $callout_id: Int!, $scheduler_id: Int!, $worker_id: Int!, $worker_email: String!) {
+  insert_job_tickets(objects: {name: $name, description: $description, pictures: $pictures, type: $type, callout_id: $callout_id, notes: $notes, scheduler_id: $scheduler_id, worker_id: $worker_id, worker_email: $worker_email, status: "Open"}) {
+    affected_rows
+  }
+}
+`
+
+const DELETE_JOB_TICKET = gql`
+mutation deleteJobTicket($id: Int!) {
+  delete_job_tickets_by_pk(id: $id) {
+    id
+  }
+}
+`
+
+const GET_PROPERTY = gql`
+query GetProperty($ownerId: Int) {
+  property_owned(where: {owner_id: {_eq: $ownerId}}) {
+    property {
+      address
+      id
     }
   }
 }
+`
 
 const AddEventSidebar = props => {
   // ** Props
@@ -99,43 +124,78 @@ const AddEventSidebar = props => {
     calendarsColor,
     calendarApi,
     refetchEvents,
-    addEvent,
-    selectedEvent,
+    requestCalloutApiCall,
     selectEvent,
+    selectedEvent,
     updateEvent,
     removeEvent
   } = props
 
-  // ** Vars
+  // ** Component
+  const CalloutPicture = ({picture}) => {
+    return <div style={{width: "100px"}}>
+     {picture ? <a href={picture} target="_blank"><img src={picture} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/></a> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
+     </div>
+  }
+  // const selectedEvent = store.selectedEvent
   const { register, errors, handleSubmit } = useForm()
 
   // ** States
-  const [url, setUrl] = useState('')
-  const [desc, setDesc] = useState('')
-  const [title, setTitle] = useState('')
-  const [guests, setGuests] = useState({})
-  const [allDay, setAllDay] = useState(false)
-  const [location, setLocation] = useState('')
-  const [endPicker, setEndPicker] = useState(new Date())
-  const [startPicker, setStartPicker] = useState(new Date())
-  const [value, setValue] = useState([{ value: 'Business', label: 'Business', color: 'primary' }])
+  const [contentLoading, setContentLoading] = useState(true)
 
-  // ** Select Options
-  const options = [
-    { value: 'Business', label: 'Business', color: 'primary' },
-    { value: 'Personal', label: 'Personal', color: 'danger' },
-    { value: 'Family', label: 'Family', color: 'warning' },
-    { value: 'Holiday', label: 'Holiday', color: 'success' },
-    { value: 'ETC', label: 'ETC', color: 'info' }
-  ]
+  const [url, setUrl] = useState(selectedEvent.url || '')
+  const [desc, setDesc] = useState(selectedEvent.extendedProps?.description || '')
+  const [title, setTitle] = useState((selectedEvent?.title ?? '').replace(/\n/g, ' '))
+  const [guests, setGuests] = useState(selectedEvent.extendedProps?.guests || '')
+  const [allDay, setAllDay] = useState(selectedEvent.allDay || false)
+  const [location, setLocation] = useState(selectedEvent.extendedProps?.location || '')
+  const [startPicker, setStartPicker] = useState(new Date(selectedEvent.start) || '')
+  const [endPicker, setEndPicker] = useState(new Date(selectedEvent.end) || '')
+  const [clientName, setClientName] = useState(selectedEvent.extendedProps?.clientName || '')
+  const [clientEmail, setClientEmail] = useState(selectedEvent.extendedProps?.clientEmail || 'No client')
+  const [clientId, setClientId] = useState(selectedEvent.extendedProps?.clientId)
+  const [propertyName, setPropertyName] = useState(selectedEvent.extendedProps?.propertyName  || '')
+  const [propertyId, setPropertyId] = useState(selectedEvent.extendedProps?.propertyId  || 9999)
+  const [workerName, setWorkerName] = useState(selectedEvent.extendedProps?.workerName || '')
+  const [workerId, setWorkerId] = useState(selectedEvent.extendedProps?.workerId)
+  const [blocked, setBlocked] = useState(selectedEvent.extendedProps?.blocked)
+  const [workerEmail, setWorkerEmail] = useState(selectedEvent.extendedProps?.workerEmail)
+  const [jobTickets, setJobTickets] = useState([])
+  const [picture1, setPicture1] = useState(selectedEvent.extendedProps?.picture1)
+  const [picture2, setPicture2] = useState(selectedEvent.extendedProps?.picture2)
+  const [picture3, setPicture3] = useState(selectedEvent.extendedProps?.picture3)
+  const [picture4, setPicture4] = useState(selectedEvent.extendedProps?.picture4)
 
-  const guestsOptions = [
-    { value: 'Donna Frank', label: 'Donna Frank', avatar: img1 },
-    { value: 'Jane Foster', label: 'Jane Foster', avatar: img2 },
-    { value: 'Gabrielle Robertson', label: 'Gabrielle Robertson', avatar: img3 },
-    { value: 'Lori Spears', label: 'Lori Spears', avatar: img4 },
-    { value: 'Sandy Vega', label: 'Sandy Vega', avatar: img5 },
-    { value: 'Cheryl May', label: 'Cheryl May', avatar: img6 }
+  const [calloutJobType, setcalloutJobType] = useState({value: selectedEvent.extendedProps?.job_type || "Select...", label: selectedEvent.extendedProps?.job_type || "Select..."})
+  const { clientLoading, data: allClients, clientError } = useQuery(GET_CLIENT, {
+    skip: !open
+  })
+  const [getProperty, { propertyLoading, data: allProperty, propertyError }] = useLazyQuery(GET_PROPERTY, {
+    variables: { ownerId:clientId }
+  })
+  const { workerLoading, data: allWorkers, workerError } = useQuery(GET_WORKER, {
+    skip: !open
+  })
+
+  const [addJobTicket] = useMutation(ADD_JOB_TICKET)
+  const [deleteJobTicket] = useMutation(DELETE_JOB_TICKET)
+
+  const [updateJobTicket] = useMutation(UPDATE_JOB_TICKET)
+
+  const { jobTypeLoading, data: calloutJobTypeOptions, error: jobTypeError } = useQuery(gql`query JobTypes {
+    team_expertise {
+      label: skill_name
+      value: skill_name
+    }
+  }`, {
+    skip: !open
+  })
+  
+  const jobTypeOptions = [
+    {value: 'Deferred', label: 'Deferred'},
+    {value: 'Material Request', label: 'Material Request'},
+    {value: 'Patch Job', label: 'Patch Job'},
+    {value: 'Full Job', label: 'Full Job'}
   ]
 
   // ** Custom select components
@@ -148,34 +208,30 @@ const AddEventSidebar = props => {
     )
   }
 
-  const GuestsComponent = ({ data, ...props }) => {
-    return (
-      <components.Option {...props}>
-        <div className='d-flex flex-wrap align-items-center'>
-          <Avatar className='my-0 mr-1' size='sm' img={data.avatar} />
-          <div>{data.label}</div>
-        </div>
-      </components.Option>
-    )
-  }
-
   // ** Adds New Event
   const handleAddEvent = () => {
-    const obj = {
-      title,
-      start: startPicker,
-      end: endPicker,
-      allDay,
-      display: 'block',
-      extendedProps: {
-        calendar: value[0].label,
-        url: url.length ? url : undefined,
-        guests: guests.length ? guests : undefined,
-        location: location.length ? location : undefined,
-        desc: desc.length ? desc : undefined
+    console.log(calloutJobType)
+    requestCalloutApiCall({
+      variables: {
+        property_id: propertyId,
+        email: clientEmail,
+        notes: title,
+        time_on_calendar : startPicker.toTimeString().substr(0, 8), 
+        date_on_calendar : startPicker.toLocaleDateString(),
+        end_date_on_calendar: endPicker.toLocaleDateString(),
+        end_time_on_calendar : endPicker.toTimeString().substr(0, 8), 
+        // category: value[0].value, 
+        category: "Uncategorized", 
+        job_type: calloutJobType.value, 
+        status: "Requested",
+        request_time: new Date().toLocaleDateString(),
+        urgency_level: "Medium",
+        worker_id: workerId
+        // ...pictures,
       }
-    }
-    dispatch(addEvent(obj))
+    })
+      .catch((err) => console.log({ err }))   
+    
     refetchEvents()
     handleAddEventSidebar()
     toast.success(<ToastComponent title='Event Added' color='success' icon={<Check />} />, {
@@ -185,41 +241,65 @@ const AddEventSidebar = props => {
     })
   }
 
+  const handleJobAddEvent = () => {
+    setJobTickets([...jobTickets, {name: "", description: "", notes: [""], pictures: [""], type: "Select...", isSaved: false, newJob: true, worker: {full_name: workerName, id: workerId, email: workerEmail}}])
+    
+  }
+
   // ** Reset Input Values on Close
   const handleResetInputValues = () => {
-    dispatch(selectEvent({}))
+    selectEvent({})
+    setContentLoading(true)  
     setTitle('')
     setAllDay(false)
     setUrl('')
     setLocation('')
     setDesc('')
     setGuests({})
-    setValue([{ value: 'Business', label: 'Business', color: 'primary' }])
+    setcalloutJobType({})
+    setClientName('')
+    setPropertyName('')
+    setWorkerName('')
+    setWorkerId(null)
+    setWorkerEmail('')
     setStartPicker(new Date())
+    setJobTickets([])
     setEndPicker(new Date())
+    setPicture1(null)
+    setPicture2(null)
+    setPicture3(null)
+    setPicture4(null)
   }
 
   // ** Set sidebar fields
   const handleSelectedEvent = () => {
-    if (!isObjEmpty(selectedEvent)) {
-      const calendar = selectedEvent.extendedProps.calendar
+    console.log(1, selectedEvent.extendedProps)
+    if (Object.keys(selectedEvent ?? {}).length) {
+      setTimeout(() => {
+        setContentLoading(false)  
+      }, 100)
+      const calendar = selectedEvent?.extendedProps?.calendar
 
-      const resolveLabel = () => {
-        if (calendar.length) {
-          return { label: calendar, value: calendar, color: calendarsColor[calendar] }
-        } else {
-          return { value: 'Business', label: 'Business', color: 'primary' }
-        }
-      }
-      setTitle(selectedEvent.title || title)
+      setTitle(selectedEvent.title.split('by')[0])
+      setWorkerName(selectedEvent.extendedProps.workerName)
+      setWorkerId(selectedEvent.extendedProps.workerId)
+      setWorkerEmail(selectedEvent.extendedProps.workerEmail)
+      setClientName(selectedEvent.extendedProps.clientName)
+      setClientEmail(selectedEvent.extendedProps.clientEmail)
+      setPropertyName(selectedEvent.extendedProps.propertyName || propertyName)
+      setcalloutJobType({value: selectedEvent.extendedProps?.job_type || "Select...", label: selectedEvent.extendedProps?.job_type || "Select..."})
       setAllDay(selectedEvent.allDay || allDay)
       setUrl(selectedEvent.url || url)
       setLocation(selectedEvent.extendedProps.location || location)
       setDesc(selectedEvent.extendedProps.description || desc)
       setGuests(selectedEvent.extendedProps.guests || guests)
       setStartPicker(new Date(selectedEvent.start))
-      setEndPicker(selectedEvent.allDay ? new Date(selectedEvent.start) : new Date(selectedEvent.end))
-      setValue([resolveLabel()])
+      setEndPicker(new Date(selectedEvent.end))
+      setJobTickets(selectedEvent.extendedProps?.job_tickets || jobTickets)
+      setPicture1(selectedEvent.extendedProps?.picture1 || picture1)
+      setPicture2(selectedEvent.extendedProps?.picture2 || picture2)
+      setPicture3(selectedEvent.extendedProps?.picture3 || picture3)
+      setPicture4(selectedEvent.extendedProps?.picture4 || picture4)
     }
   }
 
@@ -251,40 +331,122 @@ const AddEventSidebar = props => {
 
   // ** Updates Event in Store
   const handleUpdateEvent = () => {
-    const eventToUpdate = {
-      id: selectedEvent.id,
-      title,
-      allDay,
-      start: startPicker,
-      end: endPicker,
-      url,
-      extendedProps: {
-        location,
-        description: desc,
-        guests,
-        calendar: value[0].label
+    let saved = true
+    jobTickets.map(jobs => {
+      if (jobs.isSaved === false) {
+        saved = false
+        toast.error(<ToastComponent title='Job Ticket Not Saved' color='danger' icon={<Info />} />, {
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeButton: false
+        })
       }
-    }
-
-    const propsToUpdate = ['id', 'title', 'url']
-    const extendedPropsToUpdate = ['calendar', 'guests', 'location', 'description']
-
-    dispatch(updateEvent(eventToUpdate))
-    updateEventInCalendar(eventToUpdate, propsToUpdate, extendedPropsToUpdate)
-    handleAddEventSidebar()
-    toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
+    })
+    
+    if (saved) {
+      const eventToUpdate = {
+        id: selectedEvent.id,
+        callout_id: selectedEvent?.extendedProps?.callout_id,
+        title: title.split('by')[0],
+        start: startPicker,
+        end: endPicker,
+        extendedProps: {
+          clientName,
+          clientEmail,
+          category: 'Uncategorized',
+          job_type: calloutJobType.value,
+          propertyName,
+          workerName,
+          workerId,
+          workerEmail,
+          propertyId,
+          jobTickets,
+          blocked
+        }
+      }
+      const propsToUpdate = ['start', 'title', 'callout_id']
+      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'workerId', 'workerEmail', 'propertyId', 'clientEmail', 'job_type', 'jobTickets', 'blocked']
+  
+      updateEvent(eventToUpdate)
+      updateEventInCalendar(eventToUpdate, propsToUpdate, extendedPropsToUpdate)
+      handleAddEventSidebar()
+      toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    }  
+  }
+  
+  const handleJobUpdateEvent = (index) => {
+    const jobTicket = jobTickets[index]
+    if (selectedEvent?.extendedProps?.callout_id) {
+      if (jobTicket?.newJob) {
+        addJobTicket({
+          variables: {
+            name: jobTicket.name,
+            description: jobTicket.description,
+            pictures: "{}",
+            type: jobTicket.type,
+            callout_id: selectedEvent?.extendedProps?.callout_id,
+            notes: "{}",
+            scheduler_id: parseInt(selectedEvent.id),
+            worker_id: workerId,
+            worker_email: workerEmail
+          }
+        })
+        const jobTicket2 = [...jobTickets]
+        jobTicket2[index].isSaved = true
+        setJobTickets(jobTicket2)
+        toast.success(<ToastComponent title='Job Ticket Saved' color='success' icon={<Check />} />, {
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeButton: false
+        })
+    } else {
+   updateJobTicket({variables: {
+      id: jobTicket.id,
+      name: jobTicket.name,
+      worker_id: workerId,
+      worker_email: workerEmail,
+      type: jobTicket.type,
+      description: jobTicket.description
+    }})
+    toast.success(<ToastComponent title='Job Ticket Updated' color='success' icon={<Check />} />, {
       autoClose: 2000,
       hideProgressBar: true,
       closeButton: false
     })
+    }
+    } else {
+      toast.error(<ToastComponent title='Please add schedule first' color='danger' icon={<Trash />} />, {
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    }
   }
 
+  const handleWorkChange = (index, full_name, id, email, e) => {
+    const jobTicket = [...jobTickets]
+    jobTicket[index].worker.full_name = full_name
+    jobTicket[index].worker.id = id
+    jobTicket[index].worker.email = email
+    setJobTickets(jobTicket)
+  }
+
+  const handleChange = (index, e) => {
+    const jobTicket = [...jobTickets]
+    jobTicket[index][e.target.name] = e.target.value
+    setJobTickets(jobTicket)
+  }
+  
   // ** (UI) removeEventInCalendar
   const removeEventInCalendar = eventId => {
     calendarApi.getEventById(eventId).remove()
   }
   const handleDeleteEvent = () => {
-    dispatch(removeEvent(selectedEvent.id))
+    removeEvent(selectedEvent.id, selectedEvent?.extendedProps?.callout_id)
     removeEventInCalendar(selectedEvent.id)
     handleAddEventSidebar()
     toast.error(<ToastComponent title='Event Removed' color='danger' icon={<Trash />} />, {
@@ -294,9 +456,26 @@ const AddEventSidebar = props => {
     })
   }
 
+  const handleJobDeleteEvent = (index) => {
+
+    if (!jobTickets[index].isSaved === false || jobTickets[index]?.isSaved === undefined) {
+      deleteJobTicket({variables: {
+        id: jobTickets[index].id
+      }})
+    }
+    setJobTickets(jobTickets.filter((job, i) => i !== index))
+    // handleAddEventSidebar()
+    toast.error(<ToastComponent title='Job Ticket Removed' color='danger' icon={<Trash />} />, {
+      autoClose: 2000,
+      hideProgressBar: true,
+      closeButton: false
+    })
+  }
+
+
   // ** Event Action buttons
   const EventActions = () => {
-    if (isObjEmpty(selectedEvent) || (!isObjEmpty(selectedEvent) && !selectedEvent.title.length)) {
+    if (!selectedEvent?.title?.length) {
       return (
         <Fragment>
           <Button.Ripple className='mr-1' type='submit' color='primary'>
@@ -313,7 +492,7 @@ const AddEventSidebar = props => {
           <Button.Ripple
             className='mr-1'
             color='primary'
-            // onClick={handleUpdateEvent}
+            onClick={handleUpdateEvent}
           >
             Update
           </Button.Ripple>
@@ -326,202 +505,333 @@ const AddEventSidebar = props => {
   }
   const { loading, data, error, refetch } = useQuery(GET_CALLOUT, {
     variables: {
-      id: selectedEvent?.extendedProps?.callout_id
-    }
+      id: selectedEvent?.callout_id
+    },
+    skip: !selectedEvent?.callout_id
   })
-  // console.log(selectedEvent?.extendedProps?.callout_id)
-  if (!loading) {
-    // console.log(data?.extendedProps)
-  }
+  
   // ** Close BTN
   const CloseBtn = <X className='cursor-pointer' size={15} onClick={handleAddEventSidebar} />
   return (
     <Modal
       isOpen={open}
+      onOpened={handleSelectedEvent}
+      onClosed={handleResetInputValues}
+      toggle={handleAddEventSidebar}
     >
       <ModalHeader className='mb-1' toggle={handleAddEventSidebar} close={CloseBtn} tag='div'>
          <h5 className='modal-title'>
            {selectedEvent?.title}
          </h5>
        </ModalHeader>
-       <ModalBody className='flex-grow-1 pb-sm-0 pb-3'>
-        {loading && <Spinner />}
-        {!loading && <Card className='mb-4'>
-          <ListGroup flush>
-            <ListGroupItem>
-              <Swiper {...params}>
-                {data?.callout_by_pk?.postpics?.map(pic => <SwiperSlide><img width="200" src={pic?.picture_location} /></SwiperSlide>)}
-              </Swiper>
-            </ListGroupItem>
-            <ListGroupItem>Dapibus ac facilisis in</ListGroupItem>
-            <ListGroupItem>Vestibulum at eros</ListGroupItem>
-          </ListGroup>
-        </Card>}
-       </ModalBody>
+       {!contentLoading ? <ModalBody className='flex-grow-1 pb-sm-0 pb-3'>
+       <Form
+          onSubmit={handleSubmit(data => {
+            if (isObjEmpty(errors)) {
+              if (isObjEmpty(selectedEvent) || (!isObjEmpty(selectedEvent) && !selectedEvent.title.length)) {
+                handleAddEvent()
+              } else {
+                handleUpdateEvent()
+              }
+              handleAddEventSidebar()
+            }
+          })}
+        >
+           <FormGroup>
+             <Label for='title'>
+               Title <span className='text-danger'>*</span>
+             </Label>
+            <Input
+               id='title'
+               name='title'
+               placeholder='Title'
+               value={title}
+               onChange={e => setTitle(e.target.value)}
+               innerRef={register({ register: true, validate: value => value !== '' })}
+               className={classnames({
+                 'is-invalid': errors.title
+               })}
+             />
+           </FormGroup>
+
+           <FormGroup>
+             <Label for='label'>Job Type</Label>
+             <Select
+               id='label'
+               defaultValue={{value:calloutJobType.value, label:calloutJobType.label}}
+               options={calloutJobTypeOptions?.team_expertise ?? []}
+               theme={selectThemeColors}
+               className='react-select'
+               classNamePrefix='select'
+               isClearable={false}
+               onChange={(e) => setcalloutJobType({value: e.value, label: e.value})}
+               components={{
+                 Option: OptionComponent
+               }}
+             />
+           </FormGroup>
+
+
+           <FormGroup>
+           <Label for='label'>Client Name</Label>
+           {allClients?.client && !clientLoading ? (
+           <AutoComplete
+           suggestions={allClients.client}
+           className='form-control'
+           filterKey='full_name'
+           placeholder="Search client name"
+           value={clientName}
+           customRender={(
+            suggestion,
+            i,
+            filteredData,
+            activeSuggestion,
+            onSuggestionItemClick,
+            onSuggestionItemHover
+          ) => (
+            <li
+              className={classnames('suggestion-item', {
+                active: filteredData.indexOf(suggestion) === activeSuggestion
+              })}
+              key={i}
+              onMouseEnter={() => onSuggestionItemHover(filteredData.indexOf(suggestion))
+              }
+              onClick={e => {
+                onSuggestionItemClick(null, e)
+                setClientName(suggestion.full_name)
+                setClientEmail(suggestion.email)
+                setClientId(suggestion.id)
+                getProperty()
+                
+              }}
+            >
+            <span>{suggestion.full_name}{'     '}</span>
+               
+               <Badge color='light-secondary'>
+                {suggestion.email}
+                </Badge>
+            </li>
+          )}
+         />
+          ) : <Input type='text' disabled placeholder='Client Name' />}
+        </FormGroup>
+
+
+        <FormGroup>
+           <Label for='label'>Property Name</Label>
+           {allProperty?.property_owned && !propertyLoading ? (
+           <AutoComplete
+           suggestions={allProperty.property_owned.map(a => a.property)}
+           className='form-control'
+           filterKey='address'
+           value={propertyName}
+           defaultSuggestions={true}
+           placeholder="Search Propery Name"
+           customRender={(
+             suggestion,
+             i,
+             filteredData,
+             activeSuggestion,
+             onSuggestionItemClick,
+             onSuggestionItemHover
+           ) => (
+             <li
+               className={classnames('suggestion-item', {
+                 active: filteredData.indexOf(suggestion) === activeSuggestion
+               })}
+               key={i}
+               onMouseEnter={() => onSuggestionItemHover(filteredData.indexOf(suggestion))
+               }
+               onClick={e => {
+                onSuggestionItemClick(null, e)
+                setPropertyName(suggestion.address)
+                setPropertyId(suggestion.id)
+               }}
+             >
+               <span>{suggestion.address}</span>
+             </li>
+           )}
+         />
+          ) : <Input type='text' disabled placeholder='Property Name' value={propertyName} />}
+        </FormGroup>
+
+        <FormGroup>
+           <Label for='label'>Worker Name</Label>
+           {allWorkers?.worker && !workerLoading ? (
+           <AutoComplete
+           suggestions={allWorkers.worker}
+           className='form-control'
+           filterKey='full_name'
+           placeholder="Search Worker Name"
+           value={workerName}
+           customRender={(
+            suggestion,
+            i,
+            filteredData,
+            activeSuggestion,
+            onSuggestionItemClick,
+            onSuggestionItemHover
+          ) => (
+            <li
+              className={classnames('suggestion-item', {
+                active: filteredData.indexOf(suggestion) === activeSuggestion
+              })}
+              key={i}
+              onMouseEnter={() => onSuggestionItemHover(filteredData.indexOf(suggestion))
+              }
+              onClick={e => {
+                onSuggestionItemClick(null, e)
+                setWorkerName(suggestion.full_name)
+                setWorkerId(suggestion.id)       
+                setWorkerEmail(suggestion.email)    
+              }}
+            >
+            <span>{suggestion.full_name}{'     '}</span>
+               
+               {/* <Badge color='light-secondary'>
+                {suggestion.email}
+                </Badge> */}
+            </li>
+          )}
+         />
+          ) : <Input type='text' id='disabledInput' disabled placeholder='Worker Name' />}
+        </FormGroup>
+
+           <FormGroup>
+             <Label for='startDate'>Start Date</Label>
+             <Flatpickr
+               required
+               id='startDate'
+                //tag={Flatpickr}
+               name='startDate'
+               className='form-control'
+               onChange={date => setStartPicker(date[0])}
+               value={startPicker}
+               options={{
+                 enableTime: allDay === false,
+                 dateFormat: 'Y-m-d H:i'
+               }}
+             />
+           </FormGroup>
+           <FormGroup>
+             <Label for='endDate'>End Date</Label>
+             <Flatpickr
+             style={{backgroundColor: '#efefef'}}
+              //  required
+               id='endDate'
+                //tag={Flatpickr}
+               name='endDate'
+               className='form-control'
+              //  onChange={date => setEndPicker(date[0])}
+               value={endPicker}
+               disabled
+               options={{
+                 enableTime: allDay === false,
+                 dateFormat: 'Y-m-d H:i'
+               }}
+             />
+           </FormGroup>
+           <FormGroup>
+             <Input type='checkbox' id='blocked' onChange={() => setBlocked(!blocked)} checked={blocked} />
+             <Label for='blocked'>Should we block this slot from any booking?</Label>
+           </FormGroup>
+           <FormGroup style={{display: "flex", justifyContent: "space-between"}}>
+             {[picture1, picture2, picture3, picture4].map(picture => (
+              <CalloutPicture key={picture} picture={picture} />
+             ))}
+           </FormGroup>
+           
+               {jobTickets && jobTickets.map((job, index) => (
+                <Card className='card-payment' key={index} >
+      <CardHeader>
+        <CardTitle tag='h4'>{job.name}</CardTitle>
+      </CardHeader>
+      <CardBody>
+          <Row>
+          <Col sm='12'>
+              <FormGroup className='mb-2'>
+                <Label for='job-name'>Job Name</Label>
+                <Input type="input" placeholder='Job Name' id='job-name' name="name" value={job.name} onChange={(e) => handleChange(index, e)}/>
+              </FormGroup>
+            </Col>
+            
+            <Col sm='12'>
+              <FormGroup className='mb-2'>
+                <Label for='jobtype'>Job Type</Label>
+                <Select
+               id='jobtype'
+               defaultValue={{value:job?.type, label: job?.type}}
+               options={jobTypeOptions}
+               theme={selectThemeColors}
+               className='react-select'
+               classNamePrefix='select'
+               isClearable={false}
+               onChange={(e) => { const jobTicket = [...jobTickets]; jobTicket[index].type = e.value; setJobTickets(jobTicket) }}
+               components={{
+                 Option: OptionComponent
+               }}
+             />
+              </FormGroup>
+            </Col>
+            <Col sm='12'>
+              <FormGroup className='mb-2'>
+                <Label for='job-description'>Job Description Name</Label>
+                <Input type="text-area" placeholder='Curtis Stone' id='job-description' name="description" value={job.description} onChange={(e) => { const jobTicket = [...jobTickets]; jobTicket[index][e.target.name] = e.target.value; setJobTickets(jobTicket) }}/>
+              </FormGroup>
+            </Col>
+            <Col sm='12'>
+            <FormGroup className='d-flex justify-content-center'>
+            <Fragment>
+          <Button.Ripple
+            className='mr-1'
+            color='primary'
+            onClick={() => handleJobUpdateEvent(index)}
+          >
+            {job?.newJob ? 'Save' : 'Update'}
+          </Button.Ripple>
+          <Button.Ripple color='danger' onClick={() => handleJobDeleteEvent(index)} outline>
+            Delete
+          </Button.Ripple>
+        </Fragment>
+            </FormGroup>
+            </Col>
+          </Row>
+      </CardBody>
+    </Card>
+               ))}
+           <FormGroup>
+           <Button.Ripple
+               className='mr-1'
+               color='info'
+               onClick={handleJobAddEvent}
+             >
+               Add New Job Ticket
+             </Button.Ripple>
+           </FormGroup>
+           {/* <FormGroup>
+             <Label for='endDate'>End Date</Label>
+             <Flatpickr
+               required
+               id='endDate'
+               // tag={Flatpickr}
+               name='endDate'
+               className='form-control'
+               onChange={date => setEndPicker(date[0])}
+               value={endPicker}
+               options={{
+                 enableTime: allDay === false,
+                 dateFormat: 'Y-m-d H:i'
+               }}
+             />
+           </FormGroup> */}
+           {selectedEvent?.extendedProps?.videoUrl && <video width="458" controls src={selectedEvent?.extendedProps?.videoUrl} />}
+           <FormGroup className='d-flex'>
+            <EventActions />
+          </FormGroup>
+           </Form>
+       </ModalBody> : <div style={{height: 300}}></div> }
     </Modal>
-
   )
-  // return (
-  //   <Modal
-  //     isOpen={open}
-  //     toggle={handleAddEventSidebar}
-  //     // className='sidebar-lg'
-  //     contentClassName='p-0'
-  //     onOpened={handleSelectedEvent}
-  //     onClosed={handleResetInputValues}
-  //     // modalClassName='modal-slide-in event-sidebar'
-  //   >
-  //     <ModalHeader className='mb-1' toggle={handleAddEventSidebar} close={CloseBtn} tag='div'>
-  //       <h5 className='modal-title'>
-  //         {selectedEvent && selectedEvent.title && selectedEvent.title.length ? 'Update' : 'Add'} Event
-  //       </h5>
-  //     </ModalHeader>
-  //     <ModalBody className='flex-grow-1 pb-sm-0 pb-3'>
-  //       <Form
-  //         onSubmit={handleSubmit(data => {
-  //           if (isObjEmpty(errors)) {
-  //             if (isObjEmpty(selectedEvent) || (!isObjEmpty(selectedEvent) && !selectedEvent.title.length)) {
-  //               handleAddEvent()
-  //             } else {
-  //               handleUpdateEvent()
-  //             }
-  //             handleAddEventSidebar()
-  //           }
-  //         })}
-  //       >
-  //         <FormGroup>
-  //           <Label for='title'>
-  //             Title <span className='text-danger'>*</span>
-  //           </Label>
-  //           <Input
-  //             id='title'
-  //             name='title'
-  //             placeholder='Title'
-  //             value={title}
-  //             onChange={e => setTitle(e.target.value)}
-  //             innerRef={register({ register: true, validate: value => value !== '' })}
-  //             className={classnames({
-  //               'is-invalid': errors.title
-  //             })}
-  //           />
-  //         </FormGroup>
-
-  //         <FormGroup>
-  //           <Label for='label'>Label</Label>
-  //           <Select
-  //             id='label'
-  //             value={value}
-  //             options={options}
-  //             theme={selectThemeColors}
-  //             className='react-select'
-  //             classNamePrefix='select'
-  //             isClearable={false}
-  //             onChange={data => setValue([data])}
-  //             components={{
-  //               Option: OptionComponent
-  //             }}
-  //           />
-  //         </FormGroup>
-
-  //         <FormGroup>
-  //           <Label for='startDate'>Start Date</Label>
-  //           <Flatpickr
-  //             required
-  //             id='startDate'
-  //             // tag={Flatpickr}
-  //             name='startDate'
-  //             className='form-control'
-  //             onChange={date => setStartPicker(date[0])}
-  //             value={startPicker}
-  //             options={{
-  //               enableTime: allDay === false,
-  //               dateFormat: 'Y-m-d H:i'
-  //             }}
-  //           />
-  //         </FormGroup>
-
-  //         <FormGroup>
-  //           <Label for='endDate'>End Date</Label>
-  //           <Flatpickr
-  //             required
-  //             id='endDate'
-  //             // tag={Flatpickr}
-  //             name='endDate'
-  //             className='form-control'
-  //             onChange={date => setEndPicker(date[0])}
-  //             value={endPicker}
-  //             options={{
-  //               enableTime: allDay === false,
-  //               dateFormat: 'Y-m-d H:i'
-  //             }}
-  //           />
-  //         </FormGroup>
-
-  //         <FormGroup>
-  //           <CustomInput
-  //             type='switch'
-  //             id='allDay'
-  //             name='customSwitch'
-  //             label='All Day'
-  //             checked={allDay}
-  //             onChange={e => setAllDay(e.target.checked)}
-  //             inline
-  //           />
-  //         </FormGroup>
-
-  //         <FormGroup>
-  //           <Label for='eventURL'>Event URL</Label>
-  //           <Input
-  //             type='url'
-  //             id='eventURL'
-  //             value={url}
-  //             onChange={e => setUrl(e.target.value)}
-  //             placeholder='https://www.google.com'
-  //           />
-  //         </FormGroup>
-
-  //         <FormGroup>
-  //           <Label for='guests'>Guests</Label>
-  //           <Select
-  //             isMulti
-  //             id='guests'
-  //             className='react-select'
-  //             classNamePrefix='select'
-  //             isClearable={false}
-  //             options={guestsOptions}
-  //             theme={selectThemeColors}
-  //             value={guests.length ? [...guests] : null}
-  //             onChange={data => setGuests([...data])}
-  //             components={{
-  //               Option: GuestsComponent
-  //             }}
-  //           />
-  //         </FormGroup>
-
-  //         <FormGroup>
-  //           <Label for='location'>Location</Label>
-  //           <Input id='location' value={location} onChange={e => setLocation(e.target.value)} placeholder='Office' />
-  //         </FormGroup>
-
-  //         <FormGroup>
-  //           <Label for='description'>Description</Label>
-  //           <Input
-  //             type='textarea'
-  //             name='text'
-  //             id='description'
-  //             rows='3'
-  //             value={desc}
-  //             onChange={e => setDesc(e.target.value)}
-  //             placeholder='Description'
-  //           />
-  //         </FormGroup>
-  //         <FormGroup className='d-flex'>
-  //           <EventActions />
-  //         </FormGroup>
-  //       </Form>
-  //     </ModalBody>
-  //   </Modal>
-  // )
 }
 
 export default AddEventSidebar

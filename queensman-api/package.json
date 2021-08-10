@@ -1,6 +1,25 @@
 {
   "dependencies": {
+    "aws-sdk": "^2.962.0",
+    "axios": "^0.21.1",
+    "date-fns": "^2.22.1",
     "expo-server-sdk": "^3.6.0",
-    "node-fetch": "^2.6.1"
+    "express": "^4.17.1",
+    "form-data": "^4.0.0",
+    "nhost-js-sdk": "^3.1.0",
+    "node-fetch": "^2.6.1",
+    "request": "^2.88.2",
+    "serverless-apigwy-binary": "^1.0.0",
+    "serverless-http": "^2.7.0",
+    "zcrmsdk": "^1.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.29.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "serverless-apigw-binary": "^0.4.4",
+    "serverless-offline": "^8.0.0"
   }
 }

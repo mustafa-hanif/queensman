@@ -24,7 +24,7 @@ export default class SettingPasswordChange extends React.Component {
       showOldPassword: true,
       showNewPassword: true,
       OldPass: "",
-      email: this.props.navigation.getParam("UserEmail", "Something"),
+      email: this.props.route.params.UserEmail,
       passwordcheck: "",
     };
   }
