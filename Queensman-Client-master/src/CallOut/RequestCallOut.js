@@ -806,7 +806,7 @@ const RequestCallOut = (props) => {
                 onValueChange={onJobCategoryValueChange}
                 selectedValue={jobCategorySelect.value}
                 backgroundColor="#FFCA5D"
-                color="white"
+                color="black"
                 placeholder="Select Job Category"
               >
                 {jobCategory ? (
@@ -834,7 +834,7 @@ const RequestCallOut = (props) => {
                 onValueChange={onJobCategoryValueChange}
                 selectedValue={jobCategorySelect.value}
                 backgroundColor="#FFCA5D"
-                color="white"
+                color="black"
                 placeholder="Select Request Type"
               >
                 <Select.Item label="Request for quotation" value="Request for quotation" />
@@ -860,7 +860,7 @@ const RequestCallOut = (props) => {
                 onValueChange={onJobTypeValueChange}
                 selectedValue={jobTypeSelect?.value}
                 backgroundColor="#FFCA5D"
-                color="white"
+                color="black"
                 placeholder="Select Job Type"
               >
                 {jobType ? (
@@ -1171,18 +1171,12 @@ const RequestCallOut = (props) => {
               </View>
             </TouchableOpacity>
           </View>
-          <Box mb={24} mt={4}>
+          <Box mb={12} mt={4}>
             {state.loading ? (
               <ActivityIndicator size="small" color="#FFCA5D" style={{ alignSelf: "center" }} />
             ) : (
-              <Button isLoading={state.loading} style={styles.SubmitCallout} onPress={() => askSubmitCallout()}>
-                <Text
-                  style={{
-                    color: "#fff",
-                    fontSize: 15,
-                    alignSelf: "center",
-                  }}
-                >
+              <Button mb={12} isLoading={state.loading} onPress={() => askSubmitCallout()}>
+                <Text>
                   {state.Urgency === "medium"
                     ? "Select Date"
                     : !props.route.params.additionalServices

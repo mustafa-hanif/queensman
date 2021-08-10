@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 /* eslint-disable no-console */
 /* eslint-disable no-shadow */
 /* eslint-disable camelcase */
@@ -5,6 +6,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-use-before-define */
 import React, { useState, useEffect } from "react";
+import { format, parseISO, differenceInHours } from "date-fns";
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { Calendar, CalendarList, Agenda } from "react-native-calendars";
 import { Box, Modal, Button } from "native-base";
@@ -24,6 +26,7 @@ const GET_SCHEDULE = gql`
       start: date_on_calendar
       startTime: time_on_calendar
       title: notes
+      blocked
       worker {
         full_name
       }
@@ -155,17 +158,20 @@ export default function SelectSchedule(props) {
   };
 
   const GetCurrentDate = () => {
+    if (markedDate) {
+      return formatDate(new Date(markedDate.date));
+    }
     return formatDate(new Date());
   };
 
-  const GetOneYearFromNow = () => {
-    return formatDate(new Date(new Date().setFullYear(new Date().getFullYear() + 1)));
+  const GetOneDayFromNow = () => {
+    return formatDate(new Date(new Date().setHours(new Date().getHours() + 24)));
   };
 
   const { loading, data, error } = useQuery(GET_SCHEDULE, {
     variables: {
       _gte: GetCurrentDate(),
-      _lte: GetOneYearFromNow(),
+      _lte: GetOneDayFromNow(),
     },
   });
 
@@ -177,12 +183,12 @@ export default function SelectSchedule(props) {
   //   error,
   // });
 
-  const setMarkedDATE = (date) => {
-    const mark = markedDate;
-    mark[date] = { selected: true, marked: true };
-    // console.log({ mark });
-    setmarkedDate(mark);
-  };
+  // const setMarkedDATE = (date) => {
+  //   let mark = markedDate;
+  //   mark[date] = { selected: true, marked: true, date };
+  //   // console.log({ mark });
+  //   setmarkedDate(mark);
+  // };
 
   const onChange = (event, selectedDate) => {
     if (selectedDate === undefined) {
@@ -293,54 +299,52 @@ export default function SelectSchedule(props) {
 
   const Confirmmodal = () => {
     return (
-      <Modal animationType="slide" transparent isOpen={modalVisible}>
-        <View style={{ flex: 1 }}>
-          <TouchableOpacity activeOpacity={1} onPress={() => setmodalVisible(false)} style={{ flex: 1 }} />
-          <View
-            style={{
-              backgroundColor: "white",
-              borderColor: "#cccccc",
-              borderWidth: 0.2,
-              borderTopEndRadius: 12,
-              borderTopLeftRadius: 12,
-              padding: 35,
-            }}
-          >
-            <Text style={{ ...styles.heading }}>Schedule the service for</Text>
-            <Text style={{ ...styles.heading }}>
-              {moment(selectedDate).format("Do MMMM, YYYY")} at {time}
-            </Text>
-            <Button
-              onPress={() => onConfirmButtonPress()}
-              style={{ backgroundColor: colors.buttonPrimaryBg, marginVertical: 20 }}
-              block
-            >
-              <Text style={{ fontWeight: "bold", fontSize: 18 }}>Confirm</Text>
-            </Button>
-          </View>
-        </View>
+      <Modal isOpen={time} onClose={() => settime(null)}>
+        <Modal.Content justifyContent="center" pr={4}>
+          <Text style={{ ...styles.heading }}>Schedule the service for</Text>
+          <Text style={{ ...styles.heading }}>
+            {moment(selectedDate).format("Do MMMM, YYYY")} at {time}
+          </Text>
+          <Button onPress={() => onConfirmButtonPress()} width={200} mx="auto" mt={4} mb={4}>
+            <Text style={{ fontWeight: "bold", fontSize: 18 }}>Confirm</Text>
+          </Button>
+        </Modal.Content>
       </Modal>
     );
   };
 
-  const slots = [];
+  // eslint-disable-next-line prefer-const
+  let slots = [];
   for (let i = 0; i < 4; i += 1) {
     slots.push({
-      time: `${i * 2 + 9}:00:00`,
-      text: `${(i * 2 + 9) % 12}:00 to ${((i + 1) * 2 + 9) % 12}:00:00`,
+      time: `${`${i * 2 + 9}`.padStart(2, 0)}:00:00`,
+      text: `${`${(i * 2 + 9) % 12}`.padStart(2, 0)}:00 to ${((i + 1) * 2 + 9) % 12}:00`,
     });
   }
   (data?.scheduler ?? []).forEach((element) => {
-    console.log(element.start);
+    const timeOnCalender = parseISO(`${element.start}T${element.startTime}`);
+    slots = slots.map((slot) => {
+      const timeOnSlot = parseISO(`${selectedDate}T${slot.time}`);
+      if (element.blocked) {
+        const diff = differenceInHours(timeOnSlot, timeOnCalender);
+        if (diff === 0 || diff === 1) {
+          return { ...slot, disabled: true };
+        }
+      }
+      return slot;
+    });
+
+    // console.log(element.start, element.startTime, element.blocked);
   });
 
-  const selectSlot = () => {
-    
-  }
+  const selectSlot = (time) => {
+    setmarkedDate(false);
+    settime(time);
+  };
 
   const onDayPress = (day) => {
     setselectedDate(day.dateString);
-    setMarkedDATE(day.dateString);
+    setmarkedDate({ date: day.dateString });
     setShow(true);
   };
 
@@ -366,7 +370,6 @@ export default function SelectSchedule(props) {
       </View>
     );
   }
-  console.log("time", time);
   return (
     <View style={{ flex: 1 }}>
       <View>
@@ -403,12 +406,19 @@ export default function SelectSchedule(props) {
           enableSwipeMonths={false}
         />
       </View>
-      {/* <Confirmmodal /> */}
+      <Confirmmodal />
       <Modal isOpen={markedDate} onClose={() => setmarkedDate(false)}>
         <Modal.Content>
-          <Box pt={4}>
+          <Box pt={4} pr={6}>
             {slots.map((slot) => (
-              <Button key={slot.time} isDisabled={slot.disabled} onPress={() => selectSlot(slot.time)}>
+              <Button
+                key={slot.time}
+                mb={8}
+                mx="auto"
+                width={240}
+                isDisabled={slot.disabled}
+                onPress={() => selectSlot(slot.time)}
+              >
                 {slot.text}
               </Button>
             ))}
@@ -428,5 +438,5 @@ const styles = StyleSheet.create({
     color: "#C7A602",
     paddingRight: 5,
   },
-  heading: { fontSize: 18, alignSelf: "center" },
+  heading: { color: "white", fontSize: 18, alignSelf: "center" },
 });

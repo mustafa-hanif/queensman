@@ -54,7 +54,7 @@ const scheduleCallout = async (event) => {
     });
   }
   // Send Email
-  await calloutEmail({ callout, worker });
+  await calloutEmail({ callout, worker, time: query.time_on_calendar });
   // console.log(data);
   try {
     return {
