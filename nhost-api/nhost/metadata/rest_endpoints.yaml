@@ -1,9 +1,0 @@
-- definition:
-    query:
-      collection_name: allowed-queries
-      query_name: all users
-  url: clients
-  methods:
-  - GET
-  name: all users
-  comment: all users
