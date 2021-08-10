@@ -1,0 +1,13 @@
+- name: allowed-queries
+  definition:
+    queries:
+    - name: all users
+      query: |-
+        query MyQuery {
+          client {
+            email
+            account_type
+            id
+            password
+          }
+        }

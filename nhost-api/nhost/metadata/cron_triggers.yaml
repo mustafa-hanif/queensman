@@ -1,0 +1,5 @@
+- name: every_five_minute
+  webhook: https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/everyFiveMinute
+  schedule: '*/5 * * * *'
+  include_in_metadata: true
+  payload: {}

@@ -17,6 +17,8 @@ app: queensman-api-app
 org: icemelt7
 plugins:
   - serverless-offline
+  - serverless-apigw-binary
+  - serverless-apigwy-binary
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
 frameworkVersion: '2'
@@ -26,6 +28,10 @@ provider:
   runtime: nodejs14.x
   lambdaHashingVersion: 20201221
 
+custom:
+  apigwBinary:
+    types:           #list of mime-types
+      - 'application/pdf'
 # you can overwrite defaults here
 #  stage: dev
 #  region: us-east-1
@@ -114,6 +120,8 @@ functions:
           path: /downloadDocument
           method: get
           cors: true
+          response:
+            contentHandling: CONVERT_TO_BINARY
   
   sendWelcomeEmail:
     handler: handler.sendWelcomeEmail
@@ -121,6 +129,14 @@ functions:
       - http:
           path: /sendWelcomeEmail
           method: post
+          cors: true
+  
+  expresstest:
+    handler: handler.expresstest
+    events:
+      - http:
+          path: /expresstest
+          method: get
           cors: true
 
 

@@ -11,7 +11,7 @@ import { Box, Modal, Button } from "native-base";
 import moment from "moment";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
-import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
+import { gql, useQuery, useMutation, useLazyQuery, setLogVerbosity } from "@apollo/client";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { auth, storage } from "../utils/nhost";
@@ -130,24 +130,21 @@ export default function SelectSchedule(props) {
 
   const [addJobTicket, { loading: addJobTicketLoading, data: addJobTicketData }] = useMutation(ADD_JOB_TICKET);
 
-  const [requestCalloutApiCall, { loading: requestCalloutLoading, data }] = useMutation(REQUEST_CALLOUT, {
-    onCompleted: (data) => {
-      console.log({
-        callout_id: data?.insert_scheduler_one?.callout_id,
-        scheduler_id: data?.insert_scheduler_one?.id,
-        notes: state.Description,
-        client_email: auth.user().email,
-      });
-      addJobTicket({
-        variables: {
-          callout_id: data?.insert_scheduler_one?.callout_id,
-          scheduler_id: data?.insert_scheduler_one?.id,
-          notes: state.Description,
-          client_email: auth.user().email,
-        },
-      });
-    },
-  });
+  const [requestCalloutApiCall, { loading: requestCalloutLoading, data: requestCalloutData }] = useMutation(
+    REQUEST_CALLOUT,
+    {
+      onCompleted: (data) => {
+        addJobTicket({
+          variables: {
+            callout_id: data?.insert_scheduler_one?.callout_id,
+            scheduler_id: data?.insert_scheduler_one?.id,
+            notes: state.Description,
+            client_email: auth.user().email,
+          },
+        });
+      },
+    }
+  );
   const [updateCalloutApi, { loading: updateCalloutLoading, error: updatecalloutError }] = useMutation(UPDATE_CALLOUT);
 
   const { state } = props.route.params;
@@ -158,7 +155,6 @@ export default function SelectSchedule(props) {
   };
 
   const GetCurrentDate = () => {
-    return "2020-08-01";
     return formatDate(new Date());
   };
 
@@ -166,12 +162,12 @@ export default function SelectSchedule(props) {
     return formatDate(new Date(new Date().setFullYear(new Date().getFullYear() + 1)));
   };
 
-  // const { loading, data, error } = useQuery(GET_SCHEDULE, {
-  //   variables: {
-  //     _gte: GetCurrentDate(),
-  //     _lte: GetOneYearFromNow(),
-  //   },
-  // });
+  const { loading, data, error } = useQuery(GET_SCHEDULE, {
+    variables: {
+      _gte: GetCurrentDate(),
+      _lte: GetOneYearFromNow(),
+    },
+  });
 
   // console.log({
   //   loading,
@@ -253,20 +249,6 @@ export default function SelectSchedule(props) {
           })
           .filter(Boolean)
       );
-      console.log({
-        property_id: state.PropertyID,
-        email: auth.user().email,
-        notes: state.Description,
-        time_on_calendar: time,
-        date_on_calendar: selectedDate,
-        category,
-        job_type: state.JobType,
-        status: "Requested",
-        request_time: current.toLocaleDateString(),
-        urgency_level: "Medium",
-        video: state.videoUrl,
-        ...pictures,
-      });
       requestCalloutApiCall({
         variables: {
           property_id: state.PropertyID,
@@ -341,23 +323,20 @@ export default function SelectSchedule(props) {
     );
   };
 
-  const getMarkedDates = () => {
-    const disable = {
-      // selected: true,
-      selectedColor: colors.buttonDisabledBg,
-      disabled: true,
-      disableTouchEvent: true,
-      activeOpacity: 0.1,
-    };
+  const slots = [];
+  for (let i = 0; i < 4; i += 1) {
+    slots.push({
+      time: `${i * 2 + 9}:00:00`,
+      text: `${(i * 2 + 9) % 12}:00 to ${((i + 1) * 2 + 9) % 12}:00:00`,
+    });
+  }
+  (data?.scheduler ?? []).forEach((element) => {
+    console.log(element.start);
+  });
 
-    const markedDates = {};
-    // data.scheduler.forEach((element) => {
-    //   markedDates[element.start] = disable;
-    // });
-    // console.log(markedDates);
-
-    return markedDates;
-  };
+  const selectSlot = () => {
+    
+  }
 
   const onDayPress = (day) => {
     setselectedDate(day.dateString);
@@ -365,20 +344,20 @@ export default function SelectSchedule(props) {
     setShow(true);
   };
 
-  const dateComponent = React.useMemo(() => {
-    return (
-      show && (
-        <DateTimePicker
-          value={date}
-          mode="time"
-          is24Hour={false}
-          display="default"
-          disabled={!show}
-          onChange={onChange}
-        />
-      )
-    );
-  }, [show]);
+  // const dateComponent = React.useMemo(() => {
+  //   return (
+  //     show && (
+  //       <DateTimePicker
+  //         value={date}
+  //         mode="time"
+  //         is24Hour={false}
+  //         display="default"
+  //         disabled={!show}
+  //         onChange={onChange}
+  //       />
+  //     )
+  //   );
+  // }, [show]);
 
   if (requestCalloutLoading || updateCalloutLoading) {
     return (
@@ -394,7 +373,7 @@ export default function SelectSchedule(props) {
         <CalendarList
           minDate={Date.now()}
           pastScrollRange={0}
-          markedDates={getMarkedDates()}
+          // markedDates={getMarkedDates()}
           onDayPress={onDayPress}
           hideArrows
           hideExtraDays
@@ -416,7 +395,7 @@ export default function SelectSchedule(props) {
                   marginVertical: 10,
                 }}
               >
-                <Text style={{ marginLeft: 5, ...styles.textStyle }}>{`${month}`}</Text>
+                <Text style={{ marginLeft: 5, ...styles.textStyle }}>{month}</Text>
                 <Text style={{ marginRight: 5, ...styles.textStyle }}>{year}</Text>
               </View>
             );
@@ -425,18 +404,29 @@ export default function SelectSchedule(props) {
         />
       </View>
       {/* <Confirmmodal /> */}
-      {/* <Modal isOpen={markedDate}>
+      <Modal isOpen={markedDate} onClose={() => setmarkedDate(false)}>
         <Modal.Content>
           <Box pt={4}>
-            <Button onPress={onConfirmTime}>Confirm Time</Button>
+            {slots.map((slot) => (
+              <Button key={slot.time} isDisabled={slot.disabled} onPress={() => selectSlot(slot.time)}>
+                {slot.text}
+              </Button>
+            ))}
           </Box>
         </Modal.Content>
-      </Modal> */}
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  textStyle: { fontSize: 18, fontWeight: "bold", paddingTop: 10, paddingBottom: 10, color: "#5E60CE", paddingRight: 5 },
+  textStyle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    paddingTop: 10,
+    paddingBottom: 10,
+    color: "#C7A602",
+    paddingRight: 5,
+  },
   heading: { fontSize: 18, alignSelf: "center" },
 });
