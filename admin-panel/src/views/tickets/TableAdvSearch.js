@@ -560,8 +560,8 @@ const DataTableAdvSearch = () => {
       setSearchStatus(value)
     }
   }
-  //for export data
-
+  //for export data start
+//=================================
   const createExportObject = (DataTojson) => {
     const objectsToExport = []
 
@@ -594,6 +594,8 @@ const DataTableAdvSearch = () => {
       return createExportObject(data?.job_tickets)
     }
   }
+    //for export data end
+//=================================
   return (
     <Fragment>
       <Card>
@@ -643,8 +645,7 @@ const DataTableAdvSearch = () => {
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='type'>Type:</Label>
-                <Input id='type' type='select' value={searchType} onChange={handleTypeFilter}>
-                  <option></option>
+                <Input id='type' type='select' value={searchType} onChange={handleTypeFilter} placeholder="Type">
                   <option>Deferred</option>
                   <option>Additional Request</option>
                   <option>Full Job</option>
@@ -720,7 +721,7 @@ const DataTableAdvSearch = () => {
       </div>
       <div className='vertically-centered-modal'>
         <Modal isOpen={detailsModal} toggle={() => setDetailsModal(!detailsModal)} className='modal-dialog-centered modal-xl'>
-          <ModalHeader className="d-flex justify-content-center">Job Details</ModalHeader>
+          <ModalHeader className="d-flex justify-content-center"  toggle={() => setDetailsModal(!detailsModal)}>Job Details</ModalHeader>
           <ModalBody>
             <TabsVerticalLeft item={modalDetails} />
           </ModalBody>

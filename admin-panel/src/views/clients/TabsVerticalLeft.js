@@ -56,7 +56,14 @@ const TabsVerticalLeft = ({ item }) => {
             content: <div></div>
           }
         ]
-  console.log(property_owneds_modified)
+  
+    const ItemValue = ({item, itemKey}) => (
+      <ListGroupItem>
+      <span style={{fontWeight: "bold"}}>
+        {itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}: </span> 
+        {item[itemKey] ? item[itemKey] : "N/A"}
+      </ListGroupItem>
+    )
 
   return (
     <div className="nav-vertical">
@@ -97,18 +104,10 @@ const TabsVerticalLeft = ({ item }) => {
           <h1>Details</h1>
           <h5>Client Details</h5>
           <ListGroup flush>
-            {Object.keys(item).map((itemKey) => {
+            {item && Object.keys(item).map((itemKey) => {
               if (!["documents", "property_owneds", "hasPlan"].includes(itemKey)) {
                 return (
-                  <ListGroupItem>
-                    {itemKey
-                      .split("_")
-                      .map(
-                        (value) => value.charAt(0).toUpperCase() + value.slice(1)
-                      )
-                      .join(" ")}
-                    : {item[itemKey] ? item[itemKey] : "N/A"}
-                  </ListGroupItem>
+                  <ItemValue item={item} itemKey={itemKey} />
                 )
               }
             })}

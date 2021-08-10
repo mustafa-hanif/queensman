@@ -58,7 +58,8 @@ const ToastComponent = ({ title, icon, color }) => (
     </div>
   </Fragment>
 )
-
+//for export
+import Exportqs from '../extensions/import-export/Exportqs'
 // ** Bootstrap Checkbox Component
 // const BootstrapCheckbox = forwardRef(({ onClick, ...rest }, ref) => {
 //     return (
@@ -333,10 +334,10 @@ const DataTableAdvSearch = () => {
     refetchQueries: [{ query: GET_INVENTORY }]
   })
   const [modal, setModal] = useState(false)
-  const [searchName, setSearchName] = useState("")
-  const [searchOccupation, setSearchOccupation] = useState("")
+  const [searchReportId, setSearchReportId] = useState("")
+  const [searchInspectionBy, setsearchInspectionBy] = useState("")
   const [currentPage, setCurrentPage] = useState(0)
-  const [searchEmail, setSearchEmail] = useState("")
+  const [searchAddress, setsearchAddress] = useState("")
   const [searchOrganization, setSearchOrganization] = useState("")
   const [searchPhone, setSearchPhone] = useState("")
   const [searchGender, setSearchGender] = useState("")
@@ -456,9 +457,9 @@ const DataTableAdvSearch = () => {
   // ** Table data to render
   const dataToRender = () => {
     if (
-      searchName.length ||
-      searchOccupation.length ||
-      searchEmail.length ||
+      searchReportId.length ||
+      searchInspectionBy.length ||
+      searchAddress.length ||
       searchPhone.length ||
       searchGender.length ||
       searchOrganization.length
@@ -621,15 +622,15 @@ const DataTableAdvSearch = () => {
     />
   )
 
-  // ** Function to handle name filter
-  const handleNameFilter = (e) => {
+  // ** Function to handle reportId filter
+  const handleReportIdFilter = (e) => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
       if (
-        searchEmail.length ||
-        searchName.length ||
-        searchOccupation.length ||
+        searchAddress.length ||
+        searchReportId.length ||
+        searchInspectionBy.length ||
         searchOrganization.length ||
         searchPhone.length ||
         searchGender.length
@@ -640,16 +641,14 @@ const DataTableAdvSearch = () => {
       }
     }
 
-    setSearchName(value)
+    setSearchReportId(value)
     if (value.length) {
       updatedData = dataToFilter().filter((item) => {
-        const startsWith = item.full_name
-          ?.toLowerCase()
-          .startsWith(value.toLowerCase())
-
-        const includes = item.full_name
-          ?.toLowerCase()
-          .includes(value.toLowerCase())
+         
+        const startsWith = item.id?.toString().startsWith(value.toLowerCase())
+       
+        const includes = item.id
+          ?.toString().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -658,20 +657,20 @@ const DataTableAdvSearch = () => {
         } else return null
       })
       setFilteredData([...updatedData])
-      setSearchName(value)
+      setSearchReportId(value)
     }
   }
 
 
-  // ** Function to handle Occupation filter
-  const handleOccupationFilter = (e) => {
+  // ** Function to handle InspectionBy filter
+  const handleInspectionByFilter = (e) => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
       if (
-        searchEmail.length ||
-        searchName.length ||
-        searchOccupation.length ||
+        searchAddress.length ||
+        searchReportId.length ||
+        searchInspectionBy.length ||
         searchOrganization.length ||
         searchPhone.length ||
         searchGender.length
@@ -682,14 +681,14 @@ const DataTableAdvSearch = () => {
       }
     }
 
-    setSearchOccupation(value)
+    setsearchInspectionBy(value)
     if (value.length) {
       updatedData = dataToFilter().filter((item) => {
-        const startsWith = item.occupation
+        const startsWith = item.inspection_done_by
           ?.toLowerCase()
           .startsWith(value.toLowerCase())
 
-        const includes = item.occupation
+        const includes = item.inspection_done_by
           ?.toLowerCase()
           .includes(value.toLowerCase())
 
@@ -700,7 +699,7 @@ const DataTableAdvSearch = () => {
         } else return null
       })
       setFilteredData([...updatedData])
-      setSearchOccupation(value)
+      setsearchInspectionBy(value)
     }
   }
 
@@ -710,9 +709,9 @@ const DataTableAdvSearch = () => {
     let updatedData = []
     const dataToFilter = () => {
       if (
-        searchEmail.length ||
-        searchName.length ||
-        searchOccupation.length ||
+        searchAddress.length ||
+        searchReportId.length ||
+        searchInspectionBy.length ||
         searchOrganization.length ||
         searchPhone.length ||
         searchGender.length
@@ -751,9 +750,9 @@ const DataTableAdvSearch = () => {
     let updatedData = []
     const dataToFilter = () => {
       if (
-        searchEmail.length ||
-        searchName.length ||
-        searchOccupation.length ||
+        searchAddress.length ||
+        searchReportId.length ||
+        searchInspectionBy.length ||
         searchOrganization.length ||
         searchPhone.length ||
         searchGender.length
@@ -786,15 +785,15 @@ const DataTableAdvSearch = () => {
     }
   }
 
- // ** Function to handle email filter
- const handleEmailFilter = (e) => {
+ // ** Function to handle Address filter
+ const handleAddressFilter = (e) => {
   const value = e.target.value
   let updatedData = []
   const dataToFilter = () => {
     if (
-      searchEmail.length ||
-      searchName.length ||
-      searchOccupation.length ||
+      searchAddress.length ||
+      searchReportId.length ||
+      searchInspectionBy.length ||
       searchOrganization.length ||
       searchPhone.length ||
       searchGender.length
@@ -805,14 +804,14 @@ const DataTableAdvSearch = () => {
     }
   }
 
-  setSearchEmail(value)
+  setsearchAddress(value)
   if (value.length) {
     updatedData = dataToFilter().filter((item) => {
-      const startsWith = item.email
+      const startsWith = item.property.address
         ?.toLowerCase()
         .startsWith(value.toLowerCase())
 
-      const includes = item.email
+      const includes = item.property.address
         ?.toLowerCase()
         .includes(value.toLowerCase())
 
@@ -823,7 +822,7 @@ const DataTableAdvSearch = () => {
       } else return null
     })
     setFilteredData([...updatedData])
-    setSearchEmail(value)
+    setsearchAddress(value)
   }
 }
 
@@ -833,9 +832,9 @@ const DataTableAdvSearch = () => {
     let updatedData = []
     const dataToFilter = () => {
       if (
-        searchEmail.length ||
-        searchName.length ||
-        searchOccupation.length ||
+        searchAddress.length ||
+        searchReportId.length ||
+        searchInspectionBy.length ||
         searchOrganization.length ||
         searchPhone.length ||
         searchGender.length
@@ -867,6 +866,43 @@ const DataTableAdvSearch = () => {
       setSearchGender(value)
     }
   }
+
+ //for export data start
+//=================================
+const createExportObject = (DataTojson) => {
+  const objectsToExport = []
+
+  for (const keys in DataTojson) {
+    objectsToExport.push({
+      id: DataTojson[keys].id.toString(),
+      propert_address: DataTojson[keys].property.address,
+      inspection_done_by: DataTojson[keys].inspection_done_by,
+      status: DataTojson[keys]?.approved 
+       
+
+    })
+
+  }
+  //   console.log((objectsToExport))
+  return (objectsToExport)
+
+}
+const dataToExport = () => {
+  if (
+    searchAddress.length ||
+    searchReportId.length ||
+    searchInspectionBy.length 
+    
+  ) {
+    return createExportObject(filteredData)
+  } else {
+    return createExportObject(data?.inventory_report)
+  }
+}
+  //for export data end
+//=================================
+
+
   return (
     <Fragment>
       <Card>
@@ -883,73 +919,41 @@ const DataTableAdvSearch = () => {
           <Row form className="mt-1 mb-50">
             <Col lg="4" md="6">
               <FormGroup>
-                <Label for="name">Name:</Label>
+                <Label for="reportid">Report id:</Label>
                 <Input
-                  id="name"
-                  placeholder="Bruce Wayne"
-                  value={searchName}
-                  onChange={handleNameFilter}
+                  id="reportid"
+                  placeholder="999"
+                  value={searchReportId}
+                  onChange={handleReportIdFilter}
                 />
               </FormGroup>
             </Col>
             <Col lg="4" md="6">
               <FormGroup>
-                <Label for="email">Email:</Label>
+                <Label for="Address">Address:</Label>
                 <Input
-                  type="email"
-                  id="email"
-                  placeholder="Bwayne@email.com"
-                  value={searchEmail}
-                  onChange={handleEmailFilter}
+                  id="Address"
+                  placeholder="Discovery garden"
+                  value={searchAddress}
+                  onChange={handleAddressFilter}
                 />
               </FormGroup>
             </Col>
             <Col lg="4" md="6">
               <FormGroup>
-                <Label for="occupation">Occupation:</Label>
+                <Label for="InspectionBy">Inspection by:</Label>
                 <Input
-                  id="occupation"
-                  placeholder="Web Designer"
-                  value={searchOccupation}
-                  onChange={handleOccupationFilter}
+                  id="InspectionBy"
+                  placeholder="Name"
+                  value={searchInspectionBy}
+                  onChange={ handleInspectionByFilter}
                 />
               </FormGroup>
             </Col>
-            <Col lg="4" md="6">
-              <FormGroup>
-                <Label for="organization">Organization:</Label>
-                <Input
-                  id="organization"
-                  placeholder="San Diego"
-                  value={searchOrganization}
-                  onChange={handleOrganizationFilter}
-                />
-              </FormGroup>
-            </Col>
-            <Col lg="4" md="6">
-              <FormGroup>
-                <Label for="phone">Phone:</Label>
-                <Input
-                  id="phone"
-                  placeholder="San Diego"
-                  value={searchPhone}
-                  onChange={handlePhoneFilter}
-                />
-              </FormGroup>
-            </Col>
-            <Col lg="4" md="6">
-              <FormGroup>
-                <Label for="gender">Gender:</Label>
-                <Input
-                  id="gender"
-                  placeholder="Male"
-                  value={searchGender}
-                  onChange={handleGenderFilter}
-                />
-              </FormGroup>
-            </Col>
+            
           </Row>
         </CardBody>
+        <Exportqs InData={dataToExport()}></Exportqs>
         {!loading ? (
           <DataTable
             noHeader
@@ -960,7 +964,7 @@ const DataTableAdvSearch = () => {
             className="react-dataTable"
             sortIcon={<ChevronDown size={10} />}
             paginationDefaultPage={currentPage + 1}
-            paginationComponent={CustomPagination}
+           // paginationComponent={CustomPagination}
             data={dataToRender()}
             onRowClicked={(row) => openDetailsModal(row)}
             highlightOnHover={true}
@@ -969,7 +973,7 @@ const DataTableAdvSearch = () => {
           />
         ) : (
           <h4 className="d-flex text-center align-items-center justify-content-center mb-5">
-            Loading Client information
+            Loading Inventory information
           </h4>
         )}
       </Card>
@@ -1013,8 +1017,8 @@ const DataTableAdvSearch = () => {
           toggle={() => setDetailsModal(!detailsModal)}
           className="modal-dialog-centered modal-xl"
         >
-          <ModalHeader className="d-flex justify-content-center">
-            Client Details
+          <ModalHeader className="d-flex justify-content-center"  toggle={() => setDetailsModal(!detailsModal)}>
+            Inventory Details
           </ModalHeader>
           <ModalBody>
             <TabsVerticalLeft item={modalDetails} allProperty={allProperty} />
