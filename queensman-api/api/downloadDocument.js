@@ -3,8 +3,9 @@ const FormData = require('form-data');
 const fetch = require('node-fetch');
 
 const downloadDocument = async (event) => {
-  const params = new URLSearchParams(event.body);
-  const documentId = params.get('document_id');
+  // console.log(event);
+  // const params = new URLSearchParams(event.body);
+  const documentId = event.queryStringParameters.document_id;
 
   const formdata = new FormData();
   formdata.append('document_id', documentId);
@@ -24,7 +25,7 @@ const downloadDocument = async (event) => {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Credentials': true,
       'Content-Type': 'application/pdf',
-      'Content-Disposition': 'inline; filename="sample.pdf"'
+      'Content-Disposition': 'inline; filename="contract.pdf"'
     },
     body: file,
     isBase64Encoded: true

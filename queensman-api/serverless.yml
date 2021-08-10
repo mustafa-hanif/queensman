@@ -15,7 +15,8 @@ service: queensman-api
 # app and org for use with dashboard.serverless.com
 app: queensman-api-app
 org: icemelt7
-
+plugins:
+  - serverless-offline
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
 frameworkVersion: '2'
@@ -111,7 +112,7 @@ functions:
     events:
       - http:
           path: /downloadDocument
-          method: post
+          method: get
           cors: true
   
   sendWelcomeEmail:

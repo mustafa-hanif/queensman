@@ -39,16 +39,16 @@ const sendWelcomeEmail = async (event) => {
     };
     await sendEmail(params);
     return {
-      status: 200,
-      body: {
+      statusCode: 200,
+      body: JSON.stringify({
         message: 'Email sent succesfuly'
-      },
+      }),
     }
   } catch (e) {
     console.log(e);
     return {
-      status: 500,
-      body: e
+      statusCode: 500,
+      body: JSON.stringify(e)
     }
   };
 }

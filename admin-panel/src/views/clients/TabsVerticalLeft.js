@@ -112,7 +112,7 @@ const TabsVerticalLeft = ({ item }) => {
                 )
               }
             })}
-            {item?.documents?.document_name && <Document row={item} />}
+            {item?.documents?.[item?.documents.length - 1].document_name && <Document row={item} />}
           </ListGroup>
         </TabPane>
         <TabPane tabId="2">
@@ -138,22 +138,22 @@ const TabsVerticalLeft = ({ item }) => {
 
 const Document = ({ row }) => {
   const [loading, setloading] = useState(false)
-  const documentId = (row?.documents?.document_name ?? '').split(', ')[1]
+  const documentId = (row?.documents?.[row?.documents.length - 1].document_name ?? '').split(', ')[1]
   const name = row?.full_name
   const downloadContract = () => {
     setloading(true)
-    const myHeaders = new Headers()
-    myHeaders.append("Content-Type", "application/x-www-form-urlencoded")
+    // const myHeaders = new Headers()
+    // myHeaders.append("Content-Type", "application/x-www-form-urlencoded")
 
-    const urlencoded = new URLSearchParams()
-    urlencoded.append("document_id", documentId)
+    // const urlencoded = new URLSearchParams()
+    // urlencoded.append("document_id", documentId)
 
-    const requestOptions = {
-      method: 'POST',
-      headers: myHeaders,
-      body: urlencoded,
-      redirect: 'follow'
-    }
+    // const requestOptions = {
+    //   method: 'POST',
+    //   headers: myHeaders,
+    //   body: urlencoded,
+    //   redirect: 'follow'
+    // }
 
     fetch("https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/downloadDocument", requestOptions)
       .then(response => response.text())
@@ -174,7 +174,7 @@ const Document = ({ row }) => {
   if (loading) {
     return <Spinner />
   }
-  return <Button.Ripple onClick={downloadContract} color='primary' style={{ width: 300 }}>Download Contract</Button.Ripple>
+  return <Button.Ripple href={`https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/downloadDocument?document_id?=${documentId}`} color='primary' style={{ width: 300 }}>Download Contract</Button.Ripple>
 }
 
 function b64toBlob(b64Data, contentType, sliceSize) {
