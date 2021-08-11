@@ -1,13 +1,25 @@
-import { useState } from 'react'
+import { useState, Fragment } from 'react'
 import AppCollapse from '@components/app-collapse'
 import { Spinner, TabContent, TabPane, Nav, NavItem, NavLink, ListGroup, ListGroupItem, Card, Col, Row, Button, ButtonGroup,  Modal, ModalHeader, ModalBody, ModalFooter, Input, Label  } from 'reactstrap'
-import { Check, Upload, XCircle } from 'react-feather'
+import { Check, Upload, XCircle, Info, X } from 'react-feather'
 import Rooms from './Rooms'
 import { gql, useMutation, useQuery, useLazyQuery } from "@apollo/client"
 import { auth, storage } from "../../utility/nhost"
 import moment from 'moment'
+import { toast } from "react-toastify"
+import Avatar from "@components/avatar"
 
-
+// Toast Component
+const ToastComponent = ({ title, icon, color }) => (
+  <Fragment>
+    <div className="toastify-header pb-0">
+      <div className="title-wrapper">
+        <Avatar size="sm" color={color} icon={icon} />
+        <h6 className="toast-title">{title}</h6>
+      </div>
+    </div>
+  </Fragment>
+)
 const UPDATE_TO_REVIEW = gql`
 mutation UpdateToReview($approved: smallint = 1, $id: Int!) {
   update_inventory_report_by_pk(pk_columns: {id: $id}, _set: {approved: $approved}) {
@@ -83,11 +95,20 @@ const TabsVerticalLeft = ({item, allProperty}) => {
     }
   }
 
+
   const decline = (decline) => {
     if (decline === "decline") {
-      setToUnApproveStage({variables: {id: item?.id}})
-    setApproveStatus(0)
-    setDeclineModal(false)
+      setToUnApproveStage({variables: {id: item?.id}}) //Unapproved Stage
+      setApproveStatus(0)
+      setDeclineModal(false)
+      toast.error(
+        <ToastComponent title="Report set to unapproved stage" color="danger" icon={<X />} />,
+        {
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeButton: false
+        }
+      )
     } else {
       setDeclineModal(true)
     }
@@ -98,20 +119,44 @@ const TabsVerticalLeft = ({item, allProperty}) => {
     setToApproveStage({variables: {id: item?.id}}) //Final Stage Approved 
       setApproveStatus(3)
       setApproveModal(false)
+      toast.success(
+        <ToastComponent title="Report approved" color="success" icon={<Check />} />,
+        {
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeButton: false
+        }
+      )
   }
 
   const checkMark = (role) => {
     if (role === "superAdmin") {
       setApproveModal(true) //Final Stage Approved 
     } else if (role === "admin") {
-      setToApprovalStage({variables: {id: item?.id}}) //Aproval Stage
+      setToApprovalStage({variables: {id: item?.id}}) //Approval Stage
       setApproveStatus(2)
+      toast.warn(
+        <ToastComponent title="Report is now in approval stage" color="warning" icon={<Info />} />,
+        {
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeButton: false
+        }
+      )
     }  else  {
-      if (!pdf) {
+      if (!pdfLocation) {
         alert("Please upload pdf first")
       } else {
         setToReviewStage({variables: {id: item?.id}}) //Review Stage
         setApproveStatus(1)
+        toast.info(
+          <ToastComponent title="Report is now in review stage" color="info" icon={<Check />} />,
+          {
+            autoClose: 4000,
+            hideProgressBar: false,
+            closeButton: false
+          }
+        )
       }
     }
   }
@@ -120,12 +165,36 @@ const TabsVerticalLeft = ({item, allProperty}) => {
     if (role === "superAdmin") {
       setToApprovalStage({variables: {id: item?.id}}) //Approval Stage
       setApproveStatus(2)
+      toast.warn(
+        <ToastComponent title="Report is now in approval stage" color="warning" icon={<Info />} />,
+        {
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeButton: false
+        }
+      )
     } else if (role === "admin") {
       setToReviewStage({variables: {id: item?.id}}) //Review Stage
       setApproveStatus(1)
+      toast.info(
+        <ToastComponent title="Report is now in review stage" color="info" icon={<Check />} />,
+        {
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeButton: false
+        }
+      )
     } else {
       setToUnApproveStage({variables: {id: item?.id}}) //Unapproved Stage
       setApproveStatus(0)
+      toast.error(
+        <ToastComponent title="Report set to unapproved stage" color="danger" icon={<X />} />,
+        {
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeButton: false
+        }
+      )
     }
     
   }
@@ -150,6 +219,14 @@ const TabsVerticalLeft = ({item, allProperty}) => {
           report_location: `https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}`
         }})
         setPdfLocation(`https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}`)
+        toast.success(
+          <ToastComponent title="File Uploaded" color="success" icon={<Check />} />,
+          {
+            autoClose: 4000,
+            hideProgressBar: false,
+            closeButton: false
+          }
+        )
       }).catch(console.error)
     } else {
       setLoading(true)
@@ -164,6 +241,14 @@ const TabsVerticalLeft = ({item, allProperty}) => {
           report_location: `https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}`
         }})
         setPdfLocation(`https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}`)
+        toast.success(
+          <ToastComponent title="Plan Added" color="success" icon={<Check />} />,
+          {
+            autoClose: 4000,
+            hideProgressBar: false,
+            closeButton: false
+          }
+        )
       }).catch(console.error)
     }
    }
@@ -360,32 +445,40 @@ const TabsVerticalLeft = ({item, allProperty}) => {
           
           </Col>
           <Col md="4">
-            {/* If it is not in review or unapproved stage */}
-            {approveStatus === 0 || approveStatus === 1 ?  <ButtonGroup className='mb-1'>
+            {/* If it is not in review stage */}
+            {approveStatus === 0 ?  <ButtonGroup className='mb-1'>
             <Button color='info' className="btn-icon" size="sm" onClick={() => checkMark()}>
+              <Check size={15} />
+            </Button>
+            <Button color='secondary' className="btn-icon" size="sm" disabled>
+              <XCircle size={15} />
+            </Button>
+          </ButtonGroup> :  approveStatus === 1 ? <ButtonGroup className='mb-1'>
+            <Button color='secondary' className="btn-icon" size="sm" disabled>
               <Check size={15} />
             </Button>
             <Button color='danger' className="btn-icon" size="sm" onClick={() => cancel()}>
               <XCircle size={15} />
             </Button>
           </ButtonGroup> :  <ButtonGroup className='mb-1'>
-            <Button color='info' className="btn-icon" size="sm" disabled>
+            <Button color='secondary' className="btn-icon" size="sm" disabled>
               <Check size={15} />
             </Button>
-            <Button color='danger' className="btn-icon" size="sm" disabled >
+            <Button color='secondary' className="btn-icon" size="sm" disabled>
               <XCircle size={15} />
             </Button>
           </ButtonGroup>}
          
           </Col>
         </Row>
-        <Row className="mt-4">
+        <Row className="mt-1">
         <Col>
         {/* If it is not in review or unapproved stage */}
+        {approveStatus === 1 && <p className="font-weight-bold text-danger">Status is already in review. Please unapprove it to upload file.</p>}
         { (approveStatus === 0 || approveStatus === 1) && <div> 
           <div className="d-flex align-items-center mb-2">
             <Label>Upload PDF: </Label>
-            <Input type="file" name="file" id="exampleFile" onChange={(e) => { setPdf(e.target.files[0]); setUploadButton(true) }}/>
+            {approveStatus === 1 ? <Input type="file" name="file" id="exampleFile" disabled onClick={() => alert("")}/> : <Input type="file" name="file" id="exampleFile" onChange={(e) => { setPdf(e.target.files[0]); setUploadButton(true) }}/>}
             {!uploadButton ? <Button color='info' size="sm" disabled>
               <Upload size={15} />
               Upload

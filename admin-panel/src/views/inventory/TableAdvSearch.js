@@ -179,32 +179,6 @@ const DataTableAdvSearch = () => {
     setModalAlert(!modalAlert)
   }
 
-  const SuccessToast = ({ data }) => {
-    return (
-      <Fragment>
-        <div className='toastify-header'>
-          <div className='title-wrapper'>
-            <Avatar size='sm' color='success' icon={<Check size={12} />} />
-            <h6 className='toast-title'>Form Submitted!</h6>
-          </div>
-        </div>
-        <div className='toastify-body'>
-          <ul className='list-unstyled mb-0'>
-            <li>
-              <strong>firstName</strong>: {data.firstName}
-            </li>
-            <li>
-              <strong>lastName</strong>: {data.lastName}
-            </li>
-            <li>
-              <strong>email</strong>: {data.email}
-            </li>
-          </ul>
-        </div>
-      </Fragment>
-    )
-  }
-
   const openModalAlert = (id) => {
     setRowId(id)
     setModalAlert(true)
