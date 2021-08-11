@@ -334,7 +334,7 @@ const TabsVerticalLeft = ({item, allProperty}) => {
         <TabPane tabId='4'>
           <div className="d-flex align-items-center mb-1">
             <h1 className="mr-2">Inventory Actions</h1>
-            { loading && <Spinner color='primary' />}
+            { (reviewStageLoading || unApproveStageLoading || approvalStageLoading || approveStageLoading || uploadPDFLoading || uploadUpdatePDFLoading || loading) && <Spinner color='primary' />}
           </div>
         {userName === "murtaza.hanif@techinoviq.com" ? <div className="mr-2">
         <Row>
