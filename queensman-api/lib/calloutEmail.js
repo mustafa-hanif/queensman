@@ -1,14 +1,17 @@
 var calloutTemplate = require('../templates/callout_details').calloutTemplate;
 var sendEmail = require('./sendEmail').sendEmail;
+
 const calloutEmail = async ({ callout, worker, time }) => {
   const params = {
     Destination: { /* required */
       CcAddresses: [
-        'murtaza.hanif@techinoviq.com',
+        'gnyahuma@queensman.com', 'aalvi@queensman.com',
+        'ffakhri@queensman.com', 'bvictor@queensman.com',
+        'murtaza.hanif@techinoviq.com', 'icemelt7@gmail.com'
       /* more items */
       ],
       ToAddresses: [
-        'icemelt7@gmail.com',
+        'services@queensman.com',
       /* more items */
       ]
     },
@@ -21,7 +24,7 @@ const calloutEmail = async ({ callout, worker, time }) => {
       },
       Subject: {
         Charset: 'UTF-8',
-        Data: 'New Callout #23 Created by Murtaza Hanif'
+        Data: `[UAT] New Callout ${callout.id} Created by ${callout.client_callout_email.full_name}`
       }
     },
     Source: 'services@queensman.com', /* required */
