@@ -479,7 +479,7 @@ const AddEventSidebar = props => {
       return (
         <Fragment>
           <Button.Ripple className='mr-1' type='submit' color='primary'>
-            Add
+            Add Callout
           </Button.Ripple>
           <Button.Ripple color='secondary' type='reset' onClick={handleAddEventSidebar} outline>
             Cancel
@@ -494,10 +494,10 @@ const AddEventSidebar = props => {
             color='primary'
             onClick={handleUpdateEvent}
           >
-            Update
+            Update Callout
           </Button.Ripple>
           <Button.Ripple color='danger' onClick={handleDeleteEvent} outline>
-            Delete
+            Delete Callout
           </Button.Ripple>
         </Fragment>
       )
@@ -519,7 +519,7 @@ const AddEventSidebar = props => {
       onClosed={handleResetInputValues}
       toggle={handleAddEventSidebar}
     >
-      <ModalHeader className='mb-1' toggle={handleAddEventSidebar} close={CloseBtn} tag='div'>
+      <ModalHeader className='mb-1' toggle={handleAddEventSidebar} >
          <h5 className='modal-title'>
            {selectedEvent?.title}
          </h5>
@@ -732,12 +732,13 @@ const AddEventSidebar = props => {
              />
            </FormGroup>
            <FormGroup>
-             <Input type='checkbox' id='blocked' onChange={() => setBlocked(!blocked)} checked={blocked} />
-             <Label for='blocked'>Should we block this slot from any booking?</Label>
+           <CustomInput inline className='custom-control-Primary' type='checkbox' id='blocked'  onChange={() => setBlocked(!blocked)} label='Should we block this slot from any booking?' checked={blocked} />
+             {/* <Input type='checkbox' id='blocked' onChange={() => setBlocked(!blocked)} checked={blocked} /> */}
+             {/* <Label for='blocked'>Should we block this slot from any booking?</Label> */}
            </FormGroup>
            <FormGroup style={{display: "flex", justifyContent: "space-between"}}>
-             {[picture1, picture2, picture3, picture4].map(picture => (
-              <CalloutPicture key={picture} picture={picture} />
+             {[picture1, picture2, picture3, picture4].map((picture, i) => (
+              <CalloutPicture key={i} picture={picture} />
              ))}
            </FormGroup>
            
@@ -787,10 +788,10 @@ const AddEventSidebar = props => {
             color='primary'
             onClick={() => handleJobUpdateEvent(index)}
           >
-            {job?.newJob ? 'Save' : 'Update'}
+            {job?.newJob ? 'Save Ticket' : 'Update Ticket'}
           </Button.Ripple>
           <Button.Ripple color='danger' onClick={() => handleJobDeleteEvent(index)} outline>
-            Delete
+            Delete Ticket
           </Button.Ripple>
         </Fragment>
             </FormGroup>

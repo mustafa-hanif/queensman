@@ -74,8 +74,7 @@ import Exportqs from '../extensions/import-export/Exportqs'
 import "@styles/react/libs/flatpickr/flatpickr.scss"
 import { gql, useMutation, useQuery, useLazyQuery } from "@apollo/client"
 import AddNewModal from "./AddNewModal"
-import ButtonGroup from "reactstrap/lib/ButtonGroup"
-import { months } from "moment"
+import moment from "moment"
 import axios from "axios"
 import TabsVerticalLeft from "./TabsVerticalLeft"
 
@@ -116,6 +115,11 @@ query GetInventory {
       country
       community
     }
+    inventory_report_pdfs {
+      report_location
+      report_upload_date
+      id
+    }
   }
 }
 `
@@ -130,185 +134,13 @@ query MyQuery($property_id: Int!) {
 }
 `
 
-const UPDATE_CLIENT = gql`
-  mutation UpdateClient(
-    $id: Int!
-    $email: String
-    $full_name: String
-    $gender: String
-    $occupation: String
-    $organization: String
-    $phone: String
-    $active: smallint
-    $sec_email: String
-    $sec_phone: String
-    $account_type: String
-    $age_range: String
-    $family_size: Int
-    $ages_of_children: String
-    $earning_bracket: String
-    $nationality: String
-    $years_expatriate: Int
-    $years_native: Int
-    $referred_by: Int
-    $other_properties: String
-    $contract_start_date: date
-    $contract_end_date: date
-    $sign_up_time: timestamp
-    $password: String
-  ) {
-    update_client_by_pk(
-      pk_columns: { id: $id }
-      _set: {
-        id: $id
-        email: $email
-        full_name: $full_name
-        gender: $gender
-        occupation: $occupation
-        organization: $organization
-        phone: $phone
-        password: $password
-        active: $active
-        sec_email: $sec_email
-        sec_phone: $sec_phone
-        account_type: $account_type
-        age_range: $age_range
-        family_size: $family_size
-        ages_of_children: $ages_of_children
-        earning_bracket: $earning_bracket
-        nationality: $nationality
-        years_expatriate: $years_expatriate
-        years_native: $years_native
-        referred_by: $referred_by
-        other_properties: $other_properties
-        contract_start_date: $contract_start_date
-        contract_end_date: $contract_end_date
-        sign_up_time: $sign_up_time
-      }
-    ) {
-      id
-    }
-  }
-`
-const ADD_CLIENT = gql`
-  mutation AddClient(
-    $email: String
-    $full_name: String
-    $gender: String
-    $occupation: String
-    $organization: String
-    $phone: String
-    $active: smallint
-    $sec_email: String
-    $sec_phone: String
-    $account_type: String
-    $age_range: String
-    $family_size: Int
-    $ages_of_children: String
-    $earning_bracket: String
-    $nationality: String
-    $years_expatriate: Int
-    $years_native: Int
-    $referred_by: Int
-    $other_properties: String
-    $contract_start_date: date
-    $contract_end_date: date
-    $password: String
-  ) {
-    insert_client_one(
-      object: {
-        email: $email
-        full_name: $full_name
-        gender: $gender
-        occupation: $occupation
-        organization: $organization
-        phone: $phone
-        password: $password
-        active: $active
-        sec_email: $sec_email
-        sec_phone: $sec_phone
-        account_type: $account_type
-        age_range: $age_range
-        family_size: $family_size
-        ages_of_children: $ages_of_children
-        earning_bracket: $earning_bracket
-        nationality: $nationality
-        years_expatriate: $years_expatriate
-        years_native: $years_native
-        referred_by: $referred_by
-        other_properties: $other_properties
-        contract_start_date: $contract_start_date
-        contract_end_date: $contract_end_date
-      }
-    ) {
-      id
-    }
-  }
-`
+// const UPDATE_CLIENT = gql`
+// `
+// const ADD_CLIENT = gql`
+// `
 
-const DELETE_CLIENT = gql`
-  mutation DeleteClient($id: Int!) {
-    delete_client_by_pk(id: $id) {
-      id
-    }
-  }
-`
-const UPDATE_CLIENT_HASPLAN = gql`
-  mutation UpdateHasPLan($id: Int!, $hasPlan: Boolean!) {
-    update_client_by_pk(pk_columns: { id: $id }, _set: { hasPlan: $hasPlan }) {
-      hasPlan
-    }
-  }
-`
-const UPLOAD_PLAN = gql`
-  mutation AddCallout(
-    $date_on_calendar: date
-    $callout_by: Int
-    $notes: String
-    $time_on_calendar: time
-    $end_time_on_calendar: time
-    $end_date_on_calendar: date
-    $email: String
-    $property_id: Int
-  ) {
-    insert_scheduler_one(
-      object: {
-        callout: {
-          data: {
-            callout_by_email: $email
-            callout_by: $callout_by
-            property_id: $property_id
-            category: "Uncategorized"
-            job_type: "Scheduled Services"
-            status: "Planned"
-            urgency_level: "Scheduled"
-            active: 1
-          }
-        }
-        date_on_calendar: $date_on_calendar
-        time_on_calendar: $time_on_calendar
-        end_time_on_calendar: $end_time_on_calendar
-        end_date_on_calendar: $end_date_on_calendar
-        notes: "Scheduled Services"
-      }
-    ) {
-      date_on_calendar
-    }
-  }
-`
-
-const DELETE_PLAN = gql`
-  mutation MyMutation($email: String, $callout_id: Int!) {
-    delete_callout(
-      where: {
-        _or: { callout_by_email: { _eq: $email } }
-        callout_by: { _eq: $callout_id }
-      }
-    ) {
-      affected_rows
-    }
-  }
-`
+// const DELETE_CLIENT = gql`
+// `
 
 const DataTableAdvSearch = () => {
   // ** States
@@ -317,30 +149,23 @@ const DataTableAdvSearch = () => {
   const [getClient, { propertyLoading, data: allProperty, propertyError }] = useLazyQuery(GET_CLIENT, {
     variables: { property_id }
   })
-  const [updateClient, { loading: clientLoading }] = useMutation(
-    UPDATE_CLIENT,
-    { refetchQueries: [{ query: GET_INVENTORY }] }
-  )
-  const [addClient, { loading: addClientLoading }] = useMutation(ADD_CLIENT, {
-    refetchQueries: [{ query: GET_INVENTORY }]
-  })
-  const [deleteClient, { loading: deleteClientLoading }] = useMutation(
-    DELETE_CLIENT,
-    { refetchQueries: [{ query: GET_INVENTORY }] }
-  )
-  const [addPlan, { loading: addPlanLoading }] = useMutation(UPLOAD_PLAN)
-  const [deletePlan, { loading: deletePlanLoading }] = useMutation(DELETE_PLAN)
-  const [updateClientPlan] = useMutation(UPDATE_CLIENT_HASPLAN, {
-    refetchQueries: [{ query: GET_INVENTORY }]
-  })
+  // const [updateClient, { loading: clientLoading }] = useMutation(
+  //   UPDATE_CLIENT,
+  //   { refetchQueries: [{ query: GET_INVENTORY }] }
+  // )
+  // const [addClient, { loading: addClientLoading }] = useMutation(ADD_CLIENT, {
+  //   refetchQueries: [{ query: GET_INVENTORY }]
+  // })
+  // const [deleteClient, { loading: deleteClientLoading }] = useMutation(
+  //   DELETE_CLIENT,
+  //   { refetchQueries: [{ query: GET_INVENTORY }] }
+  // )
+
   const [modal, setModal] = useState(false)
   const [searchReportId, setSearchReportId] = useState("")
   const [searchInspectionBy, setsearchInspectionBy] = useState("")
   const [currentPage, setCurrentPage] = useState(0)
   const [searchAddress, setsearchAddress] = useState("")
-  const [searchOrganization, setSearchOrganization] = useState("")
-  const [searchPhone, setSearchPhone] = useState("")
-  const [searchGender, setSearchGender] = useState("")
   const [filteredData, setFilteredData] = useState([])
   const [toAddNewRecord, setToAddNewRecord] = useState(false)
   const [row, setRow] = useState(null)
@@ -392,7 +217,7 @@ const DataTableAdvSearch = () => {
   //** Function to open details modal */
   const openDetailsModal = (item) => {
     setPropertyId(item.property_id)
-    console.log(item.property_id)
+    console.log(item)
     getClient()
     // if (!propertyLoading) {
       // console.log(allProperty)
@@ -423,13 +248,13 @@ const DataTableAdvSearch = () => {
       name: "Report ID",
       selector: "id",
       sortable: true,
-      minWidth: "10px"
+      minWidth: "140px"
     },
     {
       name: "Property Address",
       selector: "property.address",
       sortable: true,
-      minWidth: "300px",
+      minWidth: "250px",
       wrap: true,
       compact: false
     },
@@ -437,7 +262,8 @@ const DataTableAdvSearch = () => {
       name: "Inspection Done By",
       selector: "inspection_done_by",
       sortable: true,
-      minWidth: "200px"
+      minWidth: "200px",
+      wrap: true
     },
     {
       name: "Approved",
@@ -446,9 +272,20 @@ const DataTableAdvSearch = () => {
       minWidth: "150px",
       cell: row => {
         return (
-          <Badge color={row?.approved === 1 ? 'light-success' :  'light-danger'} pill>
-            {row?.approved === 1 ? "Approved" : "Unapproved"}
+          <Badge color={row?.approved === 3 ? 'light-success' : row?.approved === 2 ? 'light-warning' : row?.approved === 1 ? 'light-info' : 'light-danger'} pill>
+            {row?.approved === 3 ? "Approved" : row?.approved === 2 ? "Approval" : row?.approved === 1 ? "Review" : "Unapproved"}
           </Badge>
+        )
+      }
+    },
+    {
+      name: "Date",
+      selector: "checked_on",
+      sortable: true,
+      minWidth: "300px",
+      cell: row => {
+        return (
+            moment(row?.checked_on).format('MMMM Do YYYY, h:mm:ss a')
         )
       }
     }
@@ -459,10 +296,7 @@ const DataTableAdvSearch = () => {
     if (
       searchReportId.length ||
       searchInspectionBy.length ||
-      searchAddress.length ||
-      searchPhone.length ||
-      searchGender.length ||
-      searchOrganization.length
+      searchAddress.length
     ) {
       return filteredData
     } else {
@@ -530,58 +364,21 @@ const DataTableAdvSearch = () => {
 
   const handleAddRecord = (newRow) => {
     console.log("Addin")
-    addClient({
-      variables: {
-        email: newRow?.email,
-        full_name: newRow?.full_name,
-        gender: newRow?.gender,
-        occupation: newRow?.occupation,
-        organization: newRow?.organization,
-        phone: newRow?.phone,
-        password: newRow?.password,
-        active: newRow?.active,
-        sec_email: newRow?.sec_email,
-        sec_phone: newRow?.sec_phone,
-        account_type: newRow?.account_type,
-        age_range: newRow?.age_range,
-        family_size: newRow?.family_size,
-        ages_of_children: newRow?.ages_of_children,
-        earning_bracket: newRow?.earning_bracket,
-        nationality: newRow?.nationality,
-        years_expatriate: newRow?.years_expatriate,
-        years_native: newRow?.years_native,
-        referred_by: newRow?.referred_by,
-        other_properties: newRow?.other_properties,
-        contract_start_date: newRow?.contract_start_date,
-        contract_end_date: newRow?.contract_end_date
-      }
-    }).then(() => {
-      auth.register({
-        email: newRow.email,
-        password: newRow.password,
-        options: { userData: { display_name: newRow.full_name } }
-      })
-      toast.success(<SuccessToast data={newRow} />, { hideProgressBar: true })
-    })
-    
-    const url = 'https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendWelcomeEmail'
-    const data = new URLSearchParams()
-    data.set('clientName', newRow.full_name)
-    data.set('clientEmail', newRow.email)
+    // addClient({
+    //   variables: {
+    //   }
+    // }).then(() => {
+    //   auth.register({
+    //     email: newRow.email,
+    //     password: newRow.password,
+    //     options: { userData: { display_name: newRow.full_name } }
+    //   })
+    //   toast.success(<SuccessToast data={newRow} />, { hideProgressBar: true })
+    // })
 
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      redirect: 'follow',
-      referrerPolicy: 'no-referrer',
-      body: data.toString()
-    })
-    dataToRender()
-    if (!addClientLoading) {
-      setModal(!modal)
-    }
+    // if (!addClientLoading) {
+    //   setModal(!modal)
+    // }
   }
 
   const handleDeleteRecord = (id) => {
@@ -630,10 +427,7 @@ const DataTableAdvSearch = () => {
       if (
         searchAddress.length ||
         searchReportId.length ||
-        searchInspectionBy.length ||
-        searchOrganization.length ||
-        searchPhone.length ||
-        searchGender.length
+        searchInspectionBy.length
       ) {
         return filteredData
       } else {
@@ -670,10 +464,7 @@ const DataTableAdvSearch = () => {
       if (
         searchAddress.length ||
         searchReportId.length ||
-        searchInspectionBy.length ||
-        searchOrganization.length ||
-        searchPhone.length ||
-        searchGender.length
+        searchInspectionBy.length
       ) {
         return filteredData
       } else {
@@ -703,87 +494,6 @@ const DataTableAdvSearch = () => {
     }
   }
 
-  // ** Function to handle organization filter
-  const handleOrganizationFilter = (e) => {
-    const value = e.target.value
-    let updatedData = []
-    const dataToFilter = () => {
-      if (
-        searchAddress.length ||
-        searchReportId.length ||
-        searchInspectionBy.length ||
-        searchOrganization.length ||
-        searchPhone.length ||
-        searchGender.length
-      ) {
-        return filteredData
-      } else {
-        return data?.inventory_report
-      }
-    }
-
-    setSearchOrganization(value)
-    if (value.length) {
-      updatedData = dataToFilter().filter((item) => {
-        const startsWith = item?.organization
-          ?.toLowerCase()
-          .startsWith(value.toLowerCase())
-
-        const includes = item?.organization
-          ?.toLowerCase()
-          .includes(value.toLowerCase())
-
-        if (startsWith) {
-          return startsWith
-        } else if (!startsWith && includes) {
-          return includes
-        } else return null
-      })
-      setFilteredData([...updatedData])
-      setSearchOrganization(value)
-    }
-  }
-
-  // ** Function to handle phone filter
-  const handlePhoneFilter = (e) => {
-    const value = e.target.value
-    let updatedData = []
-    const dataToFilter = () => {
-      if (
-        searchAddress.length ||
-        searchReportId.length ||
-        searchInspectionBy.length ||
-        searchOrganization.length ||
-        searchPhone.length ||
-        searchGender.length
-      ) {
-        return filteredData
-      } else {
-        return data?.inventory_report
-      }
-    }
-
-    setSearchPhone(value)
-    if (value.length) {
-      updatedData = dataToFilter().filter((item) => {
-        const startsWith = item.phone
-          ?.toLowerCase()
-          .startsWith(value.toLowerCase())
-
-        const includes = item.phone
-          ?.toLowerCase()
-          .includes(value.toLowerCase())
-
-        if (startsWith) {
-          return startsWith
-        } else if (!startsWith && includes) {
-          return includes
-        } else return null
-      })
-      setFilteredData([...updatedData])
-      setSearchPhone(value)
-    }
-  }
 
  // ** Function to handle Address filter
  const handleAddressFilter = (e) => {
@@ -793,10 +503,7 @@ const DataTableAdvSearch = () => {
     if (
       searchAddress.length ||
       searchReportId.length ||
-      searchInspectionBy.length ||
-      searchOrganization.length ||
-      searchPhone.length ||
-      searchGender.length
+      searchInspectionBy.length
     ) {
       return filteredData
     } else {
@@ -825,47 +532,6 @@ const DataTableAdvSearch = () => {
     setsearchAddress(value)
   }
 }
-
-  // ** Function to handle gender filter
-  const handleGenderFilter = (e) => {
-    const value = e.target.value
-    let updatedData = []
-    const dataToFilter = () => {
-      if (
-        searchAddress.length ||
-        searchReportId.length ||
-        searchInspectionBy.length ||
-        searchOrganization.length ||
-        searchPhone.length ||
-        searchGender.length
-      ) {
-        return filteredData
-      } else {
-        return data?.inventory_report
-      }
-    }
-
-    setSearchGender(value)
-    if (value.length) {
-      updatedData = dataToFilter().filter((item) => {
-        const startsWith = item.gender
-          ?.toLowerCase()
-          .startsWith(value.toLowerCase())
-
-        const includes = item.gender
-          ?.toLowerCase()
-          .includes(value.toLowerCase())
-
-        if (startsWith) {
-          return startsWith
-        } else if (!startsWith && includes) {
-          return includes
-        } else return null
-      })
-      setFilteredData([...updatedData])
-      setSearchGender(value)
-    }
-  }
 
  //for export data start
 //=================================
@@ -950,10 +616,10 @@ const dataToExport = () => {
                 />
               </FormGroup>
             </Col>
-            
+            <Exportqs InData={dataToExport()} />
           </Row>
         </CardBody>
-        <Exportqs InData={dataToExport()}></Exportqs>
+        
         {!loading ? (
           <DataTable
             noHeader

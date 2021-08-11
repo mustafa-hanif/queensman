@@ -5,7 +5,6 @@ import moment from 'moment'
 import { Card, CardHeader, CardTitle, CardBody, Media } from 'reactstrap'
 
 const CalloutPicture = ({picture}) => {
-  console.log(picture.picture_location)
   return <div style={{width: "100px", margin:4}}>
    <a href={picture.picture_location} target="_blank"><img src={picture.picture_location} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, marginBottom: 2}}/></a>
    <p className="text-muted" style={{fontSize: 10, textAlign: "center", lineHeight: 1.5}}>{moment(picture?.upload_time).format('MMMM Do YYYY, h:mm:ss a')}</p>
