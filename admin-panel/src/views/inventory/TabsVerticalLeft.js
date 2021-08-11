@@ -1,20 +1,179 @@
 import { useState } from 'react'
 import AppCollapse from '@components/app-collapse'
-import { TabContent, TabPane, Nav, NavItem, NavLink, ListGroup, ListGroupItem, Card, Col, Row, Button  } from 'reactstrap'
+import { Spinner, TabContent, TabPane, Nav, NavItem, NavLink, ListGroup, ListGroupItem, Card, Col, Row, Button, ButtonGroup,  Modal, ModalHeader, ModalBody, ModalFooter, Input, Label  } from 'reactstrap'
+import { Check, Upload, XCircle } from 'react-feather'
 import Rooms from './Rooms'
+import { gql, useMutation, useQuery, useLazyQuery } from "@apollo/client"
+import { auth, storage } from "../../utility/nhost"
+import moment from 'moment'
+
+
+const UPDATE_TO_REVIEW = gql`
+mutation UpdateToReview($approved: smallint = 1, $id: Int!) {
+  update_inventory_report_by_pk(pk_columns: {id: $id}, _set: {approved: $approved}) {
+    id
+  }
+}
+`
+const UPDATE_TO_UNAPPROVE = gql`
+mutation UpdateToUnapprove($approved: smallint = 0, $id: Int!) {
+  update_inventory_report_by_pk(pk_columns: {id: $id}, _set: {approved: $approved}) {
+    id
+  }
+}
+`
+const UPDATE_TO_APPROVAL = gql`
+mutation UpdateToReview($approved: smallint = 2, $id: Int!) {
+  update_inventory_report_by_pk(pk_columns: {id: $id}, _set: {approved: $approved}) {
+    id
+  }
+}
+`
+const UPDATE_TO_APPROVE = gql`
+mutation UpdateToReview($approved: smallint = 3, $id: Int!) {
+  update_inventory_report_by_pk(pk_columns: {id: $id}, _set: {approved: $approved}) {
+    id
+  }
+}
+`
+
+const ADD_INVENTORY_PDF = gql`
+mutation AddInventoryPdf($inventory_report_id: Int!, $property_id: Int!, $report_location: String = "") {
+  insert_inventory_report_pdf_one(object: {inventory_report_id: $inventory_report_id, property_id: $property_id, report_location: $report_location}) {
+    id
+  }
+}
+`
+const UPDATE_INVENTORY_PDF = gql`
+mutation MyMutation($id: Int!, $report_location: String) {
+  update_inventory_report_pdf(where: {id: {_eq: $id}}, _set: {report_location: $report_location}) {
+    affected_rows
+  }
+}
+`
 
 const TabsVerticalLeft = ({item, allProperty}) => {
+  const openInNewTab = (url) => {
+    const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+    if (newWindow) newWindow.opener = null
+  }
   const [active, setActive] = useState("1")
-  const [loading, setLoading] = useState(true)
-  console.log(item)
-  console.log(allProperty)
+  const [loading, setLoading] = useState(false)
+  const userName = JSON.parse(localStorage.getItem('userData')).user.email
+  const [declineModal, setDeclineModal] = useState(false)
+  const [approveModal, setApproveModal] = useState(false)
+  const [approveStatus, setApproveStatus] = useState(item?.approved)
+  const [pdf, setPdf] = useState(null)
+  const [pdfLocation, setPdfLocation] = useState(null)
+  const [uploadButton, setUploadButton] = useState(false)
+  const [setToReviewStage, { loading: reviewStageLoading, data: reviewStage, reviewStageError }] = useMutation(UPDATE_TO_REVIEW)
+  const [setToUnApproveStage, { loading: unApproveStageLoading, data: unApproveStage, unApproveStageError }] = useMutation(UPDATE_TO_UNAPPROVE)
+  const [setToApprovalStage, { loading: approvalStageLoading, data: approvalStage, approvalStageError }] = useMutation(UPDATE_TO_APPROVAL)
+  const [setToApproveStage, { loading: approveStageLoading, data: approveStage, approveStageError }] = useMutation(UPDATE_TO_APPROVE)
+  const [uploadPDF, { loading: uploadPDFLoading, data: uploadPDFdata, uploadPDFError }] = useMutation(ADD_INVENTORY_PDF)
+  const [uploadUpdatePDF, { loading: uploadUpdatePDFLoading, data: uploadUpdatePDFdata, uploadUpdatePDFError }] = useMutation(UPDATE_INVENTORY_PDF)
+  console.log(loading)
+
   if (allProperty?.client) {
     item = {...item, ...allProperty}
   }
-  console.log(item)
   const toggle = (tab) => {
     if (active !== tab) {
       setActive(tab)
+    }
+  }
+
+  const decline = (decline) => {
+    if (decline === "decline") {
+      setToUnApproveStage({variables: {id: item?.id}})
+    setApproveStatus(0)
+    setDeclineModal(false)
+    } else {
+      setDeclineModal(true)
+    }
+    
+  }
+
+  const acceptApprove = () => {
+    setToApproveStage({variables: {id: item?.id}}) //Final Stage Approved 
+      setApproveStatus(3)
+      setApproveModal(false)
+  }
+
+  const checkMark = (role) => {
+    if (role === "superAdmin") {
+      setApproveModal(true) //Final Stage Approved 
+    } else if (role === "admin") {
+      setToApprovalStage({variables: {id: item?.id}}) //Aproval Stage
+      setApproveStatus(2)
+    }  else  {
+      if (!pdf) {
+        alert("Please upload pdf first")
+      } else {
+        setToReviewStage({variables: {id: item?.id}}) //Review Stage
+        setApproveStatus(1)
+      }
+    }
+  }
+
+  const cancel = (role) => {
+    if (role === "superAdmin") {
+      setToApprovalStage({variables: {id: item?.id}}) //Approval Stage
+      setApproveStatus(2)
+    } else if (role === "admin") {
+      setToReviewStage({variables: {id: item?.id}}) //Review Stage
+      setApproveStatus(1)
+    } else {
+      setToUnApproveStage({variables: {id: item?.id}}) //Unapproved Stage
+      setApproveStatus(0)
+    }
+    
+  }
+
+  const client = item?.client //array
+  const inventory_rooms = item?.inventory_rooms //array
+  const property = item?.property
+  const approve = approveStatus === 0 ? "Unapproved" : "Approved"
+  const inventory_report_pdf = item?.inventory_report_pdfs?.[0]
+
+  const uploadPdf = () => {
+   if (pdf) {
+    if (inventory_report_pdf?.report_location) {
+      setLoading(true)
+      setTimeout(() => {
+        setUploadButton(false)
+      }, 1000)
+      storage.put(`/public/${pdf.name}`, pdf).then(() => {
+        setLoading(false)
+        uploadUpdatePDF({variables: {
+          id: inventory_report_pdf.id,
+          report_location: `https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}-${new Date().getTime()}`
+        }})
+        setPdfLocation(`https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}-${new Date().getTime()}`)
+      }).catch(console.error)
+    } else {
+      setLoading(true)
+      setTimeout(() => {
+        setUploadButton(false)
+      }, 1000)
+      storage.put(`/public/${pdf.name}`, pdf).then(() => {
+        setLoading(false)
+        uploadPDF({variables: {
+          inventory_report_id: item.id,
+          property_id: property.id, 
+          report_location: `https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}-${new Date().getTime()}`
+        }})
+        setPdfLocation(`https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}-${new Date().getTime()}`)
+      }).catch(console.error)
+    }
+   }
+  }
+
+  const removePdf = () => {
+    if (approveStatus === 1) {
+      alert("Status is already in review. Please cancel it")
+    } else {
+      setPdf(null)
     }
   }
 
@@ -37,11 +196,6 @@ const TabsVerticalLeft = ({item, allProperty}) => {
 
   const CollapseDefault = ({data}) => <AppCollapse data={data} type='border' />
   
-
-  const client = item?.client //array
-  const inventory_rooms = item?.inventory_rooms //array
-  const property = item?.property
-  const approve = item?.approved === 0 ? "Unapproved" : "Approved"
   const client_modified = allProperty?.client ? client.map((prop, i) => (
     {
         title: `Client email: ${prop.email}`,
@@ -99,6 +253,16 @@ const TabsVerticalLeft = ({item, allProperty}) => {
             Inventory Rooms
           </NavLink>
         </NavItem>
+        <NavItem>
+          <NavLink
+            active={active === '4'}
+            onClick={() => {
+              toggle('4')
+            }}
+          >
+            Actions
+          </NavLink>
+        </NavItem>
       </Nav>
       <TabContent activeTab={active}>
         <TabPane tabId='1'>
@@ -120,8 +284,8 @@ const TabsVerticalLeft = ({item, allProperty}) => {
         <TabPane tabId='3'>
           <div className="d-flex align-items-center mb-1">
           <h1 className="mr-2 mb-0">Inventory Rooms</h1>
-          {approve === "Approved" ? <Button
-          color="info"
+          {approveStatus === 0 ? <Button
+          color="danger"
           // outline
           className="btn"
           size="lg"
@@ -129,13 +293,19 @@ const TabsVerticalLeft = ({item, allProperty}) => {
             // handleDeletePlan(row);
           }}
           >
-          <span className="align-middle ml-25">Approve</span>
-        </Button> : <Button color="danger" className="btn" size="lg"
+          <span className="align-middle ml-25">Unapproved</span>
+        </Button> : approveStatus === 1 ? <Button color="info" className="btn" size="lg"
             onClick={() => {
               // handleDeletePlan(row);
             }}
             >
-            <span className="align-middle ml-25">Unapprove</span>
+            <span className="align-middle ml-25">Review</span>
+          </Button> : <Button color="success" className="btn" size="lg"
+            onClick={() => {
+              // handleDeletePlan(row);
+            }}
+            >
+            <span className="align-middle ml-25">Approved</span>
           </Button>
         }
           
@@ -160,6 +330,289 @@ const TabsVerticalLeft = ({item, allProperty}) => {
               }
               })}
             </ListGroup> */}
+        </TabPane>
+        <TabPane tabId='4'>
+          <div className="d-flex align-items-center mb-1">
+            <h1 className="mr-2">Inventory Actions</h1>
+            { (reviewStageLoading || unApproveStageLoading || approvalStageLoading || approveStageLoading || uploadPDFLoading || uploadUpdatePDFLoading || loading) && <Spinner color='primary' />}
+          </div>
+        {userName === "murtaza.hanif@techinoviq.com" ? <div className="mr-2">
+        <Row>
+          <Col md="2">
+          <div>Status</div>
+          </Col>
+          <Col md="4">
+          <div>Review Actions</div>
+          </Col>
+        </Row>
+        <Row>
+          <Col md="2">
+            {approveStatus === 0 ? <Button color="danger" className="btn" size="sm">
+            <span className="align-middle ml-25">Unapproved</span>
+          </Button> : approveStatus === 1 ? <Button color="info" className="btn" size="sm">
+            <span className="align-middle ml-25">Review</span>
+          </Button> : approveStatus === 2 ? <Button color="warning" className="btn" size="sm">
+            <span className="align-middle ml-25">Approval</span>
+          </Button> : <Button color="success" className="btn" size="sm">
+            <span className="align-middle ml-25">Approved</span>
+          </Button>}
+         
+          
+          </Col>
+          <Col md="4">
+            {/* If it is not in review or unapproved stage */}
+            {approveStatus === 0 || approveStatus === 1 ?  <ButtonGroup className='mb-1'>
+            <Button color='info' className="btn-icon" size="sm" onClick={() => checkMark()}>
+              <Check size={15} />
+            </Button>
+            <Button color='danger' className="btn-icon" size="sm" onClick={() => cancel()}>
+              <XCircle size={15} />
+            </Button>
+          </ButtonGroup> :  <ButtonGroup className='mb-1'>
+            <Button color='info' className="btn-icon" size="sm" disabled>
+              <Check size={15} />
+            </Button>
+            <Button color='danger' className="btn-icon" size="sm" disabled >
+              <XCircle size={15} />
+            </Button>
+          </ButtonGroup>}
+         
+          </Col>
+        </Row>
+        <Row className="mt-4">
+        <Col>
+        {/* If it is not in review or unapproved stage */}
+        { (approveStatus === 0 || approveStatus === 1) && <div> 
+          <div className="d-flex align-items-center mb-2">
+            <Label>Upload PDF: </Label>
+            <Input type="file" name="file" id="exampleFile" onChange={(e) => { setPdf(e.target.files[0]); setUploadButton(true) }}/>
+            {!uploadButton ? <Button color='info' size="sm" disabled>
+              <Upload size={15} />
+              Upload
+            </Button> : <Button color='info' size="sm" onClick={() => uploadPdf()}>
+              <Upload size={15} />
+              Upload
+            </Button>}
+            
+          </div>
+          <div className="d-flex align-items-center mb-1">
+          {/* <div className="mr-1">PDF selected: {pdf ? <a href="#" target="_blank"><span>{pdf.name}</span></a> : <span>Nothing Selected</span>}</div>
+          {pdf && <Button.Ripple className='btn-icon rounded-circle' color='flat-danger' onClick={() => removePdf()}>
+                    <XCircle size={16} />
+                  </Button.Ripple>} */}
+      </div>
+      </div>
+     } 
+     <div className="d-flex align-items-center">
+       
+       {pdfLocation ? <Button color='primary' size="sm" className="mr-1"  onClick={() => openInNewTab(pdfLocation)}>
+           View Uploaded PDF
+           </Button> : inventory_report_pdf ?  <Button color='primary' className="mr-1" size="sm" onClick={() => openInNewTab(inventory_report_pdf?.report_location)}>
+             View Uploaded PDF
+           </Button> :  <Button color='primary' size="sm" className="mr-1" disabled={true}>
+           View Uploaded PDF
+           </Button>}
+           { pdfLocation ? <div>
+               <span className="font-weight-bold">Uploaded at: </span>
+               {moment(new Date()).format('MMMM Do YYYY, h:mm:ss a')}
+               </div> : inventory_report_pdf && <div>
+             <span className="font-weight-bold">Uploaded at: </span>
+             {moment(inventory_report_pdf.report_upload_date).format('MMMM Do YYYY, h:mm:ss a')}
+             </div>}
+     </div>
+         </Col>
+          
+        </Row> 
+        {/* admin role */}
+        </div> : userName === "ffakhri@queensman.com" ? <div className="mr-2"> 
+        <Row>
+          <Col md="2">
+          <div>Status</div>
+          </Col>
+          <Col md="2">
+          <div>Review Actions</div>
+          </Col>
+          { (approveStatus !== 0) && <Col md="4">
+          <div>Decline Report</div>
+          </Col> }
+        </Row>
+        <Row>
+          <Col md="2">
+            {approveStatus === 0 ? <Button color="danger" className="btn" size="sm">
+            <span className="align-middle ml-25">Unapproved</span>
+          </Button> : approveStatus === 1 ? <Button color="info" className="btn" size="sm">
+            <span className="align-middle ml-25">Review</span>
+          </Button> : approveStatus === 2 ? <Button color="warning" className="btn" size="sm">
+            <span className="align-middle ml-25">Approval</span>
+          </Button> : <Button color="Success" className="btn" size="sm">
+            <span className="align-middle ml-25">Approved</span>
+          </Button>}
+         
+          
+          </Col>
+          <Col md="2">
+            {approveStatus === 0 ?  <ButtonGroup className='mb-1'>
+            <Button color='info' className="btn-icon" size="sm" disabled >
+              <Check size={15} />
+            </Button>
+            <Button color='danger' className="btn-icon" size="sm" disabled >
+              <XCircle size={15} />
+            </Button>
+          </ButtonGroup> :  <ButtonGroup className='mb-1'>
+            <Button color='info' className="btn-icon" size="sm" onClick={() => checkMark("admin")}>
+              <Check size={15} />
+            </Button>
+            <Button color='danger' className="btn-icon" size="sm" onClick={() => cancel("admin")}>
+              <XCircle size={15} />
+            </Button>
+          </ButtonGroup>}
+          </Col>
+          { (approveStatus !== 0) && <Col md="4">
+          <Button color='danger' size="sm" outline onClick={() => decline()}>
+              Decline
+            </Button>
+          </Col>}
+          
+        </Row>
+        <Row className="mt-4">
+          <Col>
+      <div className="d-flex align-items-center">
+      {inventory_report_pdf ?  <Button color='primary' className="mr-1" size="sm" onClick={() => openInNewTab(inventory_report_pdf?.report_location)}>
+             View Uploaded PDF
+           </Button> :  <Button color='primary' size="sm" className="mr-1" disabled={true}>
+           View Uploaded PDF
+           </Button>}
+      {inventory_report_pdf && <div>
+        <span className="font-weight-bold">Uploaded at: </span>
+        {moment(inventory_report_pdf.report_upload_date).format('MMMM Do YYYY, h:mm:ss a')}
+        </div>}
+      </div>
+          </Col>
+        </Row>
+        {/* Super Admin Role */}
+        </div> : userName === "salmanhanif133@gmail.com" ? <div className="mr-2"> 
+        <Row>
+          <Col md="2">
+          <div>Status</div>
+          </Col>
+          <Col md="2">
+          <div>Review Actions</div>
+          </Col>
+          { (approveStatus !== 0) && <Col md="4">
+          <div>Decline Report</div>
+          </Col> }
+        </Row>
+        <Row>
+          <Col md="2">
+          {approveStatus === 0 ? <Button color="danger" className="btn" size="sm">
+            <span className="align-middle ml-25">Unapproved</span>
+          </Button> : approveStatus === 1 ? <Button color="info" className="btn" size="sm">
+            <span className="align-middle ml-25">Review</span>
+          </Button> : approveStatus === 2 ? <Button color="warning" className="btn" size="sm">
+            <span className="align-middle ml-25">Approval</span>
+          </Button> : <Button color="success" className="btn" size="sm">
+            <span className="align-middle ml-25">Approved</span>
+          </Button>}
+         
+          
+          </Col>
+          <Col md="2">
+            {approveStatus === 0 ?  <ButtonGroup className='mb-1'>
+            <Button color='info' className="btn-icon" size="sm" disabled >
+              <Check size={15} />
+            </Button>
+            <Button color='danger' className="btn-icon" size="sm" disabled >
+              <XCircle size={15} />
+            </Button>
+          </ButtonGroup> :  approveStatus === 2 ? <ButtonGroup className='mb-1'>
+            <Button color='info' className="btn-icon" size="sm" onClick={() => checkMark("superAdmin")}>
+              <Check size={15} />
+            </Button>
+            <Button color='danger' className="btn-icon" size="sm" disabled >
+              <XCircle size={15} />
+            </Button>
+          </ButtonGroup> :  approveStatus === 3 ? <ButtonGroup className='mb-1'>
+            <Button color='info' className="btn-icon" size="sm" disabled >
+              <Check size={15} />
+            </Button>
+            <Button color='danger' className="btn-icon" size="sm" onClick={() => cancel("superAdmin")}>
+              <XCircle size={15} />
+            </Button>
+          </ButtonGroup> :  <ButtonGroup className='mb-1'>
+            <Button color='info' className="btn-icon" size="sm" disabled >
+              <Check size={15} />
+            </Button>
+            <Button color='danger' className="btn-icon" size="sm" disabled >
+              <XCircle size={15} />
+            </Button>
+          </ButtonGroup>}
+          </Col>
+          { (approveStatus !== 0) && <Col md="4">
+          <Button color='danger' size="sm" outline onClick={() => decline()}>
+              Decline
+            </Button>
+          </Col>}
+          
+        </Row>
+        <Row className="mt-4">
+          <Col>
+      <div className="d-flex align-items-center">
+      {inventory_report_pdf ?  <Button color='primary' className="mr-1" size="sm" onClick={() => openInNewTab(inventory_report_pdf?.report_location)}>
+             View Uploaded PDF
+           </Button> :  <Button color='primary' size="sm" className="mr-1" disabled={true}>
+           View Uploaded PDF
+           </Button>}
+      {inventory_report_pdf && <div>
+        <span className="font-weight-bold">Uploaded at: </span>
+        {moment(inventory_report_pdf.report_upload_date).format('MMMM Do YYYY, h:mm:ss a')}
+        </div>}
+      </div>
+          </Col>
+        </Row>
+        </div> : <div></div>}
+        <div className="modal-warning" >
+        <Modal
+          isOpen={declineModal}
+          toggle={() => setDeclineModal(!declineModal)}
+          className='modal-dialog-centered'
+          modalClassName="modal-warning"
+
+        >
+          <ModalHeader toggle={() => setDeclineModal(!declineModal)}>Warning</ModalHeader>
+          <ModalBody>
+            Declining it will remove decline abc
+          </ModalBody>
+          <ModalFooter>
+            <Button color="warning" onClick={() => decline("decline")}>
+              I Accept
+            </Button>
+          </ModalFooter>
+        </Modal>
+      </div>
+
+      <div className="modal-warning" >
+        <Modal
+          isOpen={approveModal}
+          toggle={() => setApproveModal(!approveModal)}
+          className='modal-dialog-centered'
+          modalClassName="modal-warning"
+
+        >
+          <ModalHeader toggle={() => setApproveModal(!approveModal)}>Warning</ModalHeader>
+          <ModalBody>
+            Approving this report will send email to the client. Are you sure you want to approve?
+          </ModalBody>
+          <ModalFooter>
+            <Button color="warning" onClick={() => acceptApprove()}>
+              I Accept
+            </Button>
+            <Button onClick={() => setApproveModal(false)}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
+      </div>
+      
         </TabPane>
       </TabContent>
     </div>

@@ -23,6 +23,7 @@ const LoginV1 = () => {
     e.preventDefault()
     try { 
       const data = await auth.login({ email: e.target.elements.email.value, password: e.target.elements.password.value})
+      console.log(data)
       localStorage.setItem('userData', JSON.stringify(data))
       history.push('/home')
     } catch (e) {

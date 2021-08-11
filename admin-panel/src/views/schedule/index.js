@@ -47,6 +47,7 @@ const GET_SCHEDULE = gql`
       end: end_date_on_calendar
       endTime: end_time_on_calendar
       notes
+      blocked
       worker {
         full_name
         id
@@ -101,7 +102,7 @@ const UPDATE_CALLOUT = gql`
     $job_type: String
     $scheduler_id: Int
     $worker_id: Int
-    $blocked: Boolean = false
+    $blocked: Boolean
   ) {
     update_scheduler(
       where: { id: { _eq: $scheduler_id } }
@@ -135,10 +136,11 @@ const UPDATE_CALLOUT_AND_JOB_TICKET = gql`
     $scheduler_id: Int
     $worker_id: Int
     $worker_email: String
+    $blocked: Boolean
   ) {
     update_scheduler(
       where: { id: { _eq: $scheduler_id } }
-      _set: { notes: $notes, worker_id: $worker_id }
+      _set: { notes: $notes, worker_id: $worker_id, blocked: $blocked }
     ) {
       affected_rows
     }
@@ -313,7 +315,8 @@ const CalendarComponent = () => {
           job_type: eventToUpdate.extendedProps.job_type,
           scheduler_id: eventToUpdate.id,
           worker_id: eventToUpdate.extendedProps.workerId,
-          worker_email: eventToUpdate.extendedProps.workerEmail
+          worker_email: eventToUpdate.extendedProps.workerEmail,
+          blocked: eventToUpdate.extendedProps.blocked
         }
       })
     }

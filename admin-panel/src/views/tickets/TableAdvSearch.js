@@ -10,8 +10,10 @@ import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
 import { toast } from 'react-toastify'
 import Exportqs from '../extensions/import-export/Exportqs'
+import moment from "moment"
 import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check } from 'react-feather'
 import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+import Select from 'react-select'
 
 // ** Toast Component
 const ToastComponent = ({ title, icon, color }) => (
@@ -40,7 +42,6 @@ import '@styles/react/libs/flatpickr/flatpickr.scss'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import AddNewModal from './AddNewModal'
 import ButtonGroup from 'reactstrap/lib/ButtonGroup'
-import { months } from 'moment'
 import Badge from 'reactstrap/lib/Badge'
 import TabsVerticalLeft from './TabsVerticalLeft'
 
@@ -141,8 +142,16 @@ const DataTableAdvSearch = () => {
   const [toAddNewJobTicket, setToAddNewJobTicket] = useState(false)
   const [row, setRow] = useState(null)
   const [rowId, setRowId] = useState(null)
-
   const [modalAlert, setModalAlert] = useState(null)
+
+  const typeOptions = [  
+    {value: "Deferred", label: "Deferred"},
+    {value: "Additional Request", label: "Additional Request"},
+    {value: "Full Job", label: "Full Job"},
+    {value: "Material Request", label: "Material Request"},
+    {value: "Request for quotation", label: "Request for quotation"},
+    {value: "Patch Job", label: "Patch Job"}
+  ]
 
   const toggleModal = () => {
     setModalAlert(!modalAlert)
@@ -207,13 +216,26 @@ const DataTableAdvSearch = () => {
       name: 'Description',
       selector: 'description',
       sortable: true,
-      minWidth: '150px',
+      minWidth: '250px',
+      compact: false,
       wrap: true,
       cell: row => {
         if (row?.type === 'Deferred') {
-          return `${row?.description}; ${row?.name}`
+          if (row?.description && row?.name) {
+            return `${row?.description}; ${row?.name}`
+          } else if (row?.description) {
+            return `${row?.description}`
+          } else if (row?.name) {
+            return `${row?.name}`
+          } else {
+            return "No description"
+          }
         } else {
-          return row?.description
+          if (row?.description) {
+            return `${row?.description}`
+          } else {
+            return "No description"
+          }
         }
 
       }
@@ -222,9 +244,14 @@ const DataTableAdvSearch = () => {
       name: 'Worker Assigned',
       selector: 'worker_email_rel',
       sortable: true,
-      minWidth: '250px',
+      minWidth: '100px',
+      wrap: true,
       cell: row => {
-        return row?.worker_email_rel?.full_name
+        if (row?.worker_email_rel?.full_name) {
+          return row?.worker_email_rel?.full_name
+        } else {
+          return "No worker Assigned"
+        }
       }
     },
     // {
@@ -239,49 +266,47 @@ const DataTableAdvSearch = () => {
       sortable: true,
       minWidth: '150px',
       cell: row => {
-        return (
-          <Badge color={row.status === 'Open' ? 'light-danger' : (row.status === 'In Progress' ? 'light-warning' : 'light-success')} pill>
-            {row.status}
-          </Badge>
-        )
+        if (row?.status) {
+          return (
+            <Badge color={row?.status === 'Open' ? 'light-danger' : (row.status === 'In Progress' ? 'light-warning' : 'light-success')} pill>
+              {row?.status}
+            </Badge>
+          )
+        } else {
+          return "No Status"
+        }
       }
     },
     {
       name: 'Urgency',
-      selector: 'urgency',
+      selector: 'callout.urgency_level',
       sortable: true,
-      minWidth: '50px',
+      minWidth: '100px',
       cell: row => {
+        if (row?.callout?.urgency_level) {
+          return (
+            <Badge color={row?.callout?.urgency_level === 'High' ? 'light-danger' : 'light-success'} pill>
+              {row?.callout?.urgency_level}
+            </Badge>
+          )
+        } else {
+          return "No Urgerncy"
+        }
+      }
+    },
+    {
+      name: "Date",
+      selector: "created_at",
+      sortable: true,
+      minWidth: "250px",
+      wrap: true,
+      cell: row => {
+        console.log(row?.created_at)
         return (
-          <Badge color={row?.callout?.urgency_level === 'High' ? 'light-danger' : 'light-success'} pill>
-            {row?.callout?.urgency_level}
-          </Badge>
+            moment(row?.created_at).format('MMMM Do YYYY, h:mm:ss a')
         )
       }
     },
-    // {
-    //   name: 'Active',
-    //   selector: 'active',
-    //   sortable: true,
-    //   minWidth: '200px',
-    //   cell: row => {
-    //       if (row.active === 1) {
-    //         return (
-    //             <Badge color={'light-success'} pill>
-    //                 Active
-    //             </Badge>
-    //           )
-    //       } else {
-    //         return (
-    //             <Badge color={'light-danger'} pill>
-    //                 Unactive
-    //             </Badge>
-    //           )
-    //       }
-
-
-    //   }
-    // },
     {
       name: 'Actions',
       minWidth: '200px',
@@ -500,7 +525,8 @@ const DataTableAdvSearch = () => {
 
   // ** Function to handle phone filter
   const handleTypeFilter = e => {
-    const value = e.target.value
+    console.log(e)
+    const value = e.value
     let updatedData = []
     const dataToFilter = () => {
       //   if (searchEmail.length || searchName.length || description.length || searchType.length) {
@@ -645,14 +671,23 @@ const DataTableAdvSearch = () => {
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='type'>Type:</Label>
-                <Input id='type' type='select' value={searchType} onChange={handleTypeFilter} placeholder="Type">
-                  <option>Deferred</option>
+                {/* <Input id='type' type='select' value={searchType} onChange={handleTypeFilter} placeholder="Type"> */}
+                <Select
+                onChange={handleTypeFilter}
+                className='react-select'
+                classNamePrefix='select'
+                defaultValue={searchType}
+                placeholder="Select Type"
+                options={typeOptions}
+                isClearable={false}
+                />
+                  {/* <option>Deferred</option>
                   <option>Additional Request</option>
                   <option>Full Job</option>
                   <option>Material Request</option>
                   <option>Request for quotation</option>
                   <option>Patch Job</option>
-                </Input>
+                </Input> */}
               </FormGroup>
             </Col>
             <Col lg='4' md='6'>

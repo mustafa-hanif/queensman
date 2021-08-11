@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import AppCollapse from '@components/app-collapse'
+import moment from "moment"
 import { TabContent, TabPane, Nav, NavItem, NavLink, ListGroup, ListGroupItem, Card  } from 'reactstrap'
 
 const TabsVerticalLeft = ({item}) => {
@@ -39,8 +40,8 @@ const TabsVerticalLeft = ({item}) => {
   const client = item?.callout?.client
   const callout = item?.callout
   const schedule = item?.callout?.schedulers[0]
-  const {id, notes, name, callout_id, description, type, worker_email, status } = item
-  const job_ticket = {id, notes, name, callout_id, description, type, worker_email, status}
+  const {id, notes, name, callout_id, description, type, worker_email, status, created_at } = item
+  const job_ticket = {id, notes, name, callout_id, description, type, worker_email, status, created_at }
   // const property_owneds = item.callout.property
   //   const prop_count = property_owneds.length
   //   const property_owneds_modified = prop_count !== 0 ? {
@@ -62,7 +63,7 @@ const TabsVerticalLeft = ({item}) => {
     <ListGroupItem>
     <span style={{fontWeight: "bold"}}>
       {itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}: </span> 
-      {item[itemKey] ? item[itemKey] : "N/A"}
+      {itemKey === "request_time" ? moment(item[itemKey]).format('MMMM Do YYYY, h:mm:ss a') : item[itemKey] ? item[itemKey] : "N/A"}
     </ListGroupItem>
   )
   return (
@@ -153,12 +154,12 @@ const TabsVerticalLeft = ({item}) => {
                   return (
                     <CalloutPicture key={itemKey} picture={callout[itemKey]} />
                   )
-                }
+                } 
                 if ((["video"].includes(itemKey))) {
                   return (
                     <div>
                       <p style={{fontWeight: "bold", fontSize: 18, margin: 0, marginTop: 10}}>Video: </p>
-                   <video width="250" controls src={callout[itemKey]} />
+                      {callout[itemKey] === "" ? <p>No video</p> : <video width="250" controls src={callout[itemKey]} />}
                    </div>
                   )
                 }
