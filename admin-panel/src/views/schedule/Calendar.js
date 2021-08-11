@@ -85,20 +85,20 @@ const Calendar = props => {
       //   propertyId: callout.property?.id || 0,
       //   videoUrl: callout.video,
       //   job_tickets,
-        
+
       //   callout_id
       // })
       const clientName = callout?.client_callout_email?.full_name
       const jobType = callout?.job_type
       const wokerName = worker?.full_name
       const assignedTo = wokerName ? `Assigned to: \n${wokerName}` : 'Unassigned'
-      const title = `${callout_id}: ${clientName} \n${jobType} \n${assignedTo}`
+      const title = `${id} ${clientName} ${clientName} \n${jobType} \n${assignedTo}`
       const color = worker?.teams?.[0]?.team_color ?? worker?.teams_member?.team_color
       return {
         allDay: false,
         // end: `${start}T${'00:00:00.000Z'}`,
         id,
-        title: `${title}${length > 0 ? `; ${length} job ticket ${length > 1 ? 's' : ''}` : ''}`, 
+        title: `${title}${length > 0 ? `; ${length} job ticket ${length > 1 ? 's' : ''}` : ''}`,
         start: `${start}T${startTime}`,
         end: endTime ? `${end}T${endTime}` : addHours(`${start} ${startTime}`, 2),
         workerName: worker?.full_name || 'No Worker name',
@@ -106,7 +106,7 @@ const Calendar = props => {
         workerEmail: worker?.email || null,
         backgroundColor: `${color ?? `#756300`}`,
         clientName: callout.client_callout_email?.full_name || 'No Client name',
-        clientEmail:callout.client_callout_email?.email || 'No Client email',
+        clientEmail: callout.client_callout_email?.email || 'No Client email',
         category: callout?.category || "Uncategorized",
         job_type: callout?.job_type || "No Type",
         propertyName: callout.property?.address || 'No Property',
@@ -174,8 +174,8 @@ const Calendar = props => {
     eventClick({ event: clickedEvent }) {
       console.log(clickedEvent, 'bonga')
       selectEvent(clickedEvent)
-        handleAddEventSidebar()
-      
+      handleAddEventSidebar()
+
 
       // * Only grab required field otherwise it goes in infinity loop
       // ! Always grab all fields rendered by form (even if it get `undefined`) otherwise due to Vue3/Composition API you might get: "object is not extensible"
@@ -198,7 +198,7 @@ const Calendar = props => {
       console.log(info)
       const time = new Date(info.dateStr).toTimeString().substr(0, 8)
       const date = info.dateStr.substring(0, 10)
-      
+
       const ev = blankEvent
       ev.start = info.date
       ev.end = new Date(addHours(`${date} ${time}`, 2))
@@ -211,7 +211,7 @@ const Calendar = props => {
       ? Docs: https://fullcalendar.io/docs/eventDrop
       ? We can use `eventDragStop` but it doesn't return updated event so we have to use `eventDrop` which returns updated event
     */
-    eventDrop({ event: droppedEvent}) {
+    eventDrop({ event: droppedEvent }) {
       updateEventDrag(droppedEvent)
       toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
         autoClose: 2000,
