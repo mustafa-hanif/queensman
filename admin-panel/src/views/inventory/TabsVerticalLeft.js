@@ -143,7 +143,7 @@ const TabsVerticalLeft = ({item, allProperty}) => {
       setTimeout(() => {
         setUploadButton(false)
       }, 1000)
-      storage.put(`/public/${pdf.name}`, pdf).then(() => {
+      storage.put(`/public/${pdf.name}-${new Date().getTime()}`, pdf).then(() => {
         setLoading(false)
         uploadUpdatePDF({variables: {
           id: inventory_report_pdf.id,
@@ -156,7 +156,7 @@ const TabsVerticalLeft = ({item, allProperty}) => {
       setTimeout(() => {
         setUploadButton(false)
       }, 1000)
-      storage.put(`/public/${pdf.name}`, pdf).then(() => {
+      storage.put(`/public/${pdf.name}-${new Date().getTime()}`, pdf).then(() => {
         setLoading(false)
         uploadPDF({variables: {
           inventory_report_id: item.id,
