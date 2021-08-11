@@ -479,7 +479,7 @@ const TabsVerticalLeft = ({item, allProperty}) => {
           <div className="d-flex align-items-center mb-2">
             <Label>Upload PDF: </Label>
             {approveStatus === 1 ? <Input type="file" name="file" id="exampleFile" disabled onClick={() => alert("")}/> : <Input type="file" name="file" id="exampleFile" onChange={(e) => { setPdf(e.target.files[0]); setUploadButton(true) }}/>}
-            {!uploadButton ? <Button color='info' size="sm" disabled>
+            {!uploadButton ? <Button color='secondary' size="sm" disabled>
               <Upload size={15} />
               Upload
             </Button> : <Button color='info' size="sm" onClick={() => uploadPdf()}>
@@ -502,7 +502,7 @@ const TabsVerticalLeft = ({item, allProperty}) => {
            View Uploaded PDF
            </Button> : inventory_report_pdf ?  <Button color='primary' className="mr-1" size="sm" onClick={() => openInNewTab(inventory_report_pdf?.report_location)}>
              View Uploaded PDF
-           </Button> :  <Button color='primary' size="sm" className="mr-1" disabled={true}>
+           </Button> :  <Button color='secondary' size="sm" className="mr-1" disabled={true}>
            View Uploaded PDF
            </Button>}
            { pdfLocation ? <div>
@@ -545,10 +545,10 @@ const TabsVerticalLeft = ({item, allProperty}) => {
           </Col>
           <Col md="2">
             {approveStatus === 0 ?  <ButtonGroup className='mb-1'>
-            <Button color='info' className="btn-icon" size="sm" disabled >
+            <Button color='secondary' className="btn-icon" size="sm" disabled >
               <Check size={15} />
             </Button>
-            <Button color='danger' className="btn-icon" size="sm" disabled >
+            <Button color='secondary' className="btn-icon" size="sm" disabled >
               <XCircle size={15} />
             </Button>
           </ButtonGroup> :  <ButtonGroup className='mb-1'>
@@ -572,7 +572,7 @@ const TabsVerticalLeft = ({item, allProperty}) => {
       <div className="d-flex align-items-center">
       {inventory_report_pdf ?  <Button color='primary' className="mr-1" size="sm" onClick={() => openInNewTab(inventory_report_pdf?.report_location)}>
              View Uploaded PDF
-           </Button> :  <Button color='primary' size="sm" className="mr-1" disabled={true}>
+           </Button> :  <Button color='secondary' size="sm" className="mr-1" disabled={true}>
            View Uploaded PDF
            </Button>}
       {inventory_report_pdf && <div>
@@ -611,31 +611,31 @@ const TabsVerticalLeft = ({item, allProperty}) => {
           </Col>
           <Col md="2">
             {approveStatus === 0 ?  <ButtonGroup className='mb-1'>
-            <Button color='info' className="btn-icon" size="sm" disabled >
+            <Button color='secondary' className="btn-icon" size="sm" disabled >
               <Check size={15} />
             </Button>
-            <Button color='danger' className="btn-icon" size="sm" disabled >
+            <Button color='secondary' className="btn-icon" size="sm" disabled >
               <XCircle size={15} />
             </Button>
           </ButtonGroup> :  approveStatus === 2 ? <ButtonGroup className='mb-1'>
             <Button color='info' className="btn-icon" size="sm" onClick={() => checkMark("superAdmin")}>
               <Check size={15} />
             </Button>
-            <Button color='danger' className="btn-icon" size="sm" disabled >
+            <Button color='secondary' className="btn-icon" size="sm" disabled >
               <XCircle size={15} />
             </Button>
           </ButtonGroup> :  approveStatus === 3 ? <ButtonGroup className='mb-1'>
-            <Button color='info' className="btn-icon" size="sm" disabled >
+            <Button color='secondary' className="btn-icon" size="sm" disabled >
               <Check size={15} />
             </Button>
             <Button color='danger' className="btn-icon" size="sm" onClick={() => cancel("superAdmin")}>
               <XCircle size={15} />
             </Button>
           </ButtonGroup> :  <ButtonGroup className='mb-1'>
-            <Button color='info' className="btn-icon" size="sm" disabled >
+            <Button color='secondary' className="btn-icon" size="sm" disabled >
               <Check size={15} />
             </Button>
-            <Button color='danger' className="btn-icon" size="sm" disabled >
+            <Button color='secondary' className="btn-icon" size="sm" disabled >
               <XCircle size={15} />
             </Button>
           </ButtonGroup>}
@@ -652,7 +652,7 @@ const TabsVerticalLeft = ({item, allProperty}) => {
       <div className="d-flex align-items-center">
       {inventory_report_pdf ?  <Button color='primary' className="mr-1" size="sm" onClick={() => openInNewTab(inventory_report_pdf?.report_location)}>
              View Uploaded PDF
-           </Button> :  <Button color='primary' size="sm" className="mr-1" disabled={true}>
+           </Button> :  <Button color='secondary' size="sm" className="mr-1" disabled={true}>
            View Uploaded PDF
            </Button>}
       {inventory_report_pdf && <div>
