@@ -143,27 +143,27 @@ const TabsVerticalLeft = ({item, allProperty}) => {
       setTimeout(() => {
         setUploadButton(false)
       }, 1000)
-      storage.put(`/public/${pdf.name}-${new Date().getTime()}`, pdf).then(() => {
+      storage.put(`/public/${pdf.name}`, pdf).then(() => {
         setLoading(false)
         uploadUpdatePDF({variables: {
           id: inventory_report_pdf.id,
-          report_location: `https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}-${new Date().getTime()}`
+          report_location: `https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}`
         }})
-        setPdfLocation(`https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}-${new Date().getTime()}`)
+        setPdfLocation(`https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}`)
       }).catch(console.error)
     } else {
       setLoading(true)
       setTimeout(() => {
         setUploadButton(false)
       }, 1000)
-      storage.put(`/public/${pdf.name}-${new Date().getTime()}`, pdf).then(() => {
+      storage.put(`/public/${pdf.name}`, pdf).then(() => {
         setLoading(false)
         uploadPDF({variables: {
           inventory_report_id: item.id,
           property_id: property.id, 
-          report_location: `https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}-${new Date().getTime()}`
+          report_location: `https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}`
         }})
-        setPdfLocation(`https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}-${new Date().getTime()}`)
+        setPdfLocation(`https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}`)
       }).catch(console.error)
     }
    }
