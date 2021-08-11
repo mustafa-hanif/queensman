@@ -48,22 +48,22 @@ const TabsVerticalLeft = ({ item }) => {
   const prop_count = property_owneds.length
   const property_owneds_modified =
     prop_count !== 0 ? property_owneds.map((prop, i) => ({
-          title: `Property id: ${prop.property.id} Adddress: ${prop.property.address}`,
-          content: <RowContent data={prop} count={property_owneds.length} />
-        })) : [
-          {
-            title: `No data Available`,
-            content: <div></div>
-          }
-        ]
-  
-    const ItemValue = ({item, itemKey}) => (
-      <ListGroupItem>
-      <span style={{fontWeight: "bold"}}>
-        {itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}: </span> 
-        {item[itemKey] ? item[itemKey] : "N/A"}
-      </ListGroupItem>
-    )
+      title: `Property id: ${prop.property.id} Adddress: ${prop.property.address}`,
+      content: <RowContent data={prop} count={property_owneds.length} />
+    })) : [
+      {
+        title: `No data Available`,
+        content: <div></div>
+      }
+    ]
+
+  const ItemValue = ({ item, itemKey }) => (
+    <ListGroupItem>
+      <span style={{ fontWeight: "bold" }}>
+        {itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}: </span>
+      {item[itemKey] ? item[itemKey] : "N/A"}
+    </ListGroupItem>
+  )
 
   return (
     <div className="nav-vertical">
@@ -111,7 +111,8 @@ const TabsVerticalLeft = ({ item }) => {
                 )
               }
             })}
-            {item?.documents?.[item?.documents.length - 1].document_name && <Document row={item} />}
+            {item?.documents?.[item?.documents.length - 1]?.document_name && <Document row={item} />}
+
           </ListGroup>
         </TabPane>
         <TabPane tabId="2">
@@ -156,7 +157,7 @@ const Document = ({ row }) => {
 
     fetch("https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/downloadDocument", requestOptions)
       .then(response => response.text())
-      .then(result => { 
+      .then(result => {
         // console.log(result)
         const file = b64toBlob(result, "application/pdf")
         const fileUrl = window.URL.createObjectURL(file)
@@ -169,11 +170,11 @@ const Document = ({ row }) => {
       })
       .catch(error => console.log('error', error))
   }
-  
+
   if (loading) {
     return <Spinner />
   }
-  return <Button.Ripple href={`https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/downloadDocument?document_id?=${documentId}`} color='primary' style={{ width: 300 }}>Download Contract</Button.Ripple>
+  return <Button.Ripple target="_blank" href={`https://api-8106d23e.nhost.app/?document_id=${documentId}`} color='primary' style={{ width: 300 }}>Download Contract</Button.Ripple>
 }
 
 function b64toBlob(b64Data, contentType, sliceSize) {
@@ -196,7 +197,7 @@ function b64toBlob(b64Data, contentType, sliceSize) {
     byteArrays.push(byteArray)
   }
 
-  
+
   return new File(byteArrays, "pot", { type: contentType })
 }
 

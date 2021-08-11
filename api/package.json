@@ -1,7 +1,7 @@
 {
   "name": "nhost-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "API",
   "main": "index.js",
   "dependencies": {
     "form-data": "^4.0.0",
