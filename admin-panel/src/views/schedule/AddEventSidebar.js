@@ -631,7 +631,7 @@ const AddEventSidebar = props => {
            filterKey='address'
            value={propertyName}
            defaultSuggestions={true}
-           placeholder="Search Propery Name"
+           placeholder="Search Property Name"
            customRender={(
              suggestion,
              i,

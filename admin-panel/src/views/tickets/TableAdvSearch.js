@@ -153,6 +153,11 @@ const DataTableAdvSearch = () => {
     {value: "Patch Job", label: "Patch Job"}
   ]
 
+  const statusOptions = [
+    {value: "Open", label: "Open"},
+    {value: "Closed", label: "Closed"},
+    {value: "In Progress", label: "In Progress"}
+  ]
   const toggleModal = () => {
     setModalAlert(!modalAlert)
   }
@@ -557,7 +562,7 @@ const DataTableAdvSearch = () => {
   }
   //handle status filter
   const handleStatusFilter = e => {
-    const value = e.target.value
+    const value = e.value
     let updatedData = []
     const dataToFilter = () => {
       //   if (searchEmail.length || searchName.length || description.length || searchType.length) {
@@ -650,7 +655,7 @@ const DataTableAdvSearch = () => {
                 <Input
                   type='email'
                   id='email'
-                  placeholder='Bwayne@email.com'
+                  placeholder='abc@email.com'
                   value={searchEmail}
                   onChange={handleEmailFilter}
                 />
@@ -659,7 +664,7 @@ const DataTableAdvSearch = () => {
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='occupation'>Description:</Label>
-                <Input id='occupation' placeholder='Web Designer' value={description} onChange={handleDescriptionFilter} />
+                <Input id='occupation' placeholder='AC not working' value={description} onChange={handleDescriptionFilter} />
               </FormGroup>
             </Col>
             {/* <Col lg='4' md='6'>
@@ -671,7 +676,6 @@ const DataTableAdvSearch = () => {
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='type'>Type:</Label>
-                {/* <Input id='type' type='select' value={searchType} onChange={handleTypeFilter} placeholder="Type"> */}
                 <Select
                 onChange={handleTypeFilter}
                 className='react-select'
@@ -681,17 +685,22 @@ const DataTableAdvSearch = () => {
                 options={typeOptions}
                 isClearable={false}
                 />
-                  {/* <option>Deferred</option>
-                  <option>Additional Request</option>
-                  <option>Full Job</option>
-                  <option>Material Request</option>
-                  <option>Request for quotation</option>
-                  <option>Patch Job</option>
-                </Input> */}
               </FormGroup>
             </Col>
             <Col lg='4' md='6'>
-              <FormGroup>
+            <FormGroup>
+                <Label for='type'>Type:</Label>
+                <Select
+                onChange={handleStatusFilter}
+                className='react-select'
+                classNamePrefix='select'
+                defaultValue={searchStatus}
+                placeholder="Select Status"
+                options={statusOptions}
+                isClearable={false}
+                />
+              </FormGroup>
+              {/* <FormGroup>
                 <Label for='Status'>Status:</Label>
                 <Input id='status' type='select' value={searchStatus} onChange={handleStatusFilter}>
                   <option></option>
@@ -700,7 +709,7 @@ const DataTableAdvSearch = () => {
                   <option>In Progress</option>
 
                 </Input>
-              </FormGroup>
+              </FormGroup> */}
             </Col>
           </Row>
         </CardBody>
