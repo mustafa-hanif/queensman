@@ -79,6 +79,7 @@ async function updateScheduleWithEmergencyWoker({
       $callout_id: Int!, 
       $worker_email: String!, 
       $time: time!,
+      $client_name: String!,
       $timestamp: timestamp!,
       $date: date!, 
       $data: json!
@@ -115,7 +116,7 @@ async function updateScheduleWithEmergencyWoker({
     }
     insert_notifications_one(object: {
       worker_email: $worker_email, 
-      text: "An emergency has just been posted, please call the client with name ${client_name}", 
+      text: $client_name, 
       type: "worker",
       data: $data
     }) {
@@ -132,6 +133,7 @@ async function updateScheduleWithEmergencyWoker({
       callout_email,
       time,
       timestamp,
+      client_name: `An emergency has just been posted, please call the client with name ${client_name}`,
       date,
       data: { phone: phone, type: 'call' },
     }
@@ -189,6 +191,15 @@ async function getWorker({ worker_id }) {
     `query GetWorker($id: Int!) {
     worker_by_pk(id: $id) {
       email
+      full_name
+      isEmergency
+      phone
+      teams {
+        team_color
+      }
+      teams_member {
+        team_color
+      }
     }
   }  
   `,
@@ -210,12 +221,25 @@ async function getCallout({ callout_id }) {
   const { errors, data } = await fetchGraphQL(
     `query GetCallout($callout_id: Int!) {
     callout_by_pk(id: $callout_id) {
+      id
       urgency_level
       status
       job_type
+      description
       client_callout_email {
+        full_name
         phone
+        email
+        id
       }
+      property {
+        address
+        id
+        community
+        city
+        country
+      }
+      request_time
     }
   }
     
@@ -305,7 +329,7 @@ async function getRelevantWoker({ callout, date, time }) {
         'GetTeams',
         { _contains: job_type, offset }
       );
-      workerId = teams.teams?.[0].worker?.id;
+      workerId = teams.teams?.[0]?.worker?.id;
 
       //  - Get all schedule by this worker sorted by date
       const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());

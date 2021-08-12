@@ -69,7 +69,7 @@ const Calendar = props => {
     // selectedEvent,
     eventDataTransform: (eventData => {
       console.log(eventData)
-      const { id, worker, callout_id, start, startTime, notes, callout, job_tickets, end, endTime } = eventData
+      const { id, worker, callout_id, start, startTime, blocked, callout, job_tickets, end, endTime } = eventData
       const length = job_tickets?.length
       // console.log({
       //   allDay: false,
@@ -86,28 +86,28 @@ const Calendar = props => {
       //   propertyId: callout.property?.id || 0,
       //   videoUrl: callout.video,
       //   job_tickets,
-        
+
       //   callout_id
       // })
       const clientName = callout?.client_callout_email?.full_name
       const jobType = callout?.job_type
       const wokerName = worker?.full_name
       const assignedTo = wokerName ? `Assigned to: \n${wokerName}` : 'Unassigned'
-      const title = `${clientName} \n${jobType} \n${assignedTo}`
-      console.log(worker?.teams?.team_color)
+      const title = `${id} ${clientName} ${clientName} \n${jobType} \n${assignedTo}`
+      const color = worker?.teams?.[0]?.team_color ?? worker?.teams_member?.team_color
       return {
         allDay: false,
         // end: `${start}T${'00:00:00.000Z'}`,
         id,
-        title: `${title}${length > 0 ? `; ${length} job ticket ${length > 1 ? 's' : ''}` : ''}`, 
+        title: `${title}${length > 0 ? `; ${length} job ticket ${length > 1 ? 's' : ''}` : ''}`,
         start: `${start}T${startTime}`,
         end: endTime ? `${end}T${endTime}` : addHours(`${start} ${startTime}`, 2),
         workerName: worker?.full_name || 'No Worker name',
         workerId: worker?.id || null,
         workerEmail: worker?.email || null,
-        backgroundColor: `${worker?.teams?.[0]?.team_color ?? `#756300`}`,
+        backgroundColor: `${color ?? `#756300`}`,
         clientName: callout.client_callout_email?.full_name || 'No Client name',
-        clientEmail:callout.client_callout_email?.email || 'No Client email',
+        clientEmail: callout.client_callout_email?.email || 'No Client email',
         category: callout?.category || "Uncategorized",
         job_type: callout?.job_type || "No Type",
         propertyName: callout.property?.address || 'No Property',
@@ -116,6 +116,7 @@ const Calendar = props => {
         // start: new Date(`${start} ${startTime}`).toISOString(),
         // start,
         job_tickets,
+        blocked,
         hasJobs: job_tickets.length,
         picture1: callout?.picture1,
         picture2: callout?.picture2,
@@ -172,10 +173,9 @@ const Calendar = props => {
     // },
 
     eventClick({ event: clickedEvent }) {
-      console.log(clickedEvent, 'bonga')
       selectEvent(clickedEvent)
-        handleAddEventSidebar()
-      
+      handleAddEventSidebar()
+
 
       // * Only grab required field otherwise it goes in infinity loop
       // ! Always grab all fields rendered by form (even if it get `undefined`) otherwise due to Vue3/Composition API you might get: "object is not extensible"
@@ -198,7 +198,7 @@ const Calendar = props => {
       console.log(info)
       const time = new Date(info.dateStr).toTimeString().substr(0, 8)
       const date = info.dateStr.substring(0, 10)
-      
+
       const ev = blankEvent
       ev.start = info.date
       ev.end = new Date(addHours(`${date} ${time}`, 2))
@@ -212,6 +212,7 @@ const Calendar = props => {
       ? We can use `eventDragStop` but it doesn't return updated event so we have to use `eventDrop` which returns updated event
     */
     eventDrop({ event: droppedEvent}) {
+      console.log(droppedEvent)
       updateEventDrag(droppedEvent)
       toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
         autoClose: 2000,

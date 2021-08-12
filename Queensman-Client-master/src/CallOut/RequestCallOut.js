@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable consistent-return */
 /* eslint-disable no-nested-ternary */
@@ -222,6 +223,7 @@ const ADD_CALLOUT = gql`
     $worker_email: String
     $urgency_level: String
     $client_email: String
+    $job_type2: String
   ) {
     insert_job_tickets_one(
       object: {
@@ -240,9 +242,9 @@ const ADD_CALLOUT = gql`
             urgency_level: $urgency_level
           }
         }
-        name: "Request quotation"
+        name: "Additional Request"
         description: $description
-        type: $job_type
+        type: $job_type2
         status: $status
         worker_id: $worker_id
         worker_email: $worker_email
@@ -533,11 +535,38 @@ const RequestCallOut = (props) => {
         { cancelable: false }
       );
     } else {
-      addJobTicketFunc();
+      Alert.alert(
+        "Confirmation.",
+        "Kindly click YES to make request.",
+        [
+          {
+            text: "Cancel",
+            onPress: () => console.log("Cancel Pressed"),
+            style: "cancel",
+          },
+          { text: "Yes", onPress: () => addJobTicketFunc() },
+        ],
+        { cancelable: false }
+      );
     }
   };
 
   const SubmittedCalloutAlert = () => {
+    Alert.alert(
+      "Callout Request Submitted.",
+      "One of our team will be in touch shortly.",
+      [
+        {
+          text: "Ok",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const SubmittedMakeRequestAlert = () => {
     Alert.alert(
       "Callout Request Submitted.",
       "One of our team will be in touch shortly.",
@@ -584,24 +613,8 @@ const RequestCallOut = (props) => {
       },
     })
       .then((res) => {
-        // SubmittedCalloutAlert();
-        props.navigation.navigate(
-          "HomeNaviagtor",
-          showMessage({
-            message: "Callout Request Submitted",
-            description: "One of our team will be in touch shortly",
-            type: "danger",
-            style: { height: "20%", flexDirection: "row", alignItems: "center" },
-            textStyle: { textAlignVertical: "center" },
-            duration: 3000,
-          })
-        );
-        // showMessage({
-        //   message: "Callout Request Submitted",
-        //   description: "One of our team will be in touch shortly",
-        //   type: "danger",
-        //   duration: 3000
-        // });
+        SubmittedMakeRequestAlert();
+        props.navigation.navigate("HomeNaviagtor");
       })
       .catch((err) => console.log({ err }));
   };
@@ -677,9 +690,9 @@ const RequestCallOut = (props) => {
   };
 
   function millisToMinutesAndSeconds(millis) {
-    var minutes = Math.floor(millis / 60000);
-    var seconds = ((millis % 60000) / 1000).toFixed(0);
-    return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+    const minutes = Math.floor(millis / 60000);
+    const seconds = ((millis % 60000) / 1000).toFixed(0);
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   }
 
   const saveVideoCloud = () => {
@@ -703,6 +716,7 @@ const RequestCallOut = (props) => {
   };
 
   const addJobTicketFunc = async () => {
+    setState({ ...state, loading: true });
     const category = "Uncategorized";
     const pictures = Object.fromEntries(
       [...Array(4)]
@@ -721,24 +735,20 @@ const RequestCallOut = (props) => {
     addCalloutApiCall({
       variables: {
         callout_by_email: auth?.currentSession?.session?.user.email,
-        worker_email: "antony@queensman.com", //add email client
+        worker_email: "antony@queensman.com", // add email client
         client_email: auth?.currentSession?.session?.user.email,
         worker_id: 16,
         description: state.Description,
         category,
         job_type: jobCategorySelect.value,
-        status: "Additional Request",
+        job_type2: "Additional Request",
+        status: "Open",
         urgency_level: "Medium",
         ...pictures,
       },
     })
       .then((res) => {
-        showMessage({
-          message: "Callout Request Submitted",
-          description: "One of our team will be in touch shortly",
-          type: "warning",
-          duration: 3000,
-        });
+        setState({ ...state, loading: false });
         SubmittedCalloutAlert();
         setTimeout(() => {
           props.navigation.navigate("HomeNaviagtor");
@@ -797,7 +807,7 @@ const RequestCallOut = (props) => {
                 onValueChange={onJobCategoryValueChange}
                 selectedValue={jobCategorySelect.value}
                 backgroundColor="#FFCA5D"
-                color="white"
+                color="black"
                 placeholder="Select Job Category"
               >
                 {jobCategory ? (
@@ -825,16 +835,16 @@ const RequestCallOut = (props) => {
                 onValueChange={onJobCategoryValueChange}
                 selectedValue={jobCategorySelect.value}
                 backgroundColor="#FFCA5D"
-                color="white"
+                color="black"
                 placeholder="Select Request Type"
               >
                 <Select.Item label="Request for quotation" value="Request for quotation" />
-                <Select.Item label="AC" value="AC" />
+                {/* <Select.Item label="AC" value="AC" />
                 <Select.Item label="Plumbing" value="Plumbing" />
                 <Select.Item label="Electric" value="Electric" />
                 <Select.Item label="Woodworks" value="Woodworks" />
                 <Select.Item label="Paintworks" value="Paintworks" />
-                <Select.Item label="Masonry" value="Masonry" />
+                <Select.Item label="Masonry" value="Masonry" /> */}
                 <Select.Item label="Other" value="other" />
               </Select>
             )}
@@ -851,7 +861,7 @@ const RequestCallOut = (props) => {
                 onValueChange={onJobTypeValueChange}
                 selectedValue={jobTypeSelect?.value}
                 backgroundColor="#FFCA5D"
-                color="white"
+                color="black"
                 placeholder="Select Job Type"
               >
                 {jobType ? (
@@ -1162,22 +1172,20 @@ const RequestCallOut = (props) => {
               </View>
             </TouchableOpacity>
           </View>
-          <Box mb={24} mt={4}>
-            <Button isLoading={state.loading} style={styles.SubmitCallout} onPress={() => askSubmitCallout()}>
-              <Text
-                style={{
-                  color: "#fff",
-                  fontSize: 15,
-                  alignSelf: "center",
-                }}
-              >
-                {state.Urgency === "medium"
-                  ? "Select Date"
-                  : !props.route.params.additionalServices
-                  ? "Submit Callout"
-                  : "Make Request"}
-              </Text>
-            </Button>
+          <Box mb={12} mt={4}>
+            {state.loading ? (
+              <ActivityIndicator size="small" color="#FFCA5D" style={{ alignSelf: "center" }} />
+            ) : (
+              <Button mb={12} isLoading={state.loading} onPress={() => askSubmitCallout()}>
+                <Text>
+                  {state.Urgency === "medium"
+                    ? "Select Date"
+                    : !props.route.params.additionalServices
+                    ? "Submit Callout"
+                    : "Make Request"}
+                </Text>
+              </Button>
+            )}
           </Box>
         </View>
       </View>

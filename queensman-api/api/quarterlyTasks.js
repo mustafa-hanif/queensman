@@ -58,8 +58,11 @@ const quarterlyTasks = async (event) => {
   try {
     return {
       statusCode: 200,
-      message: 'Go Serverless v1.0! Your function executed successfully!',
-      result
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+      body: result
     };
   } catch (e) {
     return {

@@ -12,7 +12,7 @@ Team Mobile APP link: https://drive.google.com/open?id=1klXwHUyrpc3OGjmXZxWJM9wD
 
 AWS login
 aalvi@queensman.com
-AbuQueensman01
+QS-technicals@123
 
 ### Client login
 danebowers@me.com

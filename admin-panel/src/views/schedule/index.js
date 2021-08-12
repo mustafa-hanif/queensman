@@ -47,11 +47,15 @@ const GET_SCHEDULE = gql`
       end: end_date_on_calendar
       endTime: end_time_on_calendar
       notes
+      blocked
       worker {
         full_name
         id
         email
         teams {
+          team_color
+        }
+        teams_member {
           team_color
         }
       }
@@ -83,7 +87,6 @@ const GET_SCHEDULE = gql`
         worker {
           full_name
           id
-          color_code
         }
       }
     }
@@ -99,10 +102,23 @@ const UPDATE_CALLOUT = gql`
     $job_type: String
     $scheduler_id: Int
     $worker_id: Int
+    $blocked: Boolean
+    $date_on_calendar: date
+    $time_on_calendar: time
+    $end_date_on_calendar: date
+    $end_time_on_calendar: time
   ) {
     update_scheduler(
       where: { id: { _eq: $scheduler_id } }
-      _set: { notes: $notes, worker_id: $worker_id }
+      _set: { 
+        notes: $notes, 
+        worker_id: $worker_id, 
+        blocked: $blocked, 
+        date_on_calendar: $date_on_calendar
+        time_on_calendar: $time_on_calendar
+        end_date_on_calendar: $end_date_on_calendar
+        end_time_on_calendar: $end_time_on_calendar
+      }
     ) {
       affected_rows
     }
@@ -123,7 +139,7 @@ const UPDATE_CALLOUT = gql`
 `
 
 const UPDATE_CALLOUT_AND_JOB_TICKET = gql`
-  mutation UpdateCallout(
+  mutation UpdateCalloutAndJobTicket(
     $notes: String
     $callout_id: Int
     $callout_by_email: String
@@ -132,10 +148,23 @@ const UPDATE_CALLOUT_AND_JOB_TICKET = gql`
     $scheduler_id: Int
     $worker_id: Int
     $worker_email: String
+    $blocked: Boolean
+    $date_on_calendar: date
+    $time_on_calendar: time
+    $end_date_on_calendar: date
+    $end_time_on_calendar: time
   ) {
     update_scheduler(
       where: { id: { _eq: $scheduler_id } }
-      _set: { notes: $notes, worker_id: $worker_id }
+      _set: { 
+        notes: $notes, 
+        worker_id: $worker_id, 
+        blocked: $blocked, 
+        date_on_calendar: $date_on_calendar
+        time_on_calendar: $time_on_calendar
+        end_date_on_calendar: $end_date_on_calendar
+        end_time_on_calendar: $end_time_on_calendar
+      }
     ) {
       affected_rows
     }
@@ -295,7 +324,13 @@ const CalendarComponent = () => {
           category: eventToUpdate.extendedProps.category,
           job_type: eventToUpdate.extendedProps.job_type,
           scheduler_id: eventToUpdate.id,
-          worker_id: eventToUpdate.extendedProps.workerId
+          worker_id: eventToUpdate.extendedProps.workerId,
+          // worker_email: eventToUpdate.extendedProps.workerEmail,
+          blocked: eventToUpdate.extendedProps.blocked,
+          time_on_calendar : eventToUpdate.startPicker.toTimeString().substr(0, 8), 
+          date_on_calendar : eventToUpdate.startPicker.toLocaleDateString(),
+          end_date_on_calendar: eventToUpdate.endPicker.toLocaleDateString(),
+          end_time_on_calendar : eventToUpdate.endPicker.toTimeString().substr(0, 8)
         }
       })
     } else {
@@ -308,21 +343,15 @@ const CalendarComponent = () => {
           job_type: eventToUpdate.extendedProps.job_type,
           scheduler_id: eventToUpdate.id,
           worker_id: eventToUpdate.extendedProps.workerId,
-          worker_email: eventToUpdate.extendedProps.workerEmail
+          worker_email: eventToUpdate.extendedProps.workerEmail,
+          blocked: eventToUpdate.extendedProps.blocked,
+          time_on_calendar : eventToUpdate.startPicker.toTimeString().substr(0, 8), 
+          date_on_calendar : eventToUpdate.startPicker.toLocaleDateString(),
+          end_date_on_calendar: eventToUpdate.endPicker.toLocaleDateString(),
+          end_time_on_calendar : eventToUpdate.endPicker.toTimeString().substr(0, 8)
         }
       })
     }
-    updateCallOut({
-      variables: {
-        notes: eventToUpdate.title,
-        callout_id: eventToUpdate.callout_id,
-        callout_by_email: eventToUpdate.extendedProps.clientEmail,
-        category: eventToUpdate.extendedProps.category,
-        job_type: eventToUpdate.extendedProps.job_type,
-        scheduler_id: eventToUpdate.id,
-        worker_id: eventToUpdate.extendedProps.workerId
-      }
-    })
   }
   const updateEventDrag = (eventToUpdate) => {
     updateCallOutDrag({

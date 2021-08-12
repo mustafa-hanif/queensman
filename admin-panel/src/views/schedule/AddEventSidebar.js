@@ -134,7 +134,7 @@ const AddEventSidebar = props => {
   // ** Component
   const CalloutPicture = ({picture}) => {
     return <div style={{width: "100px"}}>
-     {picture ? <img src={picture} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
+     {picture ? <a href={picture} target="_blank"><img src={picture} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/></a> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
      </div>
   }
   // const selectedEvent = store.selectedEvent
@@ -158,6 +158,7 @@ const AddEventSidebar = props => {
   const [propertyId, setPropertyId] = useState(selectedEvent.extendedProps?.propertyId  || 9999)
   const [workerName, setWorkerName] = useState(selectedEvent.extendedProps?.workerName || '')
   const [workerId, setWorkerId] = useState(selectedEvent.extendedProps?.workerId)
+  const [blocked, setBlocked] = useState(selectedEvent.extendedProps?.blocked)
   const [workerEmail, setWorkerEmail] = useState(selectedEvent.extendedProps?.workerEmail)
   const [jobTickets, setJobTickets] = useState([])
   const [picture1, setPicture1] = useState(selectedEvent.extendedProps?.picture1)
@@ -181,23 +182,25 @@ const AddEventSidebar = props => {
 
   const [updateJobTicket] = useMutation(UPDATE_JOB_TICKET)
 
-  // ** Select callout jobtype
-  const calloutJobTypeOptions = [
-    {value:"Water Leakage", label: "Water Leakage"},
-    {value:"Pumps problem (pressure low)", label: "Pumps problem (pressure low)"},
-    {value:"Drains blockage- WCs", label: "Drains blockage- WCs"},
-    {value:"Drains Blockage – Sinks, floor traps", label: "Drains Blockage – Sinks, floor traps"},
-    {value:"AC Services Request", label: "AC Services Request"},
-    {value:"AC not cooling", label: "AC not cooling"},
-    {value:"AC Thermostat not functioning", label: "AC Thermostat not functioning"}
-  ]
+  const { jobTypeLoading, data: calloutJobTypeOptions, error: jobTypeError } = useQuery(gql`query JobTypes {
+    team_expertise {
+      label: skill_name
+      value: skill_name
+    }
+  }`, {
+    skip: !open
+  })
   
   const jobTypeOptions = [
-    {value: 'Deffered', label: 'Deffered'},
+    {value: 'Deferred', label: 'Deferred'},
     {value: 'Material Request', label: 'Material Request'},
     {value: 'Patch Job', label: 'Patch Job'},
     {value: 'Full Job', label: 'Full Job'}
   ]
+
+  const addHours = (date, hours) => {
+    return new Date(new Date(date).setHours(new Date(date).getHours() + hours))
+ }
 
   // ** Custom select components
   const OptionComponent = ({ data, ...props }) => {
@@ -243,7 +246,7 @@ const AddEventSidebar = props => {
   }
 
   const handleJobAddEvent = () => {
-    setJobTickets([...jobTickets, {name: "", description: "", notes: [""], pictures: [""], type: "Select...", isSaved: false, newJob: true, worker: {color_code: null, full_name: workerName, id: workerId, email: workerEmail}}])
+    setJobTickets([...jobTickets, {name: "", description: "", notes: [""], pictures: [""], type: "Select...", isSaved: false, newJob: true, worker: {full_name: workerName, id: workerId, email: workerEmail}}])
     
   }
 
@@ -301,6 +304,7 @@ const AddEventSidebar = props => {
       setPicture2(selectedEvent.extendedProps?.picture2 || picture2)
       setPicture3(selectedEvent.extendedProps?.picture3 || picture3)
       setPicture4(selectedEvent.extendedProps?.picture4 || picture4)
+      setBlocked(selectedEvent.extendedProps?.blocked)
     }
   }
 
@@ -349,8 +353,8 @@ const AddEventSidebar = props => {
         id: selectedEvent.id,
         callout_id: selectedEvent?.extendedProps?.callout_id,
         title: title.split('by')[0],
-        start: startPicker,
-        end: endPicker,
+        startPicker,
+        endPicker,
         extendedProps: {
           clientName,
           clientEmail,
@@ -361,11 +365,12 @@ const AddEventSidebar = props => {
           workerId,
           workerEmail,
           propertyId,
-          jobTickets
+          jobTickets,
+          blocked
         }
       }
-      const propsToUpdate = ['start', 'title', 'callout_id']
-      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'workerId', 'workerEmail', 'propertyId', 'clientEmail', 'job_type', 'jobTickets']
+      const propsToUpdate = ['startPicker', 'endPicker', 'title', 'callout_id']
+      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'workerId', 'workerEmail', 'propertyId', 'clientEmail', 'job_type', 'jobTickets', 'blocked']
   
       updateEvent(eventToUpdate)
       updateEventInCalendar(eventToUpdate, propsToUpdate, extendedPropsToUpdate)
@@ -479,7 +484,7 @@ const AddEventSidebar = props => {
       return (
         <Fragment>
           <Button.Ripple className='mr-1' type='submit' color='primary'>
-            Add
+            Add Callout
           </Button.Ripple>
           <Button.Ripple color='secondary' type='reset' onClick={handleAddEventSidebar} outline>
             Cancel
@@ -494,10 +499,10 @@ const AddEventSidebar = props => {
             color='primary'
             onClick={handleUpdateEvent}
           >
-            Update
+            Update Callout
           </Button.Ripple>
           <Button.Ripple color='danger' onClick={handleDeleteEvent} outline>
-            Delete
+            Delete Callout
           </Button.Ripple>
         </Fragment>
       )
@@ -519,7 +524,7 @@ const AddEventSidebar = props => {
       onClosed={handleResetInputValues}
       toggle={handleAddEventSidebar}
     >
-      <ModalHeader className='mb-1' toggle={handleAddEventSidebar} close={CloseBtn} tag='div'>
+      <ModalHeader className='mb-1' toggle={handleAddEventSidebar} >
          <h5 className='modal-title'>
            {selectedEvent?.title}
          </h5>
@@ -539,7 +544,7 @@ const AddEventSidebar = props => {
         >
            <FormGroup>
              <Label for='title'>
-               Notes <span className='text-danger'>*</span>
+               Title <span className='text-danger'>*</span>
              </Label>
             <Input
                id='title'
@@ -559,7 +564,7 @@ const AddEventSidebar = props => {
              <Select
                id='label'
                defaultValue={{value:calloutJobType.value, label:calloutJobType.label}}
-               options={calloutJobTypeOptions}
+               options={calloutJobTypeOptions?.team_expertise ?? []}
                theme={selectThemeColors}
                className='react-select'
                classNamePrefix='select'
@@ -626,7 +631,7 @@ const AddEventSidebar = props => {
            filterKey='address'
            value={propertyName}
            defaultSuggestions={true}
-           placeholder="Search Propery Name"
+           placeholder="Search Property Name"
            customRender={(
              suggestion,
              i,
@@ -682,7 +687,8 @@ const AddEventSidebar = props => {
               onClick={e => {
                 onSuggestionItemClick(null, e)
                 setWorkerName(suggestion.full_name)
-                setWorkerId(suggestion.id)           
+                setWorkerId(suggestion.id)       
+                setWorkerEmail(suggestion.email)    
               }}
             >
             <span>{suggestion.full_name}{'     '}</span>
@@ -703,12 +709,15 @@ const AddEventSidebar = props => {
                id='startDate'
                 //tag={Flatpickr}
                name='startDate'
+              //  data-enable-time
                className='form-control'
-               onChange={date => setStartPicker(date[0])}
+               onChange={date => { setStartPicker(date[0]); setEndPicker(addHours(date[0], 2)); console.log(date[0]) }}
                value={startPicker}
                options={{
-                 enableTime: allDay === false,
-                 dateFormat: 'Y-m-d H:i'
+                enableTime: true,
+          noCalendar: false,
+          dateFormat: 'H:i',
+          time_24hr: true
                }}
              />
            </FormGroup>
@@ -725,14 +734,19 @@ const AddEventSidebar = props => {
                value={endPicker}
                disabled
                options={{
-                 enableTime: allDay === false,
+                 enableTime: true,
                  dateFormat: 'Y-m-d H:i'
                }}
              />
            </FormGroup>
+           <FormGroup>
+           <CustomInput inline className='custom-control-Primary' type='checkbox' id='blocked'  onChange={() => setBlocked(!blocked)} label='Should we block this slot from any booking?' checked={blocked} />
+             {/* <Input type='checkbox' id='blocked' onChange={() => setBlocked(!blocked)} checked={blocked} /> */}
+             {/* <Label for='blocked'>Should we block this slot from any booking?</Label> */}
+           </FormGroup>
            <FormGroup style={{display: "flex", justifyContent: "space-between"}}>
-             {[picture1, picture2, picture3, picture4].map(picture => (
-              <CalloutPicture picture={picture} />
+             {[picture1, picture2, picture3, picture4].map((picture, i) => (
+              <CalloutPicture key={i} picture={picture} />
              ))}
            </FormGroup>
            
@@ -782,10 +796,10 @@ const AddEventSidebar = props => {
             color='primary'
             onClick={() => handleJobUpdateEvent(index)}
           >
-            {job?.newJob ? 'Save' : 'Update'}
+            {job?.newJob ? 'Save Ticket' : 'Update Ticket'}
           </Button.Ripple>
           <Button.Ripple color='danger' onClick={() => handleJobDeleteEvent(index)} outline>
-            Delete
+            Delete Ticket
           </Button.Ripple>
         </Fragment>
             </FormGroup>

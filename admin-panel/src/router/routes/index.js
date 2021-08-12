@@ -13,6 +13,14 @@ const Routes = [
     component: lazy(() => import('../../views/Home'))
   },
   {
+    path: '/download-contract/:document_id',
+    component: lazy(() => import('../../views/DownloadContract')),
+    layout: 'BlankLayout',
+    meta: {
+      publicRoute: true
+    }
+  },
+  {
     path: '/clients',
     component: lazy(() => import('../../views/clients'))
   },

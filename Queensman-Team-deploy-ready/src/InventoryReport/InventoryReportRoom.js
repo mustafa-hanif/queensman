@@ -331,6 +331,11 @@ class InventoryReportRoomClass extends React.Component {
         setTimeout(() => {
           this.props.navigation.goBack();
         }, 1000);
+      }).catch(() => {
+        alert("Information saved");
+        setTimeout(() => {
+          this.props.navigation.goBack();
+        }, 1000);
       });
   };
 

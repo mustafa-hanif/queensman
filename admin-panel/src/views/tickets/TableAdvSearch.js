@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, Fragment, forwardRef, useContext } from 'react'
+import { useState, Fragment, forwardRef, useContext, useRef } from 'react'
 
 
 // ** Custom Components
@@ -9,8 +9,11 @@ import Avatar from '@components/avatar'
 import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
 import { toast } from 'react-toastify'
+import Exportqs from '../extensions/import-export/Exportqs'
+import moment from "moment"
 import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check } from 'react-feather'
 import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+import Select from 'react-select'
 
 // ** Toast Component
 const ToastComponent = ({ title, icon, color }) => (
@@ -39,23 +42,58 @@ import '@styles/react/libs/flatpickr/flatpickr.scss'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import AddNewModal from './AddNewModal'
 import ButtonGroup from 'reactstrap/lib/ButtonGroup'
-import { months } from 'moment'
 import Badge from 'reactstrap/lib/Badge'
+import TabsVerticalLeft from './TabsVerticalLeft'
 
 const GET_JOB_TICKETS = gql`
 query getJobTickets {
   job_tickets(order_by: {id: desc}) {
     id
+    notes
     name
-    scheduler_id
     callout_id
     description
     type
     worker_email
     worker_id
     status
+    created_at
     worker_email_rel {
       full_name
+    }
+    callout {
+      id
+      property_id
+      job_type
+      description
+      status
+      request_time
+      urgency_level
+      picture1
+      picture2
+      picture3
+      picture4
+      video
+      client: client_callout_email {
+        full_name
+        email
+        phone
+      }
+      job: callout_job {
+        instructions
+      }
+      property {
+        id
+        address
+        community
+        country
+        city
+      }
+      schedulers {
+        id
+        date_on_calendar
+        time_on_calendar
+      }
     }
   }
 }
@@ -86,52 +124,76 @@ mutation deleteJobTicket($id: Int!) {
 
 const DataTableAdvSearch = () => {
 
-        // ** States
+  // ** States
   const { loading, data, error } = useQuery(GET_JOB_TICKETS)
-  const [updateJobTicket, {loading: updateJobTicketLoading}] = useMutation(UPDATE_JOB_TICKET, {refetchQueries:[{query: GET_JOB_TICKETS}]})
-  const [addJobTicket, {loading: addJobTicketLoading}] = useMutation(ADD_JOB_TICKET, {refetchQueries:[{query: GET_JOB_TICKETS}]})
-  const [deleteJobTicket, {loading: deleteJobLoading}] = useMutation(DELETE_JOB_TICKET, {refetchQueries:[{query: GET_JOB_TICKETS}]})
+  const [updateJobTicket, { loading: updateJobTicketLoading }] = useMutation(UPDATE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
+  const [addJobTicket, { loading: addJobTicketLoading }] = useMutation(ADD_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
+  const [deleteJobTicket, { loading: deleteJobLoading }] = useMutation(DELETE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
   const [modal, setModal] = useState(false)
+  const [detailsModal, setDetailsModal] = useState(false)
+  const [modalDetails, setModalDetails] = useState(null)
   const [searchName, setSearchName] = useState('')
   const [searchEmail, setSearchEmail] = useState('')
   const [searchType, setSearchType] = useState('')
+  const [searchStatus, setSearchStatus] = useState('')
   const [description, setDescription] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
   const [filteredData, setFilteredData] = useState([])
   const [toAddNewJobTicket, setToAddNewJobTicket] = useState(false)
   const [row, setRow] = useState(null)
   const [rowId, setRowId] = useState(null)
-
   const [modalAlert, setModalAlert] = useState(null)
 
+  const typeOptions = [
+    { value: "", label: "All" },
+    { value: "Deferred", label: "Deferred" },
+    { value: "Additional Request", label: "Additional Request" },
+    { value: "Full Job", label: "Full Job" },
+    { value: "Material Request", label: "Material Request" },
+    { value: "Request for quotation", label: "Request for quotation" },
+    { value: "Patch Job", label: "Patch Job" }
+  ]
+
+  const statusOptions = [
+    { value: "Open", label: "Open" },
+    { value: "Closed", label: "Closed" },
+    { value: "In Progress", label: "In Progress" }
+  ]
   const toggleModal = () => {
-      setModalAlert(!modalAlert)
+    setModalAlert(!modalAlert)
   }
 
   const openModalAlert = (id) => {
     setRowId(id)
     setModalAlert(true)
   }
-  
-    const closeModal = () => {
-        setModal(!modal)
-    }
+
+  const closeModal = () => {
+    setModal(!modal)
+  }
+
+  //** Function to open details modal */
+  const openDetailsModal = (item) => {
+    console.log(item)
+    setDetailsModal(true)
+    setModalDetails(item) //set row value 
+  }
 
   // ** Function to handle Modal toggle
-  const handleModal = (row) => { 
+  const handleModal = (row) => {
     console.log(row)
-      setRow(row)
-      setTimeout(() => {
-        setModal(!modal) 
-      }, 200)
-      setToAddNewJobTicket(false)
-    }
+    setRow(row)
+    setTimeout(() => {
+      setModal(!modal)
+    }, 10)
+    setToAddNewJobTicket(false)
+  }
 
   // ** Function to handle Pagination
   const handlePagination = page => setCurrentPage(page.selected)
-  
-    // ** Table Columns
-const advSearchColumns = [
+
+  // ** Table Columns
+  const advSearchColumns = [
     {
       name: 'Id',
       selector: 'id',
@@ -144,12 +206,12 @@ const advSearchColumns = [
     //   sortable: true,
     //   minWidth: '200px'
     // },
-    {
-      name: 'Name',
-      selector: 'name',
-      sortable: true,
-      minWidth: '200px'
-    },
+    // {
+    //   name: 'Name',
+    //   selector: 'name',
+    //   sortable: true,
+    //   minWidth: '200px'
+    // },
     {
       name: 'Type',
       selector: 'type',
@@ -160,15 +222,42 @@ const advSearchColumns = [
       name: 'Description',
       selector: 'description',
       sortable: true,
-      minWidth: '250px'
+      minWidth: '250px',
+      compact: false,
+      wrap: true,
+      cell: row => {
+        if (row?.type === 'Deferred') {
+          if (row?.description && row?.name) {
+            return `${row?.description}; ${row?.name}`
+          } else if (row?.description) {
+            return `${row?.description}`
+          } else if (row?.name) {
+            return `${row?.name}`
+          } else {
+            return "No description"
+          }
+        } else {
+          if (row?.description) {
+            return `${row?.description}`
+          } else {
+            return "No description"
+          }
+        }
+
+      }
     },
     {
       name: 'Worker Assigned',
       selector: 'worker_email_rel',
       sortable: true,
-      minWidth: '250px',
+      minWidth: '100px',
+      wrap: true,
       cell: row => {
-        return row?.worker_email_rel?.full_name
+        if (row?.worker_email_rel?.full_name) {
+          return row?.worker_email_rel?.full_name
+        } else {
+          return "No worker Assigned"
+        }
       }
     },
     // {
@@ -177,66 +266,71 @@ const advSearchColumns = [
     //   sortable: true,
     //   minWidth: '150px'
     // },
-   {
+    {
       name: 'Status',
       selector: 'status',
       sortable: true,
       minWidth: '150px',
       cell: row => {
+        if (row?.status) {
+          return (
+            <Badge color={row?.status === 'Open' ? 'light-danger' : (row.status === 'In Progress' ? 'light-warning' : 'light-success')} pill>
+              {row?.status}
+            </Badge>
+          )
+        } else {
+          return "No Status"
+        }
+      }
+    },
+    {
+      name: 'Urgency',
+      selector: 'callout.urgency_level',
+      sortable: true,
+      minWidth: '100px',
+      cell: row => {
+        if (row?.callout?.urgency_level) {
+          return (
+            <Badge color={row?.callout?.urgency_level === 'High' ? 'light-danger' : 'light-success'} pill>
+              {row?.callout?.urgency_level}
+            </Badge>
+          )
+        } else {
+          return "No Urgerncy"
+        }
+      }
+    },
+    {
+      name: "Date",
+      selector: "created_at",
+      sortable: true,
+      minWidth: "250px",
+      wrap: true,
+      cell: row => {
+        console.log(row?.created_at)
         return (
-          <Badge color={row.status === 'Closed' ? 'light-danger' : 'light-success'} pill>
-            {row.status}
-          </Badge>
+          moment(row?.created_at).format('MMMM Do YYYY, h:mm:ss a')
         )
       }
     },
-    // {
-    //   name: 'Team Id',
-    //   selector: 'team_id',
-    //   sortable: true,
-    //   minWidth: '250px'
-    // },
-    // {
-    //   name: 'Active',
-    //   selector: 'active',
-    //   sortable: true,
-    //   minWidth: '200px',
-    //   cell: row => {
-    //       if (row.active === 1) {
-    //         return (
-    //             <Badge color={'light-success'} pill>
-    //                 Active
-    //             </Badge>
-    //           )
-    //       } else {
-    //         return (
-    //             <Badge color={'light-danger'} pill>
-    //                 Unactive
-    //             </Badge>
-    //           )
-    //       }
-         
-        
-    //   }
-    // },
     {
       name: 'Actions',
       minWidth: '200px',
       allowOverflow: true,
       cell: row => {
         return (
-                <div className="d-flex w-100 align-items-center">
-                  <ButtonGroup size="sm" >
-                  <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
-                  <Trash size={15} />
-                  </Button>
-                  <Button color='primary' className="btn-icon" size="sm">
-                  <Edit size={15} onClick={() => handleModal(row)} />
-                  </Button>
-                </ButtonGroup>
-                
-                </div>
-          
+          <div className="d-flex w-100 align-items-center">
+            <ButtonGroup size="sm" >
+              <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
+                <Trash size={15} />
+              </Button>
+              <Button color='primary' className="btn-icon" size="sm">
+                <Edit size={15} onClick={() => handleModal(row)} />
+              </Button>
+            </ButtonGroup>
+
+          </div>
+
         )
       }
     }
@@ -248,7 +342,7 @@ const advSearchColumns = [
       searchName.length ||
       description.length ||
       searchEmail.length ||
-      searchType.length    
+      searchType.length || searchStatus.length
     ) {
       return filteredData
     } else {
@@ -257,61 +351,67 @@ const advSearchColumns = [
   }
 
   const handleUpdate = (updatedRow) => {
-    updateJobTicket({variables: {
+    updateJobTicket({
+      variables: {
         description: updatedRow.description,
         worker_email: updatedRow.worker_email,
         name: updatedRow.name,
         type: updatedRow.type,
         id: updatedRow.id
-        }})
-      dataToRender()
-      if (!updateJobTicketLoading) {
-        setModal(!modal)
       }
+    })
+    dataToRender()
+    if (!updateJobTicketLoading) {
+      setModal(!modal)
+    }
   }
 
   const addJobTicketRecord = () => {
     setToAddNewJobTicket(true)
     setRow({
-        description: "",
-        worker_email: "",
-        name: "",        
-        type: "Deferred"
+      description: "",
+      worker_email: "",
+      name: "",
+      type: "Deferred"
     })
     setTimeout(() => {
-      setModal(!modal) 
+      setModal(!modal)
     }, 200)
   }
 
 
   const handleAddJobTicket = (newRow) => {
     console.log(newRow)
-    addJobTicket({variables: {
+    addJobTicket({
+      variables: {
         description: newRow.description,
         worker_email: newRow.worker_email,
         name: newRow.name,
         type: newRow.type
-      }})
-      dataToRender()
-      if (!addJobTicketLoading) {
-        setModal(!modal)
       }
+    })
+    dataToRender()
+    if (!addJobTicketLoading) {
+      setModal(!modal)
+    }
   }
 
   const handleDeleteJobTicket = (id) => {
 
-      deleteJobTicket({variables: {
+    deleteJobTicket({
+      variables: {
         id
-      }})
+      }
+    })
     toast.error(<ToastComponent title='Job Ticket Removed' color='danger' icon={<Trash />} />, {
       autoClose: 2000,
       hideProgressBar: true,
       closeButton: false
     })
     dataToRender()
-      if (!deleteJobLoading) {
-        toggleModal()
-      }
+    if (!deleteJobLoading) {
+      toggleModal()
+    }
   }
 
 
@@ -335,7 +435,7 @@ const advSearchColumns = [
       pageLinkClassName={'page-link'}
       breakClassName='page-item'
       breakLinkClassName='page-link'
-      containerClassName={'pagination react-paginate separated-pagination pagination-sm justify-content-end pr-1 mt-1'}
+      containerClassName={'pagination react-paginate separated-pagination pagination-sm justify-content-center pr-1 mt-1'}
     />
   )
 
@@ -344,7 +444,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchType.length)  {
+      if (searchEmail.length || searchName.length || description.length || searchType.length) {
         return filteredData
       } else {
         return data?.job_tickets
@@ -374,12 +474,12 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || description.length || searchType.length)  {
-      return filteredData
-    } else {
-      return data?.job_tickets
+      if (searchEmail.length || searchName.length || description.length || searchType.length) {
+        return filteredData
+      } else {
+        return data?.job_tickets
+      }
     }
-  }
 
     setSearchEmail(value)
     if (value.length) {
@@ -404,7 +504,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchType.length) {
+      if (searchEmail.length || searchName.length || description.length || searchType.length) {
         return filteredData
       } else {
         return data?.job_tickets
@@ -431,15 +531,16 @@ const advSearchColumns = [
 
   // ** Function to handle phone filter
   const handleTypeFilter = e => {
-    const value = e.target.value
+
+    const value = e.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || description.length || searchType.length) {
-      return filteredData
-    } else {
+      //   if (searchEmail.length || searchName.length || description.length || searchType.length) {
+      //    return filteredData
+      //  } else {
       return data?.job_tickets
+      //   }
     }
-  }
 
     setSearchType(value)
     if (value.length) {
@@ -454,14 +555,83 @@ const advSearchColumns = [
           return includes
         } else return null
       })
+
       setFilteredData([...updatedData])
+
       setSearchType(value)
     }
   }
+  //handle status filter
+  const handleStatusFilter = e => {
+    const value = e.value
+    let updatedData = []
+    const dataToFilter = () => {
+      //   if (searchEmail.length || searchName.length || description.length || searchType.length) {
+      //    return filteredData
+      //  } else {
+      return data?.job_tickets
+      //   }
+    }
 
+    setSearchStatus(value)
+    if (value.length) {
+      updatedData = dataToFilter().filter(item => {
+        const startsWith = item.status?.toLowerCase().startsWith(value.toLowerCase())
+
+        const includes = item.status?.toLowerCase().includes(value.toLowerCase())
+
+        if (startsWith) {
+          return startsWith
+        } else if (!startsWith && includes) {
+          return includes
+        } else return null
+      })
+      console.log(updatedData)
+      setFilteredData([...updatedData])
+      // console.log(filteredData)
+      setSearchStatus(value)
+    }
+  }
+  //for export data start
+  //=================================
+  const createExportObject = (DataTojson) => {
+    const objectsToExport = []
+
+    for (const keys in DataTojson) {
+      objectsToExport.push({
+        id: DataTojson[keys].id.toString(),
+        type: DataTojson[keys].type,
+        status: DataTojson[keys].status,
+        description: DataTojson[keys].description,
+        urgency_level: DataTojson[keys]?.callout?.urgency_level,
+        worker_assigned: DataTojson[keys]?.worker_email_rel?.full_name,
+        CreationDate: DataTojson[keys].created_at
+
+      })
+
+    }
+    //   console.log((objectsToExport))
+    return (objectsToExport)
+
+  }
+  const dataToExport = () => {
+    if (
+      searchName.length ||
+      description.length ||
+      searchEmail.length ||
+      searchType.length || searchStatus.length
+    ) {
+      return createExportObject(filteredData)
+    } else {
+      return createExportObject(data?.job_tickets)
+    }
+  }
+  //for export data end
+  //=================================
   return (
     <Fragment>
       <Card>
+
         <CardHeader className='border-bottom'>
           <CardTitle tag='h4'>Advance Search</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
@@ -471,6 +641,7 @@ const advSearchColumns = [
             </Button>
           </div>
         </CardHeader>
+
         <CardBody>
           <Row form className='mt-1 mb-50'>
             <Col lg='4' md='6'>
@@ -485,7 +656,7 @@ const advSearchColumns = [
                 <Input
                   type='email'
                   id='email'
-                  placeholder='Bwayne@email.com'
+                  placeholder='abc@email.com'
                   value={searchEmail}
                   onChange={handleEmailFilter}
                 />
@@ -494,7 +665,7 @@ const advSearchColumns = [
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='occupation'>Description:</Label>
-                <Input id='occupation' placeholder='Web Designer' value={description} onChange={handleDescriptionFilter} />
+                <Input id='occupation' placeholder='AC not working' value={description} onChange={handleDescriptionFilter} />
               </FormGroup>
             </Col>
             {/* <Col lg='4' md='6'>
@@ -506,12 +677,45 @@ const advSearchColumns = [
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='type'>Type:</Label>
-                <Input id='type' placeholder='San Diego' value={searchType} onChange={handleTypeFilter} />
+                <Select
+                  onChange={handleTypeFilter}
+                  className='react-select'
+                  classNamePrefix='select'
+                  defaultValue={searchType}
+                  placeholder="Select Type"
+                  options={typeOptions}
+                  isClearable={false}
+                />
               </FormGroup>
+            </Col>
+            <Col lg='4' md='6'>
+              <FormGroup>
+                <Label for='type'>Type:</Label>
+                <Select
+                  onChange={handleStatusFilter}
+                  className='react-select'
+                  classNamePrefix='select'
+                  defaultValue={searchStatus}
+                  placeholder="Select Status"
+                  options={statusOptions}
+                  isClearable={false}
+                />
+              </FormGroup>
+              {/* <FormGroup>
+                <Label for='Status'>Status:</Label>
+                <Input id='status' type='select' value={searchStatus} onChange={handleStatusFilter}>
+                  <option></option>
+                  <option>Open</option>
+                  <option>Closed</option>
+                  <option>In Progress</option>
+
+                </Input>
+              </FormGroup> */}
             </Col>
           </Row>
         </CardBody>
-        {!loading ?  <DataTable
+        <Exportqs InData={dataToExport()}></Exportqs>
+        {!loading ? <DataTable
           noHeader
           pagination
           // selectableRows
@@ -520,21 +724,24 @@ const advSearchColumns = [
           className='react-dataTable'
           sortIcon={<ChevronDown size={10} />}
           paginationDefaultPage={currentPage + 1}
-          paginationComponent={CustomPagination}
+          //   paginationComponent={CustomPagination}
           data={dataToRender()}
-          // selectableRowsComponent={BootstrapCheckbox}
+          onRowClicked={(row) => openDetailsModal(row)}
+          highlightOnHover={true}
+          pointerOnHover={true}
+        // selectableRowsComponent={BootstrapCheckbox}
         /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Job Ticket information</h4>}
-       
+
       </Card>
-      <AddNewModal 
-      open={modal} 
-      handleModal={handleModal} 
-      handleAddJobTicket={handleAddJobTicket} 
-      toAddNewJobTicket={toAddNewJobTicket} 
-      closeModal={closeModal} 
-      row={row} 
-      setRow={setRow} 
-      handleUpdate={handleUpdate}
+      <AddNewModal
+        open={modal}
+        handleModal={handleModal}
+        handleAddJobTicket={handleAddJobTicket}
+        toAddNewJobTicket={toAddNewJobTicket}
+        closeModal={closeModal}
+        row={row}
+        setRow={setRow}
+        handleUpdate={handleUpdate}
       />
       <div className='theme-modal-danger'>
         <Modal
@@ -555,6 +762,14 @@ const advSearchColumns = [
               Cancel
             </Button>
           </ModalFooter>
+        </Modal>
+      </div>
+      <div className='vertically-centered-modal'>
+        <Modal isOpen={detailsModal} toggle={() => setDetailsModal(!detailsModal)} className='modal-dialog-centered modal-xl'>
+          <ModalHeader className="d-flex justify-content-center" toggle={() => setDetailsModal(!detailsModal)}>Job Details</ModalHeader>
+          <ModalBody>
+            <TabsVerticalLeft item={modalDetails} />
+          </ModalBody>
         </Modal>
       </div>
     </Fragment>

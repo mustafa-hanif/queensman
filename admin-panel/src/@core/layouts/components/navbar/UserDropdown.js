@@ -1,6 +1,6 @@
 // ** React Imports
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 
 // ** Custom Components
 import Avatar from '@components/avatar'
@@ -20,8 +20,16 @@ import { User, Mail, CheckSquare, MessageSquare, Settings, CreditCard, HelpCircl
 import defaultAvatar from '@src/assets/images/portrait/small/avatar-s-11.jpg'
 
 const UserDropdown = () => {
+  const history = useHistory()
+
   // ** Store Vars
-  const dispatch = useDispatch()
+  const logout = () => {
+    localStorage.clear()
+    setTimeout(() => {
+      location.reload()
+    }, 100)
+    
+  }
 
   // ** State
   const [userData, setUserData] = useState(null)
@@ -41,7 +49,7 @@ const UserDropdown = () => {
       <DropdownToggle href='/' tag='a' className='nav-link dropdown-user-link' onClick={e => e.preventDefault()}>
         <div className='user-nav d-sm-flex d-none'>
           <span className='user-name font-weight-bold'>{(userData?.user?.display_name) || 'John Doe'}</span>
-          <span className='user-status'>{(userData && userData.role) || 'Admin'}</span>
+          <span className='user-status'>{(userData?.user && userData?.user?.default_role) || 'Admin'}</span>
         </div>
         <Avatar img={userAvatar} imgHeight='40' imgWidth='40' status='online' />
       </DropdownToggle>
@@ -62,7 +70,7 @@ const UserDropdown = () => {
           <MessageSquare size={14} className='mr-75' />
           <span className='align-middle'>Chats</span>
         </DropdownItem>
-        <DropdownItem tag={Link} to='/login' onClick={() => dispatch(handleLogout())}>
+        <DropdownItem tag={Link} to='/login' onClick={(e) => { e.preventDefault(); logout() }}>
           <Power size={14} className='mr-75' />
           <span className='align-middle'>Logout</span>
         </DropdownItem>

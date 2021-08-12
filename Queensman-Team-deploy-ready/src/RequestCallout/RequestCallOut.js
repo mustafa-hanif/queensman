@@ -297,6 +297,7 @@ const RequestCallOut = (props) => {
     picture3: "",
     picture4: "",
     video: "",
+    Description: "",
     videoUrl: "",
     customerEmail: "",
     Email: "",
@@ -411,8 +412,17 @@ const RequestCallOut = (props) => {
     if (!jobCategorySelect.value) {
       return alert("Please Select Job Category First");
     }
-    if (state.picture1 === "" || state.Urgency === "") {
-      return alert("Kindly fill all the required details.");
+    if (!jobTypeSelect?.value) {
+      return alert("Please Select Job Type!");
+    }
+    if (state.picture1 === "") {
+      return alert("Please upload atleast one image!");
+    }
+    if (state.Urgency === "") {
+      return alert("Please Select Urgency!");
+    }
+    if (state.Description === "") {
+      return alert("Please add Description!");
     }
     if (state.Urgency === "medium") {
       props.navigation.navigate("SelectSchedule", {
@@ -457,6 +467,7 @@ const RequestCallOut = (props) => {
 
   const submitCallout = async () => {
     let category = "Uncategorized";
+    setState({...state, loading: true})
     const pictures = Object.fromEntries(
       [...Array(4)]
         .map((_, i) => {
@@ -480,7 +491,7 @@ const RequestCallOut = (props) => {
     requestCalloutApiCall({
       variables: {
         property_id,
-        email: clientEmail,
+        email: client_email,
         notes: state.Description,
         time_on_calendar: null,
         date_on_calendar: null,
@@ -495,6 +506,7 @@ const RequestCallOut = (props) => {
     })
       .then((res) => {
         // SubmittedCalloutAlert();
+        setState({...state, loading: false})
         props.navigation.navigate(
           "Home",
           showMessage({
@@ -519,24 +531,27 @@ const RequestCallOut = (props) => {
       setState({
         ...state,
         picture1: "",
+        isPicvisible: false
       });
     } else if (state.selectedNo === 2) {
       setState({
         ...state,
         picture2: "",
+        isPicvisible: false
       });
     } else if (state.selectedNo === 3) {
       setState({
         ...state,
         picture3: "",
+        isPicvisible: false
       });
     } else if (state.selectedNo === 4) {
       setState({
         ...state,
         picture4: "",
+        isPicvisible: false
       });
     }
-    setState({ ...state, isPicvisible: false });
   };
 
   const CameraSnap = async () => {
@@ -652,6 +667,7 @@ const RequestCallOut = (props) => {
             ]}
           >
             Job Category
+            <Text style={{ color: "red" }}>*</Text>
           </Text>
 
           <View>
@@ -718,6 +734,7 @@ const RequestCallOut = (props) => {
               ]}
             >
               Job Type
+              <Text style={{ color: "red" }}>*</Text>
             </Text>
             <Select
               isDisabled={
@@ -765,6 +782,7 @@ const RequestCallOut = (props) => {
 
           <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
             Urgency
+            <Text style={{ color: "red" }}>*</Text>
           </Text>
 
           <View style={{ height: "2%" }} />
@@ -836,6 +854,7 @@ const RequestCallOut = (props) => {
           <View style={{ height: "3%" }} />
           <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
             Description
+            <Text style={{ color: "red" }}>*</Text>
           </Text>
           <View style={{ height: "2%" }} />
           <View style={styles.DestxtStyle}>
@@ -844,21 +863,33 @@ const RequestCallOut = (props) => {
                 // fontSize: 14,
                 color: "#8c8c8c",
                 width: "90%",
-                paddingTop: "2%",
+                // paddingTop: "2%",
               }}
               placeholder="Type description here ...."
               placeholderTextColor="#8c8c8c"
               multiline
-              numberOfLines={1}
+              value={state.Description}
+              numberOfLines={3}
+              maxLength={150}
+              allowFontScaling={false}
               underlineColorAndroid="transparent"
               onChangeText={(Description) => {
                 setState({ ...state, Description });
               }} // email set
             />
           </View>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={{ fontSize: 12, color: "#bbb", marginTop: 2 }}>
+              Character count: {state.Description.length}/150{" "}
+            </Text>
+            {state.Description.length == 150 && (
+              <Text style={{ fontSize: 12, color: "red", marginTop: 2 }}>Character limit reached</Text>
+            )}
+          </View>
           <View style={{ height: "3%" }} />
           <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
             Images
+            <Text style={{ color: "red" }}>*</Text>
           </Text>
           <View
             style={{
@@ -890,63 +921,6 @@ const RequestCallOut = (props) => {
                 Select Images From Gallery{" "}
               </Text>
             </TouchableOpacity>
-
-            {state.video ? (
-              !videoSaving ? (
-                <View>
-                  <TouchableOpacity
-                    style={[styles.ImageSelectStyle, { marginBottom: 10 }]}
-                    onPress={showPlayVideoScreen}
-                  >
-                    <Text
-                      style={[
-                        styles.TextFam,
-                        { color: "#000E1E", fontSize: 10 },
-                      ]}
-                    >
-                      Play Video
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    disabled={state.videoUrl.length}
-                    style={[
-                      styles.ImageSelectStyle,
-                      state.videoUrl.length ? styles.disabledButton : null,
-                    ]}
-                    onPress={saveVideoCloud}
-                  >
-                    <Text
-                      style={[
-                        styles.TextFam,
-                        {
-                          color: state.videoUrl.length ? "#bbb" : "#000E1E",
-                          fontSize: 10,
-                        },
-                      ]}
-                    >
-                      Save Video
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <ActivityIndicator
-                  size="large"
-                  color="#000"
-                  style={{ alignSelf: "center" }}
-                />
-              )
-            ) : (
-              <TouchableOpacity
-                style={styles.ImageSelectStyle}
-                onPress={showVideoScreenCallback}
-              >
-                <Text
-                  style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}
-                >
-                  Add video
-                </Text>
-              </TouchableOpacity>
-            )}
           </View>
           <View
             style={{
@@ -1136,7 +1110,7 @@ const RequestCallOut = (props) => {
           <Text> </Text>
           <Text> </Text>
 
-          <TouchableOpacity onPress={() => setState({ isPicvisible: false })}>
+          <TouchableOpacity onPress={() => setState({...state, isPicvisible: false })}>
             <View style={styles.ButtonSty}>
               <Text
                 style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}

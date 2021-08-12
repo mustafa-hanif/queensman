@@ -104,18 +104,20 @@ class GenerateReport extends React.Component {
         <View style={{ height: "10%" }} />
 
         <View style={{ width: "100%", height: "100%" }}>
-          <Button onPress={this.PerfReporthandle}>Monthly Services</Button>
-          <View style={{ height: "10%" }} />
+          {/* <Button onPress={this.PerfReporthandle}>Monthly Services</Button>
+          <View style={{ height: "10%" }} /> */}
 
-          <Button onPress={() => this.toggleReportModel(1)}>Property Management</Button>
+          <Button mb={10} onPress={() => this.toggleReportModel(1)}>
+            Property Management
+          </Button>
 
-          <View style={{ height: "10%" }} />
+          <Button mb={10} onPress={() => this.toggleReportModel(2)}>
+            Market Analysis
+          </Button>
 
-          <Button onPress={() => this.toggleReportModel(2)}>Market Analysis</Button>
+          {/* <Button onPress={() => this.HandleMaterialwarranty()}>Material Warranty</Button> */}
 
-          <View style={{ height: "10%" }} />
-
-          <Button onPress={() => this.HandleMaterialwarranty()}>Material Warranty</Button>
+          <GetContractCopy />
         </View>
       </ScrollView>
     );
@@ -138,6 +140,33 @@ const LoadProperties = ({ setPropertyId }) => {
   });
 
   return <></>;
+};
+
+const GET_CONTRACT_COPY = gql`
+  query MyQuery($email: String) {
+    client(where: { email: { _eq: $email } }) {
+      documents {
+        document_name
+      }
+    }
+  }
+`;
+
+const GetContractCopy = () => {
+  const user = auth?.currentSession?.session?.user;
+  const email = user?.email;
+  const { loading, data, error } = useQuery(GET_CONTRACT_COPY, {
+    variables: { email },
+  });
+  const openContractCopy = () => {
+    const document_id = data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
+    Linking.openURL(`https://api-8106d23e.nhost.app/?document_id=${document_id}`);
+  };
+  return (
+    <Button mb={10} onPress={openContractCopy}>
+      Contract Copy
+    </Button>
+  );
 };
 
 const GET_PROPERTIES = gql`

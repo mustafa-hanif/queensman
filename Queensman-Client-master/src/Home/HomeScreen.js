@@ -27,12 +27,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: "5%",
   },
   TextStyles: {
-    shadowColor: "rgba(0,0,0, .4)", // IOS
-    textShadowOffset: { height: 1, width: 1 }, // IOS
-    shadowOpacity: 1, // IOS
-    shadowRadius: 1, // IOS
-    elevation: 3, // Android
-    fontFamily: "Helvetica",
+    // shadowColor: "rgba(0,0,0, .4)", // IOS
+    // textShadowOffset: { height: 1, width: 1 }, // IOS
+    // shadowOpacity: 1, // IOS
+    // shadowRadius: 1, // IOS
+    // elevation: 3, // Android
+    // fontFamily: "Helvetica",
   },
   bottomView: {
     // shadowColor: 'rgba(0,0,0, .4)', // IOS
@@ -339,8 +339,9 @@ const HomeScreen = ({ navigation }) => {
                   styles.TextStyles,
                 ]}
               >
-                Reports
+                Reports and
               </Text>
+              <Text style={[{ alignSelf: "center", fontSize: 12, color: "#000E1E" }, styles.TextStyles]}>Documents</Text>
             </View>
           </TouchableOpacity>
         </View>
