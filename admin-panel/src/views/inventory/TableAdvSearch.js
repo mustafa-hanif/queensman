@@ -46,7 +46,7 @@ import {
   ModalBody,
   ModalFooter
 } from "reactstrap"
-
+import Select from 'react-select'
 // ** Toast Component
 const ToastComponent = ({ title, icon, color }) => (
   <Fragment>
@@ -166,6 +166,7 @@ const DataTableAdvSearch = () => {
   const [searchInspectionBy, setsearchInspectionBy] = useState("")
   const [currentPage, setCurrentPage] = useState(0)
   const [searchAddress, setsearchAddress] = useState("")
+  const [searchStatus, setsearchStatus] = useState("")
   const [filteredData, setFilteredData] = useState([])
   const [toAddNewRecord, setToAddNewRecord] = useState(false)
   const [row, setRow] = useState(null)
@@ -174,7 +175,14 @@ const DataTableAdvSearch = () => {
   const [modalAlert, setModalAlert] = useState(null)
   const [detailsModal, setDetailsModal] = useState(false)
   const [modalDetails, setModalDetails] = useState(null)
+  const StatusOptions = [
+    { value: "", label: "All" },
+    { value: 0, label: "Unapproved" },
+    { value: 1, label: "Review" },
+    { value: 2, label: "Approval" },
+    { value: 3, label: "Approved" }
 
+  ]
   const toggleModal = () => {
     setModalAlert(!modalAlert)
   }
@@ -194,13 +202,13 @@ const DataTableAdvSearch = () => {
     console.log(item)
     getClient()
     // if (!propertyLoading) {
-      // console.log(allProperty)
-      // console.log({...item, ...allProperty})
+    // console.log(allProperty)
+    // console.log({...item, ...allProperty})
     // }
-    
+
     // item = [...item, allProperty]
     setDetailsModal(true)
-    
+
     setModalDetails(item) //set row value
   }
 
@@ -213,7 +221,7 @@ const DataTableAdvSearch = () => {
     setToAddNewRecord(false)
   }
 
-   // ** Function to handle Pagination
+  // ** Function to handle Pagination
   const handlePagination = (page) => setCurrentPage(page.selected)
 
   // ** Table Columns
@@ -259,7 +267,7 @@ const DataTableAdvSearch = () => {
       minWidth: "300px",
       cell: row => {
         return (
-            moment(row?.checked_on).format('MMMM Do YYYY, h:mm:ss a')
+          moment(row?.checked_on).format('MMMM Do YYYY, h:mm:ss a')
         )
       }
     }
@@ -270,7 +278,8 @@ const DataTableAdvSearch = () => {
     if (
       searchReportId.length ||
       searchInspectionBy.length ||
-      searchAddress.length
+      searchAddress.length ||
+      searchStatus
     ) {
       return filteredData
     } else {
@@ -330,7 +339,7 @@ const DataTableAdvSearch = () => {
 
   const addClientRecord = () => {
     setToAddNewRecord(true)
-    setRow({active: 1})
+    setRow({ active: 1 })
     setTimeout(() => {
       setModal(!modal)
     }, 200)
@@ -401,7 +410,8 @@ const DataTableAdvSearch = () => {
       if (
         searchAddress.length ||
         searchReportId.length ||
-        searchInspectionBy.length
+        searchInspectionBy.length ||
+        searchStatus.length
       ) {
         return filteredData
       } else {
@@ -412,9 +422,9 @@ const DataTableAdvSearch = () => {
     setSearchReportId(value)
     if (value.length) {
       updatedData = dataToFilter().filter((item) => {
-         
+
         const startsWith = item.id?.toString().startsWith(value.toLowerCase())
-       
+
         const includes = item.id
           ?.toString().includes(value.toLowerCase())
 
@@ -438,7 +448,8 @@ const DataTableAdvSearch = () => {
       if (
         searchAddress.length ||
         searchReportId.length ||
-        searchInspectionBy.length
+        searchInspectionBy.length ||
+        searchStatus.length
       ) {
         return filteredData
       } else {
@@ -469,78 +480,102 @@ const DataTableAdvSearch = () => {
   }
 
 
- // ** Function to handle Address filter
- const handleAddressFilter = (e) => {
-  const value = e.target.value
-  let updatedData = []
-  const dataToFilter = () => {
+  // ** Function to handle Address filter
+  const handleAddressFilter = (e) => {
+    const value = e.target.value
+    let updatedData = []
+    const dataToFilter = () => {
+      if (
+        searchAddress.length ||
+        searchReportId.length ||
+        searchInspectionBy.length ||
+        searchStatus.length
+      ) {
+        return filteredData
+      } else {
+        return data?.inventory_report
+      }
+    }
+
+    setsearchAddress(value)
+    if (value.length) {
+      updatedData = dataToFilter().filter((item) => {
+        const startsWith = item.property.address
+          ?.toLowerCase()
+          .startsWith(value.toLowerCase())
+
+        const includes = item.property.address
+          ?.toLowerCase()
+          .includes(value.toLowerCase())
+
+        if (startsWith) {
+          return startsWith
+        } else if (!startsWith && includes) {
+          return includes
+        } else return null
+      })
+      setFilteredData([...updatedData])
+      setsearchAddress(value)
+    }
+  }
+  // ** Function to handle Status filter
+  const handleStatusFilter = (e) => {
+
+    const value = e.value
+
+    let updatedData = []
+    const dataToFilter = () => {
+      return data?.inventory_report
+    }
+
+    setsearchStatus(value)
+    if (value >= 0) {
+      updatedData = dataToFilter().filter((item) => {
+        if (item.approved === value) {
+          return item.approved
+        } else {
+          return null
+        }
+      })
+      console.log(updatedData)
+      setFilteredData([...updatedData])
+      setsearchStatus(value)
+    }
+  }
+  //for export data start
+  //=================================
+  const createExportObject = (DataTojson) => {
+    const objectsToExport = []
+
+    for (const keys in DataTojson) {
+      objectsToExport.push({
+        id: DataTojson[keys].id.toString(),
+        propert_address: DataTojson[keys].property.address,
+        inspection_done_by: DataTojson[keys].inspection_done_by,
+        status: DataTojson[keys]?.approved
+
+
+      })
+
+    }
+    //   console.log((objectsToExport))
+    return (objectsToExport)
+
+  }
+  const dataToExport = () => {
     if (
       searchAddress.length ||
       searchReportId.length ||
       searchInspectionBy.length
+
     ) {
-      return filteredData
+      return createExportObject(filteredData)
     } else {
-      return data?.inventory_report
+      return createExportObject(data?.inventory_report)
     }
   }
-
-  setsearchAddress(value)
-  if (value.length) {
-    updatedData = dataToFilter().filter((item) => {
-      const startsWith = item.property.address
-        ?.toLowerCase()
-        .startsWith(value.toLowerCase())
-
-      const includes = item.property.address
-        ?.toLowerCase()
-        .includes(value.toLowerCase())
-
-      if (startsWith) {
-        return startsWith
-      } else if (!startsWith && includes) {
-        return includes
-      } else return null
-    })
-    setFilteredData([...updatedData])
-    setsearchAddress(value)
-  }
-}
-
- //for export data start
-//=================================
-const createExportObject = (DataTojson) => {
-  const objectsToExport = []
-
-  for (const keys in DataTojson) {
-    objectsToExport.push({
-      id: DataTojson[keys].id.toString(),
-      propert_address: DataTojson[keys].property.address,
-      inspection_done_by: DataTojson[keys].inspection_done_by,
-      status: DataTojson[keys]?.approved 
-       
-
-    })
-
-  }
-  //   console.log((objectsToExport))
-  return (objectsToExport)
-
-}
-const dataToExport = () => {
-  if (
-    searchAddress.length ||
-    searchReportId.length ||
-    searchInspectionBy.length 
-    
-  ) {
-    return createExportObject(filteredData)
-  } else {
-    return createExportObject(data?.inventory_report)
-  }
-}
   //for export data end
-//=================================
+  //=================================
 
 
   return (
@@ -586,14 +621,36 @@ const dataToExport = () => {
                   id="InspectionBy"
                   placeholder="Name"
                   value={searchInspectionBy}
-                  onChange={ handleInspectionByFilter}
+                  onChange={handleInspectionByFilter}
                 />
+              </FormGroup>
+            </Col>
+            <Col lg='4' md='6'>
+              <FormGroup>
+                <Label for='type'>Status:</Label>
+                {/* <Input id='type' type='select' value={searchType} onChange={handleTypeFilter} placeholder="Type"> */}
+                <Select
+                  onChange={handleStatusFilter}
+                  className='react-select'
+                  classNamePrefix='select'
+                  defaultValue={searchStatus}
+                  placeholder="Select Status"
+                  options={StatusOptions}
+                  isClearable={false}
+                />
+                {/* <option>Deferred</option>
+                  <option>Additional Request</option>
+                  <option>Full Job</option>
+                  <option>Material Request</option>
+                  <option>Request for quotation</option>
+                  <option>Patch Job</option>
+                </Input> */}
               </FormGroup>
             </Col>
             <Exportqs InData={dataToExport()} />
           </Row>
         </CardBody>
-        
+
         {!loading ? (
           <DataTable
             noHeader
@@ -604,12 +661,12 @@ const dataToExport = () => {
             className="react-dataTable"
             sortIcon={<ChevronDown size={10} />}
             paginationDefaultPage={currentPage + 1}
-           // paginationComponent={CustomPagination}
+            // paginationComponent={CustomPagination}
             data={dataToRender()}
             onRowClicked={(row) => openDetailsModal(row)}
             highlightOnHover={true}
             pointerOnHover={true}
-            // selectableRowsComponent={BootstrapCheckbox}
+          // selectableRowsComponent={BootstrapCheckbox}
           />
         ) : (
           <h4 className="d-flex text-center align-items-center justify-content-center mb-5">
@@ -657,7 +714,7 @@ const dataToExport = () => {
           toggle={() => setDetailsModal(!detailsModal)}
           className="modal-dialog-centered modal-xl"
         >
-          <ModalHeader className="d-flex justify-content-center"  toggle={() => setDetailsModal(!detailsModal)}>
+          <ModalHeader className="d-flex justify-content-center" toggle={() => setDetailsModal(!detailsModal)}>
             Inventory Details
           </ModalHeader>
           <ModalBody>
