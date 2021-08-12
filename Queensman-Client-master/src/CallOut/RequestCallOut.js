@@ -766,7 +766,8 @@ const RequestCallOut = (props) => {
     return (
       <VideoScreen
         getDuration={(time) => {
-          console.log("time in mili seconds", time);
+          console.log("time in  seconds", millisToMinutesAndSeconds(time));
+
           setvideoDurationinMillis(millisToMinutesAndSeconds(time));
         }}
         setShowVideoScreen={setShowVideoScreen}

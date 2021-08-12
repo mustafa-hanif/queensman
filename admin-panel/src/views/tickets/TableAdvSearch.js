@@ -144,19 +144,20 @@ const DataTableAdvSearch = () => {
   const [rowId, setRowId] = useState(null)
   const [modalAlert, setModalAlert] = useState(null)
 
-  const typeOptions = [  
-    {value: "Deferred", label: "Deferred"},
-    {value: "Additional Request", label: "Additional Request"},
-    {value: "Full Job", label: "Full Job"},
-    {value: "Material Request", label: "Material Request"},
-    {value: "Request for quotation", label: "Request for quotation"},
-    {value: "Patch Job", label: "Patch Job"}
+  const typeOptions = [
+    { value: "", label: "All" },
+    { value: "Deferred", label: "Deferred" },
+    { value: "Additional Request", label: "Additional Request" },
+    { value: "Full Job", label: "Full Job" },
+    { value: "Material Request", label: "Material Request" },
+    { value: "Request for quotation", label: "Request for quotation" },
+    { value: "Patch Job", label: "Patch Job" }
   ]
 
   const statusOptions = [
-    {value: "Open", label: "Open"},
-    {value: "Closed", label: "Closed"},
-    {value: "In Progress", label: "In Progress"}
+    { value: "Open", label: "Open" },
+    { value: "Closed", label: "Closed" },
+    { value: "In Progress", label: "In Progress" }
   ]
   const toggleModal = () => {
     setModalAlert(!modalAlert)
@@ -308,7 +309,7 @@ const DataTableAdvSearch = () => {
       cell: row => {
         console.log(row?.created_at)
         return (
-            moment(row?.created_at).format('MMMM Do YYYY, h:mm:ss a')
+          moment(row?.created_at).format('MMMM Do YYYY, h:mm:ss a')
         )
       }
     },
@@ -530,7 +531,7 @@ const DataTableAdvSearch = () => {
 
   // ** Function to handle phone filter
   const handleTypeFilter = e => {
-    console.log(e)
+
     const value = e.value
     let updatedData = []
     const dataToFilter = () => {
@@ -592,7 +593,7 @@ const DataTableAdvSearch = () => {
     }
   }
   //for export data start
-//=================================
+  //=================================
   const createExportObject = (DataTojson) => {
     const objectsToExport = []
 
@@ -625,8 +626,8 @@ const DataTableAdvSearch = () => {
       return createExportObject(data?.job_tickets)
     }
   }
-    //for export data end
-//=================================
+  //for export data end
+  //=================================
   return (
     <Fragment>
       <Card>
@@ -677,27 +678,27 @@ const DataTableAdvSearch = () => {
               <FormGroup>
                 <Label for='type'>Type:</Label>
                 <Select
-                onChange={handleTypeFilter}
-                className='react-select'
-                classNamePrefix='select'
-                defaultValue={searchType}
-                placeholder="Select Type"
-                options={typeOptions}
-                isClearable={false}
+                  onChange={handleTypeFilter}
+                  className='react-select'
+                  classNamePrefix='select'
+                  defaultValue={searchType}
+                  placeholder="Select Type"
+                  options={typeOptions}
+                  isClearable={false}
                 />
               </FormGroup>
             </Col>
             <Col lg='4' md='6'>
-            <FormGroup>
+              <FormGroup>
                 <Label for='type'>Type:</Label>
                 <Select
-                onChange={handleStatusFilter}
-                className='react-select'
-                classNamePrefix='select'
-                defaultValue={searchStatus}
-                placeholder="Select Status"
-                options={statusOptions}
-                isClearable={false}
+                  onChange={handleStatusFilter}
+                  className='react-select'
+                  classNamePrefix='select'
+                  defaultValue={searchStatus}
+                  placeholder="Select Status"
+                  options={statusOptions}
+                  isClearable={false}
                 />
               </FormGroup>
               {/* <FormGroup>
@@ -765,7 +766,7 @@ const DataTableAdvSearch = () => {
       </div>
       <div className='vertically-centered-modal'>
         <Modal isOpen={detailsModal} toggle={() => setDetailsModal(!detailsModal)} className='modal-dialog-centered modal-xl'>
-          <ModalHeader className="d-flex justify-content-center"  toggle={() => setDetailsModal(!detailsModal)}>Job Details</ModalHeader>
+          <ModalHeader className="d-flex justify-content-center" toggle={() => setDetailsModal(!detailsModal)}>Job Details</ModalHeader>
           <ModalBody>
             <TabsVerticalLeft item={modalDetails} />
           </ModalBody>
