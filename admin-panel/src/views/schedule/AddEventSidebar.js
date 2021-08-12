@@ -709,13 +709,15 @@ const AddEventSidebar = props => {
                id='startDate'
                 //tag={Flatpickr}
                name='startDate'
-               data-enable-time
+              //  data-enable-time
                className='form-control'
                onChange={date => { setStartPicker(date[0]); setEndPicker(addHours(date[0], 2)); console.log(date[0]) }}
                value={startPicker}
                options={{
-                 enableTime: allDay === false,
-                 dateFormat: 'Y-m-d H:i'
+                 enableTime: true,
+                 dateFormat: 'Y-m-d H:i',
+                 position: 'above center',
+                 time_24hr: false
                }}
              />
            </FormGroup>
@@ -732,7 +734,7 @@ const AddEventSidebar = props => {
                value={endPicker}
                disabled
                options={{
-                 enableTime: allDay === false,
+                 enableTime: true,
                  dateFormat: 'Y-m-d H:i'
                }}
              />
