@@ -715,7 +715,7 @@ const AddEventSidebar = props => {
                value={startPicker}
                options={{
                 enableTime: true,
-          noCalendar: true,
+          noCalendar: false,
           dateFormat: 'H:i',
           time_24hr: true
                }}
