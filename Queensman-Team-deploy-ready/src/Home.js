@@ -403,7 +403,10 @@ export default function HomeFunction(props) {
     console.log({ mutationLoading, mutationError });
     updateToken(variables)
       .then((res) => console.log(res))
-      .catch((err) => console.log("error", err));
+      .catch((err) => {
+        alert(err);
+        console.log("error", err)
+      });
   }
 
   useEffect(() => {
@@ -418,7 +421,7 @@ export default function HomeFunction(props) {
     registerForPushNotificationsAsync().then(async (token) => {
       const email = user?.email;
       sendTokenToServer({ variables: { token, email } });
-    });
+    }).catch(alert);
       
     notificationListener.current = Notifications.addNotificationReceivedListener(
       (notification) => {
