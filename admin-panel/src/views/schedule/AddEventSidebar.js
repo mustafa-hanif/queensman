@@ -714,10 +714,10 @@ const AddEventSidebar = props => {
                onChange={date => { setStartPicker(date[0]); setEndPicker(addHours(date[0], 2)); console.log(date[0]) }}
                value={startPicker}
                options={{
-                 enableTime: true,
-                 dateFormat: 'Y-m-d H:i',
-                 position: 'above center',
-                 time_24hr: false
+                enableTime: true,
+          noCalendar: true,
+          dateFormat: 'H:i',
+          time_24hr: true
                }}
              />
            </FormGroup>
