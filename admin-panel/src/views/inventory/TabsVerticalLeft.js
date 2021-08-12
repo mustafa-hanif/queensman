@@ -544,21 +544,28 @@ const TabsVerticalLeft = ({item, allProperty}) => {
           
           </Col>
           <Col md="2">
-            {approveStatus === 0 ?  <ButtonGroup className='mb-1'>
-            <Button color='secondary' className="btn-icon" size="sm" disabled >
+            {approveStatus === 1 ? <ButtonGroup className='mb-1'>
+            <Button color='info' className="btn-icon" size="sm" onClick={() => checkMark("admin")}>
               <Check size={15} />
             </Button>
-            <Button color='secondary' className="btn-icon" size="sm" disabled >
+            <Button color='secondary' className="btn-icon" size="sm" disabled>
               <XCircle size={15} />
             </Button>
-          </ButtonGroup> :  <ButtonGroup className='mb-1'>
-            <Button color='info' className="btn-icon" size="sm" onClick={() => checkMark("admin")}>
+          </ButtonGroup> : approveStatus === 2 ? <ButtonGroup className='mb-1'>
+            <Button color='secondary' className="btn-icon" size="sm" disabled>
               <Check size={15} />
             </Button>
             <Button color='danger' className="btn-icon" size="sm" onClick={() => cancel("admin")}>
               <XCircle size={15} />
             </Button>
-          </ButtonGroup>}
+          </ButtonGroup> : <ButtonGroup className='mb-1'>
+            <Button color='secondary' className="btn-icon" size="sm" disabled >
+              <Check size={15} />
+            </Button>
+            <Button color='secondary' className="btn-icon" size="sm" disabled >
+              <XCircle size={15} />
+            </Button>
+          </ButtonGroup> }
           </Col>
           { (approveStatus !== 0) && <Col md="4">
           <Button color='danger' size="sm" outline onClick={() => decline()}>

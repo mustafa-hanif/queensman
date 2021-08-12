@@ -68,6 +68,7 @@ const Calendar = props => {
     datesSet,
     // selectedEvent,
     eventDataTransform: (eventData => {
+      console.log(eventData)
       const { id, worker, callout_id, start, startTime, blocked, callout, job_tickets, end, endTime } = eventData
       const length = job_tickets?.length
       // console.log({
@@ -172,7 +173,6 @@ const Calendar = props => {
     // },
 
     eventClick({ event: clickedEvent }) {
-      console.log(clickedEvent, 'bonga')
       selectEvent(clickedEvent)
         handleAddEventSidebar()
       
@@ -212,6 +212,7 @@ const Calendar = props => {
       ? We can use `eventDragStop` but it doesn't return updated event so we have to use `eventDrop` which returns updated event
     */
     eventDrop({ event: droppedEvent}) {
+      console.log(droppedEvent)
       updateEventDrag(droppedEvent)
       toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
         autoClose: 2000,

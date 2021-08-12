@@ -198,6 +198,10 @@ const AddEventSidebar = props => {
     {value: 'Full Job', label: 'Full Job'}
   ]
 
+  const addHours = (date, hours) => {
+    return new Date(new Date(date).setHours(new Date(date).getHours() + hours))
+ }
+
   // ** Custom select components
   const OptionComponent = ({ data, ...props }) => {
     return (
@@ -273,7 +277,7 @@ const AddEventSidebar = props => {
 
   // ** Set sidebar fields
   const handleSelectedEvent = () => {
-    console.log(1, selectedEvent.extendedProps)
+    console.log(selectedEvent)
     if (Object.keys(selectedEvent ?? {}).length) {
       setTimeout(() => {
         setContentLoading(false)  
@@ -300,6 +304,7 @@ const AddEventSidebar = props => {
       setPicture2(selectedEvent.extendedProps?.picture2 || picture2)
       setPicture3(selectedEvent.extendedProps?.picture3 || picture3)
       setPicture4(selectedEvent.extendedProps?.picture4 || picture4)
+      setBlocked(selectedEvent.extendedProps?.blocked)
     }
   }
 
@@ -348,8 +353,8 @@ const AddEventSidebar = props => {
         id: selectedEvent.id,
         callout_id: selectedEvent?.extendedProps?.callout_id,
         title: title.split('by')[0],
-        start: startPicker,
-        end: endPicker,
+        startPicker,
+        endPicker,
         extendedProps: {
           clientName,
           clientEmail,
@@ -364,7 +369,7 @@ const AddEventSidebar = props => {
           blocked
         }
       }
-      const propsToUpdate = ['start', 'title', 'callout_id']
+      const propsToUpdate = ['startPicker', 'endPicker', 'title', 'callout_id']
       const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'workerId', 'workerEmail', 'propertyId', 'clientEmail', 'job_type', 'jobTickets', 'blocked']
   
       updateEvent(eventToUpdate)
@@ -704,8 +709,9 @@ const AddEventSidebar = props => {
                id='startDate'
                 //tag={Flatpickr}
                name='startDate'
+               data-enable-time
                className='form-control'
-               onChange={date => setStartPicker(date[0])}
+               onChange={date => { setStartPicker(date[0]); setEndPicker(addHours(date[0], 2)); console.log(date[0]) }}
                value={startPicker}
                options={{
                  enableTime: allDay === false,

@@ -262,6 +262,7 @@ const UPLOAD_PLAN = gql`
     $end_date_on_calendar: date
     $email: String
     $property_id: Int
+    $blocked: Boolean
   ) {
     insert_scheduler_one(
       object: {
@@ -274,7 +275,7 @@ const UPLOAD_PLAN = gql`
             job_type: "Scheduled Services"
             status: "Planned"
             urgency_level: "Scheduled"
-            active: 1
+            active: 1,
           }
         }
         date_on_calendar: $date_on_calendar
@@ -282,6 +283,7 @@ const UPLOAD_PLAN = gql`
         end_time_on_calendar: $end_time_on_calendar
         end_date_on_calendar: $end_date_on_calendar
         notes: "Scheduled Services"
+        blocked: $blocked
       }
     ) {
       date_on_calendar
@@ -432,7 +434,8 @@ const DataTableAdvSearch = () => {
         date_on_calendar,
         time_on_calendar,
         end_time_on_calendar,
-        end_date_on_calendar
+        end_date_on_calendar,
+        blocked: true
       })
       await addPlan({
         variables: {
@@ -442,7 +445,8 @@ const DataTableAdvSearch = () => {
           date_on_calendar,
           time_on_calendar,
           end_time_on_calendar,
-          end_date_on_calendar
+          end_date_on_calendar,
+          blocked: true
         }
       })
       month += 3
@@ -457,7 +461,7 @@ const DataTableAdvSearch = () => {
           closeButton: false
         }
       )
-      await updateClientPlan({
+      updateClientPlan({
         variables: {
           id: row.id,
           hasPlan: true
