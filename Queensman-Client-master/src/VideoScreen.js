@@ -34,6 +34,10 @@ const VideoScreen = ({ setShowVideoScreen, saveVideo, getDuration }) => {
       .recordAsync({ maxDuration: 30, quality: Camera.Constants.VideoQuality["720p"] })
       .then((video) => {
         console.log({ video });
+        var d2 = new Date();
+        var time2 = d2.getTime();
+
+        getDuration(time2 - time);
         setShowVideoScreen(false);
         saveVideo(video);
       })
@@ -44,9 +48,6 @@ const VideoScreen = ({ setShowVideoScreen, saveVideo, getDuration }) => {
   };
 
   const stopRecording = () => {
-    var d = new Date();
-    var time = d.getTime();
-    getDuration(time - duration.startduration);
     setRecording(false);
     camera.current.stopRecording();
   };
