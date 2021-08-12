@@ -703,6 +703,7 @@ const AddEventSidebar = props => {
         </FormGroup>
 
            <FormGroup>
+             <Fragment>
              <Label for='startDate'>Start Date</Label>
              <Flatpickr
                required
@@ -720,6 +721,7 @@ const AddEventSidebar = props => {
           time_24hr: true
                }}
              />
+             </Fragment>
            </FormGroup>
            <FormGroup>
              <Label for='endDate'>End Date</Label>

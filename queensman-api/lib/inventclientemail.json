@@ -1,0 +1,149 @@
+{
+    "resource":"/sendInventoryClientEmail",
+    "path":"/sendInventoryClientEmail",
+    "httpMethod":"POST",
+    "headers":{
+       "Accept":"application/json, text/plain, */*",
+       "Accept-Encoding":"gzip, deflate, br",
+       "Accept-Language":"en-US,en;q=0.9",
+       "CloudFront-Forwarded-Proto":"https",
+       "CloudFront-Is-Desktop-Viewer":"true",
+       "CloudFront-Is-Mobile-Viewer":"false",
+       "CloudFront-Is-SmartTV-Viewer":"false",
+       "CloudFront-Is-Tablet-Viewer":"false",
+       "CloudFront-Viewer-Country":"PK",
+       "content-type":"application/json;charset=UTF-8",
+       "Host":"y8sr1kom3g.execute-api.us-east-1.amazonaws.com",
+       "origin":"http://localhost:3006",
+       "Referer":"http://localhost:3006/",
+       "sec-ch-ua":"\"Chromium\";v=\"94\", \"Microsoft Edge\";v=\"94\", \";Not A Brand\";v=\"99\"",
+       "sec-ch-ua-mobile":"?0",
+       "sec-ch-ua-platform":"\"Windows\"",
+       "sec-fetch-dest":"empty",
+       "sec-fetch-mode":"cors",
+       "sec-fetch-site":"cross-site",
+       "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4592.0 Safari/537.36 Edg/94.0.975.1",
+       "Via":"2.0 1a95269c34e986ace2bf21962deb2db4.cloudfront.net (CloudFront)",
+       "X-Amz-Cf-Id":"XfmsvC19yf-aS1njxMk0Kus7FxR2OIkUOUsihRx89A7Ibu4PmLJQmg==",
+       "X-Amzn-Trace-Id":"Root=1-61151cf2-3d962d7d7e5dd010660cdf80",
+       "X-Forwarded-For":"42.201.163.122, 70.132.3.134",
+       "X-Forwarded-Port":"443",
+       "X-Forwarded-Proto":"https"
+    },
+    "multiValueHeaders":{
+       "Accept":[
+          "application/json, text/plain, */*"
+       ],
+       "Accept-Encoding":[
+          "gzip, deflate, br"
+       ],
+       "Accept-Language":[
+          "en-US,en;q=0.9"
+       ],
+       "CloudFront-Forwarded-Proto":[
+          "https"
+       ],
+       "CloudFront-Is-Desktop-Viewer":[
+          "true"
+       ],
+       "CloudFront-Is-Mobile-Viewer":[
+          "false"
+       ],
+       "CloudFront-Is-SmartTV-Viewer":[
+          "false"
+       ],
+       "CloudFront-Is-Tablet-Viewer":[
+          "false"
+       ],
+       "CloudFront-Viewer-Country":[
+          "PK"
+       ],
+       "content-type":[
+          "application/json;charset=UTF-8"
+       ],
+       "Host":[
+          "y8sr1kom3g.execute-api.us-east-1.amazonaws.com"
+       ],
+       "origin":[
+          "http://localhost:3006"
+       ],
+       "Referer":[
+          "http://localhost:3006/"
+       ],
+       "sec-ch-ua":[
+          "\"Chromium\";v=\"94\", \"Microsoft Edge\";v=\"94\", \";Not A Brand\";v=\"99\""
+       ],
+       "sec-ch-ua-mobile":[
+          "?0"
+       ],
+       "sec-ch-ua-platform":[
+          "\"Windows\""
+       ],
+       "sec-fetch-dest":[
+          "empty"
+       ],
+       "sec-fetch-mode":[
+          "cors"
+       ],
+       "sec-fetch-site":[
+          "cross-site"
+       ],
+       "User-Agent":[
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4592.0 Safari/537.36 Edg/94.0.975.1"
+       ],
+       "Via":[
+          "2.0 1a95269c34e986ace2bf21962deb2db4.cloudfront.net (CloudFront)"
+       ],
+       "X-Amz-Cf-Id":[
+          "XfmsvC19yf-aS1njxMk0Kus7FxR2OIkUOUsihRx89A7Ibu4PmLJQmg=="
+       ],
+       "X-Amzn-Trace-Id":[
+          "Root=1-61151cf2-3d962d7d7e5dd010660cdf80"
+       ],
+       "X-Forwarded-For":[
+          "42.201.163.122, 70.132.3.134"
+       ],
+       "X-Forwarded-Port":[
+          "443"
+       ],
+       "X-Forwarded-Proto":[
+          "https"
+       ]
+    },
+    "queryStringParameters":null,
+    "multiValueQueryStringParameters":null,
+    "pathParameters":null,
+    "stageVariables":null,
+    "requestContext":{
+       "resourceId":"221spg",
+       "resourcePath":"/sendInventoryClientEmail",
+       "httpMethod":"POST",
+       "extendedRequestId":"D9F12H-yoAMF19A=",
+       "requestTime":"12/Aug/2021:13:06:58 +0000",
+       "path":"/dev/sendInventoryClientEmail",
+       "accountId":"366559116147",
+       "protocol":"HTTP/1.1",
+       "stage":"dev",
+       "domainPrefix":"y8sr1kom3g",
+       "requestTimeEpoch":1628773618062,
+       "requestId":"ce802660-6c07-40c4-ad2c-6eeb05bc8f1c",
+       "identity":{
+          "cognitoIdentityPoolId":null,
+          "accountId":null,
+          "cognitoIdentityId":null,
+          "caller":null,
+          "sourceIp":"42.201.163.122",
+          "principalOrgId":null,
+          "accessKey":null,
+          "cognitoAuthenticationType":null,
+          "cognitoAuthenticationProvider":null,
+          "userArn":null,
+          "userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4592.0 Safari/537.36 Edg/94.0.975.1",
+          "user":null
+       },
+       "domainName":"y8sr1kom3g.execute-api.us-east-1.amazonaws.com",
+       "apiId":"y8sr1kom3g"
+    },
+    "body":"{ \"fileLink\": \"https://backend-8106d23e.nhost.app/storage/o/public/T24 User Setup - Retail.pdf\" }",
+    "isBase64Encoded":false
+ }

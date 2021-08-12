@@ -80,6 +80,14 @@ functions:
           path: /scheduleCallout
           method: post
           cors: true
+        
+  sendInventoryClientEmail:
+    handler: handler.sendInventoryClientEmail
+    events:
+      - http:
+          path: /sendInventoryClientEmail
+          method: post
+          cors: true
 
   everyFiveMinute:
     handler: handler.everyFiveMinute

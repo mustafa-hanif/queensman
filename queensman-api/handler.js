@@ -1,5 +1,6 @@
 'use strict';
 const sendNotification = require('./api/sendNotification').sendNotificationAPI;
+const sendInventoryClientEmail = require('./api/sendInventoryClientEmail').sendInventoryClientEmail;
 const scheduleCallout = require('./api/scheduleCallout').scheduleCallout;
 const everyFiveMinute = require('./api/everyFiveMinute').everyFiveMinute;
 const addJobTicketZoho = require('./api/addJobTicketZoho').addJobTicketZoho;
@@ -11,6 +12,7 @@ const expresstest = require('./api/expresstest').expresstest;
 
 module.exports.sendNotification = sendNotification;
 module.exports.scheduleCallout = scheduleCallout;
+module.exports.sendInventoryClientEmail = sendInventoryClientEmail;
 module.exports.everyFiveMinute = everyFiveMinute;
 module.exports.addJobTicketZoho = addJobTicketZoho;
 module.exports.quarterlyTasks = quarterlyTasks;
