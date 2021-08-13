@@ -8,11 +8,13 @@ const quarterlyTasks = require('./api/quarterlyTasks').quarterlyTasks;
 const uploadDocument = require('./api/uploadDocument').uploadDocument;
 const downloadDocument = require('./api/downloadDocument').downloadDocument;
 const sendWelcomeEmail = require('./api/sendWelcomeEmail').sendWelcomeEmail;
+const sendPlanEmail = require('./api/sendPlanEmail').sendPlanEmail;
 const expresstest = require('./api/expresstest').expresstest;
 
 module.exports.sendNotification = sendNotification;
 module.exports.scheduleCallout = scheduleCallout;
 module.exports.sendInventoryClientEmail = sendInventoryClientEmail;
+module.exports.sendPlanEmail = sendPlanEmail;
 module.exports.everyFiveMinute = everyFiveMinute;
 module.exports.addJobTicketZoho = addJobTicketZoho;
 module.exports.quarterlyTasks = quarterlyTasks;

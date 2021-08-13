@@ -404,6 +404,7 @@ const DataTableAdvSearch = () => {
     let month = new Date().getMonth() + 1
     let day = new Date().getDate()
     console.log(day)
+    const planArray = []
     for (let i = 0; i < 4; i++) {
       if (month >= 13) {
         month = 1
@@ -437,18 +438,30 @@ const DataTableAdvSearch = () => {
         end_date_on_calendar,
         blocked: true
       })
-      await addPlan({
-        variables: {
+      planArray.push(
+        {
           property_id: row.property_owneds[0]?.property_id,
-          callout_by: row.id,
-          email: row.email,
-          date_on_calendar,
-          time_on_calendar,
-          end_time_on_calendar,
-          end_date_on_calendar,
-          blocked: true
-        }
-      })
+        callout_by: row.id,
+        email: row.email,
+        date_on_calendar,
+        time_on_calendar,
+        end_time_on_calendar,
+        end_date_on_calendar,
+        blocked: true
+      }
+      )
+      // await addPlan({
+      //   variables: {
+      //     property_id: row.property_owneds[0]?.property_id,
+      //     callout_by: row.id,
+      //     email: row.email,
+      //     date_on_calendar,
+      //     time_on_calendar,
+      //     end_time_on_calendar,
+      //     end_date_on_calendar,
+      //     blocked: true
+      //   }
+      // })
       month += 3
       day = "01"
     }
@@ -461,12 +474,24 @@ const DataTableAdvSearch = () => {
           closeButton: false
         }
       )
-      updateClientPlan({
+      await updateClientPlan({
         variables: {
           id: row.id,
           hasPlan: true
         }
       })
+      console.log(planArray)
+      try {
+        const res = await axios.post(
+          "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendPlanEmail",
+          {
+            planArray
+          }
+        )
+      } catch (e) {
+        console.log("ERROR")
+        console.log(e)
+      }
     }
 
     const currentDate = new Date().toLocaleDateString().split("/") // "7/11/2021"
@@ -496,21 +521,21 @@ const DataTableAdvSearch = () => {
         email: `${row.email}`,
       });
 
-      try {
-        const res = await axios.post(
-          "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/quarterlyTasks",
-          {
-            Subject: `Task Client ${date[1]}`,
-            Description: `Task Client ${date[1]}`,
-            Status: `Open`,
-            Due_Date: `${dateString}`,
-            email: `${row.email}`,
-          }
-        );
-      } catch (e) {
-        console.log("ERROR");
-        console.log(e);
-      }
+      // try {
+      //   const res = await axios.post(
+      //     "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/quarterlyTasks",
+      //     {
+      //       Subject: `Task Client ${date[1]}`,
+      //       Description: `Task Client ${date[1]}`,
+      //       Status: `Open`,
+      //       Due_Date: `${dateString}`,
+      //       email: `${row.email}`,
+      //     }
+      //   );
+      // } catch (e) {
+      //   console.log("ERROR");
+      //   console.log(e);
+      // }
       month += 3;
     }
   };

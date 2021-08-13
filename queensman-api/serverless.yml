@@ -139,6 +139,14 @@ functions:
           method: post
           cors: true
   
+  sendPlanEmail:
+    handler: handler.sendPlanEmail
+    events:
+      - http:
+          path: /sendPlanEmail
+          method: post
+          cors: true
+
   expresstest:
     handler: handler.expresstest
     events:
