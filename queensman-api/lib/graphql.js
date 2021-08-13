@@ -135,7 +135,7 @@ async function updateScheduleWithEmergencyWoker({
       timestamp,
       client_name: `An emergency has just been posted, please call the client with name ${client_name}`,
       date,
-      data: { phone: phone, type: 'call' },
+      data: { callout_id },
     }
   );
   console.log(errors, data);

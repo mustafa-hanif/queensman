@@ -84,10 +84,8 @@ async function notifyScheduledTasks() {
         notes
         id
         date_on_calendar
-        job_worker {
-          worker {
-            full_name
-          }
+        worker {
+          full_name
         }
         callout {
           id
@@ -118,7 +116,7 @@ async function respondToEmergencies() {
         email
         id
         phone
-        schedulers(limit: 1, order_by: {date_on_calendar: desc}) {
+        schedulers(limit: 1, order_by: {id: desc}) {
           callout_id
         }
       }
@@ -171,12 +169,12 @@ async function respondToEmergencies() {
     }
     if (minutes >= 15) {
       // Add notification to Operations Coordinator
-      await addNotification('opsmanager@queensman.com', `The emergency team assigned to Callout ${job_history.callout_id} is not responding, Please take action`, 'worker');
+      await addNotification('opsmanager@queensman.com', `The emergency team assigned to Callout ${job_history.callout_id} is not responding, Please take action`, 'worker', { callout_id: job_history.callout_id });
       return;
     }
     if (minutes >= 10) {
       // Add notification to Operations Coordinator
-      await addNotification('opscord@queensman.com', `The emergency team assigned to Callout ${job_history.callout_id} is not responding, Please take action`, 'worker');
+      await addNotification('opscord@queensman.com', `The emergency team assigned to Callout ${job_history.callout_id} is not responding, Please take action`, 'worker', { callout_id: job_history.callout_id });
     }
   });
 }

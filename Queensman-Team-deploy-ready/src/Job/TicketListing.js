@@ -2,6 +2,8 @@
 /* eslint-disable no-undef */
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from "react";
+import call from "react-native-phone-call";
+import { AntDesign } from "@expo/vector-icons";
 import {
   StyleSheet,
   Text,
@@ -12,7 +14,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { Icon, CheckIcon } from 'native-base';
+import { HStack, Icon, IconButton } from 'native-base';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import commonColor from "../../native-base-theme/variables/commonColor";
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
@@ -43,7 +45,7 @@ query MyQuery($callout_id: Int!) {
 
 export default function TicketListing(props) {
   const workerId = props.navigation.getParam("workerId", {})
-  const { property_id, client, job_type, id } = props.navigation.getParam(
+  const { property_id, client, property, job_type, id } = props.navigation.getParam(
     "it",
     {}
   );
@@ -87,16 +89,26 @@ export default function TicketListing(props) {
       <View style={{ borderWidth: 1 }}>
         <View style={{ backgroundColor: "black", padding: 10 }}>
           <Text style={styles.title}>
-            Ticket Listing For Property Id {property_id}
+            Callout #{id} at {property.address}
           </Text>
         </View>
         <View style={styles.mainViewContainer}>
           <Text style={styles.heading}>Job Type: {job_type} </Text>
           <Text style={{ color: commonColor.goldText }}>Client Details</Text>
+         
           <View style={styles.subviewContainer}>
-            <Text>Callout Name: {client?.full_name} </Text>
-            <Text>Callout Email: {client?.email} </Text>
-            <Text>Callout Phone Number: {client?.phone} </Text>
+            <Text>Client Name: {client?.full_name} </Text>
+            <Text>Client Email: {client?.email} </Text>
+            <Text>Client Phone Number: {client?.phone} </Text>
+            <HStack space={2} alignItems="center">
+            <Text>Call Client</Text>
+            <IconButton
+              bg="amber.200"
+              onPress={() => {call({ number: client?.phone })}}
+              variant="solid"
+              icon={<Icon size="xs" as={<AntDesign name="phone" />} color="amber.600" />}
+            />
+          </HStack>
           </View>
         </View>
       </View>
