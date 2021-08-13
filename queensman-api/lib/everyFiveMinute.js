@@ -13,10 +13,11 @@ const parseJSON = require('date-fns/parseJSON');
 // if contains ?? and 10 mins passed - add notification to client to call someone
 
 async function everyFiveMinute() {
-  await respondToEmergencies();
+  const minutes = await respondToEmergencies();
   await notifyScheduledTasks();
 
   await notifyTeamisComing();
+  return minutes;
 }
 
 async function notifyTeamisComing() {
@@ -38,9 +39,13 @@ async function notifyTeamisComing() {
     }`, 'GetJobDue', {
     today: new Date(),
   });
-
+  if (errors) {
+    console.log(errors);
+    return;
+  }
   data.scheduler.forEach(async item => {
     const clientEmail = item?.callout?.client_callout_email?.email;
+    // `${job_history.time}+04:30`
     const jobTime = new Date(`${item.date_on_calendar}T${item.time_on_calendar}`);
     const diffWithNow = differenceInMinutes(jobTime, new Date());
 
@@ -58,7 +63,7 @@ async function notifyTeamisComing() {
     });
 
     if (data?.job_history[0]?.status_update === 'In Progress') {
-      const lastJobWorkerTime = new Date(data?.job_history[0]?.time);
+      const lastJobWorkerTime = parseJSON(`${data?.job_history[0]?.time}`);
       const diff = differenceInMinutes(jobTime, lastJobWorkerTime);
       if (diff >= 40 && diff <= 45) {
         await addNotification(clientEmail, 'Sorry the team is running late on the previous job. The coordinator will be in contact shortly', 'client', {});
@@ -66,7 +71,7 @@ async function notifyTeamisComing() {
     }
 
     if (data?.job_history[0]?.status_update === 'Closed') {
-      const lastJobWorkerTime = new Date(data?.job_history[0]?.time);
+      const lastJobWorkerTime = parseJSON(`${data?.job_history[0]?.time}`);
       const diff = differenceInMinutes(jobTime, lastJobWorkerTime);
       if (diff >= 65 && diff <= 70) {
         await addNotification(clientEmail, 'Hi. We’re running to plan – our team will be with you as scheduled', 'client', {});
@@ -99,10 +104,10 @@ async function notifyScheduledTasks() {
       _eq: subWeeks(new Date(), 2),
     }
   );
-  console.log(errors, data);
+  console.log(errors, JSON.stringify(data, null, 2));
   data.scheduler.forEach(item => {
     const email = item?.callout?.client_callout_email?.email;
-    const name = item?.callout?.job_worker?.worker?.full_name;
+    const name = item?.worker?.full_name;
     const scheduler_id = item?.id;
     const callout_id = item?.callout?.id;
     addNotification(email, `You have scheduled service "${item.notes}" is due in 2 weeks, ${name} will come to you`, 'client', { callout_id, scheduler_id, type: 'client_confirm' });
@@ -144,12 +149,14 @@ async function respondToEmergencies() {
     calloutId
   });
   // Get emergency ticket open
+  const minutes2 = [];
   data.job_history.forEach(async job_history => {
     if (job_history.status_update !== 'Waiting') {
       return;
     }
     const minutes = differenceInMinutes(new Date(), parseJSON(job_history.time));
     console.log(minutes);
+    minutes2.push(minutes);
     if (minutes >= 20) {
       const clientEmail = job_history?.job_history_callout?.client_callout_email?.email;
       if (!clientEmail) {
@@ -165,18 +172,19 @@ async function respondToEmergencies() {
       `, 'WaitForClient', {
         callout_id: job_history.callout_id
       });
-      return;
+      return minutes;
     }
     if (minutes >= 15) {
       // Add notification to Operations Coordinator
       await addNotification('opsmanager@queensman.com', `The emergency team assigned to Callout ${job_history.callout_id} is not responding, Please take action`, 'worker', { callout_id: job_history.callout_id });
-      return;
+      return minutes;
     }
     if (minutes >= 10) {
       // Add notification to Operations Coordinator
       await addNotification('opscord@queensman.com', `The emergency team assigned to Callout ${job_history.callout_id} is not responding, Please take action`, 'worker', { callout_id: job_history.callout_id });
     }
   });
+  return minutes2;
 }
 
 async function addNotification(email, text, type, data) {

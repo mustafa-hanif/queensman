@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, TouchableOpacity, Image } from "react-native";
+import { View } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import moment from "moment";
 
@@ -220,7 +220,7 @@ const JobsList = (props) => {
   ]);
   if (error) {
     return (
-      <View style={styles.container}>
+      <View>
         <Text
           style={{
             fontSize: 20,
@@ -280,7 +280,6 @@ const UnAssigned = ({ count }) => {
     return (
       <Text
         style={[
-          styles.TextFam,
           {
             fontSize: 14,
             color: "#aaa",
@@ -394,38 +393,5 @@ const Item = ({ item, passItem }) => {
     </Box>
   );
 };
-
-const styles = StyleSheet.create({
-  Name: {
-    marginTop: "10%",
-    marginLeft: "3%",
-  },
-  HeadingStyle: {
-    fontSize: 23,
-    paddingTop: "10%",
-    paddingLeft: "6%",
-    color: "#FFCA5D",
-
-    fontFamily: "serif",
-  },
-  Card: {
-    shadowColor: "rgba(0,0,0, .4)", // IOS
-    shadowOffset: { height: 1, width: 1 }, // IOS
-    shadowOpacity: 1, // IOS
-    shadowRadius: 1, //IOS
-    elevation: 3, // Android
-    width: "90%",
-    paddingHorizontal: "5%",
-    paddingVertical: "5%",
-    // marginBottom: '3%',
-    justifyContent: "center",
-    alignSelf: "center",
-    backgroundColor: "#FFF",
-    borderRadius: 5,
-  },
-  TextFam: {
-    // fontFamily: 'serif'
-  },
-});
 
 export default JobsList;

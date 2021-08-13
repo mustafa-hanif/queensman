@@ -2,13 +2,14 @@
 const everyFiveMinuteLib = require('../lib/everyFiveMinute').everyFiveMinute;
 
 const everyFiveMinute = async (event) => {
-  everyFiveMinuteLib();
+  const minutes = await everyFiveMinuteLib();
   try {
     return {
       statusCode: 200,
       body: JSON.stringify(
         {
-          message: 'Go Serverless v1.0! Your function executed successfully!'
+          message: 'Go Serverless v1.0! Your function executed successfully!',
+          minutes
         },
         null,
         2
