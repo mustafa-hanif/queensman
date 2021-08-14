@@ -6,7 +6,7 @@
 import React from "react";
 import { format, parseISO } from "date-fns";
 import { StyleSheet, View, Dimensions, Linking } from "react-native";
-import { Box, FlatList, Spinner, Text, ScrollView, Modal, Button } from "native-base";
+import { Box, FlatList, Spinner, Text, ScrollView, Modal, Button, Divider } from "native-base";
 
 import { gql, useQuery } from "@apollo/client";
 import { auth } from "../utils/nhost";
@@ -162,6 +162,7 @@ const GetContractCopy = () => {
     const document_id = data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
     Linking.openURL(`https://api-8106d23e.nhost.app/?document_id=${document_id}`);
   };
+  
   return (
     <Button mb={10} onPress={openContractCopy}>
       Contract Copy
@@ -197,6 +198,28 @@ const MANAG_REPORT = gql`
   }
 `;
 
+const INVENTORY_REPORT = gql`
+query MyQuery($_eq: Int!) {
+  inventory_report(where: {property_id: {_eq: $_eq}}) {
+    inventory_report_pdfs {
+      inventory_report_id
+      property_id
+      id
+      report_location
+      report_upload_date
+    }
+    id
+    property {
+      city
+      community
+      country
+      id
+    }
+  }
+}
+
+`;
+
 const MARKET_REPORT = gql`
   query ManagementReport($_eq: Int!) {
     market_report(where: { property_id: { _eq: $_eq } }) {
@@ -209,6 +232,12 @@ const MARKET_REPORT = gql`
 `;
 
 const MyFlatList = ({ property_ID, value, Reporthandle }) => {
+
+  const openInventory = (report_location) => {
+    // const document_id = data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
+    Linking.openURL(report_location);
+  };
+
   const {
     loading: reportLoading,
     data: ManagementReportData,
@@ -227,9 +256,20 @@ const MyFlatList = ({ property_ID, value, Reporthandle }) => {
     skip: !property_ID,
   });
 
+  const {
+    loading: invReportLoading,
+    data: inventoryReport,
+    error: invError,
+  } = useQuery(INVENTORY_REPORT, {
+    variables: { _eq: property_ID },
+    skip: !property_ID,
+  });
+
   let ModelData = [];
+  let ModelData2 = [];
   if (value === 1) {
     ModelData = ManagementReportData?.management_report;
+    ModelData2 = inventoryReport?.inventory_report;
   } else if (value === 2) {
     ModelData = MarkertReportData?.market_report;
   }
@@ -243,6 +283,7 @@ const MyFlatList = ({ property_ID, value, Reporthandle }) => {
     return <Text>There are no reports for this property</Text>;
   }
   return (
+    <>
     <FlatList
       data={ModelData}
       pr={6}
@@ -253,6 +294,23 @@ const MyFlatList = ({ property_ID, value, Reporthandle }) => {
       )}
       keyExtractor={(item, index) => index.toString()}
     />
+    <Divider my={2} />
+    <Text fontSize={18} paddingBottom={2}>Inventory Reports</Text>
+    <FlatList
+      data={ModelData2}
+      pr={6}
+      renderItem={({ item }) => (
+        <View>
+          <Text>Property:</Text>
+          <Text paddingBottom={1}>{item?.property?.id}, {item?.property?.country}, {item?.property?.city}, {item?.property?.community}</Text>
+        <Button mb={2} onPress={() => openInventory(item.inventory_report_pdfs[0].report_location)}>
+          {format(parseISO(item.inventory_report_pdfs[0].report_upload_date), "MMMM, yyyy")}
+        </Button>
+        </View>
+      )}
+      keyExtractor={(item, index) => index.toString()}
+    />
+    </>
   );
 };
 const styles = StyleSheet.create({
