@@ -20,7 +20,7 @@ const inventoryClientEmail = async (inventory_report_pdf, property, client) => {
       Subject: {
         Charset: 'UTF-8',
         // Data: `[UAT] New Callout ${callout.id} Created by ${callout.client_callout_email.full_name}`
-        Data: "Hello from queensman"
+        Data: "[UAT] Queensman Inventory Report Client"
       }
     },
     Source: 'services@queensman.com', /* required */
