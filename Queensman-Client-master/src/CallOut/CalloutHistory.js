@@ -1,12 +1,15 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable camelcase */
+/* eslint-disable no-use-before-define */
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity, Image } from "react-native";
 import { gql, useLazyQuery } from "@apollo/client";
-import { Box } from "native-base";
-import { auth } from "../utils/nhost";
+import { Box, Icon } from "native-base";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Icon } from "native-base";
+
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import dayjs from "dayjs";
+import { auth } from "../utils/nhost";
 
 const GET_PROPERTY_BY_ID = gql`
   query MyQuery($callout_by_email: String!) {
@@ -20,7 +23,7 @@ const GET_CALLOUTS = gql`
   query MyQuery($callout_by_email: String!, $property_id: Int!) {
     callout(
       where: { callout_by_email: { _eq: $callout_by_email }, property_id: { _eq: $property_id } }
-      order_by: { request_time: desc }
+      order_by: { id: desc }
     ) {
       id
       property_id
@@ -83,7 +86,7 @@ const CalloutHistoryClass = (props) => {
   const email = user?.email;
   useEffect(() => {
     const load = async () => {
-      let property_ID = await AsyncStorage.getItem("QueensPropertyID");
+      const property_ID = await AsyncStorage.getItem("QueensPropertyID");
       if (!property_ID) {
         loadProperty({
           variables: {

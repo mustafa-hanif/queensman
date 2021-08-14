@@ -1,10 +1,11 @@
+/* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
 const fetchGraphQL = require('./graphql').fetchGraphQL;
 const differenceInMinutes = require('date-fns/differenceInMinutes');
 const subMonths = require('date-fns/subMonths');
 const format = require('date-fns/format');
 const addHours = require('date-fns/addHours');
-const subWeeks = require('date-fns/subWeeks');
+const addWeeks = require('date-fns/addWeeks');
 const parseJSON = require('date-fns/parseJSON');
 
 // Else check ignored by - if empty and 10 mins passed, add worker, add notification //.
@@ -89,6 +90,7 @@ async function notifyScheduledTasks() {
         notes
         id
         date_on_calendar
+        time_on_calendar
         worker {
           full_name
         }
@@ -101,7 +103,7 @@ async function notifyScheduledTasks() {
       }
     }`,
     'GetPendingSchedule', {
-      _eq: subWeeks(new Date(), 2),
+      _eq: addWeeks(new Date(), 2),
     }
   );
   console.log(errors, JSON.stringify(data, null, 2));
@@ -109,8 +111,14 @@ async function notifyScheduledTasks() {
     const email = item?.callout?.client_callout_email?.email;
     const name = item?.worker?.full_name;
     const scheduler_id = item?.id;
+    const date_on_calendar = item?.date_on_calendar;
+    const time_on_calendar = item?.time_on_calendar;
     const callout_id = item?.callout?.id;
-    addNotification(email, `You have scheduled service "${item.notes}" is due in 2 weeks, ${name} will come to you`, 'client', { callout_id, scheduler_id, type: 'client_confirm' });
+
+    const minutes = differenceInMinutes(new Date(date_on_calendar), parseJSON(`${date_on_calendar}T${time_on_calendar}`));
+    if (minutes >= 0 && minutes <= 5) {
+      addNotification(email, `You have scheduled service "${item.notes}" is due in 2 weeks, ${name} will come to you`, 'client', { callout_id, scheduler_id, type: 'client_confirm' });
+    }
   })
 }
 

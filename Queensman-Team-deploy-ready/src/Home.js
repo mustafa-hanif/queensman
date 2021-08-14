@@ -394,7 +394,10 @@ export default function HomeFunction(props) {
   const {loading: workerLoading, data: workerData, error: workerError} = useQuery(GET_CURRENT_JOB_WORKER, {variables: {
     email: auth.user().email,
   }})
-  const [updateToken, { loading: mutationLoading, error: mutationError }] =
+  const [updateToken, { 
+    loading: mutationLoading, 
+    error: mutationError 
+  }] =
     useMutation(UPDATE_TOKEN);
 
   const user = auth?.currentSession?.session?.user;

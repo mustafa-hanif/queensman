@@ -34,18 +34,31 @@ const GET_JOB_TICKETS = gql`
   }
 `;
 
-const GET_JOB_TICKETS_CLOSED = gql`
-query MyQuery($callout_id: Int!) {
-  job_tickets(where: {callout_id: {_eq: $callout_id}, status: {_neq: "Closed"}}, order_by: {created_at: desc}) {
-    id
+const ADD_HISTORY = gql`
+  mutation RespondToClient($callout_id: Int = 10) {
+    insert_job_history_one(object: {callout_id: $callout_id, status_update: "Responded to Client"}) {
+      id
+    }
   }
-}
+`;
 
+const GET_JOB_TICKETS_CLOSED = gql`
+  query MyQuery($callout_id: Int!) {
+    job_tickets(where: {callout_id: {_eq: $callout_id}, status: {_neq: "Closed"}}, order_by: {created_at: desc}) {
+      id
+    }
+  }
 `;
 
 export default function TicketListing(props) {
   const workerId = props.navigation.getParam("workerId", {})
-  const { property_id, client, property, job_type, id } = props.navigation.getParam(
+  const { 
+    property_id, 
+    client, 
+    property, 
+    job_type, 
+    id
+  } = props.navigation.getParam(
     "it",
     {}
   );
@@ -53,7 +66,17 @@ export default function TicketListing(props) {
     props.navigation.getParam("refresh", false)
   );
 
-  const [fetchTickets, { loading, data, error }] = useLazyQuery(
+  const [markAsResponded, { 
+    loading: loading2, 
+    data: data2, 
+    error: erro2 
+  }] = useMutation(ADD_HISTORY);
+
+  const [fetchTickets, { 
+    loading,
+    data, 
+    error 
+  }] = useLazyQuery(
     GET_JOB_TICKETS,
     {
       variables: {
@@ -62,7 +85,11 @@ export default function TicketListing(props) {
     }
   );
 
-  const [getClosedTickets, { loading: allTicketsLoading, data: allTickets, error: allTicketsError }] = useLazyQuery(
+  const [getClosedTickets, { 
+    loading: allTicketsLoading, 
+    data: allTickets, 
+    error: allTicketsError 
+  }] = useLazyQuery(
     GET_JOB_TICKETS_CLOSED,
     {
       variables: {
@@ -104,7 +131,12 @@ export default function TicketListing(props) {
             <Text>Call Client</Text>
             <IconButton
               bg="amber.200"
-              onPress={() => {call({ number: client?.phone })}}
+              onPress={() => {
+                call({ number: client?.phone });
+                markAsResponded({ variables: {
+                  callout_id: id
+                }});
+              }}
               variant="solid"
               icon={<Icon size="xs" as={<AntDesign name="phone" />} color="amber.600" />}
             />
