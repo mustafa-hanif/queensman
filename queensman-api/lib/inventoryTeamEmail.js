@@ -1,12 +1,15 @@
-var inventory_client_email = require('../templates/inventory_client_email').inventory_client_email;
+var inventory_team_email = require('../templates/inventory_team_email').inventory_team_email;
 var sendEmail = require('./sendEmail').sendEmail;
 
-const inventoryClientEmail = async (inventory_report_pdf, property, client) => {
+const inventoryTeamEmail = async (inventory_report_pdf, property) => {
   const params = {
     Destination: { /* required */
       CcAddresses: [],
       ToAddresses: [
-        client.email
+        // 'gnyahuma@queensman.com', 'aalvi@queensman.com',
+        // 'ffakhri@queensman.com', 'bvictor@queensman.com',
+        // 'murtaza.hanif@techinoviq.com', 'icemelt7@gmail.com'
+        'salmanhanif133@gmail.com','murtaza.hanif@techinoviq.com' , 'murtaza.hanif@gmail.com'
       /* more items */
       ]
     },
@@ -14,13 +17,12 @@ const inventoryClientEmail = async (inventory_report_pdf, property, client) => {
       Body: { /* required */
         Html: {
           Charset: 'UTF-8',
-          Data: inventory_client_email(inventory_report_pdf, property, client)
+          Data: inventory_team_email(inventory_report_pdf, property)
         },
       },
       Subject: {
         Charset: 'UTF-8',
-        // Data: `[UAT] New Callout ${callout.id} Created by ${callout.client_callout_email.full_name}`
-        Data: "Hello from queensman"
+        Data: " [UAT] Queensman Inventory Report"
       }
     },
     Source: 'services@queensman.com', /* required */
@@ -49,4 +51,4 @@ const inventoryClientEmail = async (inventory_report_pdf, property, client) => {
   }
 }
 
-module.exports = { inventoryClientEmail };
+module.exports = { inventoryTeamEmail };

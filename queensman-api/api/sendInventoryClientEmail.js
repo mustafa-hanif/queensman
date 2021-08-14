@@ -5,11 +5,36 @@ const inventoryClientEmail = require('../lib/inventoryClientEmail').inventoryCli
 
 const sendInventoryClientEmail = async (event) => {
   const query = JSON.parse(event.body)
-  const fileLink = query.fileLink;
-  // const fileLink = "abc.html"
-  // Send Email
-  await inventoryClientEmail(fileLink);
-  // console.log(data);
+  console.log(event.body)
+  const inventory_report_pdf = query.inventory_report_pdf;
+  const property = query.property
+  const client = query.client
+  // const client = [{
+  //   id: 6,
+  //   email: 'salmanhanif133@gmail.com',
+  //   full_name: 'Salman Hanif',
+  //   account_type: 'Investor',
+  //   __typename: 'client'
+  // },
+  // {
+  //   id: 7,
+  //   email: 'murtaza.hanif@techinoviq.com',
+  //   full_name: 'Murtaza Hanif',
+  //   account_type: 'Investor',
+  //   __typename: 'client'
+  // },
+  // {
+  //   id: 8,
+  //   email: 'murtaza.hanif@gmail.com',
+  //   full_name: 'Murtaza Hanif',
+  //   account_type: 'Investor',
+  //   __typename: 'client'
+  // }]
+
+  client.map(clientItem => {
+    inventoryClientEmail(inventory_report_pdf, property, clientItem)
+  })
+  
   try {
     return {
       statusCode: 200,

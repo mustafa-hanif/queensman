@@ -88,6 +88,14 @@ functions:
           path: /sendInventoryClientEmail
           method: post
           cors: true
+        
+  sendInventoryTeamEmail:
+    handler: handler.sendInventoryTeamEmail
+    events:
+      - http:
+          path: /sendInventoryTeamEmail
+          method: post
+          cors: true
 
   everyFiveMinute:
     handler: handler.everyFiveMinute

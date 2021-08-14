@@ -116,20 +116,20 @@ const TabsVerticalLeft = ({item, allProperty}) => {
     
   }
 
-  const acceptApprove = async (report_location) => {
+  const acceptApprove = async (inventory_report_pdf, property, inventory_rooms, client) => {
     setToApproveStage({variables: {id: item?.id}}) //Final Stage Approved 
       setApproveStatus(3)
       setApproveModal(false)
+      setLoading(true)
 
       try {
         const res = await axios.post(
           "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendInventoryClientEmail",
           {
-            fileLink: report_location
-            // Description: `Task Client ${date[1]}`,
-            // Status: `Open`,
-            // Due_Date: `${dateString}`,
-            // email: `${row.email}`,
+            inventory_report_pdf,
+            property,
+            inventory_rooms,
+            client
           }
         )
       } catch (e) {
@@ -137,6 +137,21 @@ const TabsVerticalLeft = ({item, allProperty}) => {
         console.log(e)
       }
 
+      try {
+        const res = await axios.post(
+          "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendInventoryTeamEmail",
+          {
+            inventory_report_pdf,
+            property,
+            inventory_rooms,
+            client
+          }
+        )
+      } catch (e) {
+        console.log("ERROR")
+        console.log(e)
+      }
+      setLoading(false)
       toast.success(
         <ToastComponent title="Report approved" color="success" icon={<Check />} />,
         {
@@ -711,7 +726,7 @@ const TabsVerticalLeft = ({item, allProperty}) => {
             Approving this report will send email to the client. Are you sure you want to approve?
           </ModalBody>
           <ModalFooter>
-            <Button color="warning" onClick={() => acceptApprove(inventory_report_pdf?.report_location)}>
+            <Button color="warning" onClick={() => acceptApprove(inventory_report_pdf, property, inventory_rooms, client)}>
               I Accept
             </Button>
             <Button onClick={() => setApproveModal(false)}>
