@@ -34,6 +34,7 @@ export default function NotificationList({
   setNotifications,
   reloadNotification,
   notifications,
+  navigation,
   viewStyle,
   index,
   textStyle,
@@ -75,6 +76,12 @@ export default function NotificationList({
       },
     });
   };
+
+  const viewCallout = (callout_id) => {
+    navigation.navigate("OngoingcalloutItem", {
+      it: item,
+    });
+  }
   console.log(item);
   return (
     <>
@@ -114,11 +121,7 @@ export default function NotificationList({
               </Box>
               <Button
                 onPress={() =>
-                  viewCallout({
-                    variables: {
-                      id: item?.data?.callout_id,
-                    },
-                  })
+                  viewCallout(item?.data?.callout_id)
                 }
                 size="xs"
                 height={6}

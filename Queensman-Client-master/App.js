@@ -452,7 +452,7 @@ const AppDrawerNavigator = () => {
       {/* <AppDrawer.Screen name="PropertyDetails" component={PropertyDetails} />
       <AppDrawer.Screen name="ContactUs" component={ContactUs} />
       <AppDrawer.Screen name="Settings" component={SettingStackNavigator} /> */}
-      <AppDrawer.Screen name="Property Details" component={HomeScreenStackNavigator} />
+      {/* <AppDrawer.Screen name="Property Details" component={PropertyDetails} /> */}
       <AppDrawer.Screen name="Contact Us" component={HomeScreenStackNavigator} />
       <AppDrawer.Screen name="Settings" component={HomeScreenStackNavigator} />
     </AppDrawer.Navigator>

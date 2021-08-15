@@ -9,7 +9,7 @@ import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator }
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { ListItem, Icon, Picker } from "native-base";
+import { ListItem, Icon, Select } from "native-base";
 import { auth } from "../utils/nhost";
 
 const styles = StyleSheet.create({
@@ -245,7 +245,7 @@ const PropertyDetails = (props) => {
 
       <View style={{ paddingHorizontal: "5%", flexDirection: "column" }}>
         <Text style={[styles.TextFam, { fontSize: 10, color: "#FFCA5D" }]}>Select Property Type:</Text>
-        <Picker
+        <Select
           note
           mode="dialog"
           style={{ paddingTop: "2%" }}
@@ -253,9 +253,9 @@ const PropertyDetails = (props) => {
           selectedValue={state.selected}
           onValueChange={onValueChange}
         >
-          <Picker.Item label="Owned Properties" value="Owned" />
-          <Picker.Item label="Leased Properties" value="Leased" />
-        </Picker>
+          <Select.Item label="Owned Properties" value="Owned" />
+          <Select.Item label="Leased Properties" value="Leased" />
+        </Select>
       </View>
       {loading ? (
         <ActivityIndicator size="large" color="#FFCA5D" />
