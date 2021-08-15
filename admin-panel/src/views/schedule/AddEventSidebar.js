@@ -708,17 +708,17 @@ const AddEventSidebar = props => {
              <Flatpickr
                required
                id='startDate'
-                //tag={Flatpickr}
+               //tag={Flatpickr}
                name='startDate'
-              //  data-enable-time
+               //  data-enable-time
                className='form-control'
                onChange={date => { setStartPicker(date[0]); setEndPicker(addHours(date[0], 2)); console.log(date[0]) }}
                value={startPicker}
                options={{
                 enableTime: true,
-          noCalendar: false,
-          dateFormat: 'H:i',
-          time_24hr: true
+                noCalendar: false,
+                dateFormat: 'H:i',
+                time_24hr: true
                }}
              />
              </Fragment>
