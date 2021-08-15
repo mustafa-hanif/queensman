@@ -6,10 +6,11 @@
 import React from "react";
 import { format, parseISO } from "date-fns";
 import { StyleSheet, View, Dimensions, Linking } from "react-native";
-import { Box, FlatList, Spinner, Text, ScrollView, Modal, Button, Divider } from "native-base";
+import { Box, FlatList, Spinner, Text, ScrollView, Modal, Button, Divider, VStack, HStack, Icon } from "native-base";
 
 import { gql, useQuery } from "@apollo/client";
 import { auth } from "../utils/nhost";
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
@@ -49,6 +50,13 @@ class GenerateReport extends React.Component {
         value,
         // ModelData: this.state.MarkertReportData,
       });
+    } else if (value === 3) {
+      this.setState({
+        isReportModelVisible: !this.state.isReportModelVisible,
+        modeltype: false,
+        value,
+        // ModelData: this.state.MarkertReportData,
+      });
     }
   };
 
@@ -72,14 +80,23 @@ class GenerateReport extends React.Component {
 
   renderReportModalContent = () => (
     <Box>
-      {this.state.modeltype ? <Text>Property Management Reports</Text> : <Text>Markert Analysis Reports</Text>}
+      {this.state.value === 1 ? <Text>Property Management Reports</Text> : this.state.value === 2 ? <Text>Markert Analysis Reports</Text> : <Text>Inventory Reports</Text>}
       <Text mb={4}>Tap to view or download a report.</Text>
+      {this.state.value === 3 ? 
+      <MyFlatList2
+      property_ID={this.state.propertyID}
+      setPropertyId={this.setPropertyId}
+      value={this.state.value}
+      Reporthandle={this.Reporthandle}
+    />
+    : 
       <MyFlatList
         property_ID={this.state.propertyID}
         setPropertyId={this.setPropertyId}
         value={this.state.value}
         Reporthandle={this.Reporthandle}
       />
+}
     </Box>
   );
 
@@ -97,7 +114,7 @@ class GenerateReport extends React.Component {
         {/* background gradinet   */}
         <LoadProperties setPropertyId={this.setPropertyId} />
         <Text style={styles.HeadingStyle}>Reports</Text>
-        <Text style={{ color: "#fff", fontSize: 15, fontFamily: "Helvetica", paddingBottom: "15%" }}>
+        <Text color="white" paddingBottom={2}>
           Select the type of report to download{" "}
         </Text>
 
@@ -109,6 +126,10 @@ class GenerateReport extends React.Component {
 
           <Button mb={10} onPress={() => this.toggleReportModel(1)}>
             Property Management
+          </Button>
+
+          <Button mb={10} onPress={() => this.toggleReportModel(3)}>
+            Inventory Report
           </Button>
 
           <Button mb={10} onPress={() => this.toggleReportModel(2)}>
@@ -201,6 +222,8 @@ const MANAG_REPORT = gql`
 const INVENTORY_REPORT = gql`
 query MyQuery($_eq: Int!) {
   inventory_report(where: {property_id: {_eq: $_eq}}) {
+    id
+    approved
     inventory_report_pdfs {
       inventory_report_id
       property_id
@@ -208,7 +231,6 @@ query MyQuery($_eq: Int!) {
       report_location
       report_upload_date
     }
-    id
     property {
       city
       community
@@ -231,12 +253,122 @@ const MARKET_REPORT = gql`
   }
 `;
 
-const MyFlatList = ({ property_ID, value, Reporthandle }) => {
-
+const MyFlatList2 = ({ property_ID, value, Reporthandle }) => {
+  
   const openInventory = (report_location) => {
     // const document_id = data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
     Linking.openURL(report_location);
   };
+
+  const TimeLine = ({status}) => {
+    switch (status) {
+      case 0:
+        return (
+        <VStack space={1}>
+          <HStack space={1} alignItems="center"><Text color="white">Awaiting for report to be uploaded</Text><Icon
+            as={Ionicons}
+            name={'arrow-back-circle-outline'}
+            size={5}
+            color="white"
+          /></HStack>
+          <HStack><Text color="#939393" fontSize="xs">Awaiting Approval from Ops Coordinator</Text></HStack>
+          <HStack><Text color="#939393" fontSize="xs">Awaiting Approval from Ops Manager</Text></HStack>
+        </VStack>
+        )
+      case 1:
+        return (
+          <VStack >
+            <HStack space={1} alignItems="center"><Text color="#2a9d3d" fontSize="xs">Awaiting for report to be uploaded</Text>
+            <Icon
+            as={Ionicons}
+            name={'checkmark-circle-outline'}
+            size={3}
+            color="#2a9d3d"
+          />
+            </HStack>
+            <HStack space={1} alignItems="center"><Text color="white">Awaiting Approval from Ops Coordinator</Text>
+            <Icon
+            as={Ionicons}
+            name={'arrow-back-circle-outline'}
+            size={5}
+            color="white"
+          /></HStack>
+            <HStack><Text color="#939393" fontSize="xs">Awaiting Approval from Ops Manager</Text></HStack>
+          </VStack>
+        )
+      case 2:
+        return (
+          <VStack>
+            <HStack space={1} alignItems="center"><Text color="#2a9d3d" fontSize="xs">Awaiting for report to be uploaded</Text><Icon
+            as={Ionicons}
+            name={'checkmark-circle-outline'}
+            size={3}
+            color="#2a9d3d"
+          /></HStack>
+            <HStack space={1} alignItems="center"><Text color="#2a9d3d" fontSize="xs">Awaiting Approval from Ops Coordinator</Text>
+            <Icon
+            as={Ionicons}
+            name={'checkmark-circle-outline'}
+            size={3}
+            color="#2a9d3d"
+          /></HStack>
+            <HStack space={1} alignItems="center"><Text color="white">Awaiting Approval from Ops Manager</Text>
+            <Icon
+            as={Ionicons}
+            name={'arrow-back-circle-outline'}
+            size={5}
+            color="white"
+          />
+            </HStack>
+          </VStack>
+        )
+    }
+  }
+
+  let ModelData = [];
+  const {
+    loading: invReportLoading,
+    data: inventoryReport,
+    error: invError,
+  } = useQuery(INVENTORY_REPORT, {
+    variables: { _eq: property_ID },
+    skip: !property_ID,
+  });
+  ModelData = inventoryReport?.inventory_report
+  if (invReportLoading) {
+    return <Spinner size="sm" />;
+  }
+  if (invError) {
+    return <Text>{invError}</Text>;
+  }
+  if (ModelData?.length === 0) {
+    return <Text>There are no reports for this property</Text>;
+  }
+  return (
+    <>
+    {/* <Text fontSize={18} paddingBottom={2}>Inventory Reports</Text> */}
+    {ModelData?.length === 0 ? <Text>There are no inventory reports for this property</Text> : 
+    <FlatList
+      data={ModelData}
+      pr={6}
+      renderItem={({ item }) => (
+        <View >
+          <Text>Property:</Text>
+          <Text paddingBottom={1}>{item?.property?.country}, {item?.property?.city}, {item?.property?.community}</Text>
+          {item?.approved !=3 ? <TimeLine status={item?.approved} /> : 
+        <Button mb={2} onPress={() => openInventory(item?.inventory_report_pdfs?.[0].report_location)}>
+          {format(parseISO(item?.inventory_report_pdfs?.[0].report_upload_date), "MMMM, yyyy")}
+        </Button>
+      }
+        </View>
+      )}
+      keyExtractor={(item, index) => index.toString()}
+    />}
+    </>
+  )
+}
+
+const MyFlatList = ({ property_ID, value, Reporthandle }) => {
 
   const {
     loading: reportLoading,
@@ -256,20 +388,9 @@ const MyFlatList = ({ property_ID, value, Reporthandle }) => {
     skip: !property_ID,
   });
 
-  const {
-    loading: invReportLoading,
-    data: inventoryReport,
-    error: invError,
-  } = useQuery(INVENTORY_REPORT, {
-    variables: { _eq: property_ID },
-    skip: !property_ID,
-  });
-
   let ModelData = [];
-  let ModelData2 = [];
   if (value === 1) {
-    ModelData = ManagementReportData?.management_report;
-    ModelData2 = inventoryReport?.inventory_report;
+    ModelData = ManagementReportData?.management_report;    
   } else if (value === 2) {
     ModelData = MarkertReportData?.market_report;
   }
@@ -284,6 +405,7 @@ const MyFlatList = ({ property_ID, value, Reporthandle }) => {
   }
   return (
     <>
+    {ModelData?.length === 0 ? <Text>There are no managment reports for this property</Text> : 
     <FlatList
       data={ModelData}
       pr={6}
@@ -293,26 +415,10 @@ const MyFlatList = ({ property_ID, value, Reporthandle }) => {
         </Button>
       )}
       keyExtractor={(item, index) => index.toString()}
-    />
-    <Divider my={2} />
-    <Text fontSize={18} paddingBottom={2}>Inventory Reports</Text>
-    <FlatList
-      data={ModelData2}
-      pr={6}
-      renderItem={({ item }) => (
-        <View>
-          <Text>Property:</Text>
-          <Text paddingBottom={1}>{item?.property?.id}, {item?.property?.country}, {item?.property?.city}, {item?.property?.community}</Text>
-        <Button mb={2} onPress={() => openInventory(item.inventory_report_pdfs[0].report_location)}>
-          {format(parseISO(item.inventory_report_pdfs[0].report_upload_date), "MMMM, yyyy")}
-        </Button>
-        </View>
-      )}
-      keyExtractor={(item, index) => index.toString()}
-    />
+    />}
     </>
   );
-};
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,

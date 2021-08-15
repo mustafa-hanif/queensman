@@ -251,7 +251,6 @@ const HomeScreen = ({ navigation }) => {
     },
   });
 
-  console.log(loading2, notifications, notificationError);
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
   const [updateToken, { loading: mutationLoading, error: mutationError }] = useMutation(UPDATE_TOKEN);
@@ -297,7 +296,7 @@ const HomeScreen = ({ navigation }) => {
           }}
         >
           <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-            <Image source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }} />
+            <Image alt="pic" source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }} />
           </TouchableOpacity>
           <Text style={{ color: "white", fontWeight: "bold", fontSize: 12 }}>{email}</Text>
           <View style={{ flexDirection: "row" }}>
@@ -378,9 +377,9 @@ const HomeScreen = ({ navigation }) => {
         <Heading mx="auto" size="sm">
           Upcoming Service
         </Heading>
-        {data && <CalloutItem item={data.callout[0]} toggleGalleryEventModal={() => {}} />}
+        { (data && data.length > 0) ? <CalloutItem item={data.callout[0]} toggleGalleryEventModal={() => {}} /> : <Text textAlign="center">No service</Text>}
         <Divider />
-        <Text pb={8} fontSize="xs" textAlign="center">
+        <Text pb={8} alignItems="flex-end" fontSize="xs" textAlign="center">
           All rights reserved © 2021 - Queensman
         </Text>
       </VStack>
@@ -401,7 +400,7 @@ const Item = ({ text, image, onPress }) => (
       borderRadius={48}
       bg="white"
     >
-      <Image source={image} style={{ height: 32, width: 32, alignSelf: "center" }} />
+      <Image alt="pic" source={image} alt="picture" style={{ height: 32, width: 32, alignSelf: "center" }} />
       <Text color="amber.900" alignSelf="center">
         {text}
       </Text>
@@ -424,19 +423,19 @@ const CalloutItem = ({ item, toggleGalleryEventModal }) => {
         <HStack alignItems="center">
           <CircleIcon size={4} mr={0.5} color={color} />
           <Text color={color} mr={2} fontSize="xs">
-            {item.urgency_level}
+            {item?.urgency_level}
           </Text>
           <CircleIcon size={4} mr={0.5} color={statusColor} />
           <Text color={statusColor} fontSize="xs">
-            {item.status}
+            {item?.status}
           </Text>
           <Text color="black" ml="auto" fontSize="xs">
-            {item.id}
+            {item?.id}
           </Text>
         </HStack>
 
         <Heading color="black" size="md" noOfLines={2}>
-          {item.job_type}
+          {item?.job_type}
         </Heading>
         {item?.client?.full_name && (
           <HStack>
@@ -467,7 +466,7 @@ const CalloutItem = ({ item, toggleGalleryEventModal }) => {
 
         {item?.description && (
           <Text lineHeight={[5, 5, 7]} noOfLines={[4, 4, 2]} color="gray.700">
-            {item.description}
+            {item?.description}
           </Text>
         )}
         <Divider bg="gray.200" />
@@ -479,7 +478,7 @@ const CalloutItem = ({ item, toggleGalleryEventModal }) => {
             <HStack space={2} alignItems="center">
               <AntDesign name="calendar" size={18} />
               <Text color="black" fontSize="sm">
-                {moment(item.schedule?.date_on_calendar).format("Do MMMM, YYYY")}
+                {moment(item?.schedule?.date_on_calendar).format("Do MMMM, YYYY")}
               </Text>
             </HStack>
           )}
@@ -487,7 +486,7 @@ const CalloutItem = ({ item, toggleGalleryEventModal }) => {
             <HStack space={2} alignItems="center">
               <AntDesign name="clockcircle" size={18} />
               <Text color="black" fontSize="sm">
-                {moment(`2013-02-08T${item.schedule?.time_on_calendar}`).format("hh:mm A")}
+                {moment(`2013-02-08T${item?.schedule?.time_on_calendar}`).format("hh:mm A")}
               </Text>
             </HStack>
           )}
