@@ -1,3 +1,6 @@
+/* eslint-disable no-shadow */
+/* eslint-disable no-console */
+/* eslint-disable no-use-before-define */
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions, Platform, Alert } from "react-native";
 import { Content, Icon } from "native-base";
@@ -113,11 +116,13 @@ const registerForPushNotificationsAsync = async () => {
   throw new Error("Must use physical device for Push Notifications");
 };
 
-const requestCallOutPress = (navigation, {additionalServices}) => {
-  if(!additionalServices) { //if false 
-    navigation.navigate("RequestCallOut", {name: 'Request Callout', additionalServices});  
-  } else { //if true
-    navigation.navigate("RequestCallOut", {name: 'Additional Request', additionalServices});
+const requestCallOutPress = (navigation, { additionalServices }) => {
+  if (!additionalServices) {
+    // if false
+    navigation.navigate("RequestCallOut", { name: "Request Callout", additionalServices });
+  } else {
+    // if true
+    navigation.navigate("RequestCallOut", { name: "Additional Request", additionalServices });
   }
 };
 
@@ -171,7 +176,7 @@ const UPDATE_TOKEN = gql`
 `;
 
 const HomeScreen = ({ navigation }) => {
-  const [email, setEmail] = useState("")
+  const [email, setEmail] = useState("");
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
   const [updateToken, { loading: mutationLoading, error: mutationError }] = useMutation(UPDATE_TOKEN);
@@ -192,7 +197,7 @@ const HomeScreen = ({ navigation }) => {
         const user = JSON.parse(await AsyncStorage.getItem("QueensUser"));
         const email = user?.user?.email;
         updateToken({ variables: { token, email } });
-        setEmail(email)
+        setEmail(email);
       })
       .catch(alert);
 
@@ -201,7 +206,7 @@ const HomeScreen = ({ navigation }) => {
       Notifications.removeNotificationSubscription(responseListener.current);
     };
   }, []);
-  
+
   return (
     <View style={styles.container}>
       <FlashMessage position="center" />
@@ -217,15 +222,15 @@ const HomeScreen = ({ navigation }) => {
           }}
         >
           <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-            <Image source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }}></Image>
+            <Image source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }} />
           </TouchableOpacity>
-          <Text style={{color: "white", fontWeight: "bold", fontSize: 12}}>{email}</Text>
-          <View style={{ flexDirection: "row"}}>
+          <Text style={{ color: "white", fontWeight: "bold", fontSize: 12 }}>{email}</Text>
+          <View style={{ flexDirection: "row" }}>
             <TouchableOpacity onPress={() => AlertLogout(navigation)}>
-              <Icon as={Ionicons} name="power" style={{ fontSize: 25, color: "#FFCA5D" }}></Icon>
+              <Icon as={Ionicons} name="power" style={{ fontSize: 25, color: "#FFCA5D" }} />
             </TouchableOpacity>
             <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => navigation.navigate("Notification")}>
-              <Icon as={Ionicons} name="notifications-outline" style={{ fontSize: 25, color: "#FFCA5D" }}></Icon>
+              <Icon as={Ionicons} name="notifications-outline" style={{ fontSize: 25, color: "#FFCA5D" }} />
               {/* <Image
                 resizeMode={"contain"}
                 tintColor={"#FFCA5D"}
@@ -341,7 +346,9 @@ const HomeScreen = ({ navigation }) => {
               >
                 Reports and
               </Text>
-              <Text style={[{ alignSelf: "center", fontSize: 12, color: "#000E1E" }, styles.TextStyles]}>Documents</Text>
+              <Text style={[{ alignSelf: "center", fontSize: 12, color: "#000E1E" }, styles.TextStyles]}>
+                Documents
+              </Text>
             </View>
           </TouchableOpacity>
         </View>

@@ -1,16 +1,38 @@
+/* eslint-disable no-use-before-define */
+import {
+  Icon,
+  CircleIcon,
+  Center,
+  Spinner,
+  Button,
+  Select,
+  Stack,
+  Text,
+  Heading,
+  CheckIcon,
+  Box,
+  FlatList,
+  ChevronDownIcon,
+  HStack,
+  VStack,
+  Divider,
+} from "native-base";
+import moment from "moment";
 import React, { useState } from "react";
-import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity, Image } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet, View, ActivityIndicator, TouchableOpacity, Image } from "react-native";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Icon } from "native-base";
-import { auth } from "../utils/nhost";
 
 import { gql, useQuery } from "@apollo/client";
 import PTRView from "react-native-pull-to-refresh";
+import { auth } from "../utils/nhost";
 
 const GET_CALLOUT = gql`
-  query GetCallout($callout_by_email: String!) {
-    callout(where: {callout_by_email: {_eq: $callout_by_email}}) {
+  query GetCallout($callout_by_email: String!, $today: date = "") {
+    callout(
+      where: { callout_by_email: { _eq: $callout_by_email }, schedule: { date_on_calendar: { _gte: $today } } }
+      order_by: { schedule: { date_on_calendar: asc } }
+    ) {
       job_type
       id
       urgency_level
@@ -20,16 +42,16 @@ const GET_CALLOUT = gql`
       picture4
       status
       description
-      schedulers(order_by: {date_on_calendar: desc}) {
-        date_on_calendar
-        time_on_calendar
-        id
-      }
       property {
         address
         city
         community
         country
+      }
+      schedule {
+        date_on_calendar
+        time_on_calendar
+        id
       }
     }
   }
@@ -40,9 +62,9 @@ const OngoingCallout = (props) => {
   const { loading, data, error } = useQuery(GET_CALLOUT, {
     variables: {
       callout_by_email: email,
+      today: moment().format("YYYY-MM-DD"),
     },
   });
-
   const passItem = (item) => {
     props.navigation.navigate("OngoingcalloutItem", {
       it: item,
@@ -51,7 +73,6 @@ const OngoingCallout = (props) => {
 
   return (
     <View style={styles.container}>
-      <Text style={{ paddingTop: 5 }}> </Text>
       {!data?.callout ? (
         <Text
           style={[
@@ -72,75 +93,11 @@ const OngoingCallout = (props) => {
             <ActivityIndicator size="large" color="#FFCA5D" />
           ) : (
             <FlatList
+              px={8}
+              pt={8}
+              bg="amber.100"
               data={data?.callout}
-              renderItem={({ item }) => (
-                <View>
-                  <TouchableOpacity onPress={() => passItem(item)}>
-                    <View style={styles.Card}>
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Text style={[styles.TextFam, { fontSize: 15, fontWeight: "bold" }]}>
-                          Job Type: {item?.job_type}{" "}
-                        </Text>
-                        <Icon
-                          as={<Ionicons name="flag-sharp" />}
-                          name="flag"
-                          style={{
-                            fontSize: 24,
-                            color: "#FFCA5D",
-                          }}
-                        ></Icon>
-                      </View>
-
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          justifyContent: "space-between",
-                          flex: 1,
-                          paddingBottom: "5%",
-                          alignItems: "center",
-                        }}
-                      >
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Image
-                            source={require("../../assets/Home/linehis.png")}
-                            style={{ height: 20, width: 20 }}
-                          ></Image>
-                          <View style={{ flexDirection: "column" }}>
-                            <Text style={[styles.TextFam, { fontSize: 10 }]}>
-                              Schedule ID :{item?.schedulers[0]?.id}
-                            </Text>
-                          </View>
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: "column",
-                            paddingRight: "5%",
-                            alignItems: "flex-end",
-                          }}
-                        >
-                          <Text style={[styles.TextFam, { fontSize: 9, color: "#aaa" }]}>
-                            Date: {item?.schedulers[0]?.date_on_calendar}
-                          </Text>
-                          <Text style={[styles.TextFam, { fontSize: 9, color: "#aaa" }]}>
-                            Time: {item?.schedulers[0]?.time_on_calendar}
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                  <Text> </Text>
-                </View>
-              )}
+              renderItem={({ item }) => <Item item={item} passItem={passItem} />}
               keyExtractor={(item, index) => index.toString()}
             />
           )}
@@ -175,7 +132,7 @@ const styles = StyleSheet.create({
     shadowColor: "rgba(0,0,0, .4)", // IOS
     shadowOffset: { height: 1, width: 1 }, // IOS
     shadowOpacity: 1, // IOS
-    shadowRadius: 1, //IOS
+    shadowRadius: 1, // IOS
     elevation: 3, // Android
     width: "90%",
     paddingHorizontal: "5%",
@@ -190,3 +147,93 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica",
   },
 });
+
+const colors = {
+  Waiting: "rose.600",
+  "In Progress": "amber.600",
+};
+const Item = ({ item, passItem }) => {
+  const color = item?.urgency_level === "High" ? "rose.600" : "amber.600";
+  const statusColor = colors[item?.status] ? colors[item?.status] : "lightBlue.600";
+  return (
+    <Box bg="white" shadow={1} rounded="lg" mb={4}>
+      <Stack space={2.5} p={4}>
+        <HStack alignItems="center">
+          <CircleIcon size={4} mr={0.5} color={color} />
+          <Text color={color} mr={2} fontSize="xs">
+            {item.urgency_level}
+          </Text>
+          <CircleIcon size={4} mr={0.5} color={statusColor} />
+          <Text color={statusColor} fontSize="xs">
+            {item.status}
+          </Text>
+          <Text color="black" ml="auto" fontSize="xs">
+            {item.id}
+          </Text>
+        </HStack>
+
+        <Heading color="black" size="md" noOfLines={2}>
+          {item.job_type}
+        </Heading>
+        {item?.client?.full_name && (
+          <HStack>
+            <Text mr={1} color="black" fontSize="sm">
+              Reported by
+            </Text>
+            <Text color="amber.800" bold fontSize="sm">
+              {item?.client?.full_name}
+            </Text>
+          </HStack>
+        )}
+        <HStack>
+          <Text mr={1} color="black" fontSize="sm">
+            Assigned to
+          </Text>
+          <Text color="indigo.800" bold fontSize="sm">
+            {item?.job_worker?.[0]?.worker?.full_name}
+          </Text>
+        </HStack>
+        <VStack>
+          <Text mr={1} color="black" fontSize="sm">
+            On Property
+          </Text>
+          <Text color="cyan.800" fontSize="sm">
+            {item?.property?.address}, {item?.property?.city}
+          </Text>
+        </VStack>
+
+        {item?.description && (
+          <Text lineHeight={[5, 5, 7]} noOfLines={[4, 4, 2]} color="gray.700">
+            {item.description}
+          </Text>
+        )}
+        <Divider bg="gray.200" />
+        <VStack space={2}>
+          <Text color="black" fontSize="sm">
+            Scheduled at
+          </Text>
+          {item?.schedule?.date_on_calendar && (
+            <HStack space={2} alignItems="center">
+              <AntDesign name="calendar" size={18} />
+              <Text color="black" fontSize="sm">
+                {moment(item.schedule?.date_on_calendar).format("Do MMMM, YYYY")}
+              </Text>
+            </HStack>
+          )}
+          {item?.schedule?.time_on_calendar && (
+            <HStack space={2} alignItems="center">
+              <AntDesign name="clockcircle" size={18} />
+              <Text color="black" fontSize="sm">
+                {moment(`2013-02-08T${item.schedule?.time_on_calendar}`).format("hh:mm A")}
+              </Text>
+            </HStack>
+          )}
+        </VStack>
+
+        <Button onPress={() => passItem(item)} width={100} py={2} ml="auto" bg="lightBlue.200" size="xs">
+          View Callout
+        </Button>
+      </Stack>
+    </Box>
+  );
+};

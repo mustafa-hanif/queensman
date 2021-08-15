@@ -202,7 +202,7 @@ const HomeScreenStackNavigator = () => {
   return (
     <HomeScreenStack.Navigator>
       <HomeScreenStack.Screen options={{ headerShown: false }} name="HomeNaviagtor" component={HomeScreen} />
-      <HomeScreenStack.Screen name="Notification" component={Notification} />
+      <HomeScreenStack.Screen options={{ title: "Notifications" }} name="Notification" component={Notification} />
       <HomeScreenStack.Screen name="VideoScreen" component={VideoScreen} />
       <HomeScreenStack.Screen
         name="RequestCallOut"
@@ -224,7 +224,11 @@ const HomeScreenStackNavigator = () => {
         name="SelectSchedule"
         component={SelectSchedule}
       />
-      <HomeScreenStack.Screen name="OngoingcalloutItem" component={OngoingCalloutItem} />
+      <HomeScreenStack.Screen
+        options={{ title: "Scheduled Callout" }}
+        name="OngoingcalloutItem"
+        component={OngoingCalloutItem}
+      />
       <HomeScreenStack.Screen name="CalloutHistoryItem" component={CallOutHistoryItem} />
       <HomeScreenStack.Screen options={{ title: "Reports" }} name="CalloutReportItem" component={GenerateReport} />
       <HomeScreenStack.Screen name="MonthlyStatsReport" component={MonthlyStatsReport} />
@@ -449,7 +453,7 @@ const AppDrawerNavigator = () => {
       <AppDrawer.Screen name="ContactUs" component={ContactUs} />
       <AppDrawer.Screen name="Settings" component={SettingStackNavigator} /> */}
       <AppDrawer.Screen name="Property Details" component={HomeScreenStackNavigator} />
-      <AppDrawer.Screen name="Contac tUs" component={HomeScreenStackNavigator} />
+      <AppDrawer.Screen name="Contact Us" component={HomeScreenStackNavigator} />
       <AppDrawer.Screen name="Settings" component={HomeScreenStackNavigator} />
     </AppDrawer.Navigator>
   );

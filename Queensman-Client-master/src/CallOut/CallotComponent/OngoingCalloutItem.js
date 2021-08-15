@@ -1,185 +1,58 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable eqeqeq */
+/* eslint-disable no-nested-ternary */
+import {
+  Icon,
+  View,
+  CircleIcon,
+  Center,
+  Image,
+  Spinner,
+  Button,
+  Select,
+  Stack,
+  Text,
+  Heading,
+  CheckIcon,
+  Box,
+  Modal,
+  FlatList,
+  ChevronDownIcon,
+  HStack,
+  VStack,
+  Divider,
+  Pressable,
+} from "native-base";
+import moment from "moment";
 import React, { useState } from "react";
-import { StyleSheet, Modal, Text, View, Image, TouchableOpacity } from "react-native";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Box, VStack, HStack, Icon } from "native-base";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function OngoingCalloutItem(props) {
-  console.log(props.route.params.it)
-    const [state, setState] = useState({
-      OngoingCallOutData: props.route.params.it,
-      link: "photos/0690da3e-9c38-4a3f-ba45-8971697bd925.jpg",
-      selectedPic: "",
-      isPicvisible: false, //veiw image app kay lia
-    })
+  console.log(props.route.params.it);
+  const [state, setState] = useState({
+    OngoingCallOutData: props.route.params.it,
+    link: "photos/0690da3e-9c38-4a3f-ba45-8971697bd925.jpg",
+    selectedPic: "",
+    isPicvisible: false, // veiw image app kay lia
+  });
   const toggleGalleryEventModal = (value) => {
     setState({ ...state, isPicvisible: !state.isPicvisible, selectedPic: value });
   };
 
-    return (
-      <View style={styles.container}>
-        {/* background gradinet   */}
-        <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle}></LinearGradient>
-        <View style={styles.Card}>
-          <Box contentContainerStyle={{ paddingTop: "6%" }}>
-            <VStack>
-              <View style={{ alignSelf: "center" }}>
-                <Text style={[styles.TextFam, { fontSize: 17, fontWeight: "bold" }]}>
-                  {state.OngoingCallOutData?.property?.address}
-                </Text>
-                <Text style={[styles.TextFam, { fontSize: 10, color: "#aaa" }]}>
-                  {state.OngoingCallOutData?.property?.community},
-                  {state.OngoingCallOutData?.property?.city},
-                  {state.OngoingCallOutData?.property?.country}
-                </Text>
-              </View>
-              <HStack>
-                    <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Callout ID: </Text>
-                    <Text style={styles.TextFam, { color: "#8c8c8c" }}>{state.OngoingCallOutData?.id}</Text>
-              </HStack>
+  return (
+    <Box pt={4} bg="amber.100" height="100%">
+      {/* background gradinet   */}
+      <Item item={state.OngoingCallOutData} toggleGalleryEventModal={toggleGalleryEventModal} />
 
-              <HStack >
-                    <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Urgency Level</Text>
-
-                  <View style={{ flexDirection: "row", alignItems: "center", alignSelf: "flex-end", alignItems: "center" }}>
-                    <Text style={styles.TextFam}>{state.OngoingCallOutData?.property?.urgency_level} </Text>
-                    <Icon
-                      as={<Ionicons name="flag-sharp" />}
-                      name="flag"
-                      style={{
-                        fontSize: 24,
-                        color:
-                          state.OngoingCallOutData?.property?.urgency_level == "High"
-                            ? "red"
-                            : state.OngoingCallOutData?.property?.urgency_level == "Medium"
-                            ? "#aaa"
-                            : "#FFCA5D",
-                            alignItems: "center"
-                      }}
-                    ></Icon>
-                  </View>
-              </HStack>
-              <HStack>
-                    <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Request Time: </Text>
-                  <Text style={[styles.TextFam, { alignSelf: "flex-end" }]}>
-                    {state.OngoingCallOutData?.property?.request_time}
-                  </Text>
-              </HStack>
-              {state.OngoingCallOutData?.property?.status == "Planned" ? (
-                <HStack>
-                      <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Planned Time: </Text>
-                    <Text style={[styles.TextFam, { alignSelf: "flex-end" }]}>
-                      {state.OngoingCallOutData?.property?.planned_time}
-                    </Text>
-                </HStack>
-              ) : null}
-              <HStack>
-                    <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Status: </Text>
-                  <Text style={[styles.TextFam, { alignSelf: "flex-end" }]}>
-                    {state.OngoingCallOutData?.status}
-                  </Text>
-              </HStack>
-              <HStack>
-                  <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Description: </Text>
-                  <Text style={styles.TextFam}>{state.OngoingCallOutData?.description}</Text>
-              </HStack>
-              <HStack >
-                <VStack>
-                  <Text style={[styles.TextFam, { color: "#8c8c8c" }]}>Pictures</Text>
-                  <Text> </Text>
-                  {state.OngoingCallOutData?.picture1 ? 
-                    <TouchableOpacity
-                    onPress={() =>
-                      toggleGalleryEventModal(state.OngoingCallOutData?.picture1)
-                    }
-                  >
-                    <Image
-                      style={styles.ImageStyle}
-                      source={{
-                        uri: state.OngoingCallOutData?.picture1,
-                      }}
-                      resizeMode="contain"
-                   />
-                  </TouchableOpacity>
-                  : <Text>No Picture</Text>}
-                  
-                    <Text> </Text>
-                    {state.OngoingCallOutData?.picture2 ? 
-                    <TouchableOpacity
-                    onPress={() =>
-                      toggleGalleryEventModal(state.OngoingCallOutData?.picture2)
-                    }
-                  >
-                    <Image
-                      style={styles.ImageStyle}
-                      source={{
-                        uri: state.OngoingCallOutData?.picture2,
-                      }}
-                      resizeMode="contain"
-                   />
-                  </TouchableOpacity>
-                  : <Text>No Picture</Text>}
-                    <Text> </Text>
-                  <View style={{ height: "1%" }}></View>
-                  {state.OngoingCallOutData?.picture3 ? 
-                    <TouchableOpacity
-                    onPress={() =>
-                      toggleGalleryEventModal(state.OngoingCallOutData?.picture3)
-                    }
-                  >
-                    <Image
-                      style={styles.ImageStyle}
-                      source={{
-                        uri: state.OngoingCallOutData?.picture3,
-                      }}
-                      resizeMode="contain"
-                   />
-                  </TouchableOpacity>
-                  : <Text>No Picture</Text>}
-                    <Text> </Text>
-                    {state.OngoingCallOutData?.picture4 ? 
-                    <TouchableOpacity
-                    onPress={() =>
-                      toggleGalleryEventModal(state.OngoingCallOutData?.picture4)
-                    }
-                  >
-                    <Image
-                      style={styles.ImageStyle}
-                      source={{
-                        uri: state.OngoingCallOutData?.picture4,
-                      }}
-                      resizeMode="contain"
-                   />
-                  </TouchableOpacity>
-                  : <Text>No Picture</Text>}
-                    <Text> </Text>
-                </VStack>
-              </HStack>
-            </VStack>
-          </Box>
-        </View>
-
-        <Modal
-          visible={state.isPicvisible}
-          onSwipeComplete={() => setState({...state, isPicvisible: false })}
-          swipeDirection={["left", "right", "down"]}
-          onBackdropPress={() => setState({...state, isPicvisible: false })}
-        >
-          <View style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}>
-            <Image
-              style={{ width: "80%", height: "80%", alignSelf: "center" }}
-              source={{ uri: state.selectedPic }}
-            />
-            <Text> </Text>
-            <TouchableOpacity onPress={() => setState({...state, isPicvisible: false })}>
-              <View style={styles.ButtonSty}>
-                <Text style={{ fontWeight: "bold", color: "#ffff", fontSize: 15 }}>Close</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </Modal>
-      </View>
-    );
+      <Modal isOpen={state.isPicvisible} onClose={() => setState({ ...state, isPicvisible: false })}>
+        <Modal.Content p={4}>
+          <Image size="2xl" mx="auto" source={{ uri: state.selectedPic }} alt="Alt" />
+        </Modal.Content>
+      </Modal>
+    </Box>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -199,7 +72,7 @@ const styles = StyleSheet.create({
     shadowColor: "rgba(0,0,0, .4)", // IOS
     shadowOffset: { height: 1, width: 1 }, // IOS
     shadowOpacity: 1, // IOS
-    shadowRadius: 1, //IOS
+    shadowRadius: 1, // IOS
     elevation: 1, // Android
     width: "85%",
     height: "80%",
@@ -217,7 +90,7 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica",
   },
   GalleryEventModel: {
-    //backgroundColor: '',
+    // backgroundColor: '',
     padding: 22,
     //   backgroundColor: '#65061B',
     justifyContent: "space-around",
@@ -237,3 +110,116 @@ const styles = StyleSheet.create({
     paddingVertical: "3%",
   },
 });
+
+const colors = {
+  Waiting: "rose.600",
+  "In Progress": "amber.600",
+};
+const Item = ({ item, toggleGalleryEventModal }) => {
+  const color = item?.urgency_level === "High" ? "rose.600" : "amber.600";
+  const statusColor = colors[item?.status] ? colors[item?.status] : "lightBlue.600";
+  return (
+    <Box bg="white">
+      <Stack space={2.5} p={4}>
+        <HStack alignItems="center">
+          <CircleIcon size={4} mr={0.5} color={color} />
+          <Text color={color} mr={2} fontSize="xs">
+            {item.urgency_level}
+          </Text>
+          <CircleIcon size={4} mr={0.5} color={statusColor} />
+          <Text color={statusColor} fontSize="xs">
+            {item.status}
+          </Text>
+          <Text color="black" ml="auto" fontSize="xs">
+            {item.id}
+          </Text>
+        </HStack>
+
+        <Heading color="black" size="md" noOfLines={2}>
+          {item.job_type}
+        </Heading>
+        {item?.client?.full_name && (
+          <HStack>
+            <Text mr={1} color="black" fontSize="sm">
+              Reported by
+            </Text>
+            <Text color="amber.800" bold fontSize="sm">
+              {item?.client?.full_name}
+            </Text>
+          </HStack>
+        )}
+        <HStack>
+          <Text mr={1} color="black" fontSize="sm">
+            Assigned to
+          </Text>
+          <Text color="indigo.800" bold fontSize="sm">
+            {item?.job_worker?.[0]?.worker?.full_name}
+          </Text>
+        </HStack>
+        <VStack>
+          <Text mr={1} color="black" fontSize="sm">
+            On Property
+          </Text>
+          <Text color="cyan.800" fontSize="sm">
+            {item?.property?.address}, {item?.property?.city}
+          </Text>
+        </VStack>
+
+        {item?.description && (
+          <Text lineHeight={[5, 5, 7]} noOfLines={[4, 4, 2]} color="gray.700">
+            {item.description}
+          </Text>
+        )}
+        <Divider bg="gray.200" />
+        <VStack space={2}>
+          <Text color="black" fontSize="sm">
+            Scheduled at
+          </Text>
+          {item?.schedule?.date_on_calendar && (
+            <HStack space={2} alignItems="center">
+              <AntDesign name="calendar" size={18} />
+              <Text color="black" fontSize="sm">
+                {moment(item.schedule?.date_on_calendar).format("Do MMMM, YYYY")}
+              </Text>
+            </HStack>
+          )}
+          {item?.schedule?.time_on_calendar && (
+            <HStack space={2} alignItems="center">
+              <AntDesign name="clockcircle" size={18} />
+              <Text color="black" fontSize="sm">
+                {moment(`2013-02-08T${item.schedule?.time_on_calendar}`).format("hh:mm A")}
+              </Text>
+            </HStack>
+          )}
+        </VStack>
+        <Divider bg="gray.200" />
+        <VStack space={2}>
+          <Text fontSize="lg" color="black">
+            Pictures
+          </Text>
+          <HStack>
+            {Array(4)
+              .fill()
+              .map((_, i) => {
+                const uri = item[`picture${i + 1}`];
+                return (
+                  uri && (
+                    <Pressable onPress={() => toggleGalleryEventModal(uri)}>
+                      <Image
+                        key={uri}
+                        source={{
+                          uri,
+                        }}
+                        size="xl"
+                        alt="Alt"
+                      />
+                    </Pressable>
+                  )
+                );
+              })}
+          </HStack>
+        </VStack>
+      </Stack>
+    </Box>
+  );
+};

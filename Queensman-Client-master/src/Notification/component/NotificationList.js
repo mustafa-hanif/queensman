@@ -1,12 +1,14 @@
+/* eslint-disable no-console */
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-shadow */
 /* eslint-disable no-use-before-define */
 import { formatDistance } from "date-fns";
 import React from "react";
-import { Icon, IconButton } from "native-base";
+import { Box, Text, FlatList, HStack, VStack, Button, Icon, IconButton, Divider } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 import call from "react-native-phone-call";
-import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from "react-native";
+import { View, StyleSheet, ViewStyle, TouchableOpacity } from "react-native";
 import FlashMessage, { showMessage } from "react-native-flash-message";
 import { gql, useMutation } from "@apollo/client";
 
@@ -73,59 +75,121 @@ export default function NotificationList({
       },
     });
   };
-
+  console.log(item);
   return (
     <>
       <FlashMessage position="top" />
       {!item?.isRead && (
-        <TouchableOpacity onLongPress={() => markAsRead(item.id)}>
-          <View style={styles.container}>
-            <View style={[styles.row, viewStyle]}>
-              <View style={{ flex: 2 }}>
-                <Text style={[[styles.text, textStyle, { fontWeight: "bold" }]]} numberOfLines={3}>
-                  {item.text}
-                </Text>
-              </View>
-              <View style={[styles.time, dotStyle]}>
-                <Text style={[styles.timeText, textStyle]} numberOfLines={2}>
-                  {`${formatDistance(new Date(), new Date(item.created_at), { includeSeconds: true })} ago`}
-                </Text>
-                {item?.data?.type === "call" && (
-                  <Icon
-                    name="call"
-                    as={Ionicons}
-                    style={{ fontSize: 25, color: "blue", paddingRight: "4%" }}
-                    onPress={() => {
-                      call({ number: item.data.phone, prompt: true });
-                    }}
-                  />
+        <VStack space={3} p={4} bg="white">
+          <Text color="black">{item.text}</Text>
+          {item?.data?.callout_id && (
+            <VStack space={3}>
+              <Box>
+                {item?.data.type === "client_confirm" && (
+                  <VStack space={2}>
+                    <HStack space={2}>
+                      <Text color="amber.900">Do you confirm?</Text>
+                      <Button
+                        size="xs"
+                        onPress={() => {
+                          onConfirmPress(item);
+                        }}
+                      >
+                        Yes
+                      </Button>
+                    </HStack>
+                    <HStack space={2}>
+                      <Text color="amber.900">Do you want to reschedule?</Text>
+                      <Button
+                        size="xs"
+                        onPress={() => {
+                          onNoButtonPress(item);
+                        }}
+                      >
+                        Yes
+                      </Button>
+                    </HStack>
+                  </VStack>
                 )}
-              </View>
-            </View>
-            {item?.data.type === "client_confirm" && (
-              <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 10 }}>
-                <Text>Do you confirm?</Text>
-                <TouchableOpacity
-                  onPress={() => {
-                    onConfirmPress && onConfirmPress(item);
-                  }}
-                  style={styles.buttonstyle}
-                >
-                  <Text style={styles.buttonstyle}>Yes</Text>
-                </TouchableOpacity>
-                <Text>Do you want to reschedule?</Text>
-                <TouchableOpacity
-                  onPress={() => {
-                    onNoButtonPress && onNoButtonPress(item);
-                  }}
-                  style={styles.buttonstyle}
-                >
-                  <Text style={styles.buttonstyle}>Yes</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        </TouchableOpacity>
+              </Box>
+              <Button
+                onPress={() =>
+                  viewCallout({
+                    variables: {
+                      id: item?.data?.callout_id,
+                    },
+                  })
+                }
+                size="xs"
+                height={6}
+                width={100}
+                rounded="sm"
+                bg="amber.300"
+              >
+                <Text color="black" fontSize="xs">
+                  View Callout
+                </Text>
+              </Button>
+              <Text color="black" fontSize="xs">{`${formatDistance(new Date(), new Date(item.created_at), {
+                includeSeconds: true,
+              })} ago`}</Text>
+            </VStack>
+          )}
+          <Button rounded="sm" onPress={() => markAsRead(item.id)} size="xs" width={100} ml="auto" bg="lightBlue.50">
+            <Text color="lightBlue.600" fontSize="xxs">
+              Mark as read
+            </Text>
+          </Button>
+          <Divider />
+        </VStack>
+        // <TouchableOpacity onLongPress={() => markAsRead(item.id)}>
+        //   <View style={styles.container}>
+        //     <View style={[styles.row, viewStyle]}>
+        //       <View style={{ flex: 2 }}>
+        //         <Text style={[[styles.text, textStyle, { fontWeight: "bold" }]]} numberOfLines={3}>
+        //           {item.text}
+        //         </Text>
+        //       </View>
+        //       <View style={[styles.time, dotStyle]}>
+        //         <Text style={[styles.timeText, textStyle]} numberOfLines={2}>
+        //           {`${formatDistance(new Date(), new Date(item.created_at), { includeSeconds: true })} ago`}
+        //         </Text>
+        //         {item?.data?.type === "call" && (
+        //           <Icon
+        //             name="call"
+        //             as={Ionicons}
+        //             style={{ fontSize: 25, color: "blue", paddingRight: "4%" }}
+        //             onPress={() => {
+        //               call({ number: item.data.phone, prompt: true });
+        //             }}
+        //           />
+        //         )}
+        //       </View>
+        //     </View>
+        //     {item?.data.type === "client_confirm" && (
+        //       <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 10 }}>
+        //         <Text>Do you confirm?</Text>
+        //         <TouchableOpacity
+        //           onPress={() => {
+        //             onConfirmPress && onConfirmPress(item);
+        //           }}
+        //           style={styles.buttonstyle}
+        //         >
+        //           <Text style={styles.buttonstyle}>Yes</Text>
+        //         </TouchableOpacity>
+        //         <Text>Do you want to reschedule?</Text>
+        //         <TouchableOpacity
+        //           onPress={() => {
+        //             onNoButtonPress && onNoButtonPress(item);
+        //           }}
+        //           style={styles.buttonstyle}
+        //         >
+        //           <Text style={styles.buttonstyle}>Yes</Text>
+        //         </TouchableOpacity>
+        //       </View>
+        //     )}
+        //   </View>
+        // </TouchableOpacity>
       )}
       {/* {isPop && (
         <View style={styles.popUp}>

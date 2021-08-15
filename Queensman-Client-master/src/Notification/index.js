@@ -77,23 +77,18 @@ export default function Index(props) {
     <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
       {data?.notifications == undefined || loading ? (
         <>
-          <Text style={{ textAlign: "center", marginVertical: 20, fontSize: 20, fontWeight: "bold" }}>Loading</Text>
+          <Text style={{ textAlign: "center", marginVertical: 20, fontSize: 14, fontWeight: "bold" }}>Loading</Text>
           <ActivityIndicator size="large" color="#FFCA5D" />
         </>
       ) : (
         <View>
           {notifications.length >= 1 && !loading ? (
-            <Text style={{ textAlign: "center", marginTop: 20, fontSize: 20 }}>
-              You have <Text style={{ color: "red", fontWeight: "bold" }}>{unReadNotif} unread</Text> notifications
+            <Text style={{ textAlign: "right", marginTop: 20, marginRight: 8, marginBottom: 8, fontSize: 14 }}>
+              <Text style={{ fontWeight: "bold" }}>{unReadNotif} unread</Text> notifications
             </Text>
           ) : (
-            <Text style={{ textAlign: "center", marginTop: 20, fontSize: 20 }}>
-              You have no new Notification. Pull down to refresh
-            </Text>
-          )}
-          {notifications.length >= 1 && (
-            <Text style={{ fontSize: 15, textAlign: "center", marginBottom: 20 }}>
-              Long press the notification to mark as read
+            <Text style={{ textAlign: "center", marginTop: 20, fontSize: 14 }}>
+              no new Notification. Pull down to refresh
             </Text>
           )}
           <View>
