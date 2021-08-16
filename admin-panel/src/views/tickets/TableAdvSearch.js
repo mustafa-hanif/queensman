@@ -324,9 +324,9 @@ const DataTableAdvSearch = () => {
               <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
                 <Trash size={15} />
               </Button>
-              <Button color='primary' className="btn-icon" size="sm">
+              {/* <Button color='primary' className="btn-icon" size="sm">
                 <Edit size={15} onClick={() => handleModal(row)} />
-              </Button>
+              </Button> */}
             </ButtonGroup>
 
           </div>
@@ -633,13 +633,13 @@ const DataTableAdvSearch = () => {
       <Card>
 
         <CardHeader className='border-bottom'>
-          <CardTitle tag='h4'>Advance Search</CardTitle>
-          <div className='d-flex mt-md-0 mt-1'>
+          <CardTitle tag='h4'>Ticket Search</CardTitle>
+          {/* <div className='d-flex mt-md-0 mt-1'>
             <Button className='ml-2' color='primary' onClick={addJobTicketRecord}>
               <Plus size={15} />
               <span className='align-middle ml-50'>Add Record</span>
             </Button>
-          </div>
+          </div> */}
         </CardHeader>
 
         <CardBody>

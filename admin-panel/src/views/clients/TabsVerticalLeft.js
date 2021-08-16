@@ -1,5 +1,6 @@
 /* eslint-disable no-use-before-define */
 import { useState } from "react"
+import moment from "moment"
 import AppCollapse from "@components/app-collapse"
 import {
   TabContent,
@@ -23,7 +24,7 @@ const TabsVerticalLeft = ({ item }) => {
     }
   }
 
-  const RowContent = ({ data: prop }) => (
+  const RowContent = ({ data: prop, lease }) => (
     <div>
       <div className="meetup-header d-flex align-items-center">
         <h5 className="mb-1">Address: </h5>
@@ -37,6 +38,14 @@ const TabsVerticalLeft = ({ item }) => {
         <h5 className="mb-1">City: </h5>
         <h6 className="mb-1 ml-1">{prop.property.city}</h6>
       </div>
+      {lease &&  <div><div className="meetup-header d-flex align-items-center">
+        <h5 className="mb-1">Start Date: </h5>
+        <h6 className="mb-1 ml-1">{moment(prop.lease_start).format('MMMM Do YYYY, h:mm:ss a')}</h6>
+      </div>
+      <div className="meetup-header d-flex align-items-center">
+      <h5 className="mb-1">End Date: </h5>
+      <h6 className="mb-1 ml-1">{moment(prop.lease_end).format('MMMM Do YYYY, h:mm:ss a')}</h6>
+    </div></div>}
     </div>
   )
 
@@ -57,6 +66,19 @@ const TabsVerticalLeft = ({ item }) => {
       }
     ]
 
+    const lease = item.leases
+    const lease_count = lease.length
+    const lease_modified =
+      lease_count !== 0 ? lease.map((prop, i) => ({
+        title: `Property id: ${prop.property.id} Adddress: ${prop.property.address}`,
+        content: <RowContent data={prop} count={lease.length} lease={true} />
+      })) : [
+        {
+          title: `No data Available`,
+          content: <div></div>
+        }
+      ]
+      console.log(lease_modified)
   const ItemValue = ({ item, itemKey }) => (
     <ListGroupItem>
       <span style={{ fontWeight: "bold" }}>
@@ -105,7 +127,7 @@ const TabsVerticalLeft = ({ item }) => {
           <h5>Client Details</h5>
           <ListGroup flush>
             {item && Object.keys(item).map((itemKey) => {
-              if (!["documents", "property_owneds", "hasPlan"].includes(itemKey)) {
+              if (!["documents", "property_owneds", "hasPlan", "leases"].includes(itemKey)) {
                 return (
                   <ItemValue item={item} itemKey={itemKey} />
                 )
@@ -117,18 +139,11 @@ const TabsVerticalLeft = ({ item }) => {
         </TabPane>
         <TabPane tabId="2">
           <h1>Owned Properties</h1>
-          <div className="expandable-content px-2 pt-3">
-            {/* <Col lg="3">
-        {prop_count > 0 && <StatsHorizontal icon={<Home size={21} />} color='primary' stats={prop_count} statTitle='Properties' />}
-        </Col> */}
-            {/* <Card className='col col-5 mb-0 pb-2'> */}
             <CollapseDefault data={property_owneds_modified} />
-            {/* </Card> */}
-          </div>
         </TabPane>
         <TabPane tabId="3">
           <h1>Leased Properties</h1>
-          <p>No owned property(s) found.</p>
+          <CollapseDefault data={lease_modified} />
         </TabPane>
       </TabContent>
     </div>

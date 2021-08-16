@@ -540,7 +540,7 @@ const TabsVerticalLeft = ({item, allProperty}) => {
           
         </Row> 
         {/* admin role */}
-        </div> : userName === "ffakhri@queensman.com" ? <div className="mr-2"> 
+        </div> : userName === "opsmanager@queensman.com" ? <div className="mr-2"> 
         <Row>
           <Col md="2">
           <div>Status</div>
@@ -613,7 +613,7 @@ const TabsVerticalLeft = ({item, allProperty}) => {
           </Col>
         </Row>
         {/* Super Admin Role */}
-        </div> : userName === "salmanhanif133@gmail.com" ? <div className="mr-2"> 
+        </div> : userName === "opscord@queensman.com" ? <div className="mr-2"> 
         <Row>
           <Col md="2">
           <div>Status</div>
@@ -703,7 +703,8 @@ const TabsVerticalLeft = ({item, allProperty}) => {
         >
           <ModalHeader toggle={() => setDeclineModal(!declineModal)}>Warning</ModalHeader>
           <ModalBody>
-            Declining it will remove decline abc
+            Declining it will set the status to unapproved. 
+            User will have to upload the report again.
           </ModalBody>
           <ModalFooter>
             <Button color="warning" onClick={() => decline("decline")}>

@@ -80,7 +80,7 @@ import TabsVerticalLeft from "./TabsVerticalLeft"
 
 const GET_INVENTORY = gql`
 query GetInventory {
-  inventory_report {
+  inventory_report(order_by: {id: desc}) {
     id
     property_id
     ops_team_id
@@ -582,13 +582,13 @@ const DataTableAdvSearch = () => {
     <Fragment>
       <Card>
         <CardHeader className="border-bottom">
-          <CardTitle tag="h4">Advance Search</CardTitle>
-          <div className="d-flex mt-md-0 mt-1">
+          <CardTitle tag="h4">Inventory Search</CardTitle>
+          {/* <div className="d-flex mt-md-0 mt-1">
             <Button className="ml-2" color="primary" onClick={addClientRecord}>
               <Plus size={15} />
               <span className="align-middle ml-50">Add Record</span>
             </Button>
-          </div>
+          </div> */}
         </CardHeader>
         <CardBody>
           <Row form className="mt-1 mb-50">
@@ -720,6 +720,11 @@ const DataTableAdvSearch = () => {
           <ModalBody>
             <TabsVerticalLeft item={modalDetails} allProperty={allProperty} />
           </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={() => setDetailsModal(!detailsModal)}>
+              Close
+            </Button>
+          </ModalFooter>
         </Modal>
       </div>
     </Fragment>
