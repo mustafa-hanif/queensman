@@ -377,7 +377,7 @@ const HomeScreen = ({ navigation }) => {
         <Heading mx="auto" size="sm">
           Upcoming Service
         </Heading>
-        { (data && data.length > 0) ? <CalloutItem item={data.callout[0]} toggleGalleryEventModal={() => {}} /> : <Text textAlign="center">No service</Text>}
+        { data?.callout?.length > 0 ? <CalloutItem item={data.callout[0]} toggleGalleryEventModal={() => {}} /> : <Text textAlign="center">No service</Text>}
         <Divider />
         <Text pb={8} alignItems="flex-end" fontSize="xs" textAlign="center">
           All rights reserved © 2021 - Queensman

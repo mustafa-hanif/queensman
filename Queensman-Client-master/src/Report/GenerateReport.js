@@ -220,8 +220,8 @@ const MANAG_REPORT = gql`
 `;
 
 const INVENTORY_REPORT = gql`
-query MyQuery($_eq: Int!) {
-  inventory_report(where: {property_id: {_eq: $_eq}}) {
+query MyQuery($_eq: String!) {
+  inventory_report(where: {property: {property_owneds: {client: {email: {_eq: $_eq}}}}}) {
     id
     approved
     inventory_report_pdfs {
@@ -239,7 +239,6 @@ query MyQuery($_eq: Int!) {
     }
   }
 }
-
 `;
 
 const MARKET_REPORT = gql`
@@ -277,7 +276,7 @@ const MyFlatList2 = ({ property_ID, value, Reporthandle }) => {
         )
       case 1:
         return (
-          <VStack >
+          <VStack>
             <HStack space={1} alignItems="center"><Text color="#2a9d3d" fontSize="xs">Awaiting for report to be uploaded</Text>
             <Icon
             as={Ionicons}
@@ -326,13 +325,15 @@ const MyFlatList2 = ({ property_ID, value, Reporthandle }) => {
   }
 
   let ModelData = [];
+  const user = auth?.currentSession?.session?.user;
+  const email = user?.email;
   const {
     loading: invReportLoading,
     data: inventoryReport,
     error: invError,
   } = useQuery(INVENTORY_REPORT, {
-    variables: { _eq: property_ID },
-    skip: !property_ID,
+    variables: { _eq: email },
+    skip: !email,
   });
   ModelData = inventoryReport?.inventory_report
   if (invReportLoading) {
@@ -342,7 +343,7 @@ const MyFlatList2 = ({ property_ID, value, Reporthandle }) => {
     return <Text>{invError}</Text>;
   }
   if (ModelData?.length === 0) {
-    return <Text>There are no reports for this property</Text>;
+    return <Text>There are no inventory reports for this property</Text>;
   }
   return (
     <>
@@ -353,7 +354,7 @@ const MyFlatList2 = ({ property_ID, value, Reporthandle }) => {
       pr={6}
       renderItem={({ item }) => (
         <View >
-          <Text>Property:</Text>
+          <Text>Property ID: {item?.property?.id}</Text>
           <Text paddingBottom={1}>{item?.property?.country}, {item?.property?.city}, {item?.property?.community}</Text>
           {item?.approved !=3 ? <TimeLine status={item?.approved} /> : 
         <Button mb={2} onPress={() => openInventory(item?.inventory_report_pdfs?.[0].report_location)}>
