@@ -1,7 +1,7 @@
 var plan_email = require('../templates/plan_email').plan_email;
 var sendEmail = require('./sendEmail').sendEmail;
 
-const planEmail = async (planArray) => {
+const planEmail = async (planArray, moment) => {
     console.log(planArray)
   const params = {
     Destination: { /* required */
@@ -15,14 +15,14 @@ const planEmail = async (planArray) => {
       Body: { /* required */
         Html: {
           Charset: 'UTF-8',
-          Data: plan_email(planArray)
+          Data: plan_email(planArray, moment)
         // Data: `Hello view this please <a href="${fileLink}" target="_blank">Inventory Report</a>`
         },
       },
       Subject: {
         Charset: 'UTF-8',
         // Data: `[UAT] New Callout ${callout.id} Created by ${callout.client_callout_email.full_name}`
-        Data: "Hello from queensman"
+        Data: "[UAT] Scheduled Services"
       }
     },
     Source: 'services@queensman.com', /* required */

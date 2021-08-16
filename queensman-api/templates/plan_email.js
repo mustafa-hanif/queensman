@@ -1,4 +1,4 @@
-const plan_email = (planArray) => {
+const plan_email = (planArray, moment) => {
     return `<!DOCTYPE html>
     <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
     
@@ -92,21 +92,20 @@ const plan_email = (planArray) => {
                       <table style="font-family: ''Roboto Condensed'',Arial,sans-serif; width: 100%;" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                         <tr>
                           <td class="sm-px-24" style="--bg-opacity: 1; background-color: #ffffff; background-color: rgba(255, 255, 255, 1); border-radius: 4px; font-family: 'Roboto Condensed', -apple-system, 'Segoe UI', sans-serif; font-size: 16px; line-height: 24px; padding: 48px; text-align: left; --text-opacity: 1; color: #000; color: rgba(0, 0, 0, var(--text-opacity));" bgcolor="rgba(255, 255, 255, 1)" align="left">
-                            <p style="font-weight: 700; font-size: 20px; margin-top: 0; --text-opacity: 1; color: #ff5850;">Hello</p>
-                            <p>${planArray.map(plan => (
-                                `<p>
+                            <p style="font-weight: 700; font-size: 20px; margin-top: 0; --text-opacity: 1; color: #ff5850;">Your plan</p>
+                            <p>${planArray.map((plan,i) => (
+                                `<p> Plan ${(i+1)}
                                 <p style="font-weight: 700;">Email: <span style="font-weight: 100">${plan.email}</span></p>
-                                <p style="font-weight: 700;">Start Date: <span style="font-weight: 100">${plan.date_on_calendar}</span></p>
-                                <p style="font-weight: 700;">End Date: <span style="font-weight: 100">${plan.end_date_on_calendar}</span></p>
-                                <p style="font-weight: 700;">Start Time: <span style="font-weight: 100">${plan.time_on_calendar}</span></p>
-                                <p style="font-weight: 700;">End Time: <span style="font-weight: 100">${plan.end_time_on_calendar}</span></p>
+                                <p style="font-weight: 700;">Start Date: <span style="font-weight: 100">${moment(plan.date_on_calendar).format('MMMM Do YYYY')}</span></p>
+                                <p style="font-weight: 700;">End Date: <span style="font-weight: 100">${moment(plan.end_date_on_calendar).format('MMMM Do YYYY')}</span></p>
+                                <p style="font-weight: 700;">Start Time: <span style="font-weight: 100">${moment(plan.time_on_calendar, "HH:mm:ss").format('h:mm a')}</span></p>
+                                <p style="font-weight: 700;">End Time: <span style="font-weight: 100">${moment(plan.end_time_on_calendar, "HH:mm:ss").format('h:mm a')}</span></p>
                                 </p>`
                             ))}
                             </p>
-                            <p style="font-weight: 700;">Please view your file here: </p>
                             
                             <p style="margin: 0 0 24px;">
-                              Please download the Queensman Spades App from apple store or play store, and sign in with your email address provided on the signed contract.</p><p>You can now submit your callouts through the app and view scheduled services.</p><p>Thank you for being part of Queensman Spades family.</p>
+                              Please download the Queensman Spades App from apple store or play store, and sign in with your email address provided on the signed contract.</p>
                             <a href=""><img src="https://backend-8106d23e.nhost.app/storage/o/public/google-play-badge.png" width="180"/></a>
                             
                             <table style="font-family: ''Roboto Condensed'',Arial,sans-serif; width: 100%;" width="100%" cellpadding="0" cellspacing="0" role="presentation">
