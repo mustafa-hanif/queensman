@@ -10,7 +10,7 @@ import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
 import { ExpandableTable } from './ExpandableTable'
 import { toast } from 'react-toastify'
-import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check } from 'react-feather'
+import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check, Info } from 'react-feather'
 import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 
 // ** Toast Component
@@ -46,6 +46,7 @@ import Badge from 'reactstrap/lib/Badge'
 const GET_CLIENT_PROPS = gql`
 query GetClient {
   client {
+    id
     email
     full_name
     password
@@ -72,22 +73,36 @@ query GetClient {
 `
 
 const UPDATE_PROPS = gql`
-mutation UpdateProperty($_eq: Int = 10, $address: String = "", $city: String = "", $community: String = "", $country: String = "") {
-  update_property(where: {id: {_eq: $_eq}}, _set: {address: $address, city: $city, community: $community, country: $country}) {
+mutation UpdateProperty($id: Int!, $address: String!, $city: String!, $community: String!, $country: String!) {
+  update_property(where: {id: {_eq: $id}}, _set: {address: $address, city: $city, community: $community, country: $country}) {
     affected_rows
   }
 }
 
 `
 const ADD_PROPS = gql`
-mutation AddProperty($community: String = "", $country: String = "", $city: String = "") {
-  insert_property_one(object: {community: $community, country: $country, city: $city}) {
+mutation AddProperty($community: String!, $country: String!, $city: String!, $address: String!, $type: String = null, $comments: String = null, $uploaded_by: Int = 10000002, $active: smallint = 1) {
+  insert_property_one(object: {community: $community, country: $country, city: $city, address: $address, type: $type, comments: $comments, active: $active, uploaded_by: $uploaded_by}) {
     id
   }
 }
-
 `
 
+const ADD_PROP_OWNED = gql`
+mutation AddPropertyOwned($property_id: Int!, $owner_id: Int!, $uploaded_by: Int = 10000002, $active: smallint = 1) {
+  insert_property_owned_one(object: {property_id: $property_id, owner_id: $owner_id, uploaded_by: $uploaded_by, active: $active}) {
+    id
+  }
+}
+`
+
+const ADD_LEASE = gql`
+mutation AddLease($property_id: Int, $lease_id: Int, $lease_start: timestamp!, $lease_end: timestamp!, $uploaded_by: Int = 10000002, $active: smallint = 1) {
+  insert_lease_one(object: {property_id: $property_id, lease_id: $lease_id, lease_start: $lease_start, lease_end: $lease_end, uploaded_by: $uploaded_by, active: $active}) {
+    id
+  }
+}
+`
 const DELETE_PROPS = gql`mutation DeleteProperty($id: Int = 10) {
   delete_property_by_pk(id: $id) {
     id
@@ -99,9 +114,11 @@ const DataTableAdvSearch = () => {
 
         // ** States
   const { loading, data, error } = useQuery(GET_CLIENT_PROPS)
-  const [updateProp, {loading: workerLoading}] = useMutation(UPDATE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [addProp, {loading: addWorkerLoading}] = useMutation(ADD_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [deleteProp, {loading: deleteWorkerLoading}] = useMutation(DELETE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [updateProp, {loading: propertyLoading}] = useMutation(UPDATE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [addProp, {loading: addPropertyLoading}] = useMutation(ADD_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [addPropOwned, {loading: addPropertyOwnedLoading}] = useMutation(ADD_PROP_OWNED, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [addLease, {loading: addLeaseLoading}] = useMutation(ADD_LEASE, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [deleteProp, {loading: deletePropertyLoading}] = useMutation(DELETE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState('')
   const [searchEmail, setSearchEmail] = useState('')
@@ -233,39 +250,23 @@ const advSearchColumns = [
   }
 
   const handleUpdate = (updatedRow) => {
-    const emergencyId = data?.worker.filter(value => value.isEmergency === true)[0].id
     updateProp({variables: {
-        active: updatedRow.active,
-        email: updatedRow.email,
-        full_name: updatedRow.full_name,
         id: updatedRow.id,
-        isEmergency: updatedRow.isEmergency,
-        team_id: updatedRow.team_id,
-        role: updatedRow.role,
-        phone: updatedRow.phone,
-        color_code: updatedRow.color_code,
-        password: updatedRow.password,
-        emergencyId
+        city: updatedRow.city,
+        community: updatedRow.community,
+        address: updatedRow.address,
+        country: updatedRow.country
         }})
       dataToRender()
-      if (!workerLoading) {
-          
-        setModal(!modal)
+      if (!propertyLoading) {
+        // setModal(!modal)
       }
   }
 
   const addWorkerRecord = () => {
     setToAddNewRecord(true)
     setRow({
-        active: 1,
-        email: "",
-        full_name: "",
-        isEmergency: false,
-        team_id: null,
-        role: null,
-        phone: "",
-        color_code: null,
-        password: ""
+        active: 1
     })
     setTimeout(() => {
       setModal(!modal) 
@@ -273,22 +274,48 @@ const advSearchColumns = [
   }
 
 
-  const handleAddRecord = (newRow) => {
-    addProp({variables: {
-        active: newRow.active,
-        email: newRow.email,
-        full_name: newRow.full_name,
-        isEmergency: newRow.isEmergency,
-        team_id: newRow.team_id,
-        role: newRow.role,
-        phone: newRow.phone,
-        color_code: newRow.color_code,
-        password: newRow.password
+  const handleAddRecord = async (newRow, clientOwnedArray, clientLeasedArray, lease_start, lease_end) => {
+    console.log(newRow, clientOwnedArray, clientLeasedArray)
+    try {
+      const res = await addProp({variables: {
+        community: newRow.community,
+        country: newRow.country,
+        city: newRow.city,
+        address: newRow.address
       }})
+      for (let i = 0; i < clientOwnedArray.length; i++) {
+        const owner_id = clientOwnedArray[i].value
+        const res2 = await addPropOwned({variables: {
+          property_id: res.data.insert_property_one.id,
+          owner_id
+        }})
+        console.log(res2.data.insert_property_owned_one.id)
+      }
+      
+      if (clientLeasedArray.length > 0) {
+        for (let i = 0; i < clientOwnedArray.length; i++) {
+          const lease_id = clientOwnedArray[i].value
+          const res3 = await addLease({variables: {
+            property_id: res.data.insert_property_one.id,
+            lease_id,
+            lease_start,
+            lease_end
+          }})
+          console.log(res3.data.insert_lease_one.id)
+        }
+      }
       dataToRender()
-      if (!addWorkerLoading) {
+      if (!addPropertyLoading) {
         setModal(!modal)
       }
+    } catch (error) {
+      console.log(error)
+      return toast.error(<ToastComponent title='Error' color='danger' icon={<Info />} />, {
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    }
   }
 
   const handleDeleteRecord = (id) => {
@@ -390,7 +417,7 @@ const advSearchColumns = [
     <Fragment>
       <Card>
         <CardHeader className='border-bottom'>
-          <CardTitle tag='h4'>Advance Search</CardTitle>
+          <CardTitle tag='h4'>Search Properties</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
             <Button className='ml-2' color='primary' onClick={addWorkerRecord}>
               <Plus size={15} />
@@ -432,7 +459,7 @@ const advSearchColumns = [
           paginationComponent={CustomPagination}
           data={dataToRender()}
           expandableRows
-          expandableRowsComponent={<ExpandableTable data={dataToRender()} openModalAlert={openModalAlert} />}
+          expandableRowsComponent={<ExpandableTable data={dataToRender()} openModalAlert={openModalAlert} handleUpdate={handleUpdate} />}
           expandOnRowClicked
           // selectableRowsComponent={BootstrapCheckbox}
         /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Worker information</h4>}
@@ -440,6 +467,7 @@ const advSearchColumns = [
       </Card>
       <AddNewModal 
       open={modal} 
+      data={data?.client}
       handleModal={handleModal} 
       handleAddRecord={handleAddRecord} 
       toAddNewRecord={toAddNewRecord} 

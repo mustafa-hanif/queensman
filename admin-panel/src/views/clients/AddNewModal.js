@@ -19,7 +19,8 @@ import {
   Input,
   Label,
   Row,
-  Col
+  Col,
+  ModalFooter
 } from 'reactstrap'
 
 import { selectThemeColors } from '@utils'
@@ -32,6 +33,10 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
 
   const [contract_start_date, set_contract_start_date] = useState(new Date())
   const [contract_end_date, set_contract_end_date] = useState(new Date())
+  const [modal, setModal] = useState(false)
+  const [newPassword, setNewPassword] = useState(null)
+  const [confirmPassword, setConfirmPassword] = useState(null)
+  const [oldPassword, setoldPassword] = useState(null)
   const options = [
     {value: '1', label: 'Active'},
     {value: '0', label: 'Unactive'}
@@ -43,14 +48,23 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
     {value: 'None', label: 'None'}
   ]
   
-  
-  // ** Custom close btn
-  const CloseBtn = <X className='cursor-pointer' size={15} onClick={closeModal} />   
 
   const handleChange = (e) => {
       const rowValue = {...row}
       rowValue[e.target.name] = e.target.value
       setRow(rowValue)
+  }
+
+  const changePassword = (e) => {
+    if (!newPassword) {
+      return alert("Password cannot be empty")
+    }
+    if (newPassword !== confirmPassword) {
+      return alert("Passwords dont match")
+    }
+    setoldPassword(row?.password)
+    setModal(!modal)
+    handleChange(e)
   }
 
   const handleSelectedChange = (e, name) => {
@@ -59,19 +73,31 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
     setRow(rowValue)
 }
 
+  // ** Function to handle Modal toggle
+  const openModal = () => {
+      setModal(!modal)
+  }
+
+  const toggleModal = () => {
+   setModal(!modal)
+  }
+
   const onSubmit = () => {
     // setRow(row)
     if (toAddNewRecord) {
       handleAddRecord(row)
     } else {
-      handleUpdate(row)
+      handleUpdate(row, confirmPassword, oldPassword)
     }
     setRow(null)
+    setNewPassword(null)
+    setConfirmPassword(null)
   }
 
   const { register, errors, handleSubmit } = useForm()
 
   return (
+    <div>
     <Modal
       isOpen={open}
       toggle={handleModal}
@@ -79,7 +105,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
       // modalClassName='modal-slide-in'
       contentClassName='pt-0'
     >
-      <ModalHeader className='mb-3' toggle={handleModal} close={CloseBtn} tag='div'>
+      <ModalHeader className='mb-3' toggle={handleModal} tag='div'>
         <h5 className='modal-title'>{toAddNewRecord ? 'New Record' : 'Update Record'}</h5>
       </ModalHeader>
       <ModalBody className='flex-grow-1'>
@@ -91,7 +117,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
         <InputGroup>
           <InputGroupAddon addonType='prepend'>
           </InputGroupAddon>
-          <Input id='id' placeholder='id' name="id" value={row?.id} disabled />
+          <Input id='ID' placeholder='id' name="id" value={row?.id} disabled />
         </InputGroup>
       </FormGroup>
       </Col>
@@ -127,7 +153,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
       </Row>
       {/* Second Row */}
       <Row>
-        <Col>
+        <Col sm="8">
         <FormGroup>
         <Label for='email'>Email</Label>
           <InputGroup>
@@ -143,7 +169,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
           </InputGroup>
         </FormGroup>
         </Col>
-        <Col>
+        <Col sm="4">
         <FormGroup>
         <Label for='sec_email'>Secondary Email</Label>
           <InputGroup>
@@ -156,7 +182,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
           </InputGroup>
         </FormGroup>
         </Col>
-        <Col>
+        {/* <Col>
         <FormGroup>
         <Label for='gender'>Gender</Label>
         <InputGroup>
@@ -170,11 +196,11 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
            invalid={errors.gender && true}/>
         </InputGroup>
       </FormGroup> 
-        </Col>
+        </Col> */}
       </Row>
       {/* Third 3rd Row */}
       <Row>
-        <Col>
+        <Col sm="8">
         <FormGroup>
         <Label for='phone'>Phone</Label>
         <InputGroup>
@@ -189,7 +215,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
         </InputGroup>
       </FormGroup> 
         </Col>
-        <Col>
+        <Col sm="4">
         <FormGroup>
         <Label for='sec_phone'>Secondary Phone</Label>
           <InputGroup>
@@ -201,14 +227,12 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
             <Input id='sec_phone' placeholder='Secondary Phone' name="sec_phone" type="number" value={row?.sec_phone} onChange={handleChange}/>
           </InputGroup>
         </FormGroup>
-        </Col>
-        <Col>
-        </Col>
+        </Col>        
       </Row>
       {/* Fourth 4th Row */}
       <Row>
         <Col>
-        <FormGroup>
+        {/* <FormGroup>
         <Label for='occupation'>Occupation</Label>
           <InputGroup>
             <InputGroupAddon addonType='prepend'>
@@ -218,10 +242,10 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
             </InputGroupAddon>
             <Input id='occupation' placeholder='Occupation' name="occupation" value={row?.occupation} onChange={handleChange}/>
           </InputGroup>
-        </FormGroup>
+        </FormGroup> */}
         </Col>
         <Col>
-        <FormGroup>
+        {/* <FormGroup>
         <Label for='organization'>Organization</Label>
           <InputGroup>
             <InputGroupAddon addonType='prepend'>
@@ -231,10 +255,10 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
             </InputGroupAddon>
             <Input id='organization' placeholder='Organization' name="organization" value={row?.organization} onChange={handleChange}/>
           </InputGroup>
-        </FormGroup>
+        </FormGroup> */}
         </Col>
         <Col>
-        <FormGroup>
+        {/* <FormGroup>
         <Label for='age_range'>Age Range</Label>
           <InputGroup>
             <InputGroupAddon addonType='prepend'>
@@ -244,13 +268,13 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
             </InputGroupAddon>
             <Input id='age_range' placeholder='Age Range' name="age_range" value={row?.age_range} onChange={handleChange}/>
           </InputGroup>
-        </FormGroup>
+        </FormGroup> */}
         </Col>
       </Row>
       {/* Fifth 5th row */}
       <Row>
         <Col>
-        <FormGroup>
+        {/* <FormGroup>
         <Label for='family_size'>Family Size</Label>
           <InputGroup>
             <InputGroupAddon addonType='prepend'>
@@ -260,10 +284,10 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
             </InputGroupAddon>
             <Input id='family_size' placeholder='Family Size' name="family_size" value={row?.family_size} onChange={handleChange}/>
           </InputGroup>
-        </FormGroup>
+        </FormGroup> */}
         </Col>
         <Col>
-        <FormGroup>
+        {/* <FormGroup>
         <Label for='ages_of_children'>Ages of children</Label>
           <InputGroup>
             <InputGroupAddon addonType='prepend'>
@@ -273,10 +297,10 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
             </InputGroupAddon>
             <Input id='ages_of_children' placeholder='Ages of children' name="ages_of_children" value={row?.ages_of_children} onChange={handleChange}/>
           </InputGroup>
-        </FormGroup>
+        </FormGroup> */}
         </Col>
         <Col>
-        <FormGroup>
+        {/* <FormGroup>
         <Label for='earning_bracket'>Earning Bracket</Label>
           <InputGroup>
             <InputGroupAddon addonType='prepend'>
@@ -286,13 +310,13 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
             </InputGroupAddon>
             <Input id='earning_bracket' placeholder='Earning Bracket' name="earning_bracket" value={row?.earning_bracket} onChange={handleChange}/>
           </InputGroup>
-        </FormGroup>
+        </FormGroup> */}
         </Col>
       </Row>
      {/* Sixth 6th row */}
      <Row>
         <Col>
-        <FormGroup>
+        {/* <FormGroup>
         <Label for='nationality'>Nationality</Label>
           <InputGroup>
             <InputGroupAddon addonType='prepend'>
@@ -302,10 +326,10 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
             </InputGroupAddon>
             <Input id='nationality' placeholder='Nationality' name="nationality" value={row?.nationality} onChange={handleChange}/>
           </InputGroup>
-        </FormGroup>
+        </FormGroup> */}
         </Col>
         <Col>
-        <FormGroup>
+        {/* <FormGroup>
         <Label for='years_expatriate'>Years Expatriate</Label>
           <InputGroup>
             <InputGroupAddon addonType='prepend'>
@@ -315,10 +339,10 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
             </InputGroupAddon>
             <Input id='years_expatriate' placeholder='Years Expriate' name="years_expatriate" value={row?.years_expatriate} onChange={handleChange}/>
           </InputGroup>
-        </FormGroup>
+        </FormGroup> */}
         </Col>
         <Col>
-        <FormGroup>
+        {/* <FormGroup>
         <Label for='years_native'>Years Native</Label>
           <InputGroup>
             <InputGroupAddon addonType='prepend'>
@@ -328,7 +352,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
             </InputGroupAddon>
             <Input id='years_native' placeholder='Years Native' name="years_native" value={row?.earning_bracket} onChange={handleChange}/>
           </InputGroup>
-        </FormGroup>
+        </FormGroup> */}
         </Col>
       </Row>
       {/* Seventh 7th row */}
@@ -347,7 +371,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
         </FormGroup>
         </Col>
         <Col>
-        <FormGroup>
+        {/* <FormGroup>
         <Label for='other_properties'>Other Properties</Label>
           <InputGroup>
             <InputGroupAddon addonType='prepend'>
@@ -357,7 +381,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
             </InputGroupAddon>
             <Input id='other_properties' placeholder='Other Properties' name="other_properties" value={row?.other_properties} onChange={handleChange}/>
           </InputGroup>
-        </FormGroup>
+        </FormGroup> */}
         </Col>
         <Col>
         </Col>
@@ -438,7 +462,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
       </Row> 
       <Row>
         <Col>
-        <FormGroup>
+        {toAddNewRecord ? <FormGroup>
         <Label for='password'>Password</Label>
         <InputGroup>
           <InputGroupAddon addonType='prepend'>
@@ -451,7 +475,18 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
           invalid={errors.password && true}
           />
         </InputGroup>
-      </FormGroup>
+      </FormGroup> :  <FormGroup>
+        <Label for='password'>Password</Label>
+        <InputGroup>
+          <InputGroupAddon addonType='prepend'>
+            <InputGroupText>
+              <Lock size={15} />
+            </InputGroupText>
+          </InputGroupAddon>
+          <Input id='password' placeholder='Password' name="password" value={row?.password} onChange={handleChange} />
+        </InputGroup><Button color='info' outline className="mt-1" onClick={() => openModal(row?.password)}>Change Password</Button>
+      </FormGroup>}
+       
         </Col>
         <Col>
         </Col>
@@ -473,16 +508,75 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
                 innerRef={register({ required: true })}
                 invalid={errors.active && true}
                 />
-      </FormGroup>     
+      </FormGroup>    
+      <div className="row justify-content-center">
       <Button className='mr-1' color='primary' type="submit" >
         {toAddNewRecord ? 'Submit' : 'Update'}
       </Button>
       <Button color='secondary' onClick={closeModal} outline>
         Cancel
       </Button>
+      </div> 
       </Form>
     </ModalBody>
     </Modal>
+    <div className="theme-modal-info">
+        <Modal
+          isOpen={modal}
+          toggle={toggleModal}
+          className="modal-dialog-centered"
+          modalClassName="modal-info"
+        >
+          <ModalHeader toggle={toggleModal}>Change Password</ModalHeader>
+          <ModalBody>
+        <Row>
+          <Col>
+        <FormGroup>
+        <Label for='password'>Set New Password</Label>
+        <InputGroup>
+          <InputGroupAddon addonType='prepend'>
+            <InputGroupText>
+              <Lock size={15} />
+            </InputGroupText>
+          </InputGroupAddon>
+          <Input id='newPassword' placeholder='New Passowrd' name="newPassword" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+        </InputGroup>
+      </FormGroup>
+      </Col>
+      </Row> 
+      <Row>
+      <Col>
+        <FormGroup>
+        <Label for='password'>Confirm Password</Label>
+        <InputGroup>
+          <InputGroupAddon addonType='prepend'>
+            <InputGroupText>
+              <Lock size={15} />
+            </InputGroupText>
+          </InputGroupAddon>
+          <Input id='confirmPassword' placeholder='Confirm Password' name="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+        </InputGroup>
+      </FormGroup>
+      </Col>
+      </Row>   
+      </ModalBody>
+          <ModalFooter>
+            <Button
+              color="info"
+              onClick={() => {
+                const e = {target: {value: confirmPassword, name: "password"}}
+                changePassword(e)
+              }}
+            >
+              Save
+            </Button>
+            <Button color="secondary" onClick={toggleModal} outline>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
+      </div>
+    </div>
   )
 }
 

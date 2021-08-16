@@ -2,6 +2,7 @@
 /* eslint-disable no-unused-vars */
 'use strict';
 const planEmail = require('../lib/planEmail').planEmail;
+const moment = require('moment');
 
 const sendPlanEmail = async (event) => {
   const query = JSON.parse(event.body)
@@ -9,7 +10,7 @@ const sendPlanEmail = async (event) => {
   console.log(event)
   // const fileLink = "abc.html"
   // Send Email
-  await planEmail(planArray);
+  await planEmail(planArray, moment);
   // console.log(data);
   try {
     return {

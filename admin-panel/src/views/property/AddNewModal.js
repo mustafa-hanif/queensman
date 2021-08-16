@@ -1,12 +1,16 @@
 // ** React Imports
-import { useState, useContext} from 'react'
+import { useState, useContext, Fragment} from 'react'
 
 // ** Third Party Components
+import { useForm } from 'react-hook-form'
 import { selectThemeColors } from '@utils'
+import Flatpickr from 'react-flatpickr'
+import { toast } from 'react-toastify'
+import Avatar from '@components/avatar'
 import { ThemeColors } from '@src/utility/context/ThemeColors'
 
 import Select from 'react-select'
-import { User, Briefcase, Mail, Lock, X, Info, Phone} from 'react-feather'
+import { User, Briefcase, Mail, Lock, X, Info, Phone, Calendar} from 'react-feather'
 import {
   Button,
   Modal,
@@ -17,17 +21,30 @@ import {
   InputGroupAddon,
   InputGroupText,
   Input,
-  Label
+  Label,
+  Form,
+  Row,
+  Col
 } from 'reactstrap'
 
 // ** Styles
 import '@styles/react/libs/flatpickr/flatpickr.scss'
+import { element } from 'prop-types'
 
-const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord}) => {
+const ToastComponent = ({ title, icon, color }) => (
+  <Fragment>
+    <div className='toastify-header pb-0'>
+      <div className='title-wrapper'>
+        <Avatar size='sm' color={color} icon={icon} />
+        <h6 className='toast-title'>{title}</h6>
+      </div>
+    </div>
+  </Fragment>
+)
 
-    // ** Custom close btn
-    // const { colors } = useContext(ThemeColors)
-  const CloseBtn = <X className='cursor-pointer' size={15} onClick={closeModal} />   
+const AddNewModal = ({ data, open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord}) => {
+
+  const clientOptions = data?.map(client => ({value: client.id, label: client.full_name}))
 
   const activeOptions = [
     { value: 1, label: 'Active'},
@@ -37,15 +54,6 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
   const emergencyOptions = [
     { value: true, label: 'Emergency'},
     { value: false, label: 'Not Urgent' }
-  ]
-
-  const colorOptions = [
-    {value: '34eb40', label: 'Green'},
-    {value: 'c21dd1', label: 'Purple'},
-    {value: 'ebcf34', label: 'Yellow'},
-    {value: '3440eb', label: 'Dark Blue'},
-    {value: 'd11d1d', label: 'Red'},
-    {value: 'info', label: 'Light Blue'}
   ]
 
   const handleChange = (e) => {
@@ -60,125 +68,297 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
     setRow(rowValue)
 }
 
-  const handleSubmit = () => {
+  const [clientOwnedArray, setclientOwnedArray] = useState([])
+  const [clientLeasedArray, setclientLeasedArray] = useState([])
+  const [lease_start_date, setLease_start_date] = useState(null)
+  const [lease_end_date, setLease_end_date] = useState(null)
+
+const onSubmit = () => {
+  // setRow(row)
+  const sameValue = clientOwnedArray.map(element => clientLeasedArray.some(element2 => element2.value === element.value))
+  console.log(sameValue)
+  if (clientOwnedArray.length === 0) {
+    return toast.error(<ToastComponent title='Client Owned cannot be empty' color='danger' icon={<Info />} />, {
+      autoClose: 2000,
+      hideProgressBar: true,
+      closeButton: false
+    })
+  } 
+  
+  if (sameValue[0]) {
+    return toast.error(<ToastComponent title='Owned and Leased client names cannot be same' color='danger' icon={<Info />} />, {
+      autoClose: 10000,
+      hideProgressBar: true,
+      closeButton: false
+    })
+  }
     if (toAddNewRecord) {
-      handleAddRecord(row)
+      handleAddRecord(row, clientOwnedArray, clientLeasedArray, lease_start_date, lease_end_date)
     } else {
       handleUpdate(row)
     }
     setRow(null)
-  }
+  
+  
+}
+
+const { register, errors, handleSubmit } = useForm()
 
 
   return (
     <Modal
       isOpen={open}
       toggle={handleModal}
-      className='sidebar-sm'
-      modalClassName='modal-slide-in'
+      className='modal-dialog-centered modal-xl'
       contentClassName='pt-0'
     >
-      <ModalHeader className='mb-3' toggle={handleModal} close={CloseBtn} tag='div'>
+      <ModalHeader className='mb-3' toggle={handleModal} tag='div'>
         <h5 className='modal-title'>{toAddNewRecord ? 'New Record' : 'Update Record'}</h5>
       </ModalHeader>
       <ModalBody className='flex-grow-1'>
+      <Form onSubmit={handleSubmit(onSubmit)}>
+        <Row>
+        <Col>
       <FormGroup>
-        <Label for='full-name'>Full Name</Label>
-        <InputGroup>
-          <InputGroupAddon addonType='prepend'>
-            <InputGroupText>
-              <User size={15} />
-            </InputGroupText>
-          </InputGroupAddon>
-          <Input id='full-name' placeholder='Bruce Wayne' name="full_name" value={row?.full_name} onChange={handleChange}/>
-        </InputGroup>
+        <Label for='id'>ID</Label>
+          <Input id='id' placeholder='ID' name="id" value={row?.id} disabled />
       </FormGroup>
+      </Col>
+      <Col>
       <FormGroup>
-        <Label for='email'>Email</Label>
-        <InputGroup>
-          <InputGroupAddon addonType='prepend'>
-            <InputGroupText>
-              <Mail size={15} />
-            </InputGroupText>
-          </InputGroupAddon>
-          <Input type='email' name="email" id='email' placeholder='brucewayne@email.com' value={row?.email} onChange={handleChange}/>
-        </InputGroup>
+        <Label for='country'>Country<span style={{color: "Red"}}> *</span></Label>
+          <Input id='country' placeholder='Enter Country here' name="country" value={row?.country} onChange={handleChange}   
+          innerRef={register({ required: true })}
+          invalid={errors.country && true}/>
       </FormGroup>
+      </Col>
+      <Col>
       <FormGroup>
-        <Label for='description'>Description</Label>
-        <InputGroup>
-          <InputGroupAddon addonType='prepend'>
-            <InputGroupText>
-              <Briefcase size={15} />
-            </InputGroupText>
-          </InputGroupAddon>
-          <Input id='description' placeholder='Web Developer' name="description" value={row?.description} onChange={handleChange}/>
-        </InputGroup>
-      </FormGroup>   
-      <FormGroup>
-        <Label for='phone'>Phone</Label>
-        <InputGroup>
-          <InputGroupAddon addonType='prepend'>
-            <InputGroupText>
-              <Phone size={15} />
-            </InputGroupText>
-          </InputGroupAddon>
-          <Input id='phone' placeholder='Phone' name="phone" value={row?.phone} onChange={handleChange}/>
-        </InputGroup>
+        <Label for='city'>City<span style={{color: "Red"}}> *</span></Label>
+          <Input id='city' placeholder='Enter City here' name="city" value={row?.city} onChange={handleChange}   
+          innerRef={register({ required: true })}
+          invalid={errors.city && true}/>
       </FormGroup>
+      </Col>
+      </Row>
+      {/* Second row */}
+      <Row>
+        <Col>
       <FormGroup>
-        <Label>Active</Label>
-            <Select
-                onChange={ (e) => handleSelectedChange(e, 'active')}
-                theme={selectThemeColors}
-                className='react-select'
-                classNamePrefix='select'
-                defaultValue={{value: row?.active, label: row?.active === 1 ? "Active" : "Not Active"}}
-                options={activeOptions}
-                isClearable={false}
+        <Label for='community'>Community<span style={{color: "Red"}}> *</span></Label>
+          <Input community='community' placeholder='Enter Community here' name="community" value={row?.community} onChange={handleChange}
+          innerRef={register({ required: true })}
+          invalid={errors.community && true}
+          />
+      </FormGroup>
+      </Col>
+      <Col>
+      <FormGroup>
+        <Label for='address'>Address<span style={{color: "Red"}}> *</span></Label>
+          <Input id='address' placeholder='Enter address here' name="address" value={row?.address} onChange={handleChange}   
+          innerRef={register({ required: true })}
+          invalid={errors.address && true}/>
+      </FormGroup>
+      </Col>
+      <Col>
+      <FormGroup>
+        <Label for='type'>Property Type</Label>
+          <Input id='type' placeholder='Enter property type here' name="type" value={row?.type} onChange={handleChange}   
+          innerRef={register({ required: false })}
+          invalid={errors.type && true}/>
+      </FormGroup>
+      </Col>
+      </Row>
+      {/* Third Row */}
+      <Row>
+        <Col>
+        <FormGroup>
+        <Label for='comments'>Comments</Label>
+          <Input id='comments' placeholder='Enter property comments here' name="comments" value={row?.comments} onChange={handleChange}   
+          innerRef={register({ required: false })}
+          invalid={errors.comments && true}/>
+      </FormGroup>
+      </Col>
+      <Col>
+      </Col>
+      <Col>
+      </Col>
+      </Row>
+      {/* Fourth row */}
+      <Row>
+      <Col sm="3">
+      <FormGroup>
+        <Label for='owned'>Property Owned</Label>
+          <Input id='owned' placeholder='Owned' name="owned" disabled />
+      </FormGroup>
+      </Col>
+      <Col sm="9">
+      <FormGroup>
+      <Label>Client Name<span style={{color: "Red"}}> *</span></Label>
+          <Select
+              isClearable={false}
+              theme={selectThemeColors}
+              defaultValue={clientOwnedArray}
+              isMulti
+              name='clientOwned'
+              onChange={(e) => setclientOwnedArray(e)}
+              options={clientOptions}
+              className='react-select'
+              classNamePrefix='select'
             />
       </FormGroup>
+      </Col>
+      </Row>
+      {/* Fifth Row */}
+      <Row>
+      <Col sm="3">
       <FormGroup>
-        <Label>Emergency</Label>
-            <Select
-                onChange={ (e) => handleSelectedChange(e, 'isEmergency')}
-                theme={selectThemeColors}
-                className='react-select'
-                classNamePrefix='select'
-                defaultValue={{value: row?.isEmergency, label: row?.isEmergency ? "Emergency" : "Not Urgent"}}
-                options={emergencyOptions}
-                isClearable={false}
+        <Label for='leased'>Property Leased</Label>
+          <Input id='leased' placeholder='Leased' name="leased" onChange={handleChange} disabled />
+      </FormGroup>
+      </Col>
+      <Col sm="9">
+      <FormGroup>
+      <Label>Client Name</Label>
+          <Select
+              isClearable={false}
+              theme={selectThemeColors}
+              defaultValue={clientLeasedArray}
+              isMulti
+              name='clientLeased'
+              onChange={(e) => setclientLeasedArray(e)}
+              options={clientOptions}
+              className='react-select'
+              classNamePrefix='select'
             />
       </FormGroup>
-      <FormGroup>
-        <Label>Team</Label>
-            <Select
-                onChange={ (e) => handleSelectedChange(e, 'color_code')}
-                theme={selectThemeColors}
-                className='react-select'
-                classNamePrefix='select'
-                defaultValue={{value: row?.color_code, label: row?.color_code ? "Blue" : "Green"}}
-                options={colorOptions}
-                isClearable={false}
-            />
-      </FormGroup>
-      <FormGroup>
-        <Label for='password'>Password</Label>
-        <InputGroup>
-          <InputGroupAddon addonType='prepend'>
-            <InputGroupText>
-              <Lock size={15} />
-            </InputGroupText>
-          </InputGroupAddon>
-          <Input id='password' placeholder='Password' name="password" value={row?.password} onChange={handleChange}/>
-        </InputGroup>
-      </FormGroup>     
-      <Button className='mr-1' color='primary' onClick={handleSubmit} >
+      </Col>
+      </Row>
+      {/* Sixth Row */}
+      {clientLeasedArray.length > 0 ? <Row>
+        <Col>
+        <FormGroup>
+        <Label for='lease_start_date'>Lease Start Date<span style={{color: "Red"}}> *</span></Label>
+          <InputGroup>
+            <InputGroupAddon addonType='prepend'>
+              <InputGroupText>
+                <Calendar size={15} />
+              </InputGroupText>
+            </InputGroupAddon>
+            <Flatpickr
+               required
+               id='lease_start_date'
+                //tag={Flatpickr}
+               name='lease_start_date'
+               className='form-control'
+               onChange={(date, dateStr, instance) => {
+                setLease_start_date(dateStr)
+                
+               }}
+               value={lease_start_date}
+               options={{
+                 dateFormat: 'Y-m-d'
+               }}
+               placeholder='Lease Start Date'
+             />
+            {/* <Input id='contract_start_date' placeholder='Contract Start Date' name="contract_start_date" value={row?.contract_start_date} onChange={handleChange}/> */}
+          </InputGroup>
+        </FormGroup>
+        </Col>
+        <Col>
+        <FormGroup>
+        <Label for='lease_end_date'>Lease End Date<span style={{color: "Red"}}> *</span></Label>
+          <InputGroup>
+            <InputGroupAddon addonType='prepend'>
+              <InputGroupText>
+                <Calendar size={15} />
+              </InputGroupText>
+            </InputGroupAddon>
+            <Flatpickr
+               required
+               id='lease_end_date'
+                //tag={Flatpickr}
+               name='lease_end_date'
+               className='form-control'
+               onChange={(date, dateStr, instance) => {
+                setLease_end_date(dateStr)
+               }}
+               value={lease_end_date}
+               options={{
+                 dateFormat: 'Y-m-d'
+               }}
+               placeholder='Contract End Date'
+             />
+            {/* <Input id='contract_end_date' placeholder='Contract End Date' name="contract_end_date" value={row?.contract_end_date} onChange={handleChange}/> */}
+          </InputGroup>
+        </FormGroup>
+        </Col>
+      </Row> : <Row>
+        <Col>
+        <FormGroup>
+        <Label for='lease_start_date'>Lease Start Date</Label>
+          <InputGroup>
+            <InputGroupAddon addonType='prepend'>
+              <InputGroupText>
+                <Calendar size={15} />
+              </InputGroupText>
+            </InputGroupAddon>
+            <Flatpickr
+               id='lease_start_date'
+                //tag={Flatpickr}
+               name='lease_start_date'
+               className='form-control'
+               onChange={(date, dateStr, instance) => {
+                setLease_start_date(dateStr)
+                
+               }}
+               value={lease_start_date}
+               options={{
+                 dateFormat: 'Y-m-d'
+               }}
+               placeholder='Lease Start Date'
+             />
+            {/* <Input id='contract_start_date' placeholder='Contract Start Date' name="contract_start_date" value={row?.contract_start_date} onChange={handleChange}/> */}
+          </InputGroup>
+        </FormGroup>
+        </Col>
+        <Col>
+        <FormGroup>
+        <Label for='lease_end_date'>Lease End Date</Label>
+          <InputGroup>
+            <InputGroupAddon addonType='prepend'>
+              <InputGroupText>
+                <Calendar size={15} />
+              </InputGroupText>
+            </InputGroupAddon>
+            <Flatpickr
+               id='lease_end_date'
+                //tag={Flatpickr}
+               name='lease_end_date'
+               className='form-control'
+               onChange={(date, dateStr, instance) => {
+                setLease_end_date(dateStr)
+               }}
+               value={lease_end_date}
+               options={{
+                 dateFormat: 'Y-m-d'
+               }}
+               placeholder='Contract End Date'
+             />
+            {/* <Input id='contract_end_date' placeholder='Contract End Date' name="contract_end_date" value={row?.contract_end_date} onChange={handleChange}/> */}
+          </InputGroup>
+        </FormGroup>
+        </Col>
+      </Row> }
+      <div className="row justify-content-center">
+      <Button className='mr-1' color='primary' type="submit" >
         {toAddNewRecord ? 'Submit' : 'Update'}
       </Button>
       <Button color='secondary' onClick={closeModal} outline>
         Cancel
       </Button>
+      </div> 
+      </Form>
     </ModalBody>
     </Modal>
   )

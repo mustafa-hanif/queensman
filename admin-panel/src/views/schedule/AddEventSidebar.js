@@ -82,16 +82,16 @@ query GetWorker {
 `
 
 const UPDATE_JOB_TICKET = gql`
-mutation UpdateJob($id: Int!, $name: String, $worker_id: Int!, $worker_email: String, $type: String, $description: String) {
-  update_job_tickets_by_pk(pk_columns: {id: $id}, _set: {name: $name, worker_id: $worker_id, worker_email: $worker_email, type: $type, description: $description}) {
+mutation UpdateJob($id: Int!, $name: String, $worker_id: Int!, $worker_email: String, $client_email: String, $type: String, $description: String) {
+  update_job_tickets_by_pk(pk_columns: {id: $id}, _set: {name: $name, worker_id: $worker_id, worker_email: $worker_email, client_email: $client_email, type: $type, description: $description}) {
     id
   }
 }
 `
 
 const ADD_JOB_TICKET = gql`
-mutation InsertJobTickets($name: String, $description: String, $pictures: _text, $type: String, $notes: jsonb, $callout_id: Int!, $scheduler_id: Int!, $worker_id: Int!, $worker_email: String!) {
-  insert_job_tickets(objects: {name: $name, description: $description, pictures: $pictures, type: $type, callout_id: $callout_id, notes: $notes, scheduler_id: $scheduler_id, worker_id: $worker_id, worker_email: $worker_email, status: "Open"}) {
+mutation InsertJobTickets($name: String, $description: String, $type: String,  $callout_id: Int!, $scheduler_id: Int!, $worker_id: Int!, $worker_email: String!, $client_email: String!) {
+  insert_job_tickets(objects: {name: $name, description: $description, type: $type, callout_id: $callout_id, scheduler_id: $scheduler_id, worker_id: $worker_id, worker_email: $worker_email, client_email: $client_email, status: "Open"}) {
     affected_rows
   }
 }
@@ -246,7 +246,7 @@ const AddEventSidebar = props => {
   }
 
   const handleJobAddEvent = () => {
-    setJobTickets([...jobTickets, {name: "", description: "", notes: [""], pictures: [""], type: "Select...", isSaved: false, newJob: true, worker: {full_name: workerName, id: workerId, email: workerEmail}}])
+    setJobTickets([...jobTickets, {name: "", description: "", type: "Select...", isSaved: false, newJob: true, worker: {full_name: workerName, id: workerId, email: workerEmail}}])
     
   }
 
@@ -391,13 +391,12 @@ const AddEventSidebar = props => {
           variables: {
             name: jobTicket.name,
             description: jobTicket.description,
-            pictures: "{}",
             type: jobTicket.type,
             callout_id: selectedEvent?.extendedProps?.callout_id,
-            notes: "{}",
             scheduler_id: parseInt(selectedEvent.id),
             worker_id: workerId,
-            worker_email: workerEmail
+            worker_email: workerEmail,
+            client_email: clientEmail
           }
         })
         const jobTicket2 = [...jobTickets]
@@ -415,7 +414,8 @@ const AddEventSidebar = props => {
       worker_id: workerId,
       worker_email: workerEmail,
       type: jobTicket.type,
-      description: jobTicket.description
+      description: jobTicket.description,
+      client_email: clientEmail
     }})
     toast.success(<ToastComponent title='Job Ticket Updated' color='success' icon={<Check />} />, {
       autoClose: 2000,
@@ -716,9 +716,8 @@ const AddEventSidebar = props => {
                value={startPicker}
                options={{
                 enableTime: true,
-                noCalendar: false,
-                dateFormat: 'H:i',
-                time_24hr: true
+                dateFormat: 'Y-m-d H:i',
+                time_24hr: false
                }}
              />
              </Fragment>

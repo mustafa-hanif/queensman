@@ -11,12 +11,12 @@ const sendWelcomeEmail = async (event) => {
       Destination: { /* required */
         CcAddresses: [
           'murtaza.hanif@techinoviq.com',
-        /* more items */
+          /* more items */
         ],
         ToAddresses: [
           'icemelt7@gmail.com',
           clientEmail
-        /* more items */
+          /* more items */
         ]
       },
       Message: { /* required */
@@ -31,10 +31,10 @@ const sendWelcomeEmail = async (event) => {
           Data: `${clientName.split(' ')[0]}, Welcome to Queensman Spades!`
         }
       },
-      Source: 'Gathra Nyahuma <gnyahuma@queensman.com>', /* required */
+      Source: 'Queensman info <services@queensman.com>', /* required */
       ReplyToAddresses: [
-        'gnyahuma@queensman.com',
-      /* more items */
+        'services@queensman.com',
+        /* more items */
       ],
     };
     await sendEmail(params);

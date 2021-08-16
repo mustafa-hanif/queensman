@@ -23,7 +23,8 @@ import {
   Edit3,
   Upload,
   Loader,
-  Check
+  Check,
+  XCircle
 } from "react-feather"
 import {
   Badge,
@@ -118,6 +119,15 @@ const GET_CLIENT = gql`
           id
         }
       }
+      leases {
+        property {
+          address
+          community
+          city
+          country
+          id
+        }
+      }
     }
   }
 `
@@ -127,23 +137,12 @@ const UPDATE_CLIENT = gql`
     $id: Int!
     $email: String
     $full_name: String
-    $gender: String
-    $occupation: String
-    $organization: String
     $phone: String
     $active: smallint
     $sec_email: String
     $sec_phone: String
     $account_type: String
-    $age_range: String
-    $family_size: Int
-    $ages_of_children: String
-    $earning_bracket: String
-    $nationality: String
-    $years_expatriate: Int
-    $years_native: Int
     $referred_by: Int
-    $other_properties: String
     $contract_start_date: date
     $contract_end_date: date
     $sign_up_time: timestamp
@@ -155,24 +154,13 @@ const UPDATE_CLIENT = gql`
         id: $id
         email: $email
         full_name: $full_name
-        gender: $gender
-        occupation: $occupation
-        organization: $organization
         phone: $phone
         password: $password
         active: $active
         sec_email: $sec_email
         sec_phone: $sec_phone
         account_type: $account_type
-        age_range: $age_range
-        family_size: $family_size
-        ages_of_children: $ages_of_children
-        earning_bracket: $earning_bracket
-        nationality: $nationality
-        years_expatriate: $years_expatriate
-        years_native: $years_native
         referred_by: $referred_by
-        other_properties: $other_properties
         contract_start_date: $contract_start_date
         contract_end_date: $contract_end_date
         sign_up_time: $sign_up_time
@@ -186,23 +174,12 @@ const ADD_CLIENT = gql`
   mutation AddClient(
     $email: String
     $full_name: String
-    $gender: String
-    $occupation: String
-    $organization: String
     $phone: String
     $active: smallint
     $sec_email: String
     $sec_phone: String
     $account_type: String
-    $age_range: String
-    $family_size: Int
-    $ages_of_children: String
-    $earning_bracket: String
-    $nationality: String
-    $years_expatriate: Int
-    $years_native: Int
     $referred_by: Int
-    $other_properties: String
     $contract_start_date: date
     $contract_end_date: date
     $password: String
@@ -211,24 +188,13 @@ const ADD_CLIENT = gql`
       object: {
         email: $email
         full_name: $full_name
-        gender: $gender
-        occupation: $occupation
-        organization: $organization
         phone: $phone
         password: $password
         active: $active
         sec_email: $sec_email
         sec_phone: $sec_phone
         account_type: $account_type
-        age_range: $age_range
-        family_size: $family_size
-        ages_of_children: $ages_of_children
-        earning_bracket: $earning_bracket
-        nationality: $nationality
-        years_expatriate: $years_expatriate
-        years_native: $years_native
         referred_by: $referred_by
-        other_properties: $other_properties
         contract_start_date: $contract_start_date
         contract_end_date: $contract_end_date
       }
@@ -450,18 +416,18 @@ const DataTableAdvSearch = () => {
         blocked: true
       }
       )
-      // await addPlan({
-      //   variables: {
-      //     property_id: row.property_owneds[0]?.property_id,
-      //     callout_by: row.id,
-      //     email: row.email,
-      //     date_on_calendar,
-      //     time_on_calendar,
-      //     end_time_on_calendar,
-      //     end_date_on_calendar,
-      //     blocked: true
-      //   }
-      // })
+      await addPlan({
+        variables: {
+          property_id: row.property_owneds[0]?.property_id,
+          callout_by: row.id,
+          email: row.email,
+          date_on_calendar,
+          time_on_calendar,
+          end_time_on_calendar,
+          end_date_on_calendar,
+          blocked: true
+        }
+      })
       month += 3
       day = "01"
     }
@@ -521,21 +487,21 @@ const DataTableAdvSearch = () => {
         email: `${row.email}`,
       });
 
-      // try {
-      //   const res = await axios.post(
-      //     "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/quarterlyTasks",
-      //     {
-      //       Subject: `Task Client ${date[1]}`,
-      //       Description: `Task Client ${date[1]}`,
-      //       Status: `Open`,
-      //       Due_Date: `${dateString}`,
-      //       email: `${row.email}`,
-      //     }
-      //   );
-      // } catch (e) {
-      //   console.log("ERROR");
-      //   console.log(e);
-      // }
+      try {
+        const res = await axios.post(
+          "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/quarterlyTasks",
+          {
+            Subject: `Task Client ${date[1]}`,
+            Description: `Task Client ${date[1]}`,
+            Status: `Open`,
+            Due_Date: `${dateString}`,
+            email: `${row.email}`,
+          }
+        );
+      } catch (e) {
+        console.log("ERROR");
+        console.log(e);
+      }
       month += 3;
     }
   };
@@ -733,54 +699,62 @@ const DataTableAdvSearch = () => {
     }
   };
 
-  const handleUpdate = (updatedRow) => {
+  const handleUpdate = async (updatedRow, newPassword, oldPassword) => {
     // auth.requestPasswordChange(updatedRow.email)
-    // console.log(updatedRow)
-    // updateClient({
-    //   variables: {
-    //     id: updatedRow.id,
-    //     email: updatedRow.email,
-    //     full_name: updatedRow.full_name,
-    //     gender: updatedRow.gender,
-    //     occupation: updatedRow.occupation,
-    //     organization: updatedRow.organization,
-    //     phone: updatedRow.phone,
-    //     password: updatedRow.password,
-    //     active: updatedRow.active,
-    //     sec_email: updatedRow.sec_email,
-    //     sec_phone: updatedRow.sec_phone,
-    //     account_type: updatedRow.account_type,
-    //     age_range: updatedRow.age_range,
-    //     family_size: updatedRow.family_size,
-    //     ages_of_children: updatedRow.ages_of_children,
-    //     earning_bracket: updatedRow.earning_bracket,
-    //     nationality: updatedRow.nationality,
-    //     years_expatriate: updatedRow.years_expatriate,
-    //     years_native: updatedRow.years_native,
-    //     referred_by: updatedRow.referred_by,
-    //     other_properties: updatedRow.other_properties,
-    //     contract_start_date: updatedRow.contract_start_date,
-    //     contract_end_date: updatedRow.contract_end_date,
-    //     sign_up_time: updatedRow.sign_up_time,
-    //   },
-    // }).then(() => {
-    //   toast.success(
-    //     <ToastComponent
-    //       title="Client Updated"
-    //       color="success"
-    //       icon={<Check />}
-    //     />,
-    //     {
-    //       autoClose: 2000,
-    //       hideProgressBar: true,
-    //       closeButton: false,
-    //     }
-    //   );
-    // });
-    // dataToRender();
-    // if (!clientLoading) {
-    //   setModal(!modal);
-    // }
+    if (newPassword) {
+      console.log(oldPassword, newPassword)
+      try {
+        const res = await auth.changePassword(oldPassword, newPassword)
+      } catch (error) {
+        console.log(error)
+        toast.error(
+          <ToastComponent
+            title="Error Updating Password"
+            color="danger"
+            icon={<XCircle />}
+          />,
+          {
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeButton: false,
+          }
+        );
+      }
+    }
+    updateClient({
+      variables: {
+        id: updatedRow.id,
+        email: updatedRow.email,
+        full_name: updatedRow.full_name,
+        phone: updatedRow.phone,
+        password: updatedRow.password,
+        active: updatedRow.active,
+        sec_email: updatedRow.sec_email,
+        sec_phone: updatedRow.sec_phone,
+        account_type: updatedRow.account_type,
+        referred_by: updatedRow.referred_by,
+        contract_start_date: updatedRow.contract_start_date,
+        contract_end_date: updatedRow.contract_end_date,
+        sign_up_time: updatedRow.sign_up_time,
+      },
+    }).then(() => {
+      toast.success(
+        <ToastComponent
+          title="Client Updated"
+          color="success"
+          icon={<Check />}
+        />,
+        {
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeButton: false,
+        }
+      );
+    });
+    dataToRender();
+    if (!clientLoading) {
+      setModal(!modal);
+    }
   };
 
   const addClientRecord = () => {
@@ -797,24 +771,13 @@ const DataTableAdvSearch = () => {
       variables: {
         email: newRow?.email,
         full_name: newRow?.full_name,
-        gender: newRow?.gender,
-        occupation: newRow?.occupation,
-        organization: newRow?.organization,
         phone: newRow?.phone,
         password: newRow?.password,
         active: newRow?.active,
         sec_email: newRow?.sec_email,
         sec_phone: newRow?.sec_phone,
         account_type: newRow?.account_type,
-        age_range: newRow?.age_range,
-        family_size: newRow?.family_size,
-        ages_of_children: newRow?.ages_of_children,
-        earning_bracket: newRow?.earning_bracket,
-        nationality: newRow?.nationality,
-        years_expatriate: newRow?.years_expatriate,
-        years_native: newRow?.years_native,
         referred_by: newRow?.referred_by,
-        other_properties: newRow?.other_properties,
         contract_start_date: newRow?.contract_start_date,
         contract_end_date: newRow?.contract_end_date
       },

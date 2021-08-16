@@ -540,7 +540,7 @@ const TabsVerticalLeft = ({item, allProperty}) => {
           
         </Row> 
         {/* admin role */}
-        </div> : userName === "ffakhri@queensman.com" ? <div className="mr-2"> 
+        </div> : userName === "opscord@queensman.com" ? <div className="mr-2"> 
         <Row>
           <Col md="2">
           <div>Status</div>
@@ -613,7 +613,7 @@ const TabsVerticalLeft = ({item, allProperty}) => {
           </Col>
         </Row>
         {/* Super Admin Role */}
-        </div> : userName === "salmanhanif133@gmail.com" ? <div className="mr-2"> 
+        </div> : userName === "opsmanager@queensman.com" ? <div className="mr-2"> 
         <Row>
           <Col md="2">
           <div>Status</div>
@@ -692,7 +692,56 @@ const TabsVerticalLeft = ({item, allProperty}) => {
       </div>
           </Col>
         </Row>
-        </div> : <div></div>}
+        {/* Default Access */}
+        </div> : <div className="mr-2"> 
+          <Row>
+          <Col md="2">
+          <div>Status</div>
+          </Col>
+          <Col md="2">
+          <div>Review Actions</div>
+          </Col>
+        </Row>
+        <Row>
+          <Col md="2">
+          {approveStatus === 0 ? <Button color="danger" className="btn" size="sm">
+            <span className="align-middle ml-25">Unapproved</span>
+          </Button> : approveStatus === 1 ? <Button color="info" className="btn" size="sm">
+            <span className="align-middle ml-25">Review</span>
+          </Button> : approveStatus === 2 ? <Button color="warning" className="btn" size="sm">
+            <span className="align-middle ml-25">Approval</span>
+          </Button> : <Button color="success" className="btn" size="sm">
+            <span className="align-middle ml-25">Approved</span>
+          </Button>}
+         
+          
+          </Col>
+          <Col md="2">
+            <ButtonGroup className='mb-1'>
+            <Button color='secondary' className="btn-icon" size="sm" disabled >
+              <Check size={15} />
+            </Button>
+            <Button color='secondary' className="btn-icon" size="sm" disabled >
+              <XCircle size={15} />
+            </Button>
+          </ButtonGroup>
+          </Col>          
+        </Row>
+        <Row className="mt-4">
+          <Col>
+      <div className="d-flex align-items-center">
+      {inventory_report_pdf ?  <Button color='primary' className="mr-1" size="sm" onClick={() => openInNewTab(inventory_report_pdf?.report_location)}>
+             View Uploaded PDF
+           </Button> :  <Button color='secondary' size="sm" className="mr-1" disabled={true}>
+           View Uploaded PDF
+           </Button>}
+      {inventory_report_pdf && <div>
+        <span className="font-weight-bold">Uploaded at: </span>
+        {moment(inventory_report_pdf.report_upload_date).format('MMMM Do YYYY, h:mm:ss a')}
+        </div>}
+      </div>
+          </Col>
+        </Row></div>}
         <div className="modal-warning" >
         <Modal
           isOpen={declineModal}
@@ -703,7 +752,8 @@ const TabsVerticalLeft = ({item, allProperty}) => {
         >
           <ModalHeader toggle={() => setDeclineModal(!declineModal)}>Warning</ModalHeader>
           <ModalBody>
-            Declining it will remove decline abc
+            Declining it will set the status to unapproved. 
+            User will have to upload the report again.
           </ModalBody>
           <ModalFooter>
             <Button color="warning" onClick={() => decline("decline")}>
