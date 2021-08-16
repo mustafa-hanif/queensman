@@ -301,7 +301,7 @@ const HomeScreen = ({ navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => navigation.navigate("Notification")}>
               <Box>
-                {notifications?.notifications_aggregate?.aggregate?.count && (
+                {notifications?.notifications_aggregate?.aggregate?.count ? (
                   <Box
                     position="absolute"
                     bottom={5}
@@ -318,7 +318,7 @@ const HomeScreen = ({ navigation }) => {
                       {notifications.notifications_aggregate.aggregate.count}
                     </Text>
                   </Box>
-                )}
+                ) : null}
                 <Icon as={Ionicons} name="notifications-outline" style={{ fontSize: 25, color: "#FFCA5D" }} />
               </Box>
               {/* <Image
@@ -373,13 +373,21 @@ const HomeScreen = ({ navigation }) => {
             />
           </VStack>
         </Box>
-        <VStack space={4} mt={4}>
-          <Divider />
-          <Heading mx="auto" size="sm">
-            Upcoming Service
-          </Heading>
-          {data && <CalloutItem item={data.callout[0]} toggleGalleryEventModal={() => {}} />}
-        </VStack>
+        {data?.callout?.[0] ? (
+          <VStack space={4} mt={4}>
+            <Divider />
+            <Heading mx="auto" size="sm">
+              Upcoming Service
+            </Heading>
+            <CalloutItem item={data.callout[0]} toggleGalleryEventModal={() => {}} />
+          </VStack>
+        ) : (
+          <VStack space={4} mt={4}>
+            <Heading mx="auto" size="sm">
+              No Upcoming Service
+            </Heading>
+          </VStack>
+        )}
       </ScrollView>
       <Text pb={2} fontSize="xs" textAlign="center">
         All rights reserved © 2021 - Queensman
@@ -416,6 +424,7 @@ const colors = {
 };
 
 const CalloutItem = ({ item, toggleGalleryEventModal }) => {
+  console.log(item);
   const color = item?.urgency_level === "High" ? "rose.600" : "amber.600";
   const statusColor = colors[item?.status] ? colors[item?.status] : "lightBlue.600";
   return (
