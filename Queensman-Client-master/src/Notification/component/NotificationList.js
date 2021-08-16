@@ -67,9 +67,9 @@ export default function NotificationList({
       message: "Notification marked as read",
       type: "success",
     });
-    const item = [...notifications];
-    item[index].isRead = true;
-    setNotifications(item);
+    // const item = [...notifications];
+    // item[index].isRead = true;
+    // setNotifications(item);
     updateNotifications({
       variables: {
         id,
@@ -81,7 +81,7 @@ export default function NotificationList({
     navigation.navigate("OngoingcalloutItem", {
       it: item,
     });
-  }
+  };
   console.log(item);
   return (
     <>
@@ -120,9 +120,7 @@ export default function NotificationList({
                 )}
               </Box>
               <Button
-                onPress={() =>
-                  viewCallout(item?.data?.callout_id)
-                }
+                onPress={() => viewCallout(item?.data?.callout_id)}
                 size="xs"
                 height={6}
                 width={100}

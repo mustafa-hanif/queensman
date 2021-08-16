@@ -283,11 +283,7 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <ScrollView style={styles.container}>
-      <FlashMessage position="center" />
-      {/* background gradinet   */}
-      {/* <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} /> */}
-
+    <View style={{ backgroundColor: "#111827", height: "100%" }}>
       <View style={styles.Name}>
         <View
           style={{
@@ -344,47 +340,52 @@ const HomeScreen = ({ navigation }) => {
           </View>
         </View> */}
       </View>
-      <Box pt={4}>
-        <VStack space={4}>
-          <Item
-            onPress={() => requestCallOutPress(navigation, { additionalServices: false })}
-            text="Request Callout"
-            image={require("../../assets/Home/calloutHome.png")}
-          />
-          <Item
-            onPress={() => onGoingCallOutPress(navigation)}
-            text="Scheduled Services"
-            image={require("../../assets/Home/pendingHome.png")}
-          />
-          <Item
-            onPress={() => CallOutHistoryPress(navigation)}
-            text="Services History"
-            image={require("../../assets/Home/historyHome.png")}
-          />
-          <Item
-            onPress={() => CallOutReportPress(navigation)}
-            text="Report and Documents"
-            image={require("../../assets/Home/reportHome.png")}
-          />
-          <Item
-            onPress={() => requestCallOutPress(navigation, { additionalServices: true })}
-            text="Request of Additional Services"
-            image={require("../../assets/Home/pendingHome.png")}
-          />
+      <ScrollView style={styles.container}>
+        <FlashMessage position="center" />
+        {/* background gradinet   */}
+        {/* <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} /> */}
+
+        <Box pt={4}>
+          <VStack space={4}>
+            <Item
+              onPress={() => requestCallOutPress(navigation, { additionalServices: false })}
+              text="Request Callout"
+              image={require("../../assets/Home/calloutHome.png")}
+            />
+            <Item
+              onPress={() => onGoingCallOutPress(navigation)}
+              text="Scheduled Services"
+              image={require("../../assets/Home/pendingHome.png")}
+            />
+            <Item
+              onPress={() => CallOutHistoryPress(navigation)}
+              text="Services History"
+              image={require("../../assets/Home/historyHome.png")}
+            />
+            <Item
+              onPress={() => CallOutReportPress(navigation)}
+              text="Report and Documents"
+              image={require("../../assets/Home/reportHome.png")}
+            />
+            <Item
+              onPress={() => requestCallOutPress(navigation, { additionalServices: true })}
+              text="Request of Additional Services"
+              image={require("../../assets/Home/pendingHome.png")}
+            />
+          </VStack>
+        </Box>
+        <VStack space={4} mt={4}>
+          <Divider />
+          <Heading mx="auto" size="sm">
+            Upcoming Service
+          </Heading>
+          {data && <CalloutItem item={data.callout[0]} toggleGalleryEventModal={() => {}} />}
         </VStack>
-      </Box>
-      <VStack space={4} mt={4}>
-        <Divider />
-        <Heading mx="auto" size="sm">
-          Upcoming Service
-        </Heading>
-        {data && <CalloutItem item={data.callout[0]} toggleGalleryEventModal={() => {}} />}
-        <Divider />
-        <Text pb={8} fontSize="xs" textAlign="center">
-          All rights reserved © 2021 - Queensman
-        </Text>
-      </VStack>
-    </ScrollView>
+      </ScrollView>
+      <Text pb={2} fontSize="xs" textAlign="center">
+        All rights reserved © 2021 - Queensman
+      </Text>
+    </View>
   );
 };
 
