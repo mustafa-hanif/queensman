@@ -5,7 +5,7 @@ const planEmail = async (planArray, moment) => {
     console.log(planArray)
   const params = {
     Destination: { /* required */
-      CcAddresses: [],
+      CcAddresses: ['murtaza.hanif@techinoviq.com' , 'murtaza.hanif@gmail.com'],
       ToAddresses: [
         'salmanhanif133@gmail.com',
       /* more items */

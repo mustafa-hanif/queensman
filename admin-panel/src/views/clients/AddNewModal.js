@@ -483,7 +483,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
               <Lock size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input id='password' placeholder='Password' name="password" value={row?.password} onChange={handleChange} />
+          <Input id='password' placeholder='Password' name="password" value={row?.password} disabled onChange={handleChange} />
         </InputGroup><Button color='info' outline className="mt-1" onClick={() => openModal(row?.password)}>Change Password</Button>
       </FormGroup>}
        
