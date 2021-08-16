@@ -282,11 +282,7 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <ScrollView style={styles.container}>
-      <FlashMessage position="center" />
-      {/* background gradinet   */}
-      {/* <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} /> */}
-
+    <View style={{ backgroundColor: "#111827", height: "100%" }}>
       <View style={styles.Name}>
         <View
           style={{
@@ -305,7 +301,7 @@ const HomeScreen = ({ navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => navigation.navigate("Notification")}>
               <Box>
-                {notifications?.notifications_aggregate?.aggregate?.count && (
+                {notifications?.notifications_aggregate?.aggregate?.count ? (
                   <Box
                     position="absolute"
                     bottom={5}
@@ -322,7 +318,7 @@ const HomeScreen = ({ navigation }) => {
                       {notifications.notifications_aggregate.aggregate.count}
                     </Text>
                   </Box>
-                )}
+                ) : null}
                 <Icon as={Ionicons} name="notifications-outline" style={{ fontSize: 25, color: "#FFCA5D" }} />
               </Box>
               {/* <Image
@@ -343,47 +339,60 @@ const HomeScreen = ({ navigation }) => {
           </View>
         </View> */}
       </View>
-      <Box pt={4}>
-        <VStack space={4}>
-          <Item
-            onPress={() => requestCallOutPress(navigation, { additionalServices: false })}
-            text="Request Callout"
-            image={require("../../assets/Home/calloutHome.png")}
-          />
-          <Item
-            onPress={() => onGoingCallOutPress(navigation)}
-            text="Scheduled Services"
-            image={require("../../assets/Home/pendingHome.png")}
-          />
-          <Item
-            onPress={() => CallOutHistoryPress(navigation)}
-            text="Services History"
-            image={require("../../assets/Home/historyHome.png")}
-          />
-          <Item
-            onPress={() => CallOutReportPress(navigation)}
-            text="Report and Documents"
-            image={require("../../assets/Home/reportHome.png")}
-          />
-          <Item
-            onPress={() => requestCallOutPress(navigation, { additionalServices: true })}
-            text="Request of Additional Services"
-            image={require("../../assets/Home/pendingHome.png")}
-          />
-        </VStack>
-      </Box>
-      <VStack space={4} mt={4}>
-        <Divider />
-        <Heading mx="auto" size="sm">
-          Upcoming Service
-        </Heading>
-        { data?.callout?.length > 0 ? <CalloutItem item={data.callout[0]} toggleGalleryEventModal={() => {}} /> : <Text textAlign="center">No service</Text>}
-        <Divider />
-        <Text pb={8} alignItems="flex-end" fontSize="xs" textAlign="center">
-          All rights reserved © 2021 - Queensman
-        </Text>
-      </VStack>
-    </ScrollView>
+      <ScrollView style={styles.container}>
+        <FlashMessage position="center" />
+        {/* background gradinet   */}
+        {/* <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} /> */}
+
+        <Box pt={4}>
+          <VStack space={4}>
+            <Item
+              onPress={() => requestCallOutPress(navigation, { additionalServices: false })}
+              text="Request Callout"
+              image={require("../../assets/Home/calloutHome.png")}
+            />
+            <Item
+              onPress={() => onGoingCallOutPress(navigation)}
+              text="Scheduled Services"
+              image={require("../../assets/Home/pendingHome.png")}
+            />
+            <Item
+              onPress={() => CallOutHistoryPress(navigation)}
+              text="Services History"
+              image={require("../../assets/Home/historyHome.png")}
+            />
+            <Item
+              onPress={() => CallOutReportPress(navigation)}
+              text="Report and Documents"
+              image={require("../../assets/Home/reportHome.png")}
+            />
+            <Item
+              onPress={() => requestCallOutPress(navigation, { additionalServices: true })}
+              text="Request of Additional Services"
+              image={require("../../assets/Home/pendingHome.png")}
+            />
+          </VStack>
+        </Box>
+        {data?.callout?.[0] ? (
+          <VStack space={4} mt={4}>
+            <Divider />
+            <Heading mx="auto" size="sm">
+              Upcoming Service
+            </Heading>
+            <CalloutItem item={data.callout[0]} toggleGalleryEventModal={() => {}} />
+          </VStack>
+        ) : (
+          <VStack space={4} mt={4}>
+            <Heading mx="auto" size="sm">
+              No Upcoming Service
+            </Heading>
+          </VStack>
+        )}
+      </ScrollView>
+      <Text pb={2} fontSize="xs" textAlign="center">
+        All rights reserved © 2021 - Queensman
+      </Text>
+    </View>
   );
 };
 
@@ -400,7 +409,7 @@ const Item = ({ text, image, onPress }) => (
       borderRadius={48}
       bg="white"
     >
-      <Image alt="pic" source={image} alt="picture" style={{ height: 32, width: 32, alignSelf: "center" }} />
+      <Image alt="pic" source={image} style={{ height: 32, width: 32, alignSelf: "center" }} />
       <Text color="amber.900" alignSelf="center">
         {text}
       </Text>
@@ -415,6 +424,7 @@ const colors = {
 };
 
 const CalloutItem = ({ item, toggleGalleryEventModal }) => {
+  console.log(item);
   const color = item?.urgency_level === "High" ? "rose.600" : "amber.600";
   const statusColor = colors[item?.status] ? colors[item?.status] : "lightBlue.600";
   return (
