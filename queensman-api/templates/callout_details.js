@@ -128,14 +128,14 @@ const calloutTemplate = (callout, worker, time) => {
                           Country: ${callout?.property?.country}<br />
                         </p>
                         <p>
-                          <strong>Assigned to Worker Details</strong><br />
-                          Worker Name: ${worker?.full_name}<br />
+                          <strong>Assigned to Team Details</strong><br />
+                          Team Name: ${worker?.full_name}<br />
 
-                          Worker Part of emergency team?: ${worker?.isEmergency ? 'Yes' : 'No'}<br />
+                          Team Part of emergency team?: ${worker?.isEmergency ? 'Yes' : 'No'}<br />
 
-                          Worker phone: ${worker?.phone}<br />
+                          Team phone: ${worker?.phone}<br />
 
-                          Worker team color: <span style="background-color: ${color}; width: 24px; height: 24px;     display: inline-block;"></span><br />
+                          Team team color: <span style="background-color: ${color}; width: 24px; height: 24px;     display: inline-block;"></span><br />
                         </p>
                         <!-- <a href="https://pixinvent.com?reset_password_url" style="display: block; font-size: 14px; line-height: 100%; margin-bottom: 24px; --text-opacity: 1; color: #ecc65d; color: rgba(115, 103, 240, var(--text-opacity)); text-decoration: none;">https://pixinvent.com?reset_password_url</a> -->
                         <!-- <table style="font-family: ''Roboto Condensed'',Arial,sans-serif;" cellpadding="0" cellspacing="0" role="presentation">
