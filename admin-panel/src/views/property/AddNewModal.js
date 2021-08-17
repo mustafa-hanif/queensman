@@ -42,9 +42,9 @@ const ToastComponent = ({ title, icon, color }) => (
   </Fragment>
 )
 
-const AddNewModal = ({ data, open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord}) => {
+const AddNewModal = ({ toAssignNewRecord, data, open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord, handleAssignClient}) => {
 
-  const clientOptions = data?.map(client => ({value: client.id, label: client.full_name}))
+  const clientOptions = data?.map(client => ({value: client.id, label: client.full_name, propID: client?.property_owneds?.[0]?.property_id}))
 
   const activeOptions = [
     { value: 1, label: 'Active'},
@@ -75,16 +75,21 @@ const AddNewModal = ({ data, open, handleModal, row, setRow, closeModal, handleU
 
 const onSubmit = () => {
   // setRow(row)
-  const sameValue = clientOwnedArray.map(element => clientLeasedArray.some(element2 => element2.value === element.value))
-  console.log(sameValue)
-  if (clientOwnedArray.length === 0) {
+  const sameValue = clientOwnedArray.map(element => clientLeasedArray.some(element2 => element2.value === element.value))  
+  if (toAssignNewRecord && clientOwnedArray.length === 0) {
     return toast.error(<ToastComponent title='Client Owned cannot be empty' color='danger' icon={<Info />} />, {
       autoClose: 2000,
       hideProgressBar: true,
       closeButton: false
     })
   } 
-  
+  if (clientOwnedArray.some(element => element.propID === row.id)) {
+    return toast.error(<ToastComponent title='Client already has property' color='danger' icon={<Info />} />, {
+      autoClose: 10000,
+      hideProgressBar: true,
+      closeButton: false
+    })
+  }
   if (sameValue[0]) {
     return toast.error(<ToastComponent title='Owned and Leased client names cannot be same' color='danger' icon={<Info />} />, {
       autoClose: 10000,
@@ -94,6 +99,8 @@ const onSubmit = () => {
   }
     if (toAddNewRecord) {
       handleAddRecord(row, clientOwnedArray, clientLeasedArray, lease_start_date, lease_end_date)
+    } else if (toAssignNewRecord) {
+      handleAssignClient(row, clientOwnedArray, clientLeasedArray, lease_start_date, lease_end_date)
     } else {
       handleUpdate(row)
     }
@@ -113,7 +120,7 @@ const { register, errors, handleSubmit } = useForm()
       contentClassName='pt-0'
     >
       <ModalHeader className='mb-3' toggle={handleModal} tag='div'>
-        <h5 className='modal-title'>{toAddNewRecord ? 'New Record' : 'Update Record'}</h5>
+        <h5 className='modal-title'>{ (toAddNewRecord || toAssignNewRecord) ? 'New Record' : 'Update Record'}</h5>
       </ModalHeader>
       <ModalBody className='flex-grow-1'>
       <Form onSubmit={handleSubmit(onSubmit)}>
@@ -125,59 +132,74 @@ const { register, errors, handleSubmit } = useForm()
       </FormGroup>
       </Col>
       <Col>
-      <FormGroup>
+      {toAssignNewRecord ? <FormGroup>
+        <Label for='country'>Country</Label>
+          <Input id='country' placeholder='Enter Country here' name="country" value={row?.country} disabled />
+      </FormGroup> : <FormGroup>
         <Label for='country'>Country<span style={{color: "Red"}}> *</span></Label>
           <Input id='country' placeholder='Enter Country here' name="country" value={row?.country} onChange={handleChange}   
           innerRef={register({ required: true })}
           invalid={errors.country && true}/>
-      </FormGroup>
+      </FormGroup>}
       </Col>
       <Col>
-      <FormGroup>
+      {toAssignNewRecord ? <FormGroup>
+        <Label for='city'>City</Label>
+          <Input id='city' placeholder='Enter City here' name="city" value={row?.city} disabled />
+      </FormGroup> : <FormGroup>
         <Label for='city'>City<span style={{color: "Red"}}> *</span></Label>
           <Input id='city' placeholder='Enter City here' name="city" value={row?.city} onChange={handleChange}   
           innerRef={register({ required: true })}
           invalid={errors.city && true}/>
-      </FormGroup>
+      </FormGroup>}
       </Col>
       </Row>
       {/* Second row */}
       <Row>
         <Col>
-      <FormGroup>
+        {toAssignNewRecord ? <FormGroup>
+        <Label for='community'>Community</Label>
+          <Input id='community' placeholder='Enter Community here' name="community" value={row?.community} disabled />
+      </FormGroup> : <FormGroup>
         <Label for='community'>Community<span style={{color: "Red"}}> *</span></Label>
           <Input community='community' placeholder='Enter Community here' name="community" value={row?.community} onChange={handleChange}
           innerRef={register({ required: true })}
           invalid={errors.community && true}
           />
-      </FormGroup>
+      </FormGroup>}
       </Col>
       <Col>
-      <FormGroup>
+      {toAssignNewRecord ? <FormGroup>
+        <Label for='address'>Address</Label>
+          <Input id='address' placeholder='Enter Address here' name="address" value={row?.address} disabled />
+      </FormGroup> : <FormGroup>
         <Label for='address'>Address<span style={{color: "Red"}}> *</span></Label>
-          <Input id='address' placeholder='Enter address here' name="address" value={row?.address} onChange={handleChange}   
+          <Input id='address' placeholder='Enter Address here' name="address" value={row?.address} onChange={handleChange}   
           innerRef={register({ required: true })}
           invalid={errors.address && true}/>
-      </FormGroup>
+      </FormGroup>}
+      
       </Col>
       <Col>
-      <FormGroup>
+      {toAssignNewRecord ? <FormGroup>
         <Label for='type'>Property Type</Label>
-          <Input id='type' placeholder='Enter property type here' name="type" value={row?.type} onChange={handleChange}   
-          innerRef={register({ required: false })}
-          invalid={errors.type && true}/>
-      </FormGroup>
+          <Input id='type' placeholder='Enter Property Type here' name="type" value={row?.type} disabled />
+      </FormGroup> : <FormGroup>
+        <Label for='type'>Property Type</Label>
+          <Input id='type' placeholder='Enter Property type here' name="type" value={row?.type} onChange={handleChange} />
+      </FormGroup>}
       </Col>
       </Row>
       {/* Third Row */}
       <Row>
         <Col>
-        <FormGroup>
+        {toAssignNewRecord ? <FormGroup>
         <Label for='comments'>Comments</Label>
-          <Input id='comments' placeholder='Enter property comments here' name="comments" value={row?.comments} onChange={handleChange}   
-          innerRef={register({ required: false })}
-          invalid={errors.comments && true}/>
-      </FormGroup>
+          <Input id='comments' placeholder='Enter Property comments here' name="comments" value={row?.comments} disabled />
+      </FormGroup> : <FormGroup>
+        <Label for='comments'>Comments</Label>
+          <Input id='comments' placeholder='Enter Property comments here' name="comments" value={row?.comments} onChange={handleChange} />
+      </FormGroup>}
       </Col>
       <Col>
       </Col>
@@ -193,7 +215,7 @@ const { register, errors, handleSubmit } = useForm()
       </FormGroup>
       </Col>
       <Col sm="9">
-      <FormGroup>
+      {toAssignNewRecord ? <FormGroup>
       <Label>Client Name<span style={{color: "Red"}}> *</span></Label>
           <Select
               isClearable={false}
@@ -206,7 +228,20 @@ const { register, errors, handleSubmit } = useForm()
               className='react-select'
               classNamePrefix='select'
             />
-      </FormGroup>
+      </FormGroup> : <FormGroup>
+      <Label>Client Name</Label>
+          <Select
+              isClearable={false}
+              theme={selectThemeColors}
+              defaultValue={clientOwnedArray}
+              isMulti
+              name='clientOwned'
+              onChange={(e) => setclientOwnedArray(e)}
+              options={clientOptions}
+              className='react-select'
+              classNamePrefix='select'
+            />
+      </FormGroup>}
       </Col>
       </Row>
       {/* Fifth Row */}
@@ -352,7 +387,7 @@ const { register, errors, handleSubmit } = useForm()
       </Row> }
       <div className="row justify-content-center">
       <Button className='mr-1' color='primary' type="submit" >
-        {toAddNewRecord ? 'Submit' : 'Update'}
+        {(toAddNewRecord || toAssignNewRecord) ? 'Submit' : 'Update'}
       </Button>
       <Button color='secondary' onClick={closeModal} outline>
         Cancel

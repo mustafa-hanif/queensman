@@ -43,9 +43,20 @@ import ButtonGroup from 'reactstrap/lib/ButtonGroup'
 import { months } from 'moment'
 import Badge from 'reactstrap/lib/Badge'
 
+const GET_PROPS = gql`
+query GetProperties {
+    property(order_by: {id: asc}) {
+      id
+      city
+      country
+      community
+      address
+    }
+  }
+`
 const GET_CLIENT_PROPS = gql`
-query GetClient {
-  client {
+query GetClientOwned {
+  client(order_by: {id: asc}) {
     id
     email
     full_name
@@ -54,20 +65,15 @@ query GetClient {
     account_type
     active
     property_owneds {
-      property {
-        id
-        city
-        community
-        country
-        address
-      }
+      property_id
     }
-    id
-    property_owneds_aggregate {
-      aggregate {
-        count
-      }
-    }
+  }
+}`
+
+const ASSIGN_OWNED_PROPERTY = gql`
+mutation AssignOwnedProperty($owner_id: Int!, $property_id: Int!) {
+  insert_property_owned(objects: {owner_id: $owner_id, property_id: $property_id, uploaded_by: 10000002, active: "1"}) {
+    affected_rows
   }
 }
 `
@@ -113,18 +119,22 @@ const DELETE_PROPS = gql`mutation DeleteProperty($id: Int = 10) {
 const DataTableAdvSearch = () => {
 
         // ** States
-  const { loading, data, error } = useQuery(GET_CLIENT_PROPS)
-  const [updateProp, {loading: propertyLoading}] = useMutation(UPDATE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [addProp, {loading: addPropertyLoading}] = useMutation(ADD_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [addPropOwned, {loading: addPropertyOwnedLoading}] = useMutation(ADD_PROP_OWNED, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [addLease, {loading: addLeaseLoading}] = useMutation(ADD_LEASE, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [deleteProp, {loading: deletePropertyLoading}] = useMutation(DELETE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const { loading, data, error } = useQuery(GET_PROPS)
+  const { loading: clientLoading, data: clientData, error: clientError } = useQuery(GET_CLIENT_PROPS)
+  const [updateProp, {loading: propertyLoading}] = useMutation(UPDATE_PROPS, {refetchQueries:[{query: GET_PROPS}]})
+  const [addProp, {loading: addPropertyLoading}] = useMutation(ADD_PROPS, {refetchQueries:[{query: GET_PROPS}]})
+  const [addPropOwned, {loading: addPropertyOwnedLoading}] = useMutation(ADD_PROP_OWNED, {refetchQueries:[{query: GET_PROPS}]})
+  const [addLease, {loading: addLeaseLoading}] = useMutation(ADD_LEASE, {refetchQueries:[{query: GET_PROPS}]})
+  const [deleteProp, {loading: deletePropertyLoading}] = useMutation(DELETE_PROPS, {refetchQueries:[{query: GET_PROPS}]})
+  const [assignOwnedProperty, {loading: assignOwnedPropertyLoading}] = useMutation(ASSIGN_OWNED_PROPERTY)
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState('')
   const [searchEmail, setSearchEmail] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
   const [filteredData, setFilteredData] = useState([])
+  const [searchCountry, setSearchCountry] = useState('')
   const [toAddNewRecord, setToAddNewRecord] = useState(false)
+  const [toAssignNewRecord, setToAssignRecord] = useState(false)
   const [row, setRow] = useState(null)
   const [rowId, setRowId] = useState(null)
 
@@ -150,6 +160,7 @@ const DataTableAdvSearch = () => {
         setModal(!modal) 
       }, 200)
       setToAddNewRecord(false)
+      setToAssignRecord(false)
     }
 
   // ** Function to handle Pagination
@@ -164,88 +175,44 @@ const advSearchColumns = [
       minWidth: '10px'
     },
     {
-      name: 'Email',
-      selector: 'email',
+      name: 'city',
+      selector: 'city',
       sortable: true,
-      minWidth: '350px'
+      minWidth: '50px'
     },
     {
-      name: 'Full Name',
-      selector: 'full_name',
+      name: 'country',
+      selector: 'country',
       sortable: true,
+      wrap: true,
       minWidth: '200px'
     },
-
-  
-    // {
-    //   name: 'Active',
-    //   selector: 'active',
-    //   sortable: true,
-    //   minWidth: '200px',
-    //   cell: row => {
-    //       if (row.active === 1) {
-    //         return (
-    //             <Badge color={'light-success'} pill>
-    //                 Active
-    //             </Badge>
-    //           )
-    //       } else {
-    //         return (
-    //             <Badge color={'light-danger'} pill>
-    //                 Unactive
-    //             </Badge>
-    //           )
-    //       }
-         
-        
-    //   }
-    // },
     {
-        name: 'Properties',
-        selector: 'property_owneds_aggregate.aggregate.count',
-        sortable: true,
-        minWidth: '100px',
-        center: true,
-        cell: row => {
-            return (
-                <>
-                <Badge color={'light-info mx-auto '} pill>{row.property_owneds_aggregate.aggregate.count}</Badge>
-                </>
-            )
-        }
-      }
-    // {
-    //   name: 'Actions',
-    //   minWidth: '200px',
-    //   allowOverflow: true,
-    //   cell: row => {
-    //     return (
-    //             <div className="d-flex w-100 align-items-center">
-    //               <ButtonGroup size="sm" >
-    //               <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
-    //               <Trash size={15} />
-    //               </Button>
-    //               <Button color='primary' className="btn-icon" size="sm">
-    //               <Edit size={15} onClick={() => handleModal(row)} />
-    //               </Button>
-    //             </ButtonGroup>
-                
-    //             </div>
-          
-    //     )
-    //   }
-    // }
+      name: 'community',
+      selector: 'community',
+      sortable: true,
+      wrap: true,
+      minWidth: '50px'
+    },
+    {
+      name: 'address',
+      selector: 'address',
+      sortable: true,
+      wrap: true,
+      minWidth: '400px'
+    }
   ]
 
-  // ** Table data to render
+//   ** Table data to render
   const dataToRender = () => {
     if (
       searchName.length ||
-      searchEmail.length
+      searchEmail.length ||
+      searchCountry.length
     ) {
       return filteredData
     } else {
-      return data?.client
+      return data?.property
     }
   }
 
@@ -263,17 +230,58 @@ const advSearchColumns = [
       }
   }
 
-  const addWorkerRecord = () => {
-    setToAddNewRecord(true)
-    setRow({
-        active: 1
-    })
-    setTimeout(() => {
-      setModal(!modal) 
-    }, 200)
+  const addWorkerRecord = (row = false) => {
+    if (row) {
+      setRow(row)
+      setToAddNewRecord(false)
+      setToAssignRecord(true)
+      setTimeout(() => {
+        setModal(!modal) 
+      }, 200)
+    } else {
+      setToAddNewRecord(true)
+      setRow({
+          active: 1
+      })
+      setTimeout(() => {
+        setModal(!modal) 
+      }, 200)
+    }
   }
 
-
+  const handleAssignClient = async (row, clientOwnedArray, clientLeasedArray, lease_start, lease_end) => {
+    console.log(row, clientOwnedArray, clientLeasedArray)
+    if (clientOwnedArray.length > 0 && clientLeasedArray.length > 0) {
+      console.log("Both")
+    } else if (clientLeasedArray.length > 0) {
+      console.log("leased")
+    } else {
+      console.log("owned")
+      for (let i = 0; i < clientOwnedArray.length; i++) {
+        const owner_id = clientOwnedArray[i].value
+        try {
+          await assignOwnedProperty({variables: {
+            property_id: row.id,
+            owner_id
+          }})
+        } catch (e) {
+          console.log(e)
+        }
+      }
+      toast.success(
+        <ToastComponent title="Property Assigned" color="success" icon={<Check />} />,
+        {
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeButton: false
+        }
+      )
+      dataToRender()
+      if (!assignOwnedPropertyLoading) {
+        setModal(!modal)
+      }
+    }
+  }
   const handleAddRecord = async (newRow, clientOwnedArray, clientLeasedArray, lease_start, lease_end) => {
     console.log(newRow, clientOwnedArray, clientLeasedArray)
     try {
@@ -361,7 +369,7 @@ const advSearchColumns = [
         if (searchEmail.length || searchName.length)  {
         return filteredData
       } else {
-        return data?.client
+        return data?.property
       }
     }
 
@@ -391,7 +399,7 @@ const advSearchColumns = [
         if (searchEmail.length || searchName.length) {
         return filteredData
       } else {
-        return data?.client
+        return data?.property
       }
     }
 
@@ -413,13 +421,42 @@ const advSearchColumns = [
     }
   }
 
+    // ** Function to handle country filter
+    const handleCountryFilter = e => {
+      const value = e.target.value
+      let updatedData = []
+      const dataToFilter = () => {
+          if (searchEmail.length || searchName.length || searchCountry.length) {
+          return filteredData
+        } else {
+          return data?.property
+        }
+      }
+  
+      setSearchCountry(value)
+      if (value.length) {
+        updatedData = dataToFilter().filter(item => {
+          const startsWith = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().includes(value.toLowerCase()) === true)
+          console.log(startsWith)
+          if (startsWith) {
+              return startsWith
+            } else if (!startsWith && includes) {
+              return includes
+            } else return null
+        })
+        setFilteredData([...updatedData])
+        setSearchCountry(value)
+      }
+    }
+
   return (
     <Fragment>
       <Card>
         <CardHeader className='border-bottom'>
           <CardTitle tag='h4'>Search Properties</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
-            <Button className='ml-2' color='primary' onClick={addWorkerRecord}>
+            <Button className='ml-2' color='primary' onClick={() => addWorkerRecord()}>
               <Plus size={15} />
               <span className='align-middle ml-50'>Add Record</span>
             </Button>
@@ -445,32 +482,44 @@ const advSearchColumns = [
                 />
               </FormGroup>
             </Col>
+            <Col lg='4' md='6'>
+              <FormGroup>
+                <Label for='country'>Country:</Label>
+                <Input
+                  type='country'
+                  id='country'
+                  placeholder='Dubai'
+                  value={searchCountry}
+                  onChange={handleCountryFilter}
+                />
+              </FormGroup>
+            </Col>
           </Row>
         </CardBody>
         {!loading ? <DataTable
           noHeader
           pagination
-          // selectableRows
           columns={advSearchColumns}
           paginationPerPage={7}
           className='react-dataTable'
           sortIcon={<ChevronDown size={10} />}
           paginationDefaultPage={currentPage + 1}
-          paginationComponent={CustomPagination}
+          // paginationComponent={CustomPagination}
           data={dataToRender()}
-          expandableRows
-          expandableRowsComponent={<ExpandableTable data={dataToRender()} openModalAlert={openModalAlert} handleUpdate={handleUpdate} />}
-          expandOnRowClicked
-          // selectableRowsComponent={BootstrapCheckbox}
+          onRowClicked={(row) => addWorkerRecord(row)}
+          pointerOnHover
+          highlightOnHover
         /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Worker information</h4>}
        
       </Card>
       <AddNewModal 
       open={modal} 
-      data={data?.client}
+      data={clientData?.client}
       handleModal={handleModal} 
       handleAddRecord={handleAddRecord} 
       toAddNewRecord={toAddNewRecord} 
+      toAssignNewRecord={toAssignNewRecord} 
+      handleAssignClient={handleAssignClient}
       closeModal={closeModal} 
       row={row} 
       setRow={setRow} 
