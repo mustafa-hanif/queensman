@@ -272,6 +272,7 @@ const DELETE_PLAN = gql`
 
 const DataTableAdvSearch = () => {
   // ** States
+  const [queryLoading, setQueryLoading] = useState(false)
   const { loading, data, error } = useQuery(GET_CLIENT)
   const [updateClient, { loading: clientLoading }] = useMutation(
     UPDATE_CLIENT,
@@ -371,6 +372,7 @@ const DataTableAdvSearch = () => {
     let day = new Date().getDate()
     console.log(day)
     const planArray = []
+    setQueryLoading(true)
     for (let i = 0; i < 4; i++) {
       if (month >= 13) {
         month = 1
@@ -416,37 +418,53 @@ const DataTableAdvSearch = () => {
         blocked: true
       }
       )
-      await addPlan({
-        variables: {
-          property_id: row.property_owneds[0]?.property_id,
-          callout_by: row.id,
-          email: row.email,
-          date_on_calendar,
-          time_on_calendar,
-          end_time_on_calendar,
-          end_date_on_calendar,
-          blocked: true
-        }
-      })
+      try {
+        await addPlan({
+          variables: {
+            property_id: row.property_owneds[0]?.property_id,
+            callout_by: row.id,
+            email: row.email,
+            date_on_calendar,
+            time_on_calendar,
+            end_time_on_calendar,
+            end_date_on_calendar,
+            blocked: true
+          }
+        })
+      } catch (e) {
+        console.log(e)
+        toast.error(
+          <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
+          {
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeButton: false
+          }
+        )
+      }
       month += 3
       day = "01"
     }
-    if (!addPlanLoading) {
-      toast.success(
-        <ToastComponent title="Plan Added" color="success" icon={<Check />} />,
-        {
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeButton: false
-        }
-      )
-      await updateClientPlan({
-        variables: {
-          id: row.id,
-          hasPlan: true
-        }
-      })
-      console.log(planArray)
+    setQueryLoading(false)
+    if (!queryLoading || !addPlanLoading) {
+      try {
+        await updateClientPlan({
+          variables: {
+            id: row.id,
+            hasPlan: true
+          }
+        })
+      } catch (e) {
+        toast.error(
+          <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
+          {
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeButton: false
+          }
+        )
+        console.log(e)
+      }
       try {
         const res = await axios.post(
           "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendPlanEmail",
@@ -457,7 +475,23 @@ const DataTableAdvSearch = () => {
       } catch (e) {
         console.log("ERROR")
         console.log(e)
+        toast.error(
+          <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
+          {
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeButton: false
+          }
+        )
       }
+      toast.success(
+        <ToastComponent title="Plan Added" color="success" icon={<Check />} />,
+        {
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeButton: false
+        }
+      )
     }
 
     const currentDate = new Date().toLocaleDateString().split("/") // "7/11/2021"
@@ -501,6 +535,14 @@ const DataTableAdvSearch = () => {
       } catch (e) {
         console.log("ERROR");
         console.log(e);
+        toast.error(
+          <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
+          {
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeButton: false
+          }
+        )
       }
       month += 3;
     }
@@ -519,21 +561,33 @@ const DataTableAdvSearch = () => {
       },
     });
     if (!deletePlanLoading) {
-      toast.error(
-        <ToastComponent title="Plan Removed" color="danger" icon={<Trash />} />,
-        {
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeButton: false,
-        }
-      );
       console.log("delete");
-      await updateClientPlan({
-        variables: {
-          id: row.id,
-          hasPlan: false,
-        },
-      });
+      try {
+        await updateClientPlan({
+          variables: {
+            id: row.id,
+            hasPlan: false,
+          },
+        });
+        toast.error(
+          <ToastComponent title="Plan Removed" color="danger" icon={<Trash />} />,
+          {
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeButton: false,
+          }
+        );
+      } catch (e) {
+        console.log(e)
+        toast.error(
+          <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
+          {
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeButton: false,
+          }
+        );
+      }
     }
   };
 

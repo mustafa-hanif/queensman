@@ -10,7 +10,6 @@ const FormData = require('form-data');
 // const getRelevantWoker = require('../lib/graphql').getRelevantWoker;
 
 const quarterlyTasks = async (event) => {
-  console.log(JSON.parse(event.body))
   const query = JSON.parse(event.body)
   const Subject = query.Subject
   const Description = query.Description
@@ -43,40 +42,57 @@ const quarterlyTasks = async (event) => {
     email: email
   }))
 
-  const result = await fetch(
-    'https://www.zohoapis.com/crm/v2/functions/quarterlytasks/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf',
-    {
-      method: 'POST',
-      headers: {
-        'x-hasura-admin-secret': 'd71e216c844d298d91fbae2407698b22'
-      },
-      body: form
-    }
-  );
-
-  // console.log(query);
   try {
-    return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-      body: result
-    };
-  } catch (e) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify(
-        {
-          error: e,
-          // input: event,
+    const result = await fetch(
+      'https://www.zohoapis.com/crm/v2/functions/quarterlytasks/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf',
+      {
+        method: 'POST',
+        headers: {
+          'x-hasura-admin-secret': 'd71e216c844d298d91fbae2407698b22'
         },
-        null,
-        2
-      ),
-    };
+        body: form
+      }
+    );
+    const resultJson = await result.json()
+    if(resultJson?.details.output === "No email found") {
+      return {
+        statusCode: 500,
+        message: resultJson?.details.output,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Credentials': true,
+        },
+        body: "hi",
+      }
+    } else {
+      return {
+        statusCode: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Credentials': true,
+        },
+        message: resultJson?.details.output,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Credentials': true,
+        },
+        body: "hi",
+      }
+    }
+  } catch (e) {
+    console.log(e)
+    console.log(resultJson, "ERROR")
   }
+
+  return {
+    statusCode: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true,
+    },
+    body: "bye",
+    // isBase64Encoded: true
+  };
 };
 
 module.exports = { quarterlyTasks }
