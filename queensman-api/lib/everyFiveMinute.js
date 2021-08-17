@@ -106,8 +106,8 @@ async function notifyScheduledTasks() {
       _eq: addWeeks(new Date(), 2),
     }
   );
-  console.log(errors, JSON.stringify(data, null, 2));
-  data.scheduler.forEach(item => {
+  for (let i = 0; i < data.scheduler.length; i++) {
+    const item = data.scheduler[i];
     const email = item?.callout?.client_callout_email?.email;
     const name = item?.worker?.full_name;
     const scheduler_id = item?.id;
@@ -115,11 +115,14 @@ async function notifyScheduledTasks() {
     const time_on_calendar = item?.time_on_calendar;
     const callout_id = item?.callout?.id;
 
-    const minutes = differenceInMinutes(new Date(date_on_calendar), parseJSON(`${date_on_calendar}T${time_on_calendar}`));
-    if (minutes >= 0 && minutes <= 5) {
-      addNotification(email, `You have scheduled service "${item.notes}" is due in 2 weeks, ${name} will come to you`, 'client', { callout_id, scheduler_id, type: 'client_confirm' });
+    const today = new Date();
+    const time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+    const minutes = differenceInMinutes(parseJSON(`${date_on_calendar}T${time}`), parseJSON(`${date_on_calendar}T${time_on_calendar}`));
+    console.log(minutes, time_on_calendar);
+    if (minutes >= 480 && minutes <= 485) {
+      await addNotification(email, `You have scheduled service "${item.notes}" is due in 2 weeks, ${name} will come to you`, 'client', { callout_id, scheduler_id, type: 'client_confirm' });
     }
-  })
+  }
 }
 
 async function respondToEmergencies() {
@@ -158,7 +161,8 @@ async function respondToEmergencies() {
   });
   // Get emergency ticket open
   const minutes2 = [];
-  data.job_history.forEach(async job_history => {
+  for (let i = 0; i < data.job_history.length; i++) {
+    const job_history = data.job_history[i];
     if (job_history.status_update !== 'Waiting') {
       return;
     }
@@ -191,7 +195,7 @@ async function respondToEmergencies() {
       // Add notification to Operations Coordinator
       await addNotification('opscord@queensman.com', `The emergency team assigned to Callout ${job_history.callout_id} is not responding, Please take action`, 'worker', { callout_id: job_history.callout_id });
     }
-  });
+  }
   return minutes2;
 }
 

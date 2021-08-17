@@ -54,7 +54,7 @@ const quarterlyTasks = async (event) => {
       }
     );
     const resultJson = await result.json()
-    if(resultJson?.details.output === "No email found") {
+    if (resultJson?.details.output === 'No email found') {
       return {
         statusCode: 500,
         message: resultJson?.details.output,
@@ -62,7 +62,7 @@ const quarterlyTasks = async (event) => {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Credentials': true,
         },
-        body: "hi",
+        body: 'hi',
       }
     } else {
       return {
@@ -72,16 +72,11 @@ const quarterlyTasks = async (event) => {
           'Access-Control-Allow-Credentials': true,
         },
         message: resultJson?.details.output,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Credentials': true,
-        },
-        body: "hi",
+        body: 'hi',
       }
     }
   } catch (e) {
     console.log(e)
-    console.log(resultJson, "ERROR")
   }
 
   return {
@@ -90,7 +85,7 @@ const quarterlyTasks = async (event) => {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Credentials': true,
     },
-    body: "bye",
+    body: 'bye',
     // isBase64Encoded: true
   };
 };
