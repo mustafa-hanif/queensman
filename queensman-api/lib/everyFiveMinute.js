@@ -1,3 +1,5 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-extend-native */
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
 const fetchGraphQL = require('./graphql').fetchGraphQL;
@@ -22,11 +24,10 @@ async function everyFiveMinute() {
 }
 
 async function notifyTeamisComing() {
-  const { errors, data } = await fetchGraphQL(`
+  const { errors, data: { scheduler } } = await fetchGraphQL(`
   query GetJobDue($today: date!) {
     scheduler(where: {
       date_on_calendar: {_eq: $today}, 
-      confirmed: {_eq: true}, 
     }) {
         date_on_calendar
         time_on_calendar
@@ -38,18 +39,20 @@ async function notifyTeamisComing() {
         }
       }
     }`, 'GetJobDue', {
-    today: new Date(),
+    today: format(new Date(), 'yyyy-MM-dd'),
   });
   if (errors) {
     console.log(errors);
     return;
   }
-  data.scheduler.forEach(async item => {
+  console.log(scheduler);
+  for (let i = 0; i < scheduler.length; i++) {
+    const item = scheduler[i];
     const clientEmail = item?.callout?.client_callout_email?.email;
     // `${job_history.time}+04:30`
     const jobTime = new Date(`${item.date_on_calendar}T${item.time_on_calendar}`);
     const diffWithNow = differenceInMinutes(jobTime, new Date());
-
+    console.log(diffWithNow);
     if (diffWithNow >= 55 && diffWithNow <= 60) {
       await addNotification(clientEmail, 'The team is on the way', 'client', {});
     }
@@ -62,10 +65,10 @@ async function notifyTeamisComing() {
     }`, 'GetJobDue', {
       updater_id: item.worker_id
     });
-
     if (data?.job_history[0]?.status_update === 'In Progress') {
       const lastJobWorkerTime = parseJSON(`${data?.job_history[0]?.time}`);
       const diff = differenceInMinutes(jobTime, lastJobWorkerTime);
+      console.log(diff)
       if (diff >= 40 && diff <= 45) {
         await addNotification(clientEmail, 'Sorry the team is running late on the previous job. The coordinator will be in contact shortly', 'client', {});
       }
@@ -80,7 +83,7 @@ async function notifyTeamisComing() {
         await addNotification(clientEmail, 'Our team is a little ahead of time, expect them within an hour.', 'client', {});
       }
     }
-  })
+  }
 }
 
 async function notifyScheduledTasks() {
@@ -115,11 +118,10 @@ async function notifyScheduledTasks() {
     const time_on_calendar = item?.time_on_calendar;
     const callout_id = item?.callout?.id;
 
-    const today = new Date();
-    const time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+    const time = getFormattedTime(new Date());
+    // const time = today.getHours().padStart(2, '0') + ':' + today.getMinutes() + ':' + today.getSeconds();
     const minutes = differenceInMinutes(parseJSON(`${date_on_calendar}T${time}`), parseJSON(`${date_on_calendar}T${time_on_calendar}`));
-    console.log(minutes, time_on_calendar);
-    if (minutes >= 480 && minutes <= 485) {
+    if (minutes >= 0 && minutes <= 6) {
       await addNotification(email, `You have scheduled service "${item.notes}" is due in 2 weeks, ${name} will come to you`, 'client', { callout_id, scheduler_id, type: 'client_confirm' });
     }
   }
@@ -169,7 +171,7 @@ async function respondToEmergencies() {
     const minutes = differenceInMinutes(new Date(), parseJSON(job_history.time));
     console.log(minutes);
     minutes2.push(minutes);
-    if (minutes >= 20) {
+    if (minutes >= 15) {
       const clientEmail = job_history?.job_history_callout?.client_callout_email?.email;
       if (!clientEmail) {
         return;
@@ -186,12 +188,12 @@ async function respondToEmergencies() {
       });
       return minutes;
     }
-    if (minutes >= 15) {
+    if (minutes >= 10) {
       // Add notification to Operations Coordinator
       await addNotification('opsmanager@queensman.com', `The emergency team assigned to Callout ${job_history.callout_id} is not responding, Please take action`, 'worker', { callout_id: job_history.callout_id });
       return minutes;
     }
-    if (minutes >= 10) {
+    if (minutes >= 5) {
       // Add notification to Operations Coordinator
       await addNotification('opscord@queensman.com', `The emergency team assigned to Callout ${job_history.callout_id} is not responding, Please take action`, 'worker', { callout_id: job_history.callout_id });
     }
@@ -223,3 +225,24 @@ async function addNotification(email, text, type, data) {
   console.log(errors, queryData);
 }
 module.exports = { everyFiveMinute };
+
+function getFormattedTime(date) {
+  let hours = date.getHours();
+  let minutes = date.getMinutes();
+  let seconds = date.getSeconds();
+
+  hours = hours.toString().paddingLeft('00');
+  minutes = minutes.toString().paddingLeft('00');
+  seconds = seconds.toString().paddingLeft('00');
+
+  return '{0}:{1}:{2}'.format(hours, minutes, seconds);
+};
+String.prototype.paddingLeft = function (paddingValue) {
+  return String(paddingValue + this).slice(-paddingValue.length);
+};
+String.prototype.format = function () {
+  const args = arguments;
+  return this.replace(/{(\d+)}/g, function (match, number) {
+    return typeof args[number] !== 'undefined' ? args[number] : match;
+  });
+};
