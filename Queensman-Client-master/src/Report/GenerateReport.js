@@ -1,3 +1,6 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable default-case */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-console */
 /* eslint-disable react/no-access-state-in-setstate */
@@ -9,8 +12,8 @@ import { StyleSheet, View, Dimensions, Linking } from "react-native";
 import { Box, FlatList, Spinner, Text, ScrollView, Modal, Button, Divider, VStack, HStack, Icon } from "native-base";
 
 import { gql, useQuery } from "@apollo/client";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { auth } from "../utils/nhost";
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
@@ -80,23 +83,29 @@ class GenerateReport extends React.Component {
 
   renderReportModalContent = () => (
     <Box>
-      {this.state.value === 1 ? <Text>Property Management Reports</Text> : this.state.value === 2 ? <Text>Markert Analysis Reports</Text> : <Text>Inventory Reports</Text>}
+      {this.state.value === 1 ? (
+        <Text>Property Management Reports</Text>
+      ) : this.state.value === 2 ? (
+        <Text>Markert Analysis Reports</Text>
+      ) : (
+        <Text>Inventory Reports</Text>
+      )}
       <Text mb={4}>Tap to view or download a report.</Text>
-      {this.state.value === 3 ? 
-      <MyFlatList2
-      property_ID={this.state.propertyID}
-      setPropertyId={this.setPropertyId}
-      value={this.state.value}
-      Reporthandle={this.Reporthandle}
-    />
-    : 
-      <MyFlatList
-        property_ID={this.state.propertyID}
-        setPropertyId={this.setPropertyId}
-        value={this.state.value}
-        Reporthandle={this.Reporthandle}
-      />
-}
+      {this.state.value === 3 ? (
+        <MyFlatList2
+          property_ID={this.state.propertyID}
+          setPropertyId={this.setPropertyId}
+          value={this.state.value}
+          Reporthandle={this.Reporthandle}
+        />
+      ) : (
+        <MyFlatList
+          property_ID={this.state.propertyID}
+          setPropertyId={this.setPropertyId}
+          value={this.state.value}
+          Reporthandle={this.Reporthandle}
+        />
+      )}
     </Box>
   );
 
@@ -121,24 +130,11 @@ class GenerateReport extends React.Component {
         <View style={{ height: "10%" }} />
 
         <View style={{ width: "100%", height: "100%" }}>
-          {/* <Button onPress={this.PerfReporthandle}>Monthly Services</Button>
-          <View style={{ height: "10%" }} /> */}
-
-          <Button mb={10} onPress={() => this.toggleReportModel(1)}>
-            Property Management
-          </Button>
+          <GetContractCopy />
 
           <Button mb={10} onPress={() => this.toggleReportModel(3)}>
             Inventory Report
           </Button>
-
-          <Button mb={10} onPress={() => this.toggleReportModel(2)}>
-            Market Analysis
-          </Button>
-
-          {/* <Button onPress={() => this.HandleMaterialwarranty()}>Material Warranty</Button> */}
-
-          <GetContractCopy />
         </View>
       </ScrollView>
     );
@@ -180,10 +176,11 @@ const GetContractCopy = () => {
     variables: { email },
   });
   const openContractCopy = () => {
-    const document_id = data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
+    const document_id =
+      data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
     Linking.openURL(`https://api-8106d23e.nhost.app/?document_id=${document_id}`);
   };
-  
+
   return (
     <Button mb={10} onPress={openContractCopy}>
       Contract Copy
@@ -220,25 +217,25 @@ const MANAG_REPORT = gql`
 `;
 
 const INVENTORY_REPORT = gql`
-query MyQuery($_eq: String!) {
-  inventory_report(where: {property: {property_owneds: {client: {email: {_eq: $_eq}}}}}) {
-    id
-    approved
-    inventory_report_pdfs {
-      inventory_report_id
-      property_id
+  query MyQuery($_eq: String!) {
+    inventory_report(where: { property: { property_owneds: { client: { email: { _eq: $_eq } } } } }) {
       id
-      report_location
-      report_upload_date
-    }
-    property {
-      city
-      community
-      country
-      id
+      approved
+      inventory_report_pdfs {
+        inventory_report_id
+        property_id
+        id
+        report_location
+        report_upload_date
+      }
+      property {
+        city
+        community
+        country
+        id
+      }
     }
   }
-}
 `;
 
 const MARKET_REPORT = gql`
@@ -253,76 +250,75 @@ const MARKET_REPORT = gql`
 `;
 
 const MyFlatList2 = ({ property_ID, value, Reporthandle }) => {
-  
   const openInventory = (report_location) => {
     // const document_id = data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
     Linking.openURL(report_location);
   };
 
-  const TimeLine = ({status}) => {
+  const TimeLine = ({ status }) => {
     switch (status) {
       case 0:
         return (
-        <VStack space={1}>
-          <HStack space={1} alignItems="center"><Text color="white">Awaiting for report to be uploaded</Text><Icon
-            as={Ionicons}
-            name={'arrow-back-circle-outline'}
-            size={5}
-            color="white"
-          /></HStack>
-          <HStack><Text color="#939393" fontSize="xs">Awaiting Approval from Ops Coordinator</Text></HStack>
-          <HStack><Text color="#939393" fontSize="xs">Awaiting Approval from Ops Manager</Text></HStack>
-        </VStack>
-        )
+          <VStack space={1}>
+            <HStack space={1} alignItems="center">
+              <Text color="white">Awaiting for report to be uploaded</Text>
+              <Icon as={Ionicons} name="arrow-back-circle-outline" size={5} color="white" />
+            </HStack>
+            <HStack>
+              <Text color="#939393" fontSize="xs">
+                Awaiting Approval from Ops Coordinator
+              </Text>
+            </HStack>
+            <HStack>
+              <Text color="#939393" fontSize="xs">
+                Awaiting Approval from Ops Manager
+              </Text>
+            </HStack>
+          </VStack>
+        );
       case 1:
         return (
           <VStack>
-            <HStack space={1} alignItems="center"><Text color="#2a9d3d" fontSize="xs">Awaiting for report to be uploaded</Text>
-            <Icon
-            as={Ionicons}
-            name={'checkmark-circle-outline'}
-            size={3}
-            color="#2a9d3d"
-          />
+            <HStack space={1} alignItems="center">
+              <Text color="#2a9d3d" fontSize="xs">
+                Awaiting for report to be uploaded
+              </Text>
+              <Icon as={Ionicons} name="checkmark-circle-outline" size={3} color="#2a9d3d" />
             </HStack>
-            <HStack space={1} alignItems="center"><Text color="white">Awaiting Approval from Ops Coordinator</Text>
-            <Icon
-            as={Ionicons}
-            name={'arrow-back-circle-outline'}
-            size={5}
-            color="white"
-          /></HStack>
-            <HStack><Text color="#939393" fontSize="xs">Awaiting Approval from Ops Manager</Text></HStack>
+            <HStack space={1} alignItems="center">
+              <Text color="white">Awaiting Approval from Ops Coordinator</Text>
+              <Icon as={Ionicons} name="arrow-back-circle-outline" size={5} color="white" />
+            </HStack>
+            <HStack>
+              <Text color="#939393" fontSize="xs">
+                Awaiting Approval from Ops Manager
+              </Text>
+            </HStack>
           </VStack>
-        )
+        );
       case 2:
         return (
           <VStack>
-            <HStack space={1} alignItems="center"><Text color="#2a9d3d" fontSize="xs">Awaiting for report to be uploaded</Text><Icon
-            as={Ionicons}
-            name={'checkmark-circle-outline'}
-            size={3}
-            color="#2a9d3d"
-          /></HStack>
-            <HStack space={1} alignItems="center"><Text color="#2a9d3d" fontSize="xs">Awaiting Approval from Ops Coordinator</Text>
-            <Icon
-            as={Ionicons}
-            name={'checkmark-circle-outline'}
-            size={3}
-            color="#2a9d3d"
-          /></HStack>
-            <HStack space={1} alignItems="center"><Text color="white">Awaiting Approval from Ops Manager</Text>
-            <Icon
-            as={Ionicons}
-            name={'arrow-back-circle-outline'}
-            size={5}
-            color="white"
-          />
+            <HStack space={1} alignItems="center">
+              <Text color="#2a9d3d" fontSize="xs">
+                Awaiting for report to be uploaded
+              </Text>
+              <Icon as={Ionicons} name="checkmark-circle-outline" size={3} color="#2a9d3d" />
+            </HStack>
+            <HStack space={1} alignItems="center">
+              <Text color="#2a9d3d" fontSize="xs">
+                Awaiting Approval from Ops Coordinator
+              </Text>
+              <Icon as={Ionicons} name="checkmark-circle-outline" size={3} color="#2a9d3d" />
+            </HStack>
+            <HStack space={1} alignItems="center">
+              <Text color="white">Awaiting Approval from Ops Manager</Text>
+              <Icon as={Ionicons} name="arrow-back-circle-outline" size={5} color="white" />
             </HStack>
           </VStack>
-        )
+        );
     }
-  }
+  };
 
   let ModelData = [];
   const user = auth?.currentSession?.session?.user;
@@ -335,7 +331,7 @@ const MyFlatList2 = ({ property_ID, value, Reporthandle }) => {
     variables: { _eq: email },
     skip: !email,
   });
-  ModelData = inventoryReport?.inventory_report
+  ModelData = inventoryReport?.inventory_report;
   if (invReportLoading) {
     return <Spinner size="sm" />;
   }
@@ -347,30 +343,36 @@ const MyFlatList2 = ({ property_ID, value, Reporthandle }) => {
   }
   return (
     <>
-    {/* <Text fontSize={18} paddingBottom={2}>Inventory Reports</Text> */}
-    {ModelData?.length === 0 ? <Text>There are no inventory reports for this property</Text> : 
-    <FlatList
-      data={ModelData}
-      pr={6}
-      renderItem={({ item }) => (
-        <View >
-          <Text>Property ID: {item?.property?.id}</Text>
-          <Text paddingBottom={1}>{item?.property?.country}, {item?.property?.city}, {item?.property?.community}</Text>
-          {item?.approved !=3 ? <TimeLine status={item?.approved} /> : 
-        <Button mb={2} onPress={() => openInventory(item?.inventory_report_pdfs?.[0].report_location)}>
-          {format(parseISO(item?.inventory_report_pdfs?.[0].report_upload_date), "MMMM, yyyy")}
-        </Button>
-      }
-        </View>
+      {/* <Text fontSize={18} paddingBottom={2}>Inventory Reports</Text> */}
+      {ModelData?.length === 0 ? (
+        <Text>There are no inventory reports for this property</Text>
+      ) : (
+        <FlatList
+          data={ModelData}
+          pr={6}
+          renderItem={({ item }) => (
+            <View>
+              <Text>Property ID: {item?.property?.id}</Text>
+              <Text paddingBottom={1}>
+                {item?.property?.country}, {item?.property?.city}, {item?.property?.community}
+              </Text>
+              {item?.approved !== 3 ? (
+                <TimeLine status={item?.approved} />
+              ) : (
+                <Button mb={2} onPress={() => openInventory(item?.inventory_report_pdfs?.[0].report_location)}>
+                  {format(parseISO(item?.inventory_report_pdfs?.[0].report_upload_date), "MMMM, yyyy")}
+                </Button>
+              )}
+            </View>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
       )}
-      keyExtractor={(item, index) => index.toString()}
-    />}
     </>
-  )
-}
+  );
+};
 
 const MyFlatList = ({ property_ID, value, Reporthandle }) => {
-
   const {
     loading: reportLoading,
     data: ManagementReportData,
@@ -391,7 +393,7 @@ const MyFlatList = ({ property_ID, value, Reporthandle }) => {
 
   let ModelData = [];
   if (value === 1) {
-    ModelData = ManagementReportData?.management_report;    
+    ModelData = ManagementReportData?.management_report;
   } else if (value === 2) {
     ModelData = MarkertReportData?.market_report;
   }
@@ -406,20 +408,23 @@ const MyFlatList = ({ property_ID, value, Reporthandle }) => {
   }
   return (
     <>
-    {ModelData?.length === 0 ? <Text>There are no managment reports for this property</Text> : 
-    <FlatList
-      data={ModelData}
-      pr={6}
-      renderItem={({ item }) => (
-        <Button mb={2} onPress={() => Reporthandle(item.report_location)}>
-          {format(parseISO(item.report_year), "MMMM, yyyy")}
-        </Button>
+      {ModelData?.length === 0 ? (
+        <Text>There are no managment reports for this property</Text>
+      ) : (
+        <FlatList
+          data={ModelData}
+          pr={6}
+          renderItem={({ item }) => (
+            <Button mb={2} onPress={() => Reporthandle(item.report_location)}>
+              {format(parseISO(item.report_year), "MMMM, yyyy")}
+            </Button>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
       )}
-      keyExtractor={(item, index) => index.toString()}
-    />}
     </>
   );
-}
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
