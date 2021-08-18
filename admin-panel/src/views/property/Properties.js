@@ -10,7 +10,7 @@ import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
 import { ExpandableTable } from './ExpandableTable'
 import { toast } from 'react-toastify'
-import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check, Info } from 'react-feather'
+import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check, Info, XCircle } from 'react-feather'
 import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 
 // ** Toast Component
@@ -38,7 +38,7 @@ const ToastComponent = ({ title, icon, color }) => (
 // ** Styles
 import '@styles/react/libs/flatpickr/flatpickr.scss'
 import { gql, useMutation, useQuery } from '@apollo/client'
-import AddNewModal from './AddNewModal'
+import AddNewModalAssignProp from './AddNewModalAssignProp'
 import ButtonGroup from 'reactstrap/lib/ButtonGroup'
 import { months } from 'moment'
 import Badge from 'reactstrap/lib/Badge'
@@ -128,8 +128,9 @@ const DataTableAdvSearch = () => {
   const [deleteProp, {loading: deletePropertyLoading}] = useMutation(DELETE_PROPS, {refetchQueries:[{query: GET_PROPS}]})
   const [assignOwnedProperty, {loading: assignOwnedPropertyLoading}] = useMutation(ASSIGN_OWNED_PROPERTY)
   const [modal, setModal] = useState(false)
-  const [searchName, setSearchName] = useState('')
-  const [searchEmail, setSearchEmail] = useState('')
+  const [searchCity, setSearchCity] = useState('')
+  const [searchCommunity, setSearchCommunity] = useState('')
+  const [searchAddress, setSearchAddress] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
   const [filteredData, setFilteredData] = useState([])
   const [searchCountry, setSearchCountry] = useState('')
@@ -137,6 +138,10 @@ const DataTableAdvSearch = () => {
   const [toAssignNewRecord, setToAssignRecord] = useState(false)
   const [row, setRow] = useState(null)
   const [rowId, setRowId] = useState(null)
+  const [clientOwnedArray, setclientOwnedArray] = useState([])
+  const [clientLeasedArray, setclientLeasedArray] = useState([])
+  const [lease_start_date, setLease_start_date] = useState(null)
+  const [lease_end_date, setLease_end_date] = useState(null)
 
   const [modalAlert, setModalAlert] = useState(null)
 
@@ -150,17 +155,29 @@ const DataTableAdvSearch = () => {
   }
   
     const closeModal = () => {
-        setModal(!modal)
+      setModal(!modal) 
+      setTimeout(() => {
+        setToAddNewRecord(false)
+        setToAssignRecord(false)
+        setclientOwnedArray([])
+        setclientLeasedArray([])
+        setLease_start_date(null)
+        setLease_end_date(null)
+      }, 200)
     }
 
   // ** Function to handle Modal toggle
   const handleModal = (row) => { 
       setRow(row)
+      setModal(!modal) 
       setTimeout(() => {
-        setModal(!modal) 
+        setToAddNewRecord(false)
+        setToAssignRecord(false)
+        setclientOwnedArray([])
+        setclientLeasedArray([])
+        setLease_start_date(null)
+        setLease_end_date(null)
       }, 200)
-      setToAddNewRecord(false)
-      setToAssignRecord(false)
     }
 
   // ** Function to handle Pagination
@@ -169,33 +186,33 @@ const DataTableAdvSearch = () => {
     // ** Table Columns
 const advSearchColumns = [
     {
-      name: 'Id',
+      name: 'ID',
       selector: 'id',
       sortable: true,
       minWidth: '10px'
     },
     {
-      name: 'city',
+      name: 'City',
       selector: 'city',
       sortable: true,
       minWidth: '50px'
     },
     {
-      name: 'country',
+      name: 'Country',
       selector: 'country',
       sortable: true,
       wrap: true,
       minWidth: '200px'
     },
     {
-      name: 'community',
+      name: 'Community',
       selector: 'community',
       sortable: true,
       wrap: true,
       minWidth: '50px'
     },
     {
-      name: 'address',
+      name: 'Address',
       selector: 'address',
       sortable: true,
       wrap: true,
@@ -206,9 +223,10 @@ const advSearchColumns = [
 //   ** Table data to render
   const dataToRender = () => {
     if (
-      searchName.length ||
-      searchEmail.length ||
-      searchCountry.length
+      searchCity.length ||
+      searchAddress.length ||
+      searchCountry.length || 
+      searchCommunity.length
     ) {
       return filteredData
     } else {
@@ -230,7 +248,8 @@ const advSearchColumns = [
       }
   }
 
-  const addWorkerRecord = (row = false) => {
+  const addPropertyRecord = (row = false) => {
+    console.log(row)
     if (row) {
       setRow(row)
       setToAddNewRecord(false)
@@ -239,6 +258,7 @@ const advSearchColumns = [
         setModal(!modal) 
       }, 200)
     } else {
+      setToAssignRecord(false)
       setToAddNewRecord(true)
       setRow({
           active: 1
@@ -326,15 +346,15 @@ const advSearchColumns = [
     }
   }
 
-  const handleDeleteRecord = (id) => {
-    deleteProp({variables: {
-        id
-      }})
-      dataToRender()
-      if (!deleteWorkerLoading) {
-        toggleModal()
-      }
-  }
+  // const handleDeleteRecord = (id) => {
+  //   deleteProp({variables: {
+  //       id
+  //     }})
+  //     dataToRender()
+  //     if (!deleteWorkerLoading) {
+  //       toggleModal()
+  //     }
+  // }
 
 
   // ** Custom Pagination
@@ -361,24 +381,24 @@ const advSearchColumns = [
     />
   )
 
-  // ** Function to handle name filter
-  const handleNameFilter = e => {
+  // ** Function to handle City filter
+  const handleCityFilter = e => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length)  {
+      if (searchAddress.length || searchCity.length || searchCountry.length || searchCommunity.length) {
         return filteredData
       } else {
         return data?.property
       }
     }
 
-    setSearchName(value)
+    setSearchCity(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.full_name?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item.city?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.full_name?.toLowerCase().includes(value.toLowerCase())
+        const includes = item.city?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -387,28 +407,28 @@ const advSearchColumns = [
         } else return null
       })
       setFilteredData([...updatedData])
-      setSearchName(value)
+      setSearchCity(value)
     }
   }
 
-  // ** Function to handle email filter
-  const handleEmailFilter = e => {
+  // ** Function to handle Address filter
+  const handleAddressFilter = e => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length) {
+      if (searchAddress.length || searchCity.length || searchCountry.length || searchCommunity.length) {
         return filteredData
       } else {
         return data?.property
       }
     }
 
-    setSearchEmail(value)
+    setSearchAddress(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.email?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item.address?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.email?.toLowerCase().includes(value.toLowerCase())
+        const includes = item.address?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -417,7 +437,7 @@ const advSearchColumns = [
         } else return null
       })
       setFilteredData([...updatedData])
-      setSearchEmail(value)
+      setSearchAddress(value)
     }
   }
 
@@ -426,7 +446,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-          if (searchEmail.length || searchName.length || searchCountry.length) {
+          if (searchAddress.length || searchCity.length || searchCountry.length || searchCommunity.length) {
           return filteredData
         } else {
           return data?.property
@@ -436,27 +456,68 @@ const advSearchColumns = [
       setSearchCountry(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().startsWith(value.toLowerCase()) === true)
-          const includes = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().includes(value.toLowerCase()) === true)
-          console.log(startsWith)
+          const startsWith = item.country?.toLowerCase().startsWith(value.toLowerCase())
+  
+          const includes = item.country?.toLowerCase().includes(value.toLowerCase())
+  
           if (startsWith) {
-              return startsWith
-            } else if (!startsWith && includes) {
-              return includes
-            } else return null
+            return startsWith
+          } else if (!startsWith && includes) {
+            return includes
+          } else return null
         })
         setFilteredData([...updatedData])
         setSearchCountry(value)
       }
     }
 
+    // ** Function to handle Community filter
+    const handleCommunityFilter = e => {
+      const value = e.target.value
+      let updatedData = []
+      const dataToFilter = () => {
+          if (searchAddress.length || searchCity.length || searchCountry.length || searchCommunity.length) {
+          return filteredData
+        } else {
+          return data?.property
+        }
+      }
+  
+      setSearchCommunity(value)
+      if (value.length) {
+        updatedData = dataToFilter().filter(item => {
+          const startsWith = item.community?.toLowerCase().startsWith(value.toLowerCase())
+  
+          const includes = item.community?.toLowerCase().includes(value.toLowerCase())
+  
+          if (startsWith) {
+            return startsWith
+          } else if (!startsWith && includes) {
+            return includes
+          } else return null
+        })
+        setFilteredData([...updatedData])
+        setSearchCommunity(value)
+      }
+    }
+
+  const clearRecord = () => {
+    setSearchCity("")
+    setSearchAddress("")
+    setSearchAddress("")
+    setSearchCommunity("")
+  }
   return (
     <Fragment>
       <Card>
         <CardHeader className='border-bottom'>
           <CardTitle tag='h4'>Search Properties</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
-            <Button className='ml-2' color='primary' onClick={() => addWorkerRecord()}>
+            { (searchCity || searchAddress || searchCountry || searchCommunity) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
+              <XCircle size={15} />
+              <span className='align-middle ml-50'>Clear filter</span>
+            </Button>}
+            <Button className='ml-2' color='primary' onClick={() => addPropertyRecord()}>
               <Plus size={15} />
               <span className='align-middle ml-50'>Add Record</span>
             </Button>
@@ -464,33 +525,45 @@ const advSearchColumns = [
         </CardHeader>
         <CardBody>
           <Row form className='mt-1 mb-50'>
-            <Col lg='4' md='6'>
+            <Col lg='3' md='6'>
               <FormGroup>
-                <Label for='name'>Name:</Label>
-                <Input id='name' placeholder='Bruce Wayne' value={searchName} onChange={handleNameFilter} />
+                <Label for='city'>City:</Label>
+                <Input id='city' placeholder='Search City here' value={searchCity} onChange={handleCityFilter} />
               </FormGroup>
             </Col>
-            <Col lg='4' md='6'>
+            <Col lg='3' md='6'>
               <FormGroup>
-                <Label for='email'>Email:</Label>
+                <Label for='address'>Address:</Label>
                 <Input
-                  type='email'
-                  id='email'
-                  placeholder='Bwayne@email.com'
-                  value={searchEmail}
-                  onChange={handleEmailFilter}
+                  type='address'
+                  id='address'
+                  placeholder='Search Address here'
+                  value={searchAddress}
+                  onChange={handleAddressFilter}
                 />
               </FormGroup>
             </Col>
-            <Col lg='4' md='6'>
+            <Col lg='3' md='6'>
               <FormGroup>
                 <Label for='country'>Country:</Label>
                 <Input
                   type='country'
                   id='country'
-                  placeholder='Dubai'
+                  placeholder='Search Country here'
                   value={searchCountry}
                   onChange={handleCountryFilter}
+                />
+              </FormGroup>
+            </Col>
+            <Col lg='3' md='6'>
+              <FormGroup>
+                <Label for='community'>Community:</Label>
+                <Input
+                  type='community'
+                  id='community'
+                  placeholder='Search Community here'
+                  value={searchCommunity}
+                  onChange={handleCommunityFilter}
                 />
               </FormGroup>
             </Col>
@@ -506,13 +579,13 @@ const advSearchColumns = [
           paginationDefaultPage={currentPage + 1}
           // paginationComponent={CustomPagination}
           data={dataToRender()}
-          onRowClicked={(row) => addWorkerRecord(row)}
+          onRowClicked={(row) => addPropertyRecord(row)}
           pointerOnHover
           highlightOnHover
-        /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Worker information</h4>}
+        /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Property information</h4>}
        
       </Card>
-      <AddNewModal 
+      <AddNewModalAssignProp 
       open={modal} 
       data={clientData?.client}
       handleModal={handleModal} 
@@ -524,6 +597,14 @@ const advSearchColumns = [
       row={row} 
       setRow={setRow} 
       handleUpdate={handleUpdate}
+      clientOwnedArray={clientOwnedArray}
+      setclientOwnedArray={setclientOwnedArray}
+      clientLeasedArray={clientLeasedArray}
+      setclientLeasedArray={setclientLeasedArray}
+      lease_start_date={lease_start_date}
+      setLease_start_date={setLease_start_date}
+      lease_end_date={lease_end_date}
+      setLease_end_date={setLease_end_date}
       />
       <div className='theme-modal-danger'>
         <Modal
