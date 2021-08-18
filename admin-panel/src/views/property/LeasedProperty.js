@@ -125,9 +125,15 @@ const LeasedProperty = () => {
   const [searchEmail, setSearchEmail] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
   const [filteredData, setFilteredData] = useState([])
+  const [searchCountry, setSearchCountry] = useState('')
   const [toAddNewRecord, setToAddNewRecord] = useState(false)
   const [row, setRow] = useState(null)
   const [rowId, setRowId] = useState(null)
+  const [clientOwnedArray, setclientOwnedArray] = useState([])
+  const [clientLeasedArray, setclientLeasedArray] = useState([])
+  const [lease_start_date, setLease_start_date] = useState(null)
+  const [lease_end_date, setLease_end_date] = useState(null)
+  let propertyOwnedData = []
 
   const [modalAlert, setModalAlert] = useState(null)
 
@@ -140,18 +146,29 @@ const LeasedProperty = () => {
     setModalAlert(true)
   }
   
-    const closeModal = () => {
-        setModal(!modal)
-    }
-
-  // ** Function to handle Modal toggle
-  const handleModal = (row) => { 
-      setRow(row)
-      setTimeout(() => {
-        setModal(!modal) 
-      }, 200)
+  const closeModal = () => {
+    setModal(!modal) 
+    setTimeout(() => {
       setToAddNewRecord(false)
-    }
+      setclientOwnedArray([])
+      setclientLeasedArray([])
+      setLease_start_date(null)
+      setLease_end_date(null)
+    }, 200)
+  }
+
+// ** Function to handle Modal toggle
+const handleModal = (row) => { 
+    setRow(row)
+    setModal(!modal) 
+    setTimeout(() => {
+      setToAddNewRecord(false)
+      setclientOwnedArray([])
+      setclientLeasedArray([])
+      setLease_start_date(null)
+      setLease_end_date(null)
+    }, 200)
+  }
 
   // ** Function to handle Pagination
   const handlePagination = page => setCurrentPage(page.selected)
@@ -165,16 +182,16 @@ const advSearchColumns = [
       minWidth: '10px'
     },
     {
+      name: 'Name',
+      selector: 'full_name',
+      sortable: true,
+      minWidth: '200px'
+    },
+    {
       name: 'Email',
       selector: 'email',
       sortable: true,
       minWidth: '350px'
-    },
-    {
-      name: 'Full Name',
-      selector: 'full_name',
-      sortable: true,
-      minWidth: '200px'
     },
     {
         name: 'Properties',
@@ -204,8 +221,12 @@ const advSearchColumns = [
           return null
         }
       })
-      // setPropertyOwnedData([...updatedData])
-      return updatedData
+      propertyOwnedData = updatedData
+      if (searchName.length || searchEmail.length || searchCountry.length) {
+        return filteredData
+      } else {
+        return propertyOwnedData
+      }
   }
 
   const handleUpdate = (updatedRow) => {
@@ -222,7 +243,7 @@ const advSearchColumns = [
       }
   }
 
-  const addWorkerRecord = () => {
+  const addPropertyRecord = () => {
     setToAddNewRecord(true)
     setRow({
         active: 1
@@ -234,7 +255,6 @@ const advSearchColumns = [
 
 
   const handleAddRecord = async (newRow, clientOwnedArray, clientLeasedArray, lease_start, lease_end) => {
-    console.log(newRow, clientOwnedArray, clientLeasedArray)
     try {
       const res = await addProp({variables: {
         community: newRow.community,
@@ -242,13 +262,14 @@ const advSearchColumns = [
         city: newRow.city,
         address: newRow.address
       }})
+      console.log("New property added", res)
       for (let i = 0; i < clientOwnedArray.length; i++) {
         const owner_id = clientOwnedArray[i].value
         const res2 = await addPropOwned({variables: {
           property_id: res.data.insert_property_one.id,
           owner_id
         }})
-        console.log(res2.data.insert_property_owned_one.id)
+        console.log("Property Owned for client Added", res2)
       }
       
       if (clientLeasedArray.length > 0) {
@@ -260,7 +281,7 @@ const advSearchColumns = [
             lease_start,
             lease_end
           }})
-          console.log(res3.data.insert_lease_one.id)
+          console.log("Property Owned for client Leased Added", res3)
         }
       }
       dataToRender()
@@ -277,15 +298,15 @@ const advSearchColumns = [
     }
   }
 
-  const handleDeleteRecord = (id) => {
-    deleteProp({variables: {
-        id
-      }})
-      dataToRender()
-      if (!deleteWorkerLoading) {
-        toggleModal()
-      }
-  }
+  // const handleDeleteRecord = (id) => {
+  //   deleteProp({variables: {
+  //       id
+  //     }})
+  //     dataToRender()
+  //     if (!deleteWorkerLoading) {
+  //       toggleModal()
+  //     }
+  // }
 
 
   // ** Custom Pagination
@@ -317,10 +338,10 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length)  {
+      if (searchEmail.length || searchName.length || searchCountry.length)  {
         return filteredData
       } else {
-        return data?.client
+        return propertyOwnedData
       }
     }
 
@@ -347,10 +368,10 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length) {
+      if (searchEmail.length || searchName.length || searchCountry.length) {
         return filteredData
       } else {
-        return data?.client
+        return propertyOwnedData
       }
     }
 
@@ -372,13 +393,52 @@ const advSearchColumns = [
     }
   }
 
+    // ** Function to handle country filter
+    const handleCountryFilter = e => {
+      const value = e.target.value
+      let updatedData = []
+      const dataToFilter = () => {
+          if (searchEmail.length || searchName.length || searchCountry.length) {
+          return filteredData
+        } else {
+          return propertyOwnedData
+        }
+      }
+  
+      setSearchCountry(value)
+      if (value.length) {
+        updatedData = dataToFilter().filter(item => {
+          const startsWith = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().includes(value.toLowerCase()) === true)
+          console.log(startsWith)
+          if (startsWith) {
+              return startsWith
+            } else if (!startsWith && includes) {
+              return includes
+            } else return null
+        })
+        setFilteredData([...updatedData])
+        setSearchCountry(value)
+      }
+    }
+    
+    const clearRecord = () => {
+      setSearchName("")
+      setSearchCity("")
+      setSearchCountry("")
+    }
+
   return (
     <Fragment>
       <Card>
-        <CardHeader className='border-bottom'>
+      <CardHeader className='border-bottom'>
           <CardTitle tag='h4'>Search Properties</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
-            <Button className='ml-2' color='primary' onClick={addWorkerRecord}>
+            { (searchName || searchEmail || searchCountry) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
+              <XCircle size={15} />
+              <span className='align-middle ml-50'>Clear filter</span>
+            </Button>}
+            <Button className='ml-2' color='primary' onClick={() => addPropertyRecord()}>
               <Plus size={15} />
               <span className='align-middle ml-50'>Add Record</span>
             </Button>
@@ -389,7 +449,7 @@ const advSearchColumns = [
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='name'>Name:</Label>
-                <Input id='name' placeholder='Bruce Wayne' value={searchName} onChange={handleNameFilter} />
+                <Input id='name' placeholder='Search Client Name' value={searchName} onChange={handleNameFilter} />
               </FormGroup>
             </Col>
             <Col lg='4' md='6'>
@@ -398,9 +458,21 @@ const advSearchColumns = [
                 <Input
                   type='email'
                   id='email'
-                  placeholder='Bwayne@email.com'
+                  placeholder='Search Client Email'
                   value={searchEmail}
                   onChange={handleEmailFilter}
+                />
+              </FormGroup>
+            </Col>
+            <Col lg='4' md='6'>
+              <FormGroup>
+                <Label for='country'>Country:</Label>
+                <Input
+                  type='country'
+                  id='country'
+                  placeholder='Search Country'
+                  value={searchCountry}
+                  onChange={handleCountryFilter}
                 />
               </FormGroup>
             </Col>
@@ -421,7 +493,7 @@ const advSearchColumns = [
           expandableRowsComponent={<ExpandableTable data={dataToRender()} openModalAlert={openModalAlert} handleUpdate={handleUpdate} />}
           expandOnRowClicked
           // selectableRowsComponent={BootstrapCheckbox}
-        /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Worker information</h4>}
+        /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Property information</h4>}
        
       </Card>
       <AddNewModal 
@@ -434,6 +506,14 @@ const advSearchColumns = [
       row={row} 
       setRow={setRow} 
       handleUpdate={handleUpdate}
+      clientOwnedArray={clientOwnedArray}
+      setclientOwnedArray={setclientOwnedArray}
+      clientLeasedArray={clientLeasedArray}
+      setclientLeasedArray={setclientLeasedArray}
+      lease_start_date={lease_start_date}
+      setLease_start_date={setLease_start_date}
+      lease_end_date={lease_end_date}
+      setLease_end_date={setLease_end_date}
       />
       <div className='theme-modal-danger'>
         <Modal
