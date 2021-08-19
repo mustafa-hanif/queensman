@@ -7,6 +7,8 @@ import { Row, Col, TabContent, TabPane, Nav, NavItem, NavLink } from 'reactstrap
 
 // ** Tables
 import AllProperty from './AllProperty'
+import AllOwnedProperty from './AllOwnedProperty'
+import AllLeasedProperty from './AllLeasedProperty'
 import OwnedProperty from './OwnedProperty'
 import LeasedProperty from './LeasedProperty'
 import Properties from './Properties'
@@ -68,7 +70,8 @@ const Tables = () => {
         <TabPane tabId='1'>
         <Row>
         <Col sm='12'>
-         <AllProperty />
+         <AllOwnedProperty />
+         <AllLeasedProperty />
         </Col>
       </Row>
         </TabPane>

@@ -10,7 +10,7 @@ import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
 import { ExpandableTable } from './ExpandableTable'
 import { toast } from 'react-toastify'
-import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check, Info } from 'react-feather'
+import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check, Info, XCircle } from 'react-feather'
 import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 
 // ** Toast Component
@@ -126,6 +126,10 @@ const LeasedProperty = () => {
   const [currentPage, setCurrentPage] = useState(0)
   const [filteredData, setFilteredData] = useState([])
   const [searchCountry, setSearchCountry] = useState('')
+  const [searchCity, setSearchCity] = useState('')
+  const [searchCommunity, setSearchCommunity] = useState('')
+  const [searchAddress, setSearchAddress] = useState('')
+  const [searchPropertyId, setSearchPropertyId] = useState('')
   const [toAddNewRecord, setToAddNewRecord] = useState(false)
   const [row, setRow] = useState(null)
   const [rowId, setRowId] = useState(null)
@@ -222,7 +226,7 @@ const advSearchColumns = [
         }
       })
       propertyOwnedData = updatedData
-      if (searchName.length || searchEmail.length || searchCountry.length) {
+      if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
         return filteredData
       } else {
         return propertyOwnedData
@@ -338,7 +342,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || searchCountry.length)  {
+      if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
         return filteredData
       } else {
         return propertyOwnedData
@@ -368,7 +372,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || searchCountry.length) {
+      if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
         return filteredData
       } else {
         return propertyOwnedData
@@ -398,7 +402,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-          if (searchEmail.length || searchName.length || searchCountry.length) {
+        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
           return filteredData
         } else {
           return propertyOwnedData
@@ -408,8 +412,8 @@ const advSearchColumns = [
       setSearchCountry(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().startsWith(value.toLowerCase()) === true)
-          const includes = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().includes(value.toLowerCase()) === true)
+          const startsWith = item?.property_owneds.some(item2 => item2.property.country.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds.some(item2 => item2.property.country.toLowerCase().includes(value.toLowerCase()) === true)
           console.log(startsWith)
           if (startsWith) {
               return startsWith
@@ -421,20 +425,137 @@ const advSearchColumns = [
         setSearchCountry(value)
       }
     }
-    
+
+    // ** Function to handle City filter
+    const handleCityFilter = e => {
+      const value = e.target.value
+      let updatedData = []
+      const dataToFilter = () => {
+        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+          return filteredData
+        } else {
+          return propertyOwnedData
+        }
+      }
+  
+      setSearchCity(value)
+      if (value.length) {
+        updatedData = dataToFilter().filter(item => {
+          const startsWith = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().includes(value.toLowerCase()) === true)
+          if (startsWith) {
+              return startsWith
+            } else if (!startsWith && includes) {
+              return includes
+            } else return null
+        })
+        setFilteredData([...updatedData])
+        setSearchCity(value)
+      }
+    }
+
+     // ** Function to handle Community filter
+     const handleCommunityFilter = e => {
+      const value = e.target.value
+      let updatedData = []
+      const dataToFilter = () => {
+        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+          return filteredData
+        } else {
+          return propertyOwnedData
+        }
+      }
+  
+      setSearchCommunity(value)
+      if (value.length) {
+        updatedData = dataToFilter().filter(item => {
+          const startsWith = item?.property_owneds.some(item2 => item2.property.community.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds.some(item2 => item2.property.community.toLowerCase().includes(value.toLowerCase()) === true)
+          if (startsWith) {
+              return startsWith
+            } else if (!startsWith && includes) {
+              return includes
+            } else return null
+        })
+        setFilteredData([...updatedData])
+        setSearchCommunity(value)
+      }
+    }
+
+     // ** Function to handle Addresss filter
+     const handleAddressFilter = e => {
+      const value = e.target.value
+      let updatedData = []
+      const dataToFilter = () => {
+        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+          return filteredData
+        } else {
+          return propertyOwnedData
+        }
+      }
+  
+      setSearchAddress(value)
+      if (value.length) {
+        updatedData = dataToFilter().filter(item => {
+          const startsWith = item?.property_owneds.some(item2 => item2.property.address.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds.some(item2 => item2.property.address.toLowerCase().includes(value.toLowerCase()) === true)
+          if (startsWith) {
+              return startsWith
+            } else if (!startsWith && includes) {
+              return includes
+            } else return null
+        })
+        setFilteredData([...updatedData])
+        setSearchAddress(value)
+      }
+    }
+
+    // ** Function to handle ID filter
+    const handlePropertyIdFilter = e => {
+      const value = e.target.value
+      let updatedData = []
+      const dataToFilter = () => {
+          if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+          return filteredData
+        } else {
+          return propertyOwnedData
+        }
+      }
+  
+      setSearchPropertyId(value)
+      if (value.length) {
+        updatedData = dataToFilter().filter(item => {
+          const startsWith = item?.property_owneds.some(item2 => item2.property.id.toString().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds.some(item2 => item2.property.id.toString().includes(value.toLowerCase()) === true)
+          console.log(startsWith)
+          if (startsWith) {
+              return startsWith
+            } else if (!startsWith && includes) {
+              return includes
+            } else return null
+        })
+        setFilteredData([...updatedData])
+        setSearchPropertyId(value)
+      }
+    }
+
     const clearRecord = () => {
       setSearchName("")
-      setSearchCity("")
+      setSearchEmail("")
       setSearchCountry("")
+      setSearchCity("")
+      setSearchCommunity("")
+      setSearchAddress("")
+      setSearchPropertyId("")
     }
 
   return (
     <Fragment>
       <Card>
       <CardHeader className='border-bottom'>
-          <CardTitle tag='h4'>Search Properties</CardTitle>
+          <CardTitle tag='h4'>Search Owned Properties</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
-            { (searchName || searchEmail || searchCountry) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
+            { (searchName || searchEmail || searchCountry || searchCity || searchCommunity || searchAddress || searchPropertyId) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
               <XCircle size={15} />
               <span className='align-middle ml-50'>Clear filter</span>
             </Button>}
@@ -456,7 +577,6 @@ const advSearchColumns = [
               <FormGroup>
                 <Label for='email'>Email:</Label>
                 <Input
-                  type='email'
                   id='email'
                   placeholder='Search Client Email'
                   value={searchEmail}
@@ -466,9 +586,21 @@ const advSearchColumns = [
             </Col>
             <Col lg='4' md='6'>
               <FormGroup>
+                <Label for='propId'>Property ID:</Label>
+                <Input
+                  id='propId'
+                  placeholder='Search Property ID'
+                  value={searchPropertyId}
+                  onChange={handlePropertyIdFilter}
+                />
+              </FormGroup>
+            </Col>
+          </Row>
+          <Row form className="mt-1 mb-50">
+          <Col lg='3' md='6'>
+              <FormGroup>
                 <Label for='country'>Country:</Label>
                 <Input
-                  type='country'
                   id='country'
                   placeholder='Search Country'
                   value={searchCountry}
@@ -476,7 +608,40 @@ const advSearchColumns = [
                 />
               </FormGroup>
             </Col>
-          </Row>
+            <Col lg='3' md='6'>
+              <FormGroup>
+                <Label for='city'>City:</Label>
+                <Input
+                  id='city'
+                  placeholder='Search City'
+                  value={searchCity}
+                  onChange={handleCityFilter}
+                />
+              </FormGroup>
+            </Col>
+            <Col lg='3' md='6'>
+              <FormGroup>
+                <Label for='community'>Community:</Label>
+                <Input
+                  id='community'
+                  placeholder='Search Community'
+                  value={searchCommunity}
+                  onChange={handleCommunityFilter}
+                />
+              </FormGroup>
+            </Col>
+            <Col lg='3' md='6'>
+              <FormGroup>
+                <Label for='address'>Address:</Label>
+                <Input
+                  id='address'
+                  placeholder='Search Address'
+                  value={searchAddress}
+                  onChange={handleAddressFilter}
+                />
+              </FormGroup>
+            </Col>
+            </Row>
         </CardBody>
         {!loading ? <DataTable
           noHeader

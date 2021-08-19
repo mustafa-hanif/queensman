@@ -29,7 +29,7 @@ import Select from 'react-select'
 // ** Styles
 import '@styles/react/libs/flatpickr/flatpickr.scss'
 
-const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord }) => {
+const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord, updateActive }) => {
 
   const [contract_start_date, set_contract_start_date] = useState(new Date())
   const [contract_end_date, set_contract_end_date] = useState(new Date())
@@ -37,6 +37,8 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
   const [newPassword, setNewPassword] = useState(null)
   const [confirmPassword, setConfirmPassword] = useState(null)
   const [oldPassword, setoldPassword] = useState(null)
+  const [changeActive, setChangeActive] = useState(false)
+  const [active, setActive] = useState(null)
   const options = [
     { value: '1', label: 'Active' },
     { value: '0', label: 'Inactive' }
@@ -68,6 +70,10 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
   }
 
   const handleSelectedChange = (e, name) => {
+    if (name === "active") {
+      setChangeActive(true)
+      setActive(e.value)
+    }
     const rowValue = { ...row }
     rowValue[name] = e.value
     setRow(rowValue)
@@ -84,6 +90,9 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
 
   const onSubmit = () => {
     // setRow(row)
+    if (changeActive) {
+      updateActive(active, row)
+    }
     if (toAddNewRecord) {
       handleAddRecord(row)
     } else {
@@ -92,6 +101,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
     setRow(null)
     setNewPassword(null)
     setConfirmPassword(null)
+    setChangeActive(false)
   }
 
   const { register, errors, handleSubmit } = useForm()

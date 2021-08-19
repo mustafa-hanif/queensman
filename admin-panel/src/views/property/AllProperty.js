@@ -10,7 +10,7 @@ import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
 import { ExpandableTable } from './ExpandableTable'
 import { toast } from 'react-toastify'
-import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check, Info } from 'react-feather'
+import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check, Info, XCircle } from 'react-feather'
 import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 
 // ** Toast Component
@@ -397,9 +397,8 @@ const advSearchColumns = [
       setSearchCountry(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().startsWith(value.toLowerCase()) === true)
-          const includes = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().includes(value.toLowerCase()) === true)
-          console.log(startsWith)
+          const startsWith = item?.property_owneds.some(item2 => item2.property.country.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds.some(item2 => item2.property.country.toLowerCase().includes(value.toLowerCase()) === true)
           if (startsWith) {
               return startsWith
             } else if (!startsWith && includes) {
@@ -413,7 +412,7 @@ const advSearchColumns = [
 
     const clearRecord = () => {
       setSearchName("")
-      setSearchCity("")
+      setSearchEmail("")
       setSearchCountry("")
     }
 

@@ -51,6 +51,7 @@ query GetProperties {
       country
       community
       address
+      active
     }
   }
 `
@@ -67,12 +68,22 @@ query GetClientOwned {
     property_owneds {
       property_id
     }
+    leases {
+      property_id
+    }
   }
 }`
 
 const ASSIGN_OWNED_PROPERTY = gql`
 mutation AssignOwnedProperty($owner_id: Int!, $property_id: Int!) {
   insert_property_owned(objects: {owner_id: $owner_id, property_id: $property_id, uploaded_by: 10000002, active: "1"}) {
+    affected_rows
+  }
+}
+`
+const ASSIGN_LEASED_PROPERTY = gql`
+mutation AddLeasedProperty($property_id: Int = 10, $lease_start: timestamp!, $lease_end: timestamp!, $owner_id: Int!) {
+  insert_lease(objects: {property_id: $property_id, lease_start: $lease_start, lease_end: $lease_end, uploaded_by: 10000002, active: "1", lease_id: $owner_id}) {
     affected_rows
   }
 }
@@ -126,7 +137,8 @@ const DataTableAdvSearch = () => {
   const [addPropOwned, {loading: addPropertyOwnedLoading}] = useMutation(ADD_PROP_OWNED, {refetchQueries:[{query: GET_PROPS}]})
   const [addLease, {loading: addLeaseLoading}] = useMutation(ADD_LEASE, {refetchQueries:[{query: GET_PROPS}]})
   const [deleteProp, {loading: deletePropertyLoading}] = useMutation(DELETE_PROPS, {refetchQueries:[{query: GET_PROPS}]})
-  const [assignOwnedProperty, {loading: assignOwnedPropertyLoading}] = useMutation(ASSIGN_OWNED_PROPERTY)
+  const [assignOwnedProperty, {loading: assignOwnedPropertyLoading}] = useMutation(ASSIGN_OWNED_PROPERTY, {refetchQueries:[{query: GET_PROPS}]})
+  const [assignLeasedProperty, {loading: assignLeasedPropertyLoading}] = useMutation(ASSIGN_LEASED_PROPERTY, {refetchQueries:[{query: GET_PROPS}]})
   const [modal, setModal] = useState(false)
   const [searchCity, setSearchCity] = useState('')
   const [searchCommunity, setSearchCommunity] = useState('')
@@ -217,6 +229,40 @@ const advSearchColumns = [
       sortable: true,
       wrap: true,
       minWidth: '400px'
+    },
+    {
+      name: "Active/Inactive",
+      selector: "active",
+      sortable: true,
+      minWidth: "150px",
+      cell: row => {
+        return (
+          <Badge color={row?.active === 1 ? 'light-success' :  'light-danger'} pill>
+            {row?.active === 1 ? "Active" : "Inactive"}
+          </Badge>
+        )
+      }
+    },
+    {
+      name: 'Actions',
+      minWidth: '200px',
+      allowOverflow: true,
+      cell: row => {
+        return (
+          <div className="d-flex w-100 align-items-center">
+            <ButtonGroup size="sm" >
+              <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
+                <Trash size={15} />
+              </Button>
+              {/* <Button color='primary' className="btn-icon" size="sm">
+                <Edit size={15} onClick={() => handleModal(row)} />
+              </Button> */}
+            </ButtonGroup>
+
+          </div>
+
+        )
+      }
     }
   ]
 
@@ -271,11 +317,35 @@ const advSearchColumns = [
 
   const handleAssignClient = async (row, clientOwnedArray, clientLeasedArray, lease_start, lease_end) => {
     console.log(row, clientOwnedArray, clientLeasedArray)
-    if (clientOwnedArray.length > 0 && clientLeasedArray.length > 0) {
-      console.log("Both")
-    } else if (clientLeasedArray.length > 0) {
+    if (clientLeasedArray.length > 0) {
       console.log("leased")
-    } else {
+      for (let i = 0; i < clientLeasedArray.length; i++) {
+        const owner_id = clientLeasedArray[i].value
+        try {
+          await assignLeasedProperty({variables: {
+            property_id: row.id,
+            owner_id,
+            lease_start,
+            lease_end
+          }})
+        } catch (e) {
+          console.log(e)
+        }
+      }
+      toast.success(
+        <ToastComponent title="Property Assigned" color="success" icon={<Check />} />,
+        {
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeButton: false
+        }
+      )
+      dataToRender()
+      if (!assignOwnedPropertyLoading) {
+        setModal(!modal)
+      }
+    } 
+    if (clientOwnedArray.length > 0) {
       console.log("owned")
       for (let i = 0; i < clientOwnedArray.length; i++) {
         const owner_id = clientOwnedArray[i].value
@@ -311,13 +381,14 @@ const advSearchColumns = [
         city: newRow.city,
         address: newRow.address
       }})
+      console.log("New property added", res)
       for (let i = 0; i < clientOwnedArray.length; i++) {
         const owner_id = clientOwnedArray[i].value
         const res2 = await addPropOwned({variables: {
           property_id: res.data.insert_property_one.id,
           owner_id
         }})
-        console.log(res2.data.insert_property_owned_one.id)
+        console.log("Property Owned for client Added", res2)
       }
       
       if (clientLeasedArray.length > 0) {
@@ -329,9 +400,14 @@ const advSearchColumns = [
             lease_start,
             lease_end
           }})
-          console.log(res3.data.insert_lease_one.id)
+          console.log("Property Owned for client Leased Added", res3)
         }
       }
+      toast.success(<ToastComponent title='Property Added' color='success' icon={<Check />} />, {
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeButton: false
+      })
       dataToRender()
       if (!addPropertyLoading) {
         setModal(!modal)
@@ -346,15 +422,39 @@ const advSearchColumns = [
     }
   }
 
-  // const handleDeleteRecord = (id) => {
-  //   deleteProp({variables: {
-  //       id
-  //     }})
-  //     dataToRender()
-  //     if (!deleteWorkerLoading) {
-  //       toggleModal()
-  //     }
-  // }
+  const handleDeleteRecord = async (id) => {
+    try {
+      await deleteProp({variables: {
+        id
+      }})
+      toast.error(<ToastComponent title='Property Deleted' color='danger' icon={<Info />} />, {
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } catch (e) {
+      console.log(e?.message)
+      if (e?.message === 'Foreign key violation. update or delete on table "property" violates foreign key constraint "property_owned_property_id_fkey" on table "property_owned"') {
+        toast.error(<ToastComponent title="This propert is assgined to a client. Please unassign it first" color='danger' icon={<Info />} />, {
+          autoClose: 10000,
+          hideProgressBar: true,
+          closeButton: false
+        })  
+      } else {
+        toast.error(<ToastComponent title="An error occured" color='danger' icon={<Info />} />, {
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeButton: false
+        })
+      }
+      
+    }
+    
+      dataToRender()
+      if (!deletePropertyLoading) {
+        toggleModal()
+      }
+  }
 
 
   // ** Custom Pagination
@@ -569,7 +669,7 @@ const advSearchColumns = [
             </Col>
           </Row>
         </CardBody>
-        {!loading ? <DataTable
+        {!loading && !addPropertyLoading ? <DataTable
           noHeader
           pagination
           columns={advSearchColumns}
@@ -582,7 +682,7 @@ const advSearchColumns = [
           onRowClicked={(row) => addPropertyRecord(row)}
           pointerOnHover
           highlightOnHover
-        /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Property information</h4>}
+        /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5" style={{minHeight: "400px"}}>Loading Property information</h4>}
        
       </Card>
       <AddNewModalAssignProp 

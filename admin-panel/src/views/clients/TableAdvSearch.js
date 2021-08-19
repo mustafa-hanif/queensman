@@ -270,6 +270,14 @@ const DELETE_PLAN = gql`
   }
 `
 
+const UPDATE_ACTIVE = gql`
+mutation MyMutation($active: Boolean!, $email: citext!) {
+  update_auth_accounts(where: {email: {_eq: $email}}, _set: {active: $active}) {
+    affected_rows
+  }
+}
+`
+
 const DataTableAdvSearch = () => {
   // ** States
   const [queryLoading, setQueryLoading] = useState(false)
@@ -286,6 +294,7 @@ const DataTableAdvSearch = () => {
     { refetchQueries: [{ query: GET_CLIENT }] }
   )
   const [addPlan, { loading: addPlanLoading }] = useMutation(UPLOAD_PLAN)
+  const [updateClientActive] = useMutation(UPDATE_ACTIVE)
   const [deletePlan, { loading: deletePlanLoading }] = useMutation(DELETE_PLAN)
   const [updateClientPlan] = useMutation(UPDATE_CLIENT_HASPLAN, {
     refetchQueries: [{ query: GET_CLIENT }]
@@ -804,6 +813,20 @@ const DataTableAdvSearch = () => {
           closeButton: false,
         }
       );
+    }).catch(err => {
+      console.log(err?.response)
+      toast.error(
+        <ToastComponent
+          title="Error"
+          color="danger"
+          icon={<XCircle />}
+        />,
+        {
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeButton: false,
+        }
+      );
     });
     dataToRender();
     if (!clientLoading) {
@@ -819,6 +842,28 @@ const DataTableAdvSearch = () => {
     }, 200);
   };
 
+  const updateActive = async (active, row) => {
+    try {
+      await updateClientActive({variables:{
+      email: row?.email,
+      active
+    }})
+  } catch (e) {
+    console.log(e)
+    toast.error(
+      <ToastComponent
+        title="No admin rights"
+        color="danger"
+        icon={<XCircle />}
+      />,
+      {
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeButton: false,
+      }
+    );
+  }
+  }
   const handleAddRecord = (newRow) => {
     console.log("Addin")
     addClient({
@@ -1262,6 +1307,7 @@ const DataTableAdvSearch = () => {
         row={row}
         setRow={setRow}
         handleUpdate={handleUpdate}
+        updateActive={updateActive}
       />
       <div className="theme-modal-danger">
         <Modal

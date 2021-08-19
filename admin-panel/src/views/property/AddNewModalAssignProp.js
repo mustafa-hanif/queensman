@@ -64,8 +64,7 @@ const AddNewModal = ({
   setLease_end_date
 }) => {
 
-  const clientOptions = data?.map(client => ({value: client.id, label: client.full_name, propID: client?.property_owneds?.[0]?.property_id}))
-
+  const clientOptions = data?.map(client => ({value: client.id, label: client.full_name, ownedPropID: client?.property_owneds?.map(prop => (prop.property_id)), leasedPropID: client?.leases?.map(prop => (prop.property_id))}))
   const activeOptions = [
     { value: 1, label: 'Active'},
     { value: 0, label: 'Not Active' }
@@ -91,22 +90,30 @@ const AddNewModal = ({
 const onSubmit = () => {
   // setRow(row)
   const sameValue = clientOwnedArray.map(element => clientLeasedArray.some(element2 => element2.value === element.value))  
-  if (toAssignNewRecord && (clientOwnedArray.length === 0 || clientLeasedArray.length === 0)) {
+  if (sameValue[0]) {
+    return toast.error(<ToastComponent title='Owned and Leased client names cannot be same' color='danger' icon={<Info />} />, {
+      autoClose: 10000,
+      hideProgressBar: true,
+      closeButton: false
+    })
+  }
+  if (toAssignNewRecord && (clientOwnedArray.length === 0 && clientLeasedArray.length === 0)) {
+    console.log(toAssignNewRecord, clientOwnedArray.length, clientLeasedArray.length)
     return toast.error(<ToastComponent title='Client Field cannot be empty' color='danger' icon={<Info />} />, {
       autoClose: 2000,
       hideProgressBar: true,
       closeButton: false
     })
   } 
-  if (clientOwnedArray.some(element => element.propID === row.id)) {
+  if (clientOwnedArray.some(element => element.ownedPropID.includes(row.id))) {
     return toast.error(<ToastComponent title='Client already has property' color='danger' icon={<Info />} />, {
       autoClose: 10000,
       hideProgressBar: true,
       closeButton: false
     })
   }
-  if (sameValue[0]) {
-    return toast.error(<ToastComponent title='Owned and Leased client names cannot be same' color='danger' icon={<Info />} />, {
+  if (clientLeasedArray.some(element => element.leasedPropID.includes(row.id))) {
+    return toast.error(<ToastComponent title='Client already has leased property' color='danger' icon={<Info />} />, {
       autoClose: 10000,
       hideProgressBar: true,
       closeButton: false
