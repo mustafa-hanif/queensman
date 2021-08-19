@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable no-shadow */
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
@@ -98,6 +99,7 @@ export default function Index(props) {
                 onNoButtonPress={onNoButtonPress}
                 item={item}
                 index={i}
+                navigation={props.navigation}
                 reloadNotification={() => getNotification({ variables: { email } })}
                 notifications={notifications}
                 setNotifications={setNotifications}

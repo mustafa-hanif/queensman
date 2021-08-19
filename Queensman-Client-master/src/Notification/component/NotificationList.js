@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-console */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */
@@ -10,7 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import call from "react-native-phone-call";
 import { View, StyleSheet, ViewStyle, TouchableOpacity } from "react-native";
 import FlashMessage, { showMessage } from "react-native-flash-message";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useLazyQuery, useMutation } from "@apollo/client";
 
 const UPDATE_NOTIFICATIONS = gql`
   mutation UpdateNotifications($id: Int!) {
@@ -28,6 +29,33 @@ const CONFIRM_CALLOUT = gql`
   }
 `;
 
+const GET_CALLOUT = gql`
+  query MyQuery($id: Int = 10) {
+    callout_by_pk(id: $id) {
+      job_type
+      id
+      urgency_level
+      picture1
+      picture2
+      picture3
+      picture4
+      status
+      description
+      property {
+        address
+        city
+        community
+        country
+      }
+      schedule {
+        date_on_calendar
+        time_on_calendar
+        id
+      }
+    }
+  }
+`;
+
 export default function NotificationList({
   item,
   onNoButtonPress,
@@ -40,12 +68,28 @@ export default function NotificationList({
   textStyle,
   dotStyle,
 }) {
+  const [getCallout, { loading, data, error }] = useLazyQuery(GET_CALLOUT, {
+    onCompleted: (callout) => {
+      navigation.navigate("OngoingcalloutItem", {
+        it: callout.callout_by_pk,
+      });
+    },
+  });
   const [updateNotifications] = useMutation(UPDATE_NOTIFICATIONS, {
     onCompleted: () => {
       reloadNotification();
     },
   });
   const [confirmCalout, { loading: confirmCalloutLoading, error: confirmcalloutError }] = useMutation(CONFIRM_CALLOUT);
+
+  const onNoButtonPressLocal = (val) => {
+    updateNotifications({
+      variables: {
+        id: val.id,
+      },
+    });
+    onNoButtonPress(val);
+  };
 
   const onConfirmPress = (val) => {
     updateNotifications({
@@ -78,11 +122,12 @@ export default function NotificationList({
   };
 
   const viewCallout = (callout_id) => {
-    navigation.navigate("OngoingcalloutItem", {
-      it: item,
+    getCallout({
+      variables: {
+        id: callout_id,
+      },
     });
   };
-  console.log(item);
   return (
     <>
       <FlashMessage position="top" />
@@ -110,7 +155,7 @@ export default function NotificationList({
                       <Button
                         size="xs"
                         onPress={() => {
-                          onNoButtonPress(item);
+                          onNoButtonPressLocal(item);
                         }}
                       >
                         Yes
@@ -135,6 +180,16 @@ export default function NotificationList({
                 includeSeconds: true,
               })} ago`}</Text>
             </VStack>
+          )}
+          {item?.data?.type === "call" && (
+            <Icon
+              name="call"
+              as={Ionicons}
+              style={{ fontSize: 25, color: "black", paddingRight: "4%" }}
+              onPress={() => {
+                call({ number: item.data.phone, prompt: true });
+              }}
+            />
           )}
           <Button rounded="sm" onPress={() => markAsRead(item.id)} size="xs" width={100} ml="auto" bg="lightBlue.50">
             <Text color="lightBlue.600" fontSize="xxs">

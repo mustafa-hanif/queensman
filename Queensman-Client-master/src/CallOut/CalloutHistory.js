@@ -101,11 +101,10 @@ const CalloutHistoryClass = (props) => {
   );
 
   const [loadCallouts, { loading, data, error }] = useLazyQuery(GET_CALLOUTS, {
-    onCompleted: (data) => {
-      setCalloutData(data.callout);
+    onCompleted: (data2) => {
+      setCalloutData(data2.callout);
     },
   });
-  console.log( loading, data, error);
   const user = auth?.currentSession?.session?.user;
   const email = user?.email;
   useEffect(() => {

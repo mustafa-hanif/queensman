@@ -4,7 +4,8 @@
 /* eslint-disable no-use-before-define */
 import React, { useEffect, useRef, useState } from "react";
 import moment from "moment";
-import { StyleSheet, View, TouchableOpacity, Dimensions, Platform, Alert } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import { StyleSheet, RefreshControl, View, TouchableOpacity, Dimensions, Platform, Alert } from "react-native";
 import {
   Box,
   Content,
@@ -19,6 +20,7 @@ import {
   Heading,
   Divider,
   ScrollView,
+  Spinner,
 } from "native-base";
 import { AntDesign, Ionicons, FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -234,7 +236,12 @@ const NOTIFICATION_LIST = gql`
 const HomeScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const email2 = auth?.currentSession?.session?.user.email;
-  const { loading, data, error } = useQuery(GET_CALLOUT, {
+  const {
+    loading,
+    data,
+    error,
+    refetch: refetchService,
+  } = useQuery(GET_CALLOUT, {
     variables: {
       callout_by_email: email2,
       today: moment().format("YYYY-MM-DD"),
@@ -242,15 +249,27 @@ const HomeScreen = ({ navigation }) => {
   });
 
   const {
-    loading: loading2,
+    loading: loadingNotification,
     data: notifications,
     error: notificationError,
+    refetch: refetchNotification,
   } = useQuery(NOTIFICATION_LIST, {
     variables: {
       email: email2,
     },
+    onCompleted: () => {
+      setRefreshing(false);
+    },
   });
 
+  useFocusEffect(
+    React.useCallback(() => {
+      refetchNotification();
+      refetchService();
+    }, [])
+  );
+
+  const [refreshing, setRefreshing] = useState(false);
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
   const [updateToken, { loading: mutationLoading, error: mutationError }] = useMutation(UPDATE_TOKEN);
@@ -279,6 +298,13 @@ const HomeScreen = ({ navigation }) => {
       Notifications.removeNotificationSubscription(notificationListener.current);
       Notifications.removeNotificationSubscription(responseListener.current);
     };
+  }, []);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    refetchService();
+    refetchNotification();
+    console.log(error);
   }, []);
 
   return (
@@ -339,10 +365,11 @@ const HomeScreen = ({ navigation }) => {
           </View>
         </View> */}
       </View>
-      <ScrollView style={styles.container}>
-        <FlashMessage position="center" />
-        {/* background gradinet   */}
-        {/* <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} /> */}
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        style={styles.container}
+      >
+        {loadingNotification && <Spinner color="lightText" size="sm" />}
 
         <Box pt={4}>
           <VStack space={4}>
@@ -424,7 +451,6 @@ const colors = {
 };
 
 const CalloutItem = ({ item, toggleGalleryEventModal }) => {
-  console.log(item);
   const color = item?.urgency_level === "High" ? "rose.600" : "amber.600";
   const statusColor = colors[item?.status] ? colors[item?.status] : "lightBlue.600";
   return (
