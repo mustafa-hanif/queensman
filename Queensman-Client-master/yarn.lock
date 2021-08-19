@@ -6916,6 +6916,13 @@ expo-permissions@~12.1.1:
   dependencies:
     expo-modules-core "~0.2.0"
 
+expo-print@^10.2.1:
+  version "10.2.1"
+  resolved "https://registry.npmjs.org/expo-print/-/expo-print-10.2.1.tgz#007b32aa8d02efa0b96e8d930d66002160161845"
+  integrity sha512-StLZI95srt9fbRFBWwZpvAUvCVOxHwFHP4I3q6ACxl2i81AQaNUK9soXsL7z+5gugOl9VLV3p/vCw23t6eAvBw==
+  dependencies:
+    expo-modules-core "~0.2.0"
+
 expo-pwa@0.0.88:
   version "0.0.88"
   resolved "https://registry.npmjs.org/expo-pwa/-/expo-pwa-0.0.88.tgz#40b5daac20ebaaa5b37239e7cc0dd8e98fac4220"
@@ -6926,6 +6933,13 @@ expo-pwa@0.0.88:
     chalk "^4.0.0"
     commander "2.20.0"
     update-check "1.5.3"
+
+expo-sharing@^9.2.1:
+  version "9.2.1"
+  resolved "https://registry.npmjs.org/expo-sharing/-/expo-sharing-9.2.1.tgz#50267cd66f54d29f0ab3f185a05d92b197e5b60c"
+  integrity sha512-L0OR7qq8GJRKEFDMPrStc9UxVdOr3XRGMuK3vO2qgQgU3CCSb5QE5lHRdp4DFyJd22ILZqwL+3ghiUtFQD0eig==
+  dependencies:
+    expo-modules-core "~0.2.0"
 
 expo-splash-screen@~0.11.2:
   version "0.11.2"

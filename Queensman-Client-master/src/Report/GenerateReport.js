@@ -11,10 +11,63 @@ import { format, parseISO } from "date-fns";
 import { StyleSheet, View, Dimensions, Linking } from "react-native";
 import { Box, FlatList, Spinner, Text, ScrollView, Modal, Button, Divider, VStack, HStack, Icon } from "native-base";
 
-import { gql, useQuery } from "@apollo/client";
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
-import { auth } from "../utils/nhost";
+import * as Print from "expo-print";
+import * as MediaLibrary from "expo-media-library";
+import * as Sharing from "expo-sharing";
+import { storage, auth } from "../utils/nhost";
+import { calloutTemplate } from "./pdf_template";
 
+const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pdf Content</title>
+        <style>
+            body {
+                font-size: 16px;
+                color: rgb(255, 196, 0);
+            }
+            h1 {
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Hello, UppLabs!</h1>
+    </body>
+    </html>
+`;
+
+const expoFileToFormFile = (url) => {
+  const localUri = url;
+  const filename = localUri.split("/").pop();
+
+  const match = /\.(\w+)$/.exec(filename);
+  const type = match ? `image/${match[1]}` : `image`;
+  return { uri: localUri, name: filename, type };
+};
+
+const createAndSavePDF = async (html, propertyID) => {
+  console.log(propertyID);
+  try {
+    const { uri } = await Print.printToFileAsync({ html });
+    const file = expoFileToFormFile(uri);
+    console.log(file);
+    storage
+      .put(`/public/${file.name}`, file)
+      .then((fileUploaded) => {
+        console.log(fileUploaded);
+        Linking.openURL(`https://backend-8106d23e.nhost.app/storage/o/public/${file.name}`);
+      })
+      .catch(console.error);
+  } catch (error) {
+    console.error(error);
+  }
+};
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
 
@@ -135,12 +188,87 @@ class GenerateReport extends React.Component {
           <Button mb={10} onPress={() => this.toggleReportModel(3)}>
             Inventory Report
           </Button>
+          <MonthlyReportPDF propertyID={this.state.propertyID} />
         </View>
       </ScrollView>
     );
   }
 }
 
+const GET_CALLOUTS = gql`
+  query MyQuery($callout_by_email: String!, $property_id: Int!, $today: date!) {
+    callout(
+      where: {
+        callout_by_email: { _eq: $callout_by_email }
+        property_id: { _eq: $property_id }
+        schedule: { date_on_calendar: { _lte: $today } }
+      }
+      order_by: { schedule: { date_on_calendar: desc } }
+    ) {
+      id
+      property_id
+      request_time
+      resolved_time
+      planned_time
+      picture1
+      picture2
+      picture3
+      picture4
+      job_type
+      status
+      urgency_level
+      schedule {
+        date_on_calendar
+        time_on_calendar
+      }
+      callout_job {
+        rating
+        feedback
+        signature
+        solution
+        instructions
+      }
+      client_callout_email {
+        client_id: id
+        client_username: email
+        phone
+        full_name
+      }
+      property {
+        address
+        community
+        city
+      }
+    }
+  }
+`;
+
+const MonthlyReportPDF = ({ propertyID }) => {
+  const user = auth?.currentSession?.session?.user;
+  const email = user?.email;
+  const [loadCallouts, { loading, data, error }] = useLazyQuery(GET_CALLOUTS, {
+    onCompleted: (data2) => {
+      createAndSavePDF(calloutTemplate(data2.callout[0]), propertyID);
+    },
+  });
+  // console.log(loading, data, error);
+  return (
+    <Button
+      mb={10}
+      onPress={() => {
+        loadCallouts({
+          variables: {
+            callout_by_email: email,
+            property_id: propertyID,
+            today: new Date(),
+          },
+        });
+      }}
+    >
+      Monthly Report
+    </Button>
+  );
+};
 const LoadProperties = ({ setPropertyId }) => {
   const user = auth?.currentSession?.session?.user;
   const email = user?.email;

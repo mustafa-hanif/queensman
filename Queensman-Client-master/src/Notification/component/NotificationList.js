@@ -181,6 +181,16 @@ export default function NotificationList({
               })} ago`}</Text>
             </VStack>
           )}
+          {item?.data?.type === "call" && (
+            <Icon
+              name="call"
+              as={Ionicons}
+              style={{ fontSize: 25, color: "black", paddingRight: "4%" }}
+              onPress={() => {
+                call({ number: item.data.phone, prompt: true });
+              }}
+            />
+          )}
           <Button rounded="sm" onPress={() => markAsRead(item.id)} size="xs" width={100} ml="auto" bg="lightBlue.50">
             <Text color="lightBlue.600" fontSize="xxs">
               Mark as read
