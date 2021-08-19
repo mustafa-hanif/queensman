@@ -32,7 +32,7 @@ const Tables = () => {
               toggle('1')
             }}
           >
-            All
+            All (view by Property)
           </NavLink>
         </NavItem>
         <NavItem>
@@ -42,7 +42,7 @@ const Tables = () => {
               toggle('2')
             }}
           >
-            Owned
+            Owned (view by Client)
           </NavLink>
         </NavItem>
         <NavItem>
@@ -52,7 +52,7 @@ const Tables = () => {
               toggle('3')
             }}
           >
-            Leased
+            Leased (view by Client)
           </NavLink>
         </NavItem>
         <NavItem>
@@ -62,39 +62,39 @@ const Tables = () => {
               toggle('4')
             }}
           >
-            Assign Property
+            Assign Property (view by Property)
           </NavLink>
         </NavItem>
       </Nav>
       <TabContent className='py-50' activeTab={active}>
         <TabPane tabId='1'>
-        <Row>
-        <Col sm='12'>
-         <AllOwnedProperty />
-         <AllLeasedProperty />
-        </Col>
-      </Row>
+          <Row>
+            <Col sm='12'>
+              <AllOwnedProperty />
+              <AllLeasedProperty />
+            </Col>
+          </Row>
         </TabPane>
         <TabPane tabId='2'>
-        <Row>
-        <Col sm='12'>
-          <OwnedProperty />
-        </Col>
-      </Row>
+          <Row>
+            <Col sm='12'>
+              <OwnedProperty />
+            </Col>
+          </Row>
         </TabPane>
         <TabPane tabId='3'>
-        <Row>
-        <Col sm='12'>
-          <LeasedProperty />
-        </Col>
-      </Row>
+          <Row>
+            <Col sm='12'>
+              <LeasedProperty />
+            </Col>
+          </Row>
         </TabPane>
         <TabPane tabId='4'>
-        <Row>
-        <Col sm='12'>
-          <Properties />
-        </Col>
-      </Row>
+          <Row>
+            <Col sm='12'>
+              <Properties />
+            </Col>
+          </Row>
         </TabPane>
       </TabContent>
     </Fragment>
