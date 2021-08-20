@@ -9,6 +9,7 @@ const format = require('date-fns/format');
 const addHours = require('date-fns/addHours');
 const addWeeks = require('date-fns/addWeeks');
 const parseJSON = require('date-fns/parseJSON');
+const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
 
 // Else check ignored by - if empty and 10 mins passed, add worker, add notification //.
 /// targeted to ops
@@ -24,6 +25,8 @@ async function everyFiveMinute() {
 }
 
 async function notifyTeamisComing() {
+  const timeZone = 'Asia/Karachi'
+  const zonedDate = utcToZonedTime(new Date(), timeZone)
   const { errors, data: { scheduler } } = await fetchGraphQL(`
   query GetJobDue($today: date!) {
     scheduler(where: {
@@ -32,15 +35,15 @@ async function notifyTeamisComing() {
         date_on_calendar
         time_on_calendar
         worker_id
-        id
         callout {
           client_callout_email {
             email
           }
+          id
         }
       }
     }`, 'GetJobDue', {
-    today: format(new Date(), 'yyyy-MM-dd'),
+    today: format(zonedDate, 'yyyy-MM-dd'),
   });
   if (errors) {
     console.log(errors);
@@ -52,12 +55,15 @@ async function notifyTeamisComing() {
     const clientEmail = item?.callout?.client_callout_email?.email;
     // `${job_history.time}+04:30`
     const jobTime = new Date(`${item.date_on_calendar}T${item.time_on_calendar}Z`);
-    const diffWithNow = differenceInMinutes(jobTime, new Date());
+
+    const diffWithNow = differenceInMinutes(jobTime, zonedDate);
     console.log("time  ", new Date());
+    console.log("zonedDate ", zonedDate);
     console.log("jobTime ", jobTime);
     console.log("diffWithNow ", diffWithNow);
+
     if (diffWithNow >= 55 && diffWithNow <= 60) {
-      await addNotification(clientEmail, `The team is on the way for scheduled service with id# ${item.id}`, 'client', {});
+      await addNotification(clientEmail, `The team is on the way for scheduled service with id# ${item.callout.id} at ${item.time_on_calendar} on ${item.date_on_calendar} `, 'client', {});
       console.log(`scheduled service with id# ${item.id}`);
     }
     // If team is running late
@@ -71,6 +77,7 @@ async function notifyTeamisComing() {
     });
     if (data?.job_history[0]?.status_update === 'In Progress') {
       const lastJobWorkerTime = parseJSON(`${data?.job_history[0]?.time}`);
+
       const diff = differenceInMinutes(jobTime, lastJobWorkerTime);
       console.log(diff)
       if (diff >= 40 && diff <= 45) {
@@ -123,6 +130,8 @@ async function notifyScheduledTasks() {
     const callout_id = item?.callout?.id;
 
     const time = getFormattedTime(new Date());
+
+
     // const time = today.getHours().padStart(2, '0') + ':' + today.getMinutes() + ':' + today.getSeconds();
     const minutes = differenceInMinutes(parseJSON(`${date_on_calendar}T${time}`), parseJSON(`${date_on_calendar}T${time_on_calendar}`));
     if (minutes >= 0 && minutes <= 6) {
