@@ -85,7 +85,6 @@ const TabsVerticalLeft = ({item, allProperty}) => {
   const [setToApproveStage, { loading: approveStageLoading, data: approveStage, approveStageError }] = useMutation(UPDATE_TO_APPROVE)
   const [uploadPDF, { loading: uploadPDFLoading, data: uploadPDFdata, uploadPDFError }] = useMutation(ADD_INVENTORY_PDF)
   const [uploadUpdatePDF, { loading: uploadUpdatePDFLoading, data: uploadUpdatePDFdata, uploadUpdatePDFError }] = useMutation(UPDATE_INVENTORY_PDF)
-  console.log(loading)
 
   if (allProperty?.client) {
     item = {...item, ...allProperty}
@@ -237,61 +236,75 @@ const TabsVerticalLeft = ({item, allProperty}) => {
   const property = item?.property
   const inventory_report_pdf = item?.inventory_report_pdfs?.[0]
 
-  const uploadPdf = () => {
+  const uploadPdf = async () => {
    if (pdf) {
-    if (inventory_report_pdf?.report_location) {
+    if (inventory_report_pdf?.report_location) { //If file already exists
       setLoading(true)
       setTimeout(() => {
         setUploadButton(false)
       }, 1000)
-      storage.put(`/public/${pdf.name}`, pdf).then(() => {
-        setLoading(false)
-        uploadUpdatePDF({variables: {
-          id: inventory_report_pdf.id,
-          report_location: `https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}`
-        }})
-        setPdfLocation(`https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}`)
-        toast.success(
-          <ToastComponent title="File Uploaded" color="success" icon={<Check />} />,
+      try {
+        await storage.put(`/inventory_report/${pdf.name}`, pdf) //upload in storage
+          setLoading(false)
+          await uploadUpdatePDF({variables: { //update file
+            id: inventory_report_pdf.id,
+            report_location: `https://backend-8106d23e.nhost.app/storage/o/inventory_report/${pdf.name}` 
+          }})
+          setPdfLocation(`https://backend-8106d23e.nhost.app/storage/o/inventory_report/${pdf.name}`)
+          toast.success(
+            <ToastComponent title="File Uploaded" color="success" icon={<Check />} />,
+            {
+              autoClose: 4000,
+              hideProgressBar: false,
+              closeButton: false
+            }
+          )
+      } catch (e) {
+        console.log(e)
+        toast.error(
+          <ToastComponent title="Error uploading file" color="danger" icon={<XCircle />} />,
           {
             autoClose: 4000,
             hideProgressBar: false,
             closeButton: false
           }
         )
-      }).catch(console.error)
-    } else {
+      }
+    } else { //New file upload
       setLoading(true)
       setTimeout(() => {
         setUploadButton(false)
       }, 1000)
-      storage.put(`/public/${pdf.name}`, pdf).then(() => {
-        setLoading(false)
-        uploadPDF({variables: {
-          inventory_report_id: item.id,
-          property_id: property.id, 
-          report_location: `https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}`
-        }})
-        setPdfLocation(`https://backend-8106d23e.nhost.app/storage/o/public/${pdf.name}`)
-        toast.success(
-          <ToastComponent title="Plan Added" color="success" icon={<Check />} />,
+      try {
+        await storage.put(`/inventory_report/${pdf.name}`, pdf) //Upload in storage
+          setLoading(false)
+          await uploadPDF({variables: { //Add in db
+            inventory_report_id: item.id,
+            property_id: property.id, 
+            report_location: `https://backend-8106d23e.nhost.app/storage/o/inventory_report/${pdf.name}`
+          }})
+          setPdfLocation(`https://backend-8106d23e.nhost.app/storage/o/inventory_report/${pdf.name}`)
+          toast.success(
+            <ToastComponent title="File Uploaded" color="success" icon={<Check />} />,
+            {
+              autoClose: 4000,
+              hideProgressBar: false,
+              closeButton: false
+            }
+          )
+      } catch (e) {
+        console.log(e)
+        toast.error(
+          <ToastComponent title="Error uploading file" color="danger" icon={<XCircle />} />,
           {
             autoClose: 4000,
             hideProgressBar: false,
             closeButton: false
           }
         )
-      }).catch(console.error)
+      }
     }
    }
-  }
-
-  const removePdf = () => {
-    if (approveStatus === 1) {
-      alert("Status is already in review. Please cancel it")
-    } else {
-      setPdf(null)
-    }
   }
 
   const RowContent = ({data: prop}) => (
@@ -392,7 +405,7 @@ const TabsVerticalLeft = ({item, allProperty}) => {
             {property && Object.keys(property).map(itemKey => {
               if ((!["__typename"].includes(itemKey))) {     
                   return (
-                    <ItemValue item={property} itemKey={itemKey} />
+                    <ItemValue item={property} itemKey={itemKey} key={itemKey}/>
                 )                        
               }
               })}
@@ -433,7 +446,7 @@ const TabsVerticalLeft = ({item, allProperty}) => {
             {client && Object.keys(client).map(itemKey => {
               if ((![""].includes(itemKey))) {     
                   return (
-                    <ItemValue item={client} itemKey={itemKey} />
+                    <ItemValue item={client} itemKey={itemKey} key={itemKey}/>
                 )                        
               }
               })}

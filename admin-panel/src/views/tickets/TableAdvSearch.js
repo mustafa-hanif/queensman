@@ -11,7 +11,7 @@ import DataTable from 'react-data-table-component'
 import { toast } from 'react-toastify'
 import Exportqs from '../extensions/import-export/Exportqs'
 import moment from "moment"
-import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check } from 'react-feather'
+import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check, XCircle } from 'react-feather'
 import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import Select from 'react-select'
 
@@ -136,6 +136,7 @@ const DataTableAdvSearch = () => {
   const [searchEmail, setSearchEmail] = useState('')
   const [searchType, setSearchType] = useState('')
   const [searchStatus, setSearchStatus] = useState('')
+  const [searchCalloutId, setSearchCalloutId] = useState('')
   const [description, setDescription] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
   const [filteredData, setFilteredData] = useState([])
@@ -199,6 +200,15 @@ const DataTableAdvSearch = () => {
       selector: 'id',
       sortable: true,
       minWidth: '10px'
+    },
+    {
+      name: 'Callout ID',
+      selector: 'callout_id',
+      sortable: true,
+      minWidth: '10px',
+      cell: row => (
+        row?.callout_id ? row.callout_id : "No ID"
+      )
     },
     // {
     //   name: 'Email',
@@ -307,7 +317,6 @@ const DataTableAdvSearch = () => {
       minWidth: "250px",
       wrap: true,
       cell: row => {
-        console.log(row?.created_at)
         return (
           moment(row?.created_at).format('MMMM Do YYYY, h:mm:ss a')
         )
@@ -342,7 +351,7 @@ const DataTableAdvSearch = () => {
       searchName.length ||
       description.length ||
       searchEmail.length ||
-      searchType.length || searchStatus.length
+      searchType?.length || searchStatus?.length || searchCalloutId.length
     ) {
       return filteredData
     } else {
@@ -444,7 +453,7 @@ const DataTableAdvSearch = () => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || description.length || searchType.length) {
+      if (searchEmail.length || searchName.length || description.length || searchType?.length || searchCalloutId.length || searchStatus?.length) {
         return filteredData
       } else {
         return data?.job_tickets
@@ -474,7 +483,7 @@ const DataTableAdvSearch = () => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || description.length || searchType.length) {
+      if (searchEmail.length || searchName.length || description.length || searchType?.length || searchCalloutId.length || searchStatus?.length) {
         return filteredData
       } else {
         return data?.job_tickets
@@ -504,7 +513,7 @@ const DataTableAdvSearch = () => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || description.length || searchType.length) {
+      if (searchEmail.length || searchName.length || description.length || searchType?.length || searchCalloutId.length || searchStatus?.length) {
         return filteredData
       } else {
         return data?.job_tickets
@@ -529,21 +538,50 @@ const DataTableAdvSearch = () => {
     }
   }
 
+  // ** Function to handle Callout ID filter
+  const handleCalloutIdFilter = e => {
+    const value = e.target.value
+    let updatedData = []
+    const dataToFilter = () => {
+      if (searchEmail.length || searchName.length || description.length || searchType?.length || searchCalloutId.length || searchStatus?.length) {
+        return filteredData
+      } else {
+        return data?.job_tickets
+      }
+    }
+
+    setSearchCalloutId(value)
+    if (value.length) {
+      updatedData = dataToFilter().filter(item => {
+        const startsWith = item?.callout_id?.toString().startsWith(value.toLowerCase())
+
+        const includes = item?.callout_id?.toString().includes(value.toLowerCase())
+
+        if (startsWith) {
+          return startsWith
+        } else if (!startsWith && includes) {
+          return includes
+        } else return null
+      })
+      setFilteredData([...updatedData])
+      setSearchCalloutId(value)
+    }
+  }
+
   // ** Function to handle phone filter
   const handleTypeFilter = e => {
 
-    const value = e.value
+    const value = e?.value
     let updatedData = []
     const dataToFilter = () => {
-      //   if (searchEmail.length || searchName.length || description.length || searchType.length) {
-      //    return filteredData
-      //  } else {
+        if (searchEmail.length || searchName.length || description.length || searchType?.length || searchCalloutId.length || searchStatus?.length) {
+         return filteredData
+       } else {
       return data?.job_tickets
-      //   }
+        }
     }
-
     setSearchType(value)
-    if (value.length) {
+    if (value?.length) {
       updatedData = dataToFilter().filter(item => {
         const startsWith = item.type?.toLowerCase().startsWith(value.toLowerCase())
 
@@ -563,18 +601,19 @@ const DataTableAdvSearch = () => {
   }
   //handle status filter
   const handleStatusFilter = e => {
-    const value = e.value
+    console.log(e)
+    const value = e?.value
     let updatedData = []
     const dataToFilter = () => {
-      //   if (searchEmail.length || searchName.length || description.length || searchType.length) {
-      //    return filteredData
-      //  } else {
+        if (searchEmail.length || searchName.length || description.length || searchType?.length || searchCalloutId.length || searchStatus?.length) {
+         return filteredData
+       } else {
       return data?.job_tickets
-      //   }
+        }
     }
 
     setSearchStatus(value)
-    if (value.length) {
+    if (value?.length) {
       updatedData = dataToFilter().filter(item => {
         const startsWith = item.status?.toLowerCase().startsWith(value.toLowerCase())
 
@@ -614,32 +653,45 @@ const DataTableAdvSearch = () => {
     return (objectsToExport)
 
   }
+  //for export data end
   const dataToExport = () => {
     if (
       searchName.length ||
       description.length ||
       searchEmail.length ||
-      searchType.length || searchStatus.length
+      searchType?.length || searchStatus?.length
     ) {
       return createExportObject(filteredData)
     } else {
       return createExportObject(data?.job_tickets)
     }
   }
-  //for export data end
-  //=================================
+  
+  const clearRecord = () => {
+    setSearchEmail("") 
+    setSearchName("")  
+    setDescription("")  
+    setSearchType(null)  
+    setSearchCalloutId("")
+    setSearchStatus(null)
+  }
+  
   return (
     <Fragment>
       <Card>
 
         <CardHeader className='border-bottom'>
           <CardTitle tag='h4'>Ticket Search</CardTitle>
-          {/* <div className='d-flex mt-md-0 mt-1'>
-            <Button className='ml-2' color='primary' onClick={addJobTicketRecord}>
+          <div className='d-flex mt-md-0 mt-1'>
+          { (searchEmail || searchName || description || searchType || searchStatus || searchCalloutId) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
+              <XCircle size={15} />
+              <span className='align-middle ml-50'>Clear filter</span>
+            </Button>}
+            {/* <Button className='ml-2' color='primary' onClick={addJobTicketRecord}>
               <Plus size={15} />
               <span className='align-middle ml-50'>Add Record</span>
-            </Button>
-          </div> */}
+            </Button> */}
+          </div>
         </CardHeader>
 
         <CardBody>
@@ -676,7 +728,7 @@ const DataTableAdvSearch = () => {
             </Col> */}
             <Col lg='4' md='6'>
               <FormGroup>
-                <Label for='type'>Type:</Label>
+                <Label for='type'>Job Type:</Label>
                 <Select
                   onChange={handleTypeFilter}
                   className='react-select'
@@ -684,13 +736,13 @@ const DataTableAdvSearch = () => {
                   defaultValue={searchType}
                   placeholder="Select Type"
                   options={typeOptions}
-                  isClearable={false}
+                  isClearable={true}
                 />
               </FormGroup>
             </Col>
             <Col lg='4' md='6'>
               <FormGroup>
-                <Label for='type'>Type:</Label>
+                <Label for='type'>Status Type:</Label>
                 <Select
                   onChange={handleStatusFilter}
                   className='react-select'
@@ -698,7 +750,7 @@ const DataTableAdvSearch = () => {
                   defaultValue={searchStatus}
                   placeholder="Select Status"
                   options={statusOptions}
-                  isClearable={false}
+                  isClearable={true}
                 />
               </FormGroup>
               {/* <FormGroup>
@@ -711,6 +763,12 @@ const DataTableAdvSearch = () => {
 
                 </Input>
               </FormGroup> */}
+            </Col>
+            <Col lg='4' md='6'>
+              <FormGroup>
+                <Label for='calloutId'>Callout ID:</Label>
+                <Input id='calloutId' placeholder='Search callout id' value={searchCalloutId} onChange={handleCalloutIdFilter} />
+              </FormGroup>
             </Col>
           </Row>
         </CardBody>

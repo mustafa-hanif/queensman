@@ -104,7 +104,7 @@ return (
     <Modal isOpen={open2} toggle={handlePropertyDetailsModal} className='modal-dialog-centered modal-xl'>
       <ModalHeader className="d-flex justify-content-center" toggle={handlePropertyDetailsModal}>Property Details</ModalHeader>
       <ModalBody>
-        <TabsVerticalLeft data={propertyData} propertyLoading={propertyLoading} />
+        <TabsVerticalLeft data={propertyData} propertyLoading={propertyLoading} property_id={prop.property.id} GET_PROPERTIES={GET_PROPERTIES}/>
       </ModalBody>
       <ModalFooter>
       <Button color='secondary' onClick={handlePropertyDetailsModal} outline>
@@ -117,8 +117,7 @@ return (
 )
 }
 
-export const ExpandableTable = ({ data, openModalAlert, handleUpdate, clientSingleRow }) => {
-  console.log(clientSingleRow)
+export const ExpandableTable = ({ data, openModalAlert, handleUpdate }) => {
   const [open, setopen] = useState(false)
   const [modalDetails, setModalDetails] = useState(null)
   const [assigned, setAssigned] = useState(false)
