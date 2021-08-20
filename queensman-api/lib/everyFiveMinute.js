@@ -51,7 +51,7 @@ async function notifyTeamisComing() {
     const item = scheduler[i];
     const clientEmail = item?.callout?.client_callout_email?.email;
     // `${job_history.time}+04:30`
-    const jobTime = new Date(`${item.date_on_calendar}T${item.time_on_calendar}`);
+    const jobTime = new Date(`${item.date_on_calendar}T${item.time_on_calendar}Z`);
     const diffWithNow = differenceInMinutes(jobTime, new Date());
     console.log("time  ", new Date());
     console.log("jobTime ", jobTime);
