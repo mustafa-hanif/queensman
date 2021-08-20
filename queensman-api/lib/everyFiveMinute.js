@@ -32,6 +32,7 @@ async function notifyTeamisComing() {
         date_on_calendar
         time_on_calendar
         worker_id
+        id
         callout {
           client_callout_email {
             email
@@ -50,11 +51,14 @@ async function notifyTeamisComing() {
     const item = scheduler[i];
     const clientEmail = item?.callout?.client_callout_email?.email;
     // `${job_history.time}+04:30`
-    const jobTime = new Date(`${item.date_on_calendar}T${item.time_on_calendar}`);
+    const jobTime = new Date(`${item.date_on_calendar}T${item.time_on_calendar}Z`);
     const diffWithNow = differenceInMinutes(jobTime, new Date());
-    console.log(diffWithNow);
+    console.log("time  ", new Date());
+    console.log("jobTime ", jobTime);
+    console.log("diffWithNow ", diffWithNow);
     if (diffWithNow >= 55 && diffWithNow <= 60) {
-      await addNotification(clientEmail, 'The team is on the way', 'client', {});
+      await addNotification(clientEmail, `The team is on the way for scheduled service with id# ${item.id}`, 'client', {});
+      console.log(`scheduled service with id# ${item.id}`);
     }
     // If team is running late
     const { errors, data } = await fetchGraphQL(`query GetJobDue($updater_id: Int!) {
@@ -106,8 +110,8 @@ async function notifyScheduledTasks() {
       }
     }`,
     'GetPendingSchedule', {
-      _eq: addWeeks(new Date(), 2),
-    }
+    _eq: addWeeks(new Date(), 2),
+  }
   );
   for (let i = 0; i < data.scheduler.length; i++) {
     const item = data.scheduler[i];
