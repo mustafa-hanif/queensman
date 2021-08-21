@@ -539,9 +539,9 @@ const Job = (props) => {
           name: `Defer Ticket of ${ticket.id}`,
           desc: closeJobNote,
           id: ticket.id,
-          worker_email: auth.user().email,
+          worker_email: state.JobData.job_worker[0].worker.email,
           callout_id: state.JobData.id,
-          notes: {from: auth.user().display_name, message: closeJobNote},
+          notes: {from: state.JobData.job_worker[0].worker.full_name, message: closeJobNote},
           status: "Open",
           type: state.type,
           client_email: client?.email
@@ -561,9 +561,9 @@ const Job = (props) => {
           name: `Defer Ticket of ${ticket.id}`,
           desc: closeJobNote,
           id: ticket.id,
-          worker_email: auth.user().email,
+          worker_email: state.JobData.job_worker[0].worker.email,
           callout_id: state.JobData.id,
-          notes: {from: auth.user().display_name, message: closeJobNote},
+          notes: {from: state.JobData.job_worker[0].worker.full_name, message: closeJobNote},
           status: "Open",
           type: "Deferred",
           client_email: client?.email

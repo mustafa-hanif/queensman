@@ -111,6 +111,7 @@ export default function TicketListing(props) {
       return focusListener;
     };
   }, []);
+  console.log(allTickets?.job_tickets.length)
   const TicketDetails = () => {
     return (
       <View style={{ borderWidth: 1 }}>
@@ -238,7 +239,7 @@ export default function TicketListing(props) {
         ) : (
           _tickets.map((item, index) => (
             <TicketCard
-              key={item.name}
+              key={item.id}
               onPress={() => onTicketPress(item)}
               Checked={item.status === 'Open'}
               {...item}

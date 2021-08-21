@@ -219,6 +219,7 @@ const JobsList = (props) => {
     auth?.currentSession?.session?.user.email,
   ]);
   if (error) {
+    console.log(error)
     return (
       <View>
         <Text
@@ -229,7 +230,8 @@ const JobsList = (props) => {
             marginRight: "4%",
           }}
         >
-          Error
+          An Error Occured. Please restart the app.
+          Error #182
         </Text>
       </View>
     );
@@ -310,19 +312,19 @@ const Item = ({ item, passItem }) => {
         <HStack alignItems="center">
           <CircleIcon size={4} mr={0.5} color={color} />
           <Text color={color} mr={2} fontSize="xs">
-            {item.urgency_level}
+            {item?.urgency_level}
           </Text>
           <CircleIcon size={4} mr={0.5} color={statusColor} />
           <Text color={statusColor} fontSize="xs">
-            {item.status}
+            {item?.status}
           </Text>
           <Text color="black" ml="auto" fontSize="xs">
-            {item.id}
+            {item?.id}
           </Text>
         </HStack>
 
         <Heading color="black" size="md" noOfLines={2}>
-          {item.job_type}
+          {item?.job_type}
         </Heading>
         {item?.client?.full_name && (
           <HStack>
@@ -353,7 +355,7 @@ const Item = ({ item, passItem }) => {
 
         {item?.description && (
           <Text lineHeight={[5, 5, 7]} noOfLines={[4, 4, 2]} color="gray.700">
-            {item.description}
+            {item?.description}
           </Text>
         )}
         <Divider bg="gray.200" />
@@ -365,7 +367,7 @@ const Item = ({ item, passItem }) => {
             <HStack space={2} alignItems="center">
               <AntDesign name="calendar" size={18} />
               <Text color="black" fontSize="sm">
-                {moment(item.schedulers?.[0].date_on_calendar).format("Do MMMM, YYYY")}
+                {moment(item?.schedulers?.[0].date_on_calendar).format("Do MMMM, YYYY")}
               </Text>
             </HStack>
           )}
@@ -373,7 +375,7 @@ const Item = ({ item, passItem }) => {
             <HStack space={2} alignItems="center">
               <AntDesign name="clockcircle" size={18} />
               <Text color="black" fontSize="sm">
-                {moment(`2013-02-08T${item.schedulers?.[0].time_on_calendar}`).format("hh:mm A")}
+                {moment(`2013-02-08T${item?.schedulers?.[0].time_on_calendar}`).format("hh:mm A")}
               </Text>
             </HStack>
           )}

@@ -107,6 +107,7 @@ const PreJob = (props) => {
   );
 
   const CallOutIdFromParams = props.navigation.getParam("QJobID", null);
+  console.log(pics)
   const [state, setState] = useState({
     Note: "",
     Notes: [{ note: "" }],

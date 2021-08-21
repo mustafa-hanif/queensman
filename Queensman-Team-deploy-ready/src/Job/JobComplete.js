@@ -99,6 +99,7 @@ const FINISH_JOB_SINGLE = gql`
 `;
 const JobComplete = (props) => {
   const ticketCount = props.navigation.getParam("ticketCount", {});
+  console.log(ticketCount)
   const workerId = props.navigation.getParam("workerId", {})
   const ticketId = props.navigation.getParam("ticketDetails", {}).id;
   const clientEmail = props.navigation.getParam("it", {}).client.email;
@@ -162,7 +163,7 @@ const JobComplete = (props) => {
 
   const doneJob = async () => {
     // saveCanvas()
-    console.log(ticketCount);
+    console.log(ticketCount, "TICKET COUNT");
     if (ticketCount == 1) {
       console.log("One Job");
       // console.log({
