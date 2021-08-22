@@ -57,10 +57,10 @@ async function notifyTeamisComing() {
     const jobTime = new Date(`${item.date_on_calendar}T${item.time_on_calendar}Z`);
 
     const diffWithNow = differenceInMinutes(jobTime, zonedDate);
-    console.log("time  ", new Date());
-    console.log("zonedDate ", zonedDate);
-    console.log("jobTime ", jobTime);
-    console.log("diffWithNow ", diffWithNow);
+    console.log('time  ', new Date());
+    console.log('zonedDate ', zonedDate);
+    console.log('jobTime ', jobTime);
+    console.log('diffWithNow ', diffWithNow);
 
     if (diffWithNow >= 55 && diffWithNow <= 60) {
       await addNotification(clientEmail, `The team is on the way for scheduled service with id# ${item.callout.id} at ${item.time_on_calendar} on ${item.date_on_calendar} `, 'client', {});
@@ -117,8 +117,8 @@ async function notifyScheduledTasks() {
       }
     }`,
     'GetPendingSchedule', {
-    _eq: addWeeks(new Date(), 2),
-  }
+      _eq: addWeeks(new Date(), 2),
+    }
   );
   for (let i = 0; i < data.scheduler.length; i++) {
     const item = data.scheduler[i];
@@ -130,7 +130,6 @@ async function notifyScheduledTasks() {
     const callout_id = item?.callout?.id;
 
     const time = getFormattedTime(new Date());
-
 
     // const time = today.getHours().padStart(2, '0') + ':' + today.getMinutes() + ':' + today.getSeconds();
     const minutes = differenceInMinutes(parseJSON(`${date_on_calendar}T${time}`), parseJSON(`${date_on_calendar}T${time_on_calendar}`));
