@@ -87,6 +87,7 @@ query GetInventory {
     inspection_done_by
     summary
     approved
+    checked_on
     inventory_rooms {
       id
       inventory_report_id
@@ -245,7 +246,10 @@ const DataTableAdvSearch = () => {
       selector: "inspection_done_by",
       sortable: true,
       minWidth: "200px",
-      wrap: true
+      wrap: true,
+      cell: row => (
+        row?.inspection_done_by === "" ? "No data" : row?.inspection_done_by
+      )
     },
     {
       name: "Approved",
@@ -261,13 +265,25 @@ const DataTableAdvSearch = () => {
       }
     },
     {
+      name: "PDF upload date",
+      selector: "inventory_report_pdfs.report_upload_date",
+      sortable: true,
+      minWidth: "300px",
+      wrap: true,
+      cell: row => {
+        return (
+          row?.inventory_report_pdfs?.[0]?.report_upload_date ? moment(row?.inventory_report_pdfs?.[0]?.report_upload_date).format('MMMM Do YYYY, h:mm:ss a') : "No file uploaded"
+        )
+      }
+    },
+    {
       name: "Date",
       selector: "checked_on",
       sortable: true,
       minWidth: "300px",
       cell: row => {
         return (
-          moment(row?.checked_on).format('MMMM Do YYYY, h:mm:ss a')
+          row?.checked_on ? moment(row?.checked_on).format('MMMM Do YYYY, h:mm:ss a') : "No file uploaded"
         )
       }
     }
@@ -718,7 +734,7 @@ const DataTableAdvSearch = () => {
             Inventory Details
           </ModalHeader>
           <ModalBody>
-            <TabsVerticalLeft item={modalDetails} allProperty={allProperty} />
+            <TabsVerticalLeft item={modalDetails} allProperty={allProperty} GET_INVENTORY={GET_INVENTORY}/>
           </ModalBody>
           <ModalFooter>
             <Button color="primary" onClick={() => setDetailsModal(!detailsModal)}>

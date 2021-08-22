@@ -65,7 +65,7 @@ mutation MyMutation($id: Int!, $report_location: String) {
 }
 `
 
-const TabsVerticalLeft = ({item, allProperty}) => {
+const TabsVerticalLeft = ({item, allProperty, GET_INVENTORY}) => {
   const openInNewTab = (url) => {
     const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
     if (newWindow) newWindow.opener = null
@@ -79,12 +79,12 @@ const TabsVerticalLeft = ({item, allProperty}) => {
   const [pdf, setPdf] = useState(null)
   const [pdfLocation, setPdfLocation] = useState(null)
   const [uploadButton, setUploadButton] = useState(false)
-  const [setToReviewStage, { loading: reviewStageLoading, data: reviewStage, reviewStageError }] = useMutation(UPDATE_TO_REVIEW)
-  const [setToUnApproveStage, { loading: unApproveStageLoading, data: unApproveStage, unApproveStageError }] = useMutation(UPDATE_TO_UNAPPROVE)
-  const [setToApprovalStage, { loading: approvalStageLoading, data: approvalStage, approvalStageError }] = useMutation(UPDATE_TO_APPROVAL)
-  const [setToApproveStage, { loading: approveStageLoading, data: approveStage, approveStageError }] = useMutation(UPDATE_TO_APPROVE)
-  const [uploadPDF, { loading: uploadPDFLoading, data: uploadPDFdata, uploadPDFError }] = useMutation(ADD_INVENTORY_PDF)
-  const [uploadUpdatePDF, { loading: uploadUpdatePDFLoading, data: uploadUpdatePDFdata, uploadUpdatePDFError }] = useMutation(UPDATE_INVENTORY_PDF)
+  const [setToReviewStage, { loading: reviewStageLoading, data: reviewStage, reviewStageError }] = useMutation(UPDATE_TO_REVIEW, { refetchQueries: [{ query: GET_INVENTORY }] })
+  const [setToUnApproveStage, { loading: unApproveStageLoading, data: unApproveStage, unApproveStageError }] = useMutation(UPDATE_TO_UNAPPROVE, { refetchQueries: [{ query: GET_INVENTORY }] })
+  const [setToApprovalStage, { loading: approvalStageLoading, data: approvalStage, approvalStageError }] = useMutation(UPDATE_TO_APPROVAL, { refetchQueries: [{ query: GET_INVENTORY }] })
+  const [setToApproveStage, { loading: approveStageLoading, data: approveStage, approveStageError }] = useMutation(UPDATE_TO_APPROVE, { refetchQueries: [{ query: GET_INVENTORY }] })
+  const [uploadPDF, { loading: uploadPDFLoading, data: uploadPDFdata, uploadPDFError }] = useMutation(ADD_INVENTORY_PDF, { refetchQueries: [{ query: GET_INVENTORY }] })
+  const [uploadUpdatePDF, { loading: uploadUpdatePDFLoading, data: uploadUpdatePDFdata, uploadUpdatePDFError }] = useMutation(UPDATE_INVENTORY_PDF, { refetchQueries: [{ query: GET_INVENTORY }] })
 
   if (allProperty?.client) {
     item = {...item, ...allProperty}
@@ -457,7 +457,8 @@ const TabsVerticalLeft = ({item, allProperty}) => {
             <h1 className="mr-2">Inventory Actions</h1>
             { (reviewStageLoading || unApproveStageLoading || approvalStageLoading || approveStageLoading || uploadPDFLoading || uploadUpdatePDFLoading || loading) && <Spinner color='primary' />}
           </div>
-        {userName === "murtaza.hanif@techinoviq.com" ? <div className="mr-2">
+          {/* To upload files */}
+        {userName === "ffakhri@queensman.com" ? <div className="mr-2"> 
         <Row>
           <Col md="2">
           <div>Status</div>
