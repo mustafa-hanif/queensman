@@ -5,7 +5,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
-import { StyleSheet, RefreshControl, View, TouchableOpacity, Dimensions, Platform, Alert } from "react-native";
+import { StyleSheet, RefreshControl, View, TouchableOpacity, Dimensions, Platform, Alert, SegmentedControlIOSComponent } from "react-native";
 import {
   Box,
   Content,
@@ -21,6 +21,9 @@ import {
   Divider,
   ScrollView,
   Spinner,
+  Center,
+  AlertDialog,
+  Button
 } from "native-base";
 import { AntDesign, Ionicons, FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -65,6 +68,16 @@ const GET_CALLOUT = gql`
     }
   }
 `;
+
+const GET_CLIENT_STATUS = gql`
+query GetClient($email: String!) {
+  client(where: {email: {_eq: $email}}) {
+    id
+    email
+    active
+  }
+}
+`
 
 const styles = StyleSheet.create({
   container: {
@@ -235,6 +248,7 @@ const NOTIFICATION_LIST = gql`
 
 const HomeScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
+  const [isOpen, setIsOpen] = useState(true)
   const email2 = auth?.currentSession?.session?.user.email;
   const {
     loading,
@@ -245,6 +259,17 @@ const HomeScreen = ({ navigation }) => {
     variables: {
       callout_by_email: email2,
       today: moment().format("YYYY-MM-DD"),
+    },
+  });
+
+  const {
+    loading: clientLoading,
+    data: clientStatus,
+    error: clientError,
+    refetch: refetchClientStatus
+  } = useQuery(GET_CLIENT_STATUS, {
+    variables: {
+      email: email2,
     },
   });
 
@@ -264,11 +289,34 @@ const HomeScreen = ({ navigation }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      refetchNotification();
+      refetchClientStatus();
       refetchService();
+      refetchNotification();
     }, [])
   );
-
+  const IsActive = () => (
+    <Center>
+      <AlertDialog
+        isOpen={isOpen}
+        motionPreset={"fade"}
+      >
+        <AlertDialog.Content>
+          <AlertDialog.Header fontSize="lg" fontWeight="bold">
+            Account Inactive
+          </AlertDialog.Header>
+          <AlertDialog.Body>
+            Your account is inactive. Please contact administrator services@queensman.com
+          </AlertDialog.Body>
+          <AlertDialog.Footer>
+            <Button onPress={() => logout(navigation)}>
+              Ok
+            </Button>
+          </AlertDialog.Footer>
+        </AlertDialog.Content>
+      </AlertDialog>
+    </Center>
+  // <Text>NO</Text>
+  )
   const [refreshing, setRefreshing] = useState(false);
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
@@ -302,13 +350,24 @@ const HomeScreen = ({ navigation }) => {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
+    refetchClientStatus();
     refetchService();
     refetchNotification();
-    console.log(error);
+    if(error || notificationError || clientError) {
+      setRefreshing(false)
+      console.log(error, "callout error")
+      console.log(notificationError, "notification error")
+      console.log(clientError, "client error")
+    }
   }, []);
+  console.log(clientStatus?.client?.[0]?.active)
 
   return (
     <View style={{ backgroundColor: "#111827", height: "100%" }}>
+      {clientStatus?.client?.[0]?.active != 1 && !clientLoading && !loadingNotification && !loading && 
+     
+        <IsActive />
+      }
       <View style={styles.Name}>
         <View
           style={{

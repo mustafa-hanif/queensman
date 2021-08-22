@@ -106,8 +106,8 @@ export default class LoginScreen extends React.Component {
         this.props.navigation.navigate("AppDrawer");
       })
       .catch((err) => {
-        alert("Error signing in. The password you entered might be incorrect. ");
-        console.log("error signing in!: ", err);
+        alert(`Error logging in! ${err.response.data.message}`);
+        console.log("error logging in!: ", err.response.data.message);
         this.setState({ ...this.state, loading: false });
       });
   };
