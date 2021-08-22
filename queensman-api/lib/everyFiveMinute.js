@@ -25,7 +25,7 @@ async function everyFiveMinute() {
 }
 
 async function notifyTeamisComing() {
-  const timeZone = 'Asia/Karachi'
+  const timeZone = 'Asia/Dubai'
   const zonedDate = utcToZonedTime(new Date(), timeZone)
   const { errors, data: { scheduler } } = await fetchGraphQL(`
   query GetJobDue($today: date!) {
