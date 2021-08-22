@@ -192,10 +192,10 @@ const TabsVerticalLeft = ({data, propertyLoading, property_id}) => {
               property_id, 
               report_location: `https://backend-8106d23e.nhost.app/storage/o/market_report/${pdf.name}`
             }})
-            const result_id = res?.data?.insert_market_report_report_one?.id
-            const result_property_id = res?.data?.insert_market_report_report_one?.property_id
-            const result_report_upload_date = res?.data?.insert_market_report_report_one?.report_upload_date
-            const result_report_location = res?.data?.insert_market_report_report_one?.report_location
+            const result_id = res?.data?.insert_market_report_one?.id
+            const result_property_id = res?.data?.insert_market_report_one?.property_id
+            const result_report_upload_date = res?.data?.insert_market_report_one?.report_upload_date
+            const result_report_location = res?.data?.insert_market_report_one?.report_location
             market_report.push({id: result_id, property_id: result_property_id, report_upload_date:result_report_upload_date, report_location: result_report_location })
             setTime(result_report_upload_date)
             setLoading(false)
@@ -440,7 +440,7 @@ const TabsVerticalLeft = ({data, propertyLoading, property_id}) => {
         <b>Month: </b> {moment(item.report_upload_date).format("MMMM")}
         </Col>
         <Col>
-        <b>Day: </b> {moment(item.report_upload_date).format("do dddd")}
+        <b>Day: </b> {moment(item.report_upload_date).format("dddd Do")}
         </Col>
         <Col>
         <b>Time: </b> {moment(item.report_upload_date).format("h:mm a")}
