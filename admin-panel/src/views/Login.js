@@ -1,3 +1,4 @@
+import jwt_decode from "jwt-decode"
 import { Link, useHistory } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import InputPasswordToggle from '@components/input-password-toggle'
@@ -23,9 +24,15 @@ const LoginV1 = () => {
     e.preventDefault()
     try { 
       const data = await auth.login({ email: e.target.elements.email.value, password: e.target.elements.password.value})
-      console.log(data)
-      localStorage.setItem('userData', JSON.stringify(data))
-      history.push('/home')
+      const decoded = jwt_decode(data.session.jwt_token)
+      if (decoded['https://hasura.io/jwt/claims']['x-hasura-default-role'] === "admin") {
+        localStorage.setItem('userData', JSON.stringify(data))
+        history.push('/home')  
+      } else {
+        auth.logout()
+        alert("User does not have a valid admin account")
+        localStorage.clear()
+      }
     } catch (e) {
       setError(e.response.data.message)
     }
