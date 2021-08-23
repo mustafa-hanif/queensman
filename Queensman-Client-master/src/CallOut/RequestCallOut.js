@@ -11,7 +11,7 @@
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
-import { Button, Box, ScrollView, Select, Icon } from "native-base";
+import { Button, Box, ScrollView, Select, Icon, AlertDialog, Center} from "native-base";
 import { Video } from "expo-av";
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image } from "react-native";
 
@@ -411,7 +411,7 @@ const RequestCallOut = (props) => {
       variables: { id: allProperties?.client?.[0]?.property_owneds?.[0]?.id },
     }
   );
-
+  
   const [videoDurationinMillis, setvideoDurationinMillis] = useState("0:00");
 
   // Did mount - Select the first property of the client, or use the one in async storage
@@ -774,6 +774,30 @@ const RequestCallOut = (props) => {
         saveVideo={saveVideo}
       />
     );
+  }
+  if (propertyError) {
+    return (    
+      <Center>
+      <AlertDialog
+        isOpen={true}
+        motionPreset={"fade"}
+      >
+        <AlertDialog.Content>
+          <AlertDialog.Header fontSize="lg" fontWeight="bold">
+            No property found
+          </AlertDialog.Header>
+          <AlertDialog.Body>
+            You currently don't have any property assigned.
+          </AlertDialog.Body>
+          <AlertDialog.Footer>
+            <Button onPress={() => props.navigation.navigate("HomeNaviagtor")}>
+              Ok
+            </Button>
+          </AlertDialog.Footer>
+        </AlertDialog.Content>
+      </AlertDialog>
+    </Center>
+      )
   }
   return (
     <ScrollView style={{ height: "100%" }}>

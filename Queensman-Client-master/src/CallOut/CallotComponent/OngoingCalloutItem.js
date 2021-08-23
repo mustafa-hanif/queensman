@@ -153,7 +153,7 @@ const Item = ({ item, toggleGalleryEventModal }) => {
             Assigned to
           </Text>
           <Text color="indigo.800" bold fontSize="sm">
-            {item?.job_worker?.[0]?.worker?.full_name}
+          {item?.schedule?.worker?.full_name}
           </Text>
         </HStack>
         <VStack>
@@ -161,7 +161,7 @@ const Item = ({ item, toggleGalleryEventModal }) => {
             On Property
           </Text>
           <Text color="cyan.800" fontSize="sm">
-            {item?.property?.address}, {item?.property?.city}
+          {item?.property ? `${item?.property?.address}, ${item?.property?.city}` : "No Property Assigned"}
           </Text>
         </VStack>
 
@@ -197,13 +197,13 @@ const Item = ({ item, toggleGalleryEventModal }) => {
           <Text fontSize="lg" color="black">
             Pictures
           </Text>
-          <HStack>
+          <HStack space={2}>
             {Array(4)
               .fill()
               .map((_, i) => {
                 const uri = item[`picture${i + 1}`];
                 return (
-                  uri && (
+                  uri ? (
                     <Pressable onPress={() => toggleGalleryEventModal(uri)}>
                       <Image
                         key={uri}
@@ -214,7 +214,7 @@ const Item = ({ item, toggleGalleryEventModal }) => {
                         alt="Alt"
                       />
                     </Pressable>
-                  )
+                  ) : (<Text>No picture</Text>)
                 );
               })}
           </HStack>

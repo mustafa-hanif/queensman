@@ -19,6 +19,9 @@ import {
   Heading,
   Divider,
   ScrollView,
+  AlertDialog,
+  Button,
+  Center
 } from "native-base";
 import { gql, useLazyQuery } from "@apollo/client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -83,6 +86,7 @@ const GET_CALLOUTS = gql`
 `;
 const CalloutHistoryClass = (props) => {
   const [CalloutData, setCalloutData] = useState([]);
+  const [isOpen, setIsOpen] = useState(true)
 
   const [loadProperty, { loading: loadingSingleProperty, data: selectedProperty, error: propertyError }] = useLazyQuery(
     GET_PROPERTY_BY_ID,
@@ -92,7 +96,7 @@ const CalloutHistoryClass = (props) => {
           variables: {
             today: moment().format("YYYY-MM-DD"),
             callout_by_email: email,
-            property_id: data.property_owned[0].property_id,
+            property_id: data?.property_owned[0]?.property_id,
           },
         });
         // AsyncStorage.setItem("QueensPropertyID", data.property_owned[0].property_id);
@@ -102,7 +106,7 @@ const CalloutHistoryClass = (props) => {
 
   const [loadCallouts, { loading, data, error }] = useLazyQuery(GET_CALLOUTS, {
     onCompleted: (data2) => {
-      setCalloutData(data2.callout);
+      setCalloutData(data2?.callout);
     },
   });
   const user = auth?.currentSession?.session?.user;
@@ -133,12 +137,33 @@ const CalloutHistoryClass = (props) => {
     // });
   };
 
-  if (loading || !data) {
+  if (loading) {
     return <ActivityIndicator size="large" color="#FFCA5D" />;
   }
 
   if (error) {
-    return <Box>{error}</Box>;
+    return (    
+    <Center>
+    <AlertDialog
+      isOpen={isOpen}
+      motionPreset={"fade"}
+    >
+      <AlertDialog.Content>
+        <AlertDialog.Header fontSize="lg" fontWeight="bold">
+          No property found
+        </AlertDialog.Header>
+        <AlertDialog.Body>
+          You currently don't have any property assigned.
+        </AlertDialog.Body>
+        <AlertDialog.Footer>
+          <Button onPress={() => props.navigation.navigate("HomeNaviagtor")}>
+            Ok
+          </Button>
+        </AlertDialog.Footer>
+      </AlertDialog.Content>
+    </AlertDialog>
+  </Center>
+    )
   }
   console.log(CalloutData);
   return (

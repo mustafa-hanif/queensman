@@ -52,6 +52,10 @@ const GET_CALLOUT = gql`
         date_on_calendar
         time_on_calendar
         id
+        worker {
+          email
+          full_name
+        }
       }
     }
   }
@@ -190,7 +194,7 @@ const Item = ({ item, passItem }) => {
             Assigned to
           </Text>
           <Text color="indigo.800" bold fontSize="sm">
-            {item?.job_worker?.[0]?.worker?.full_name}
+            {item?.schedule?.worker?.full_name}
           </Text>
         </HStack>
         <VStack>
@@ -198,7 +202,7 @@ const Item = ({ item, passItem }) => {
             On Property
           </Text>
           <Text color="cyan.800" fontSize="sm">
-            {item?.property?.address}, {item?.property?.city}
+          {item?.property ? `${item?.property?.address}, ${item?.property?.city}` : "No Property Assigned"}
           </Text>
         </VStack>
 

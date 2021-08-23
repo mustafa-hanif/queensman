@@ -64,6 +64,10 @@ const GET_CALLOUT = gql`
         date_on_calendar
         time_on_calendar
         id
+        worker {
+          email
+          full_name
+        }
       }
     }
   }
@@ -364,7 +368,7 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={{ backgroundColor: "#111827", height: "100%" }}>
-      {clientStatus?.client?.[0]?.active != 1 && !clientLoading && !loadingNotification && !loading && 
+      {clientStatus?.client?.[0]?.active && clientStatus?.client?.[0]?.active != 1 && !clientLoading && !loadingNotification && !loading && 
      
         <IsActive />
       }
@@ -513,7 +517,7 @@ const CalloutItem = ({ item, toggleGalleryEventModal }) => {
   const color = item?.urgency_level === "High" ? "rose.600" : "amber.600";
   const statusColor = colors[item?.status] ? colors[item?.status] : "lightBlue.600";
   return (
-    <Box bg="white" mx={8} rounded="lg">
+    <Box bg="white" mx={8} mb={16} rounded="lg">
       <Stack space={2.5} p={4}>
         <HStack alignItems="center">
           <CircleIcon size={4} mr={0.5} color={color} />
@@ -547,7 +551,7 @@ const CalloutItem = ({ item, toggleGalleryEventModal }) => {
             Assigned to
           </Text>
           <Text color="indigo.800" bold fontSize="sm">
-            {item?.job_worker?.[0]?.worker?.full_name}
+          {item?.schedule?.worker?.full_name}
           </Text>
         </HStack>
         <VStack>
@@ -555,7 +559,7 @@ const CalloutItem = ({ item, toggleGalleryEventModal }) => {
             On Property
           </Text>
           <Text color="cyan.800" fontSize="sm">
-            {item?.property?.address}, {item?.property?.city}
+            {item?.property ? `${item?.property?.address}, ${item?.property?.city}` : "No Property Assigned"}
           </Text>
         </VStack>
 
