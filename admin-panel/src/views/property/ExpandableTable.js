@@ -19,6 +19,7 @@ import { Home, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loade
 import { useState } from 'react'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
 import TabsVerticalLeft from './TabsVerticalLeft'
+import Spinner from 'reactstrap/lib/Spinner'
 
 const GET_PROPERTIES = gql`
 query GetProperties($id: Int = 1) {
@@ -64,9 +65,44 @@ query GetProperties($id: Int = 1) {
   }
 }
 `
+
+//Overlay component
+const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
+  return (
+<div style={{
+    position: "fixed",
+    display: "block",
+    width: "100%",
+    height: "100%",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    zIndex: 10
+}}>
+  <div style={{
+    position: "absolute",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%,-50%)"
+  }}>
+      <Spinner color='primary' />
+      {loaderButton && <div className="d-flex flex-column align-items-center mt-2">
+        <h6 className="text-primary">Hmmm it is taking longer than expected</h6>
+        <Button color='secondary' className="mt-2" onClick={ () => { setLoaderButton(false); setLoading(false) }}>Go back</Button>
+        </div>}
+    </div>
+  </div>
+  )
+}
+
 const CollapseDefault = ({data}) => <AppCollapse data={data} type='border' />
 
-const RowContent = ({data: prop, openModalAlert, count, setModalDetails, handleDetailsModal}) => {
+const RowContent = ({data: prop, openModalAlert, count, setModalDetails, handleDetailsModal, loading, setLoading}) => {
   const [getProps, { loading: propertyLoading, data: propertyData, error }] = useLazyQuery(GET_PROPERTIES)
   const [open2, setopen2] = useState(false)
   const handlePropertyDetailsModal = () => {
@@ -121,6 +157,8 @@ export const ExpandableTable = ({ data, openModalAlert, handleUpdate }) => {
   const [open, setopen] = useState(false)
   const [modalDetails, setModalDetails] = useState(null)
   const [assigned, setAssigned] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [loaderButton, setLoaderButton] = useState(false)
 
   const handleDetailsModal = () => {
     setopen(!open)
@@ -132,8 +170,10 @@ export const ExpandableTable = ({ data, openModalAlert, handleUpdate }) => {
     setModalDetails(rowValue)
   }
 
-  const handleSubmit = () => {
-      handleUpdate(modalDetails, assigned, data)
+  const handleSubmit = async () => {
+      setLoading(true)
+      await handleUpdate(modalDetails, assigned, data)
+      setLoading(false)
       handleDetailsModal()
       setModalDetails(null)
   }
@@ -143,7 +183,7 @@ export const ExpandableTable = ({ data, openModalAlert, handleUpdate }) => {
         {
             title: `Property id: ${prop.property.id} Address: ${prop.property.address}`,
             content: (
-              <RowContent data={prop} openModalAlert={openModalAlert} count={property_owneds.length} setModalDetails={setModalDetails} handleDetailsModal={handleDetailsModal} />
+              <RowContent data={prop} openModalAlert={openModalAlert} count={property_owneds.length} setModalDetails={setModalDetails} handleDetailsModal={handleDetailsModal} loading={loading} setLoading={setLoading} loaderButton={loaderButton} setLoaderButton={setLoaderButton} />
             )
           }
     )) : [
@@ -156,14 +196,14 @@ export const ExpandableTable = ({ data, openModalAlert, handleUpdate }) => {
       }
     ]
     return (
-      <div className='expandable-content px-2 pt-3'>
+      <div className='expandable-content px-2 pt-3'>        
         {/* <Col lg="3">
         {prop_count > 0 && <StatsHorizontal icon={<Home size={21} />} color='primary' stats={prop_count} statTitle='Properties' />}
         </Col> */}
         <Card>
            <CollapseDefault data={property_owneds_modified} />
         </Card>
-        <Modal
+        {loading ? <Overlay loading={loading} setLoading={setLoading} loaderButton={loaderButton} setLoaderButton={setLoaderButton} /> : <Modal
       isOpen={open}
       toggle={handleDetailsModal}
       className='sidebar-sm'
@@ -204,7 +244,7 @@ export const ExpandableTable = ({ data, openModalAlert, handleUpdate }) => {
         Cancel
       </Button>
     </ModalBody>
-    </Modal>
+    </Modal>}
       </div>
     )
   }

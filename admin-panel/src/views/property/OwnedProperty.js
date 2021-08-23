@@ -239,20 +239,40 @@ const advSearchColumns = [
       }
   }
 
-  const handleUpdate = (updatedRow, assigned, data) => {
-    if (assigned) {
-      unassignProp({variables: {
-        id: updatedRow.id,
-        owner_id: data.id 
-      }})
-    }
-    updateProp({variables: {
-        id: updatedRow.id,
-        city: updatedRow.city,
-        community: updatedRow.community,
-        address: updatedRow.address,
-        country: updatedRow.country
+  const handleUpdate = async (updatedRow, assigned, data) => {
+    try {
+      if (assigned) {
+        await unassignProp({variables: {
+          id: updatedRow.id,
+          owner_id: data.id 
         }})
+      }
+      await updateProp({variables: {
+          id: updatedRow.id,
+          city: updatedRow.city,
+          community: updatedRow.community,
+          address: updatedRow.address,
+          country: updatedRow.country
+          }})
+      toast.success(
+        <ToastComponent title="Property Updated" color="success" icon={<Check />} />,
+        {
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeButton: false
+        }
+      )
+    } catch (e) {
+      toast.error(
+        <ToastComponent title="Error updating property" color="danger" icon={<XCircle />} />,
+        {
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeButton: false
+        }
+      )
+    }
+    
       dataToRender()
   }
 

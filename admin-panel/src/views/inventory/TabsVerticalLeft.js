@@ -61,8 +61,12 @@ const UPDATE_INVENTORY_PDF = gql`
 mutation MyMutation($id: Int!, $report_location: String) {
   update_inventory_report_pdf(where: {id: {_eq: $id}}, _set: {report_location: $report_location}) {
     affected_rows
+    returning {
+      report_updated_date
+    }
   }
 }
+
 `
 
 const TabsVerticalLeft = ({item, allProperty, GET_INVENTORY}) => {
@@ -248,7 +252,7 @@ const TabsVerticalLeft = ({item, allProperty, GET_INVENTORY}) => {
           setLoading(false)
           await uploadUpdatePDF({variables: { //update file
             id: inventory_report_pdf.id,
-            report_location: `https://backend-8106d23e.nhost.app/storage/o/inventory_report/${pdf.name}` 
+            report_location: `https://backend-8106d23e.nhost.app/storage/o/inventory_report/${pdf.name}`
           }})
           setPdfLocation(`https://backend-8106d23e.nhost.app/storage/o/inventory_report/${pdf.name}`)
           toast.success(
@@ -547,7 +551,7 @@ const TabsVerticalLeft = ({item, allProperty, GET_INVENTORY}) => {
                {moment(new Date()).format('MMMM Do YYYY, h:mm:ss a')}
                </div> : inventory_report_pdf && <div>
              <span className="font-weight-bold">Uploaded at: </span>
-             {moment(inventory_report_pdf.report_upload_date).format('MMMM Do YYYY, h:mm:ss a')}
+             {moment(inventory_report_pdf.report_updated_date).format('MMMM Do YYYY, h:mm:ss a')}
              </div>}
      </div>
          </Col>
@@ -621,7 +625,7 @@ const TabsVerticalLeft = ({item, allProperty, GET_INVENTORY}) => {
            </Button>}
       {inventory_report_pdf && <div>
         <span className="font-weight-bold">Uploaded at: </span>
-        {moment(inventory_report_pdf.report_upload_date).format('MMMM Do YYYY, h:mm:ss a')}
+        {moment(inventory_report_pdf.report_updated_date).format('MMMM Do YYYY, h:mm:ss a')}
         </div>}
       </div>
           </Col>
@@ -701,7 +705,7 @@ const TabsVerticalLeft = ({item, allProperty, GET_INVENTORY}) => {
            </Button>}
       {inventory_report_pdf && <div>
         <span className="font-weight-bold">Uploaded at: </span>
-        {moment(inventory_report_pdf.report_upload_date).format('MMMM Do YYYY, h:mm:ss a')}
+        {moment(inventory_report_pdf.report_updated_date).format('MMMM Do YYYY, h:mm:ss a')}
         </div>}
       </div>
           </Col>
@@ -751,7 +755,7 @@ const TabsVerticalLeft = ({item, allProperty, GET_INVENTORY}) => {
            </Button>}
       {inventory_report_pdf && <div>
         <span className="font-weight-bold">Uploaded at: </span>
-        {moment(inventory_report_pdf.report_upload_date).format('MMMM Do YYYY, h:mm:ss a')}
+        {moment(inventory_report_pdf.report_updated_date).format('MMMM Do YYYY, h:mm:ss a')}
         </div>}
       </div>
           </Col>

@@ -87,7 +87,7 @@ const AddNewModal = ({
     setRow(rowValue)
 }
 
-const onSubmit = () => {
+const onSubmit = async () => {
   // setRow(row)
   const sameValue = clientOwnedArray.map(element => clientLeasedArray.some(element2 => element2.value === element.value))  
   if (sameValue[0]) {
@@ -98,7 +98,6 @@ const onSubmit = () => {
     })
   }
   if (toAssignNewRecord && (clientOwnedArray.length === 0 && clientLeasedArray.length === 0)) {
-    console.log(toAssignNewRecord, clientOwnedArray.length, clientLeasedArray.length)
     return toast.error(<ToastComponent title='Client Field cannot be empty' color='danger' icon={<Info />} />, {
       autoClose: 2000,
       hideProgressBar: true,
@@ -120,9 +119,13 @@ const onSubmit = () => {
     })
   }
     if (toAddNewRecord) {
-      handleAddRecord(row, clientOwnedArray, clientLeasedArray, lease_start_date, lease_end_date)
+      await handleAddRecord(row, clientOwnedArray, clientLeasedArray, lease_start_date, lease_end_date)
+      setclientOwnedArray([])
+      setclientLeasedArray([])
     } else if (toAssignNewRecord) {
-      handleAssignClient(row, clientOwnedArray, clientLeasedArray, lease_start_date, lease_end_date)
+      await handleAssignClient(row, clientOwnedArray, clientLeasedArray, lease_start_date, lease_end_date)
+      setclientOwnedArray([])
+      setclientLeasedArray([])
     } else {
       handleUpdate(row)
     }

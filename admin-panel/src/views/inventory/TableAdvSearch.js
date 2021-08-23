@@ -119,6 +119,7 @@ query GetInventory {
     inventory_report_pdfs {
       report_location
       report_upload_date
+      report_updated_date
       id
     }
   }
@@ -266,13 +267,13 @@ const DataTableAdvSearch = () => {
     },
     {
       name: "PDF upload date",
-      selector: "inventory_report_pdfs.report_upload_date",
+      selector: "inventory_report_pdfs.report_updated_date",
       sortable: true,
       minWidth: "300px",
       wrap: true,
       cell: row => {
         return (
-          row?.inventory_report_pdfs?.[0]?.report_upload_date ? moment(row?.inventory_report_pdfs?.[0]?.report_upload_date).format('MMMM Do YYYY, h:mm:ss a') : "No file uploaded"
+          row?.inventory_report_pdfs?.[0]?.report_updated_date ? moment(row?.inventory_report_pdfs?.[0]?.report_updated_date).format('MMMM Do YYYY, h:mm:ss a') : "No file uploaded"
         )
       }
     },

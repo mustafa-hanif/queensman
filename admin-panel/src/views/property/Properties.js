@@ -25,6 +25,39 @@ const ToastComponent = ({ title, icon, color }) => (
   </Fragment>
 )
 
+//Overlay component
+const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
+  return (
+<div style={{
+    position: "fixed",
+    display: "block",
+    width: "100%",
+    height: "100%",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    zIndex: 10
+}}>
+  <div style={{
+    position: "absolute",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%,-50%)"
+  }}>
+      <Spinner color='primary' />
+      {loaderButton && <div className="d-flex flex-column align-items-center mt-2">
+        <h6 className="text-primary">Hmmm it is taking longer than expected</h6>
+        <Button color='secondary' className="mt-2" onClick={ () => { setLoaderButton(false); setLoading(false) }}>Go back</Button>
+        </div>}
+    </div>
+  </div>
+  )
+}
 // ** Bootstrap Checkbox Component
 // const BootstrapCheckbox = forwardRef(({ onClick, ...rest }, ref) => {
 //     return (
@@ -42,6 +75,7 @@ import AddNewModalAssignProp from './AddNewModalAssignProp'
 import ButtonGroup from 'reactstrap/lib/ButtonGroup'
 import { months } from 'moment'
 import Badge from 'reactstrap/lib/Badge'
+import Spinner from 'reactstrap/lib/Spinner'
 
 const GET_PROPS = gql`
 query GetProperties {
@@ -130,15 +164,15 @@ const DELETE_PROPS = gql`mutation DeleteProperty($id: Int = 10) {
 const DataTableAdvSearch = () => {
 
         // ** States
-  const { loading, data, error } = useQuery(GET_PROPS)
-  const { loading: clientLoading, data: clientData, error: clientError } = useQuery(GET_CLIENT_PROPS)
-  const [updateProp, {loading: propertyLoading}] = useMutation(UPDATE_PROPS, {refetchQueries:[{query: GET_PROPS}]})
-  const [addProp, {loading: addPropertyLoading}] = useMutation(ADD_PROPS, {refetchQueries:[{query: GET_PROPS}]})
-  const [addPropOwned, {loading: addPropertyOwnedLoading}] = useMutation(ADD_PROP_OWNED, {refetchQueries:[{query: GET_PROPS}]})
-  const [addLease, {loading: addLeaseLoading}] = useMutation(ADD_LEASE, {refetchQueries:[{query: GET_PROPS}]})
-  const [deleteProp, {loading: deletePropertyLoading}] = useMutation(DELETE_PROPS, {refetchQueries:[{query: GET_PROPS}]})
-  const [assignOwnedProperty, {loading: assignOwnedPropertyLoading}] = useMutation(ASSIGN_OWNED_PROPERTY, {refetchQueries:[{query: GET_PROPS}]})
-  const [assignLeasedProperty, {loading: assignLeasedPropertyLoading}] = useMutation(ASSIGN_LEASED_PROPERTY, {refetchQueries:[{query: GET_PROPS}]})
+  const { loading, data, error, refetch: refetchProperties } = useQuery(GET_PROPS)
+  const { loading: clientLoading, data: clientData, error: clientError, refetch: refetchClient } = useQuery(GET_CLIENT_PROPS)
+  const [updateProp, {loading: propertyLoading}] = useMutation(UPDATE_PROPS)
+  const [addProp, {loading: addPropertyLoading}] = useMutation(ADD_PROPS)
+  const [addPropOwned, {loading: addPropertyOwnedLoading}] = useMutation(ADD_PROP_OWNED)
+  const [addLease, {loading: addLeaseLoading}] = useMutation(ADD_LEASE)
+  const [deleteProp, {loading: deletePropertyLoading}] = useMutation(DELETE_PROPS)
+  const [assignOwnedProperty, {loading: assignOwnedPropertyLoading}] = useMutation(ASSIGN_OWNED_PROPERTY)
+  const [assignLeasedProperty, {loading: assignLeasedPropertyLoading}] = useMutation(ASSIGN_LEASED_PROPERTY)
   const [modal, setModal] = useState(false)
   const [searchCity, setSearchCity] = useState('')
   const [searchCommunity, setSearchCommunity] = useState('')
@@ -154,6 +188,8 @@ const DataTableAdvSearch = () => {
   const [clientLeasedArray, setclientLeasedArray] = useState([])
   const [lease_start_date, setLease_start_date] = useState(null)
   const [lease_end_date, setLease_end_date] = useState(null)
+  const [dataLoading, setDataLoading] = useState(false)
+  const [loaderButton, setLoaderButton] = useState(false)
 
   const [modalAlert, setModalAlert] = useState(null)
 
@@ -317,63 +353,73 @@ const advSearchColumns = [
 
   const handleAssignClient = async (row, clientOwnedArray, clientLeasedArray, lease_start, lease_end) => {
     console.log(row, clientOwnedArray, clientLeasedArray)
-    if (clientLeasedArray.length > 0) {
-      console.log("leased")
-      for (let i = 0; i < clientLeasedArray.length; i++) {
-        const owner_id = clientLeasedArray[i].value
-        try {
-          await assignLeasedProperty({variables: {
-            property_id: row.id,
-            owner_id,
-            lease_start,
-            lease_end
-          }})
-        } catch (e) {
-          console.log(e)
+    setDataLoading(true)
+    try {
+      if (clientLeasedArray.length > 0) {
+        console.log("leased")
+        for (let i = 0; i < clientLeasedArray.length; i++) {
+          const owner_id = clientLeasedArray[i].value
+            await assignLeasedProperty({variables: {
+              property_id: row.id,
+              owner_id,
+              lease_start,
+              lease_end
+            }})
+        }
+        toast.success(
+          <ToastComponent title="Property Assigned" color="success" icon={<Check />} />,
+          {
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeButton: false
+          }
+        )
+        dataToRender()
+        if (!assignOwnedPropertyLoading) {
+          setModal(!modal)
+        }
+      } 
+      if (clientOwnedArray.length > 0) {
+        console.log("owned")
+        for (let i = 0; i < clientOwnedArray.length; i++) {
+          const owner_id = clientOwnedArray[i].value
+            await assignOwnedProperty({variables: {
+              property_id: row.id,
+              owner_id
+            }})
+        }
+        setDataLoading(false)
+        toast.success(
+          <ToastComponent title="Property Assigned" color="success" icon={<Check />} />,
+          {
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeButton: false
+          }
+        )
+        dataToRender()
+        if (!assignOwnedPropertyLoading) {
+          setModal(!modal)
         }
       }
-      toast.success(
-        <ToastComponent title="Property Assigned" color="success" icon={<Check />} />,
+      refetchProperties()
+      refetchClient()
+    } catch (e) {
+      console.log(e)
+      setDataLoading(false)
+      toast.error(
+        <ToastComponent title="Unable to assign" color="danger" icon={<XCircle />} />,
         {
           autoClose: 2000,
           hideProgressBar: true,
           closeButton: false
         }
       )
-      dataToRender()
-      if (!assignOwnedPropertyLoading) {
-        setModal(!modal)
-      }
-    } 
-    if (clientOwnedArray.length > 0) {
-      console.log("owned")
-      for (let i = 0; i < clientOwnedArray.length; i++) {
-        const owner_id = clientOwnedArray[i].value
-        try {
-          await assignOwnedProperty({variables: {
-            property_id: row.id,
-            owner_id
-          }})
-        } catch (e) {
-          console.log(e)
-        }
-      }
-      toast.success(
-        <ToastComponent title="Property Assigned" color="success" icon={<Check />} />,
-        {
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeButton: false
-        }
-      )
-      dataToRender()
-      if (!assignOwnedPropertyLoading) {
-        setModal(!modal)
-      }
     }
   }
   const handleAddRecord = async (newRow, clientOwnedArray, clientLeasedArray, lease_start, lease_end) => {
     console.log(newRow, clientOwnedArray, clientLeasedArray)
+    setDataLoading(true)
     try {
       const res = await addProp({variables: {
         community: newRow.community,
@@ -403,17 +449,21 @@ const advSearchColumns = [
           console.log("Property Owned for client Leased Added", res3)
         }
       }
+      setDataLoading(false)
       toast.success(<ToastComponent title='Property Added' color='success' icon={<Check />} />, {
         autoClose: 2000,
         hideProgressBar: true,
         closeButton: false
       })
+      refetchProperties()
+      refetchClient()
       dataToRender()
       if (!addPropertyLoading) {
         setModal(!modal)
       }
     } catch (error) {
       console.log(error)
+      setDataLoading(false)
       return toast.error(<ToastComponent title='Error' color='danger' icon={<Info />} />, {
         autoClose: 2000,
         hideProgressBar: true,
@@ -423,6 +473,7 @@ const advSearchColumns = [
   }
 
   const handleDeleteRecord = async (id) => {
+    setDataLoading(true)
     try {
       await deleteProp({variables: {
         id
@@ -432,7 +483,10 @@ const advSearchColumns = [
         hideProgressBar: true,
         closeButton: false
       })
+      setDataLoading(false)
+      refetchProperties()
     } catch (e) {
+      setDataLoading(false)
       console.log(e?.message)
       if (e?.message === 'Foreign key violation. update or delete on table "property" violates foreign key constraint "property_owned_property_id_fkey" on table "property_owned"') {
         toast.error(<ToastComponent title="This propert is assgined to a client. Please unassign it first" color='danger' icon={<Info />} />, {
@@ -685,7 +739,7 @@ const advSearchColumns = [
         /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5" style={{minHeight: "400px"}}>Loading Property information</h4>}
        
       </Card>
-      <AddNewModalAssignProp 
+      {dataLoading ? <Overlay loading={dataLoading} setLoading={setDataLoading} loaderButton={loaderButton} setLoaderButton={setLoaderButton}/> : <AddNewModalAssignProp 
       open={modal} 
       data={clientData?.client}
       handleModal={handleModal} 
@@ -705,7 +759,7 @@ const advSearchColumns = [
       setLease_start_date={setLease_start_date}
       lease_end_date={lease_end_date}
       setLease_end_date={setLease_end_date}
-      />
+      />}
       <div className='theme-modal-danger'>
         <Modal
           isOpen={modalAlert}
