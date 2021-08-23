@@ -782,6 +782,7 @@ const DataTableAdvSearch = () => {
             closeButton: false,
           }
         );
+        updatedRow.password = oldPassword
       }
     }
     updateClient({
