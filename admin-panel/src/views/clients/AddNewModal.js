@@ -1,11 +1,13 @@
 // ** React Imports
 import { useState } from 'react'
-
+import { toast } from "react-toastify"
+import Avatar from "@components/avatar"
+const bcrypt = require('bcryptjs')
 // ** Third Party Components
 import moment from 'moment'
 import Flatpickr from 'react-flatpickr'
 import { useForm } from 'react-hook-form'
-import { User, Briefcase, Mail, Lock, X, Key, Phone, Code, Info, Calendar } from 'react-feather'
+import { User, XCircle, Check, Mail, Lock, X, Key, Phone, Code, Info, Calendar } from 'react-feather'
 import {
   Button,
   Modal,
@@ -28,16 +30,54 @@ import Select from 'react-select'
 
 // ** Styles
 import '@styles/react/libs/flatpickr/flatpickr.scss'
+import { gql, useMutation } from '@apollo/client'
+
+const updatePasswordGql = gql`mutation UpdatePassword($email: citext = "", $password_hash: String = "") {
+  update_auth_accounts(where: {email: {_eq: $email}}, _set: {password_hash: $password_hash}) {
+    returning {
+      email
+    }
+  }
+}
+`
+
+// ** Toast Component
+const ToastComponent = ({ title, icon, color }) => (
+  <div className="toastify-header pb-0">
+    <div className="title-wrapper">
+      <Avatar size="sm" color={color} icon={icon} />
+      <h6 className="toast-title">{title}</h6>
+    </div>
+  </div>
+)
 
 const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord, updateActive }) => {
-
+  const [updatePassword, { data, loading, error }] = useMutation(updatePasswordGql, { onCompleted: () => {
+    toast.success(
+      <ToastComponent title="Password Changed" color="success" icon={<Check />} />,
+      {
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeButton: false
+      }
+    )
+  },
+onError: () => {
+    toast.error(
+      <ToastComponent title="Could not change password" color="danger" icon={<XCircle />} />,
+      {
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeButton: false
+      }
+    )
+  }})
   const [contract_start_date, set_contract_start_date] = useState(new Date())
   const [contract_end_date, set_contract_end_date] = useState(new Date())
   const [redirectModal, setRedirectModal] = useState(false)
   const [modal, setModal] = useState(false)
   const [newPassword, setNewPassword] = useState(null)
   const [confirmPassword, setConfirmPassword] = useState(null)
-  const [oldPassword, setoldPassword] = useState(null)
   const [changeActive, setChangeActive] = useState(false)
   const [active, setActive] = useState(null)
   const options = [
@@ -62,12 +102,15 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
     if (!newPassword) {
       return alert("Password cannot be empty")
     }
-    if (newPassword !== confirmPassword) {
-      return alert("Passwords dont match")
-    }
-    setoldPassword(row?.password)
     setModal(!modal)
-    handleChange(e)
+    updatePassword({
+      variables: {
+        email: row?.email,
+        password_hash: bcrypt.hashSync(newPassword, 8)
+      }
+    })
+    // update password
+    // handleChange(e)
   }
 
   const handleSelectedChange = (e, name) => {
@@ -113,7 +156,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
     if (toAddNewRecord) {
       setRedirectModal(true)
     } else {
-      handleUpdate(row, confirmPassword, oldPassword)
+      handleUpdate(row, confirmPassword)
       setRow(null)
       setNewPassword(null)
       setConfirmPassword(null)
@@ -489,31 +532,8 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
             </Row>
             <Row>
               <Col>
-                {toAddNewRecord ? <FormGroup>
-                  <Label for='password'>Password</Label>
-                  <InputGroup>
-                    <InputGroupAddon addonType='prepend'>
-                      <InputGroupText>
-                        <Lock size={15} />
-                      </InputGroupText>
-                    </InputGroupAddon>
-                    <Input id='password' placeholder='Password' name="password" value={row?.password} onChange={handleChange}
-                      innerRef={register({ required: true })}
-                      invalid={errors.password && true}
-                    />
-                  </InputGroup>
-                </FormGroup> : <FormGroup>
-                  <Label for='password'>Password</Label>
-                  <InputGroup>
-                    <InputGroupAddon addonType='prepend'>
-                      <InputGroupText>
-                        <Lock size={15} />
-                      </InputGroupText>
-                    </InputGroupAddon>
-                    <Input id='password' placeholder='Password' name="password" value={row?.password} disabled onChange={handleChange} />
-                  </InputGroup>
-                  <span>Password change is disabled right now</span>
-                  <Button color='info' outline className="" disabled onClick={() => openModal(row?.password)}>Change Password</Button>
+                {!toAddNewRecord && <FormGroup>
+                  <Button color='info' outline className="" onClick={() => openModal()}>Change Password</Button>
                 </FormGroup>}
               </Col>
               <Col>
@@ -542,7 +562,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
                 {toAddNewRecord ? 'Submit' : 'Update'}
               </Button>
               <Button color='secondary' onClick={closeModal} outline>
-                Cancel
+                Close
               </Button>
             </div>
           </Form>
@@ -568,21 +588,6 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
                       </InputGroupText>
                     </InputGroupAddon>
                     <Input id='newPassword' placeholder='New Password' name="newPassword" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-                  </InputGroup>
-                </FormGroup>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <FormGroup>
-                  <Label for='password'>Confirm Password</Label>
-                  <InputGroup>
-                    <InputGroupAddon addonType='prepend'>
-                      <InputGroupText>
-                        <Lock size={15} />
-                      </InputGroupText>
-                    </InputGroupAddon>
-                    <Input id='confirmPassword' placeholder='Confirm Password' name="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                   </InputGroup>
                 </FormGroup>
               </Col>

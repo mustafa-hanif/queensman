@@ -106,6 +106,7 @@ export default class LoginScreen extends React.Component {
         this.props.navigation.navigate("AppDrawer");
       })
       .catch((err) => {
+        console.log(err);
         alert(`Error logging in! ${err.response.data.message}`);
         console.log("error logging in!: ", err.response.data.message);
         this.setState({ ...this.state, loading: false });

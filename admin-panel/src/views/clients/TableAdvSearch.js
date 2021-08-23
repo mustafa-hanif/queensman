@@ -91,7 +91,6 @@ const GET_CLIENT = gql`
       occupation
       organization
       phone
-      password
       active
       hasPlan
       sec_email
@@ -148,7 +147,6 @@ const UPDATE_CLIENT = gql`
     $contract_start_date: date
     $contract_end_date: date
     $sign_up_time: timestamp
-    $password: String
   ) {
     update_client_by_pk(
       pk_columns: { id: $id }
@@ -157,7 +155,6 @@ const UPDATE_CLIENT = gql`
         email: $email
         full_name: $full_name
         phone: $phone
-        password: $password
         active: $active
         sec_email: $sec_email
         sec_phone: $sec_phone
@@ -184,14 +181,12 @@ const ADD_CLIENT = gql`
     $referred_by: Int
     $contract_start_date: date
     $contract_end_date: date
-    $password: String
   ) {
     insert_client_one(
       object: {
         email: $email
         full_name: $full_name
         phone: $phone
-        password: $password
         active: $active
         sec_email: $sec_email
         sec_phone: $sec_phone
@@ -650,7 +645,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
       sortable: true,
       minWidth: "230px",
     },
-    {
+    /*{
       name: "Password",
       minWidth: "150px",
       cell: (row) => {
@@ -688,7 +683,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
           );
         }
       },
-    },
+    },*/
     {
       name: "Phone",
       selector: "phone",
@@ -798,13 +793,14 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
     // auth.requestPasswordChange(updatedRow.email)
     if (newPassword) {
       console.log(oldPassword, newPassword)
+      return;
       try {
         const res = await auth.changePassword(oldPassword, newPassword)
       } catch (error) {
         console.log(error)
         toast.error(
           <ToastComponent
-            title="Error Chan Password"
+            title="Error Changing Password"
             color="danger"
             icon={<XCircle />}
           />,
@@ -823,7 +819,6 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         email: updatedRow.email,
         full_name: updatedRow.full_name,
         phone: updatedRow.phone,
-        password: updatedRow.password,
         active: updatedRow.active,
         sec_email: updatedRow.sec_email,
         sec_phone: updatedRow.sec_phone,
@@ -905,7 +900,6 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
           email: newRow?.email.toLowerCase(),
           full_name: newRow?.full_name,
           phone: newRow?.phone,
-          password: newRow?.password,
           active: newRow?.active,
           sec_email: newRow?.sec_email.toLowerCase(),
           sec_phone: newRow?.sec_phone,
@@ -917,7 +911,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
       })
         auth.register({
           email: newRow.email,
-          password: newRow.password,
+          password: "0000", // newRow.password,
           options: { userData: { display_name: newRow.full_name } },
         });
         toast.success(<SuccessToast data={newRow} />, { hideProgressBar: true })
