@@ -23,7 +23,7 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { Icon } from "native-base";
+import { Button, Icon, Input, Modal, VStack } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 import { auth } from "../utils/nhost";
 
@@ -59,9 +59,10 @@ export default class LoginScreen extends React.Component {
     super(props);
 
     this.state = {
-      email: "murtaza.hanif@techinoviq.com",
+      email: "icemelt7@gmail.com", // "murtaza.hanif@techinoviq.com",
       emailpage: true,
-      password: "123456789",
+      changePasswordModal: false,
+      password: "0000",
       phoneno: "97148721301",
       passwordcheck: "",
       newpassword: "check",
@@ -94,6 +95,23 @@ export default class LoginScreen extends React.Component {
     this.setState({ showPassword: !this.state.showPassword });
   };
 
+  updatePassword = () => {
+    if (!this.state.password) {
+      alert("Please provide a password");
+      return;
+    }
+    auth
+      .changePassword("0000", this.state.password)
+      .then(() => {
+        this.setState({ ...this.state, changePasswordModal: false });
+        this.props.navigation.navigate("AppDrawer");
+      })
+      .catch((err) => {
+        console.log(err);
+        alert(`Error changing the password! ${err.response.data.message}`);
+      });
+  };
+
   proceedFunctionEmail = async () => {
     const { email, password } = this.state;
 
@@ -101,9 +119,13 @@ export default class LoginScreen extends React.Component {
       .login({ email, password })
       .then(async (user) => {
         this.setState({ user, loading: false });
-        console.log(user);
         await AsyncStorage.setItem("QueensUser", JSON.stringify(user));
-        this.props.navigation.navigate("AppDrawer");
+        if (password === "0000") {
+          // Its a temporary password, ask client to set a proper password
+          this.setState({ ...this.state, password: null, changePasswordModal: true });
+        } else {
+          this.props.navigation.navigate("AppDrawer");
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -144,6 +166,24 @@ export default class LoginScreen extends React.Component {
   render() {
     return (
       <View style={styles.container} behavior="padding" enabled>
+        <Modal isOpen={this.state.changePasswordModal}>
+          <Modal.Content bgColor="yellow.50" px={8} py={8}>
+            <VStack space={4}>
+              <Text>Please provide a new password</Text>
+              <Input
+                color="black"
+                value={this.state.password}
+                onChangeText={(password) => {
+                  this.setState({ ...this.state, password });
+                }}
+                placeholder="New password type here"
+              />
+              <Button w="70%" onPress={() => this.updatePassword()}>
+                Update password
+              </Button>
+            </VStack>
+          </Modal.Content>
+        </Modal>
         {/* background gradinet   */}
         <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
 
@@ -287,11 +327,15 @@ export default class LoginScreen extends React.Component {
                 alignItems: "center",
               }}
             >
-              <Text style={{ 
-                fontSize: 11, 
-                fontFamily: "Helvetica", 
-                color: "#fff" 
-              }}>Feel free to email us at </Text>
+              <Text
+                style={{
+                  fontSize: 11,
+                  fontFamily: "Helvetica",
+                  color: "#fff",
+                }}
+              >
+                Feel free to email us at{" "}
+              </Text>
               <Text
                 style={{
                   fontSize: 11,
