@@ -1,5 +1,6 @@
 // ** React Imports
 import { useState, Fragment, forwardRef } from "react"
+import { Link, useHistory } from 'react-router-dom'
 
 import { auth } from "../../utility/nhost"
 const fetch = require("node-fetch")
@@ -45,7 +46,8 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
-  ModalFooter
+  ModalFooter,
+  Spinner
 } from "reactstrap"
 
 // ** Toast Component
@@ -229,6 +231,7 @@ const UPLOAD_PLAN = gql`
     $email: String
     $property_id: Int
     $blocked: Boolean
+    $worker_id: Int
   ) {
     insert_scheduler_one(
       object: {
@@ -242,6 +245,11 @@ const UPLOAD_PLAN = gql`
             status: "Planned"
             urgency_level: "Scheduled"
             active: 1,
+            job_worker: {
+              data: {
+                worker_id: $worker_id
+              }
+            }
           }
         }
         date_on_calendar: $date_on_calendar
@@ -250,6 +258,7 @@ const UPLOAD_PLAN = gql`
         end_date_on_calendar: $end_date_on_calendar
         notes: "Scheduled Services"
         blocked: $blocked
+        worker_id: $worker_id
       }
     ) {
       date_on_calendar
@@ -280,8 +289,10 @@ mutation MyMutation($active: Boolean!, $email: citext!) {
 
 const DataTableAdvSearch = () => {
   // ** States
+  const history = useHistory()
   const [queryLoading, setQueryLoading] = useState(false)
-  const { loading, data, error } = useQuery(GET_CLIENT)
+  const [loaderButton, setLoaderButton] = useState(false)
+  const { loading, data, error, refetch: refetchClient } = useQuery(GET_CLIENT, {fetchPolicy: 'network-only', nextFetchPolicy: 'network-only'})
   const [updateClient, { loading: clientLoading }] = useMutation(
     UPDATE_CLIENT,
     { refetchQueries: [{ query: GET_CLIENT }] }
@@ -296,9 +307,7 @@ const DataTableAdvSearch = () => {
   const [addPlan, { loading: addPlanLoading }] = useMutation(UPLOAD_PLAN)
   const [updateClientActive] = useMutation(UPDATE_ACTIVE)
   const [deletePlan, { loading: deletePlanLoading }] = useMutation(DELETE_PLAN)
-  const [updateClientPlan] = useMutation(UPDATE_CLIENT_HASPLAN, {
-    refetchQueries: [{ query: GET_CLIENT }]
-  })
+  const [updateClientPlan] = useMutation(UPDATE_CLIENT_HASPLAN, { refetchQueries: [{ query: GET_CLIENT }] })
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState("")
   const [searchOccupation, setSearchOccupation] = useState("")
@@ -346,6 +355,40 @@ const DataTableAdvSearch = () => {
     )
   }
 
+  //Overlay component
+const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
+  return (
+<div style={{
+    position: "fixed",
+    display: "block",
+    width: "100%",
+    height: "100%",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    zIndex: 2
+}}>
+  <div style={{
+    position: "absolute",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%,-50%)"
+  }}>
+      <Spinner color='primary' />
+      {loaderButton && <div className="d-flex flex-column align-items-center mt-2">
+        <h6 className="text-primary">Hmmm it is taking longer than expected</h6>
+        <Button color='secondary' className="mt-2" onClick={ () => { setLoaderButton(false); setLoading(false) }}>Go back</Button>
+        </div>}
+    </div>
+  </div>
+  )
+}
+
   const openModalAlert = (id) => {
     setRowId(id)
     setModalAlert(true)
@@ -382,116 +425,73 @@ const DataTableAdvSearch = () => {
     console.log(day)
     const planArray = []
     setQueryLoading(true)
-    for (let i = 0; i < 4; i++) {
-      if (month >= 13) {
-        month = 1
-        year++
+    setTimeout(() => {
+      setLoaderButton(true)
+      if (!queryLoading) {
+        setLoaderButton(false)
       }
-      const date_on_calendar = `${year}-${
-        month < 10 ? `0${month}` : month
-      }-${day}` //new Date().getMonth()+1
-      const time_on_calendar = "10:00:00" //10:00:00
-      console.log({ date_on_calendar })
-      console.log({ time_on_calendar })
-      const end_time_on_calendar = addHours(
-        `${date_on_calendar} ${time_on_calendar}`,
-        4
-      )
-        .toTimeString()
-        .substr(0, 8)
-      const end_date_on_calendar = addHours(
-        `${date_on_calendar} ${time_on_calendar}`,
-        4
-      )
-        .toISOString()
-        .substr(0, 10)
-      console.log({
-        property_id: row.property_owneds[0]?.property_id,
-        callout_by: row.id,
-        email: row.email,
-        date_on_calendar,
-        time_on_calendar,
-        end_time_on_calendar,
-        end_date_on_calendar,
-        blocked: true
-      })
-      planArray.push(
-        {
+    }, 10000)
+    try {
+      for (let i = 0; i < 4; i++) {
+        if (month >= 13) {
+          month = 1
+          year++
+        }
+        const date_on_calendar = `${year}-${
+          month < 10 ? `0${month}` : month
+        }-${day}` //new Date().getMonth()+1
+        const time_on_calendar = "10:00:00" //10:00:00
+        console.log({ date_on_calendar })
+        console.log({ time_on_calendar })
+        const end_time_on_calendar = addHours(
+          `${date_on_calendar} ${time_on_calendar}`,
+          4
+        )
+          .toTimeString()
+          .substr(0, 8)
+        const end_date_on_calendar = addHours(
+          `${date_on_calendar} ${time_on_calendar}`,
+          4
+        )
+          .toISOString()
+          .substr(0, 10)
+        console.log({
           property_id: row.property_owneds[0]?.property_id,
-        callout_by: row.id,
-        email: row.email,
-        date_on_calendar,
-        time_on_calendar,
-        end_time_on_calendar,
-        end_date_on_calendar,
-        blocked: true
-      }
-      )
-      try {
-        await addPlan({
-          variables: {
+          callout_by: row.id,
+          email: row.email,
+          date_on_calendar,
+          time_on_calendar,
+          end_time_on_calendar,
+          end_date_on_calendar,
+          blocked: true
+        })
+        planArray.push(
+          {
             property_id: row.property_owneds[0]?.property_id,
-            callout_by: row.id,
-            email: row.email,
-            date_on_calendar,
-            time_on_calendar,
-            end_time_on_calendar,
-            end_date_on_calendar,
-            blocked: true
-          }
-        })
-      } catch (e) {
-        console.log(e)
-        toast.error(
-          <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
-          {
-            autoClose: 2000,
-            hideProgressBar: true,
-            closeButton: false
-          }
+          callout_by: row.id,
+          email: row.email,
+          date_on_calendar,
+          time_on_calendar,
+          end_time_on_calendar,
+          end_date_on_calendar,
+          blocked: true
+        }
         )
-      }
-      month += 3
-      day = "01"
-    }
-    setQueryLoading(false)
-    if (!queryLoading || !addPlanLoading) {
-      try {
-        await updateClientPlan({
-          variables: {
-            id: row.id,
-            hasPlan: true
-          }
-        })
-      } catch (e) {
-        toast.error(
-          <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
-          {
-            autoClose: 2000,
-            hideProgressBar: true,
-            closeButton: false
-          }
-        )
-        console.log(e)
-      }
-      try {
-        const res = await axios.post(
-          "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendPlanEmail",
-          {
-            planArray
-          }
-        )
-      } catch (e) {
-        console.log("ERROR")
-        console.log(e)
-        toast.error(
-          <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
-          {
-            autoClose: 2000,
-            hideProgressBar: true,
-            closeButton: false
-          }
-        )
+          await addPlan({
+            variables: {
+              property_id: row.property_owneds[0]?.property_id,
+              callout_by: row.id,
+              email: row.email,
+              date_on_calendar,
+              time_on_calendar,
+              end_time_on_calendar,
+              end_date_on_calendar,
+              blocked: true,
+              worker_id: 21
+            }
+          })
+        month += 3
+        day = "01"
       }
       toast.success(
         <ToastComponent title="Plan Added" color="success" icon={<Check />} />,
@@ -501,64 +501,87 @@ const DataTableAdvSearch = () => {
           closeButton: false
         }
       )
-    }
-
-    const currentDate = new Date().toLocaleDateString().split("/") // "7/11/2021"
-    year = parseInt(currentDate[2])
-    month = parseInt(currentDate[0])
-    day = parseInt(currentDate[1])
-    for (let i = 0; i < 4; i++) {
-      if (month >= 13) {
-        month = 1
-        year++
+      if (!queryLoading || !addPlanLoading) {
+          await updateClientPlan({
+            variables: {
+              id: row.id,
+              hasPlan: true
+            }
+          })
+          const res = await axios.post(
+            "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendPlanEmail",
+            {
+              planArray
+            }
+          )
       }
-      const date = new Date(`${month}/${day}/${year}`)
-        .toDateString()
-        .split(" ")
-      let dateString = ""
-      if (i > 0) {
-        dateString = `${date[1]} 01, ${date[3]}`
-      } else {
-        dateString = `${date[1]} ${date[2]}, ${date[3]}`
+  
+      const currentDate = new Date().toLocaleDateString().split("/") // "7/11/2021"
+      year = parseInt(currentDate[2])
+      month = parseInt(currentDate[0])
+      day = parseInt(currentDate[1])
+      for (let i = 0; i < 4; i++) {
+        if (month >= 13) {
+          month = 1
+          year++
+        }
+        const date = new Date(`${month}/${day}/${year}`)
+          .toDateString()
+          .split(" ")
+        let dateString = ""
+        if (i > 0) {
+          dateString = `${date[1]} 01, ${date[3]}`
+        } else {
+          dateString = `${date[1]} ${date[2]}, ${date[3]}`
+        }
+        /*eslint-disable*/
+        console.log({
+          Subject: `Task Client ${date[1]}`,
+          Description: `Task Client ${date[1]}`,
+          Status: `Open`,
+          Due_Date: `${dateString}`,
+          email: `${row.email}`,
+        });
+  
+          // const res = await axios.post(
+          //   "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/quarterlyTasks",
+          //   {
+          //     Subject: `Task Client ${date[1]}`,
+          //     Description: `Task Client ${date[1]}`,
+          //     Status: `Open`,
+          //     Due_Date: `${dateString}`,
+          //     email: `${row.email}`,
+          //   }
+          // );
+        month += 3;
       }
-      /*eslint-disable*/
-      console.log({
-        Subject: `Task Client ${date[1]}`,
-        Description: `Task Client ${date[1]}`,
-        Status: `Open`,
-        Due_Date: `${dateString}`,
-        email: `${row.email}`,
-      });
-
-      try {
-        const res = await axios.post(
-          "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/quarterlyTasks",
-          {
-            Subject: `Task Client ${date[1]}`,
-            Description: `Task Client ${date[1]}`,
-            Status: `Open`,
-            Due_Date: `${dateString}`,
-            email: `${row.email}`,
-          }
-        );
-      } catch (e) {
-        console.log("ERROR");
-        console.log(e);
-        toast.error(
-          <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
-          {
-            autoClose: 2000,
-            hideProgressBar: true,
-            closeButton: false
-          }
-        )
-      }
-      month += 3;
+      refetchClient()
+      clearRecord()
+      setQueryLoading(false)
+      setLoaderButton(false)
+    } catch (e) {
+      console.log(e)
+      setQueryLoading(false)
+      setLoaderButton(false)
+      // toast.error(
+      //   <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
+      //   {
+      //     autoClose: 2000,
+      //     hideProgressBar: true,
+      //     closeButton: false
+      //   }
+      // )
     }
   };
 
   const handleDeletePlan = async (row) => {
-    console.log(row);
+    setQueryLoading(true)
+    setTimeout(() => {
+      setLoaderButton(true)
+      if (!queryLoading) {
+        setLoaderButton(false)
+      }
+    }, 10000)
     console.log({
       email: row.email,
       callout_id: row.id,
@@ -586,6 +609,10 @@ const DataTableAdvSearch = () => {
             closeButton: false,
           }
         );
+        refetchClient()
+        clearRecord()
+        setQueryLoading(false)
+        setLoaderButton(false)
       } catch (e) {
         console.log(e)
         toast.error(
@@ -719,12 +746,8 @@ const DataTableAdvSearch = () => {
                     handleAddPlan(row);
                   }}
                 >
-                  {addPlanLoading ? <Loader size={15} /> : <Edit3 size={15} />}
-                  {addPlanLoading ? (
-                    <span className="align-middle ml-25">Loading</span>
-                  ) : (
-                    <span className="align-middle ml-25">Upload Plan</span>
-                  )}
+                  <Edit3 size={15} />
+                  <span className="align-middle ml-25">Upload Plan</span>
                 </Button>
               ) : (
                 <Button
@@ -745,6 +768,15 @@ const DataTableAdvSearch = () => {
       },
     },
   ];
+
+  const clearRecord = () => {
+    setSearchName("")
+    setSearchEmail("")
+    setSearchOccupation("")
+    setSearchOrganization("")
+    setSearchPhone("")
+    setSearchGender("")
+  }
 
   // ** Table data to render
   const dataToRender = () => {
@@ -772,7 +804,7 @@ const DataTableAdvSearch = () => {
         console.log(error)
         toast.error(
           <ToastComponent
-            title="Error Updating Password"
+            title="Error Chan Password"
             color="danger"
             icon={<XCircle />}
           />,
@@ -865,45 +897,62 @@ const DataTableAdvSearch = () => {
     );
   }
   }
-  const handleAddRecord = (newRow) => {
-    console.log("Addin")
-    addClient({
-      variables: {
-        email: newRow?.email,
-        full_name: newRow?.full_name,
-        phone: newRow?.phone,
-        password: newRow?.password,
-        active: newRow?.active,
-        sec_email: newRow?.sec_email,
-        sec_phone: newRow?.sec_phone,
-        account_type: newRow?.account_type,
-        referred_by: newRow?.referred_by,
-        contract_start_date: newRow?.contract_start_date,
-        contract_end_date: newRow?.contract_end_date
-      },
-    }).then(() => {
-      auth.register({
-        email: newRow.email,
-        password: newRow.password,
-        options: { userData: { display_name: newRow.full_name } },
+  const handleAddRecord = async (newRow, redirect = false) => {
+    console.log(redirect)
+    try {
+      await addClient({
+        variables: {
+          email: newRow?.email.toLowerCase(),
+          full_name: newRow?.full_name,
+          phone: newRow?.phone,
+          password: newRow?.password,
+          active: newRow?.active,
+          sec_email: newRow?.sec_email.toLowerCase(),
+          sec_phone: newRow?.sec_phone,
+          account_type: newRow?.account_type,
+          referred_by: newRow?.referred_by,
+          contract_start_date: newRow?.contract_start_date,
+          contract_end_date: newRow?.contract_end_date
+        },
+      })
+        auth.register({
+          email: newRow.email,
+          password: newRow.password,
+          options: { userData: { display_name: newRow.full_name } },
+        });
+        toast.success(<SuccessToast data={newRow} />, { hideProgressBar: true })
+      
+      const url = 'https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendWelcomeEmail';
+      const data = new URLSearchParams()
+      data.set('clientName', newRow.full_name)
+      data.set('clientEmail', newRow.email)
+  
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
+        body: data.toString()
       });
-      toast.success(<SuccessToast data={newRow} />, { hideProgressBar: true })
-    })
-    
-    const url = 'https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendWelcomeEmail';
-    const data = new URLSearchParams()
-    data.set('clientName', newRow.full_name)
-    data.set('clientEmail', newRow.email)
-
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      redirect: 'follow',
-      referrerPolicy: 'no-referrer',
-      body: data.toString()
-    });
+      setRow(null)
+      if (redirect) {
+        history.push({pathname: '/property', state: {active: "4"}})
+      }
+    } catch (e) {
+      console.log(e.message)
+      if (e.message.substr(0,20) === "Uniqueness violation") {
+        return toast.error(
+          <ToastComponent title="Client already exists with same email" color="danger" icon={<XCircle />} />,
+          {
+            autoClose: 6000,
+            hideProgressBar: true,
+            closeButton: false
+          }
+        )
+      }
+    }
     dataToRender();
     if (!addClientLoading) {
       setModal(!modal);
@@ -1193,12 +1242,18 @@ const DataTableAdvSearch = () => {
       setSearchGender(value);
     }
   };
+
   return (
     <Fragment>
+      {queryLoading && <Overlay setLoaderButton={setLoaderButton} loaderButton={loaderButton} setLoading={setQueryLoading} />}
       <Card>
         <CardHeader className="border-bottom">
           <CardTitle tag="h4">Advance Search</CardTitle>
           <div className="d-flex mt-md-0 mt-1">
+          { (searchName || searchEmail || searchOrganization || searchOccupation || searchPhone || searchGender) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
+              <XCircle size={15} />
+              <span className='align-middle ml-50'>Clear filter</span>
+            </Button>}
             <Button className="ml-2" color="primary" onClick={addClientRecord}>
               <Plus size={15} />
               <span className="align-middle ml-50">Add Record</span>

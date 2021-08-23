@@ -33,6 +33,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
 
   const [contract_start_date, set_contract_start_date] = useState(new Date())
   const [contract_end_date, set_contract_end_date] = useState(new Date())
+  const [redirectModal, setRedirectModal] = useState(false)
   const [modal, setModal] = useState(false)
   const [newPassword, setNewPassword] = useState(null)
   const [confirmPassword, setConfirmPassword] = useState(null)
@@ -88,20 +89,36 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
     setModal(!modal)
   }
 
+  const noRedirect = () => {
+    handleAddRecord(row)
+    setNewPassword(null)
+    setConfirmPassword(null)
+    setChangeActive(false)
+    setRedirectModal(false)
+  }
+
+  const yesRedirect = () => {
+    handleAddRecord(row, true)
+    setNewPassword(null)
+    setConfirmPassword(null)
+    setChangeActive(false)
+    setRedirectModal(false)
+  }
+
   const onSubmit = () => {
     // setRow(row)
     if (changeActive) {
       updateActive(active, row)
     }
     if (toAddNewRecord) {
-      handleAddRecord(row)
+      setRedirectModal(true)
     } else {
       handleUpdate(row, confirmPassword, oldPassword)
+      setRow(null)
+      setNewPassword(null)
+      setConfirmPassword(null)
+      setChangeActive(false)
     }
-    setRow(null)
-    setNewPassword(null)
-    setConfirmPassword(null)
-    setChangeActive(false)
   }
 
   const { register, errors, handleSubmit } = useForm()
@@ -494,9 +511,10 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
                       </InputGroupText>
                     </InputGroupAddon>
                     <Input id='password' placeholder='Password' name="password" value={row?.password} disabled onChange={handleChange} />
-                  </InputGroup><Button color='info' outline className="mt-1" onClick={() => openModal(row?.password)}>Change Password</Button>
+                  </InputGroup>
+                  <span>Password change is disabled right now</span>
+                  <Button color='info' outline className="" disabled onClick={() => openModal(row?.password)}>Change Password</Button>
                 </FormGroup>}
-
               </Col>
               <Col>
               </Col>
@@ -549,7 +567,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
                         <Lock size={15} />
                       </InputGroupText>
                     </InputGroupAddon>
-                    <Input id='newPassword' placeholder='New Passowrd' name="newPassword" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                    <Input id='newPassword' placeholder='New Password' name="newPassword" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
                   </InputGroup>
                 </FormGroup>
               </Col>
@@ -582,6 +600,28 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
             </Button>
             <Button color="secondary" onClick={toggleModal} outline>
               Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
+      </div>
+      <div className="modal-warning" >
+        <Modal
+          isOpen={redirectModal}
+          toggle={() => setRedirectModal(!redirectModal)}
+          className='modal-dialog-centered'
+          modalClassName="modal-warning"
+
+        >
+          <ModalHeader toggle={() => setRedirectModal(!redirectModal)}>Warning</ModalHeader>
+          <ModalBody>
+            Do you want to add property as well?
+          </ModalBody>
+          <ModalFooter>
+            <Button color="warning" onClick={() => yesRedirect() }>
+              Yes
+            </Button>
+            <Button onClick={() => noRedirect() }>
+              No
             </Button>
           </ModalFooter>
         </Modal>

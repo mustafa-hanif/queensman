@@ -14,8 +14,8 @@ import LeasedProperty from './LeasedProperty'
 import Properties from './Properties'
 
 
-const Tables = () => {
-  const [active, setActive] = useState('1')
+const Tables = ({location}) => {
+  const [active, setActive] = useState(location?.state?.active || '1')
 
   const toggle = tab => {
     if (active !== tab) {
