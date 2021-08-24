@@ -81,6 +81,7 @@ const LoginScreen = ({ navigation }) => {
   const isFocused = useIsFocused();
 
   useEffect(() => {
+    setState({...state, loading: false})
     if (currentLogin && state.changePasswordModal === false) {
       navigation.navigate("AppDrawer");
     } else if (state.changePasswordModal === false) {
