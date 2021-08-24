@@ -389,123 +389,125 @@ const HomeScreen = ({ navigation }) => {
   // console.log(clientStatus?.client?.[0]?.active);
   // console.log({ email2 }, error, notificationError, clientError, loading, clientLoading, loadingNotification);
   return (
-    <View style={{ backgroundColor: "#111827", height: "100%" }}>
-      {clientStatus?.client?.[0]?.active &&
-        clientStatus?.client?.[0]?.active != 1 &&
-        !clientLoading &&
-        !loadingNotification &&
-        !loading && <IsActive />}
-      <View style={styles.Name}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-            <Image alt="pic" source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }} />
-          </TouchableOpacity>
-          <Text style={{ color: "white", fontWeight: "bold", fontSize: 12 }}>{email2}</Text>
-          <View style={{ flexDirection: "row" }}>
-            <TouchableOpacity onPress={() => AlertLogout(navigation)}>
-              <Icon as={Ionicons} name="power" style={{ fontSize: 25, color: "#FFCA5D" }} />
+    <Box display="flex" backgroundColor="#111827">
+      <View style={{ marginLeft: "auto", marginRight: "auto", backgroundColor: "#111827", height: "100%" }}>
+        {clientStatus?.client?.[0]?.active &&
+          clientStatus?.client?.[0]?.active != 1 &&
+          !clientLoading &&
+          !loadingNotification &&
+          !loading && <IsActive />}
+        <View style={styles.Name}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+              <Image alt="pic" source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }} />
             </TouchableOpacity>
-            <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => navigation.navigate("Notification")}>
-              <Box>
-                {notifications?.notifications_aggregate?.aggregate?.count ? (
-                  <Box
-                    position="absolute"
-                    bottom={5}
-                    left={3.5}
-                    fontSize="xs"
-                    bg="rose.400"
-                    color="black"
-                    width={6}
-                    py={0.5}
-                    px={0.25}
-                    borderRadius={24}
-                  >
-                    <Text fontSize="xs" color="black" textAlign="center">
-                      {notifications.notifications_aggregate.aggregate.count}
-                    </Text>
-                  </Box>
-                ) : null}
-                <Icon as={Ionicons} name="notifications-outline" style={{ fontSize: 25, color: "#FFCA5D" }} />
-              </Box>
-              {/* <Image
+            <Text style={{ color: "white", fontWeight: "bold", fontSize: 12 }}>{email2}</Text>
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity onPress={() => AlertLogout(navigation)}>
+                <Icon as={Ionicons} name="power" style={{ fontSize: 25, color: "#FFCA5D" }} />
+              </TouchableOpacity>
+              <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => navigation.navigate("Notification")}>
+                <Box>
+                  {notifications?.notifications_aggregate?.aggregate?.count ? (
+                    <Box
+                      position="absolute"
+                      bottom={5}
+                      left={3.5}
+                      fontSize="xs"
+                      bg="rose.400"
+                      color="black"
+                      width={6}
+                      py={0.5}
+                      px={0.25}
+                      borderRadius={24}
+                    >
+                      <Text fontSize="xs" color="black" textAlign="center">
+                        {notifications.notifications_aggregate.aggregate.count}
+                      </Text>
+                    </Box>
+                  ) : null}
+                  <Icon as={Ionicons} name="notifications-outline" style={{ fontSize: 25, color: "#FFCA5D" }} />
+                </Box>
+                {/* <Image
                 resizeMode={"contain"}
                 tintColor={"#FFCA5D"}
                 source={require("../assets/Home/notifications.png")}
                 style={{ height: 25, width: 25 }}
               ></Image> */}
-              {/* <Text style={{color: "#FFCA5D", marginTop: -19, fontSize: 10 }}>    1</Text> */}
-            </TouchableOpacity>
+                {/* <Text style={{color: "#FFCA5D", marginTop: -19, fontSize: 10 }}>    1</Text> */}
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-        {/* <View style={{ flexDirection: "row", paddingTop: "7%" }}>
+          {/* <View style={{ flexDirection: "row", paddingTop: "7%" }}>
           <Image source={require("../../assets/Login/Queensman_logo3.png")} style={{ height: 50, width: 50 }} />
           <View style={{ flexDirection: "column", width: "100%" }}>
             <Text style={[{ fontSize: 18, color: "#FFCA5D" }, styles.TextStyles]}> Property Maintenance...</Text>
             <Text style={[{ fontSize: 18, color: "#FFCA5D" }, styles.TextStyles]}> Perfectly Managed!</Text>
           </View>
         </View> */}
-      </View>
-      <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        style={styles.container}
-      >
-        {loadingNotification && <Spinner color="lightText" size="sm" />}
+        </View>
+        <ScrollView
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          style={styles.container}
+        >
+          {loadingNotification && <Spinner color="lightText" size="sm" />}
 
-        <Box pt={4}>
-          <VStack space={4}>
-            <Item
-              onPress={() => requestCallOutPress(navigation, { additionalServices: false })}
-              text="Request Callout"
-              image={require("../../assets/Home/calloutHome.png")}
-            />
-            <Item
-              onPress={() => onGoingCallOutPress(navigation)}
-              text="Scheduled Services"
-              image={require("../../assets/Home/pendingHome.png")}
-            />
-            <Item
-              onPress={() => CallOutHistoryPress(navigation)}
-              text="Services History"
-              image={require("../../assets/Home/historyHome.png")}
-            />
-            <Item
-              onPress={() => CallOutReportPress(navigation)}
-              text="Report and Documents"
-              image={require("../../assets/Home/reportHome.png")}
-            />
-            <Item
-              onPress={() => requestCallOutPress(navigation, { additionalServices: true })}
-              text="Request of Additional Services"
-              image={require("../../assets/Home/pendingHome.png")}
-            />
-          </VStack>
-        </Box>
-        {data?.callout?.[0] ? (
-          <VStack space={4} mt={4}>
-            <Divider />
-            <Heading mx="auto" size="sm">
-              Upcoming Service
-            </Heading>
-            <CalloutItem item={data.callout[0]} toggleGalleryEventModal={() => {}} />
-          </VStack>
-        ) : (
-          <VStack space={4} mt={4}>
-            <Heading mx="auto" size="sm">
-              No Upcoming Service
-            </Heading>
-          </VStack>
-        )}
-      </ScrollView>
-      <Text pb={2} fontSize="xs" textAlign="center">
-        All rights reserved © 2021 - Queensman
-      </Text>
-    </View>
+          <Box pt={4}>
+            <VStack space={4}>
+              <Item
+                onPress={() => requestCallOutPress(navigation, { additionalServices: false })}
+                text="Request Callout"
+                image={require("../../assets/Home/calloutHome.png")}
+              />
+              <Item
+                onPress={() => onGoingCallOutPress(navigation)}
+                text="Scheduled Services"
+                image={require("../../assets/Home/pendingHome.png")}
+              />
+              <Item
+                onPress={() => CallOutHistoryPress(navigation)}
+                text="Services History"
+                image={require("../../assets/Home/historyHome.png")}
+              />
+              <Item
+                onPress={() => CallOutReportPress(navigation)}
+                text="Report and Documents"
+                image={require("../../assets/Home/reportHome.png")}
+              />
+              <Item
+                onPress={() => requestCallOutPress(navigation, { additionalServices: true })}
+                text="Request of Additional Services"
+                image={require("../../assets/Home/pendingHome.png")}
+              />
+            </VStack>
+          </Box>
+          {data?.callout?.[0] ? (
+            <VStack space={4} mt={4}>
+              <Divider />
+              <Heading mx="auto" size="sm">
+                Upcoming Service
+              </Heading>
+              <CalloutItem item={data.callout[0]} toggleGalleryEventModal={() => {}} />
+            </VStack>
+          ) : (
+            <VStack space={4} mt={4}>
+              <Heading mx="auto" size="sm">
+                No Upcoming Service
+              </Heading>
+            </VStack>
+          )}
+        </ScrollView>
+        <Text pb={2} fontSize="xs" textAlign="center">
+          All rights reserved © 2021 - Queensman
+        </Text>
+      </View>
+    </Box>
   );
 };
 

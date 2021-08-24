@@ -1,0 +1,25 @@
+diff --git a/node_modules/react-native-calendars/src/dateutils.js b/node_modules/react-native-calendars/src/dateutils.js
+index 2455347..5f2bf81 100644
+--- a/node_modules/react-native-calendars/src/dateutils.js
++++ b/node_modules/react-native-calendars/src/dateutils.js
+@@ -142,7 +142,7 @@ function getWeekDates(date, firstDay, format) {
+   }
+ }
+ 
+-module.exports = {
++export default {
+   weekDayNames,
+   sameMonth,
+   sameWeek,
+diff --git a/node_modules/react-native-calendars/src/day-state-manager.js b/node_modules/react-native-calendars/src/day-state-manager.js
+index 97df58f..85777f2 100644
+--- a/node_modules/react-native-calendars/src/day-state-manager.js
++++ b/node_modules/react-native-calendars/src/day-state-manager.js
+@@ -23,6 +23,6 @@ function getState(day, current, props) {
+   return state;
+ }
+ 
+-module.exports = {
++export default {
+   getState
+ };

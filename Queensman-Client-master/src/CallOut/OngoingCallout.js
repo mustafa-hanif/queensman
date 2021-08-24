@@ -24,7 +24,6 @@ import { AntDesign, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { gql, useQuery } from "@apollo/client";
-import PTRView from "react-native-pull-to-refresh";
 import { auth } from "../utils/nhost";
 
 const GET_CALLOUT = gql`
