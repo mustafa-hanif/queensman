@@ -336,9 +336,6 @@ const DataTableAdvSearch = () => {
         <div className='toastify-body'>
           <ul className='list-unstyled mb-0'>
             <li>
-              <strong>ID</strong>: {data.id}
-            </li>
-            <li>
             <strong>Full name</strong>: {data.full_name}
             </li>
             <li>
