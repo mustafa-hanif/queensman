@@ -7,6 +7,7 @@ const sendWelcomeEmail = async (event) => {
     const u = new URLSearchParams(event.body);
     const clientEmail = u.get('clientEmail');
     const clientName = u.get('clientName');
+    const clientPassword = u.get('clientPassword')
     const params = {
       Destination: { /* required */
         CcAddresses: [
@@ -23,7 +24,7 @@ const sendWelcomeEmail = async (event) => {
         Body: { /* required */
           Html: {
             Charset: 'UTF-8',
-            Data: welcomeEmailTemplate(clientName)
+            Data: welcomeEmailTemplate(clientName, clientEmail, clientPassword)
           },
         },
         Subject: {
