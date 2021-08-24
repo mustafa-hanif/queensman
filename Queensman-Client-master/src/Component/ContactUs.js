@@ -1,104 +1,77 @@
+/* eslint-disable react/no-string-refs */
+/* eslint-disable no-alert */
+/* eslint-disable eqeqeq */
+/* eslint-disable no-use-before-define */
 import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Dimensions,
-  TouchableOpacity,
-  TextInput,
-  Linking,
-} from "react-native";
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, TextInput, Linking } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Content, Icon } from "native-base";
+import { Content, Icon, ScrollView } from "native-base";
+import { Ionicons } from "@expo/vector-icons";
 
-let deviceWidth = Dimensions.get("window").width;
-let deviceHeight = Dimensions.get("window").height;
+const deviceWidth = Dimensions.get("window").width;
+const deviceHeight = Dimensions.get("window").height;
 
 export default class ContactUs extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      // eslint-disable-next-line react/no-unused-state
       code: "",
       WhatsAppMessage: "",
       phoneno: "",
       Whatsapp: "",
     };
   }
-  async componentDidMount() {
-    var propertyCountry = await AsyncStorage.getItem("QueensPropertyCountry"); // assign customer id here
 
+  async componentDidMount() {
+    const propertyCountry = await AsyncStorage.getItem("QueensPropertyCountry"); // assign customer id here
     if (propertyCountry == "UK" || propertyCountry == "United Kingdom") {
       this.setState({
         phoneno: "447402308203",
         Whatsapp: "+447402308203",
       });
-    } else if (
-      propertyCountry == "UAE" ||
-      propertyCountry == "United Arab Emirates"
-    ) {
+    } else if (propertyCountry == "UAE" || propertyCountry == "United Arab Emirates") {
       this.setState({
         phoneno: "971555996024",
         Whatsapp: "+971555996024",
       });
-    } else {
-      alert(
-        "Please select property first from 'Property Details' tab in the menu."
-      );
-      this.props.navigation.navigate("HomeNaviagtor");
     }
   }
 
   Callhandle = () => {
     if (this.state.phoneno == "") {
-      alert(
-        "Please select property first from 'Property Details' tab in the menu."
-      );
+      alert("Please select property first from 'Property Details' tab in the menu.");
     } else {
-      const url = "tel://+" + this.state.phoneno;
+      const url = `tel://+${this.state.phoneno}`;
       Linking.openURL(url);
     }
   };
 
   Messagehandle = () => {
     if (this.state.Whatsapp == "") {
-      alert(
-        "Please select property first from 'Property Details' tab in the menu."
-      );
+      alert("Please select property first from 'Property Details' tab in the menu.");
     } else {
-      Linking.openURL(
-        "http://api.whatsapp.com/send?text=" +
-          this.state.WhatsAppMessage +
-          "&phone=" +
-          this.state.Whatsapp
-      );
+      Linking.openURL(`http://api.whatsapp.com/send?text=${this.state.WhatsAppMessage}&phone=${this.state.Whatsapp}`);
     }
   };
 
   render() {
     return (
-      //content as view type  and touch exit
-      <Content scrollEnabled={false} contentContainerStyle={styles.container}>
+      // content as view type  and touch exit
+      <ScrollView contentContainerStyle={styles.container}>
         {/* background gradinet   */}
-        <LinearGradient
-          colors={["#000E1E", "#001E2B", "#000E1E"]}
-          style={styles.gradiantStyle}
-        ></LinearGradient>
+        <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
 
         <TouchableOpacity onPress={() => this.props.navigation.toggleDrawer()}>
-          <Icon
-            name="arrow-back"
-            style={{ fontSize: 24, color: "#fff" }}
-          ></Icon>
+          <Icon as={Ionicons} name="arrow-back" style={{ fontSize: 24, color: "#fff" }} />
         </TouchableOpacity>
-        <View style={{ height: "7%" }}></View>
+        <View style={{ height: "7%" }} />
 
         <Text style={styles.HeadingStyle}>Contact Us</Text>
-        <Text style={{ color: "#fff", fontSize: 15, fontFamily: "Helvetica" }}>
-          We are always here to help!{" "}
-        </Text>
+        <Text style={{ color: "#fff", fontSize: 15, fontFamily: "Helvetica" }}>We are always here to help! </Text>
 
-        <View style={{ height: "10%" }}></View>
+        <View style={{ height: "10%" }} />
 
         <View style={{ flexDirection: "row" }}>
           <TextInput
@@ -111,12 +84,12 @@ export default class ContactUs extends React.Component {
             }}
             placeholder="Type WhatsApp message here"
             placeholderTextColor="#FFCA5D"
-            multiline={true}
+            multiline
             numberOfLines={4}
             underlineColorAndroid="transparent"
             onChangeText={(WhatsAppMessage) => {
               this.setState({ WhatsAppMessage });
-            }} //email set
+            }} // email set
           />
         </View>
         <View
@@ -126,8 +99,8 @@ export default class ContactUs extends React.Component {
             width: "100%",
             paddingTop: "3%",
           }}
-        ></View>
-        <View style={{ height: "10%" }}></View>
+        />
+        <View style={{ height: "10%" }} />
         <TouchableOpacity
           style={{
             backgroundColor: "#FFCA5D",
@@ -138,10 +111,7 @@ export default class ContactUs extends React.Component {
           }}
           onPress={this.Messagehandle}
         >
-          <Icon
-            name="logo-whatsapp"
-            style={{ fontSize: 24, color: "green", alignSelf: "center" }}
-          ></Icon>
+          <Icon as={Ionicons} name="logo-whatsapp" style={{ fontSize: 24, color: "green", alignSelf: "center" }} />
           <Text> </Text>
           <Text
             style={{
@@ -154,7 +124,7 @@ export default class ContactUs extends React.Component {
             WhatsApp us
           </Text>
         </TouchableOpacity>
-        <View style={{ height: "10%" }}></View>
+        <View style={{ height: "10%" }} />
         <Text
           style={{
             color: "#fff",
@@ -166,7 +136,7 @@ export default class ContactUs extends React.Component {
           OR
         </Text>
 
-        <View style={{ height: "10%" }}></View>
+        <View style={{ height: "10%" }} />
         <TouchableOpacity
           style={{
             backgroundColor: "#FFCA5D",
@@ -177,10 +147,7 @@ export default class ContactUs extends React.Component {
           }}
           onPress={this.Callhandle}
         >
-          <Icon
-            name="call"
-            style={{ fontSize: 24, color: "#000E1E", alignSelf: "center" }}
-          ></Icon>
+          <Icon as={Ionicons} name="call" style={{ fontSize: 24, color: "#000E1E", alignSelf: "center" }} />
           <Text> </Text>
           <Text
             style={{
@@ -193,7 +160,7 @@ export default class ContactUs extends React.Component {
             Call us
           </Text>
         </TouchableOpacity>
-      </Content>
+      </ScrollView>
     );
   }
 }

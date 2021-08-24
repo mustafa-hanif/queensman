@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable import/first */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
@@ -354,11 +355,10 @@ const HomeScreenStackNavigator = () => {
 
 /** Drawer navigation Conponent */
 const CustomDrawerComponent = (props) => (
-  <DrawerContentScrollView style={{ flex: 1 }}>
+  <DrawerContentScrollView style={{ flex: 1, backgroundColor: "#fffbeb" }}>
     <View
       style={{
         height: 150,
-        backgroundColor: "white",
         marginTop: 30,
         alignItems: "center",
         justifyContent: "center",
@@ -449,12 +449,13 @@ const AppDrawerNavigator = () => {
       drawerContent={(props) => <CustomDrawerComponent {...props} />}
     >
       <AppDrawer.Screen name="Home" component={HomeScreenStackNavigator} />
-      {/* <AppDrawer.Screen name="PropertyDetails" component={PropertyDetails} />
-      <AppDrawer.Screen name="ContactUs" component={ContactUs} />
+      <AppDrawer.Screen name="Contact Us" component={ContactUs} />
+      <AppDrawer.Screen name="Property Details" component={PropertyDetails} />
+      {/* <AppDrawer.Screen name="ContactUs" component={ContactUs} />
       <AppDrawer.Screen name="Settings" component={SettingStackNavigator} /> */}
       {/* <AppDrawer.Screen name="Property Details" component={PropertyDetails} /> */}
-      <AppDrawer.Screen name="Contact Us" component={HomeScreenStackNavigator} />
-      <AppDrawer.Screen name="Settings" component={HomeScreenStackNavigator} />
+      {/* <AppDrawer.Screen name="Contact Us" component={HomeScreenStackNavigator} /> */}
+      {/* <AppDrawer.Screen name="Settings" component={HomeScreenStackNavigator} /> */}
     </AppDrawer.Navigator>
   );
 };
@@ -466,7 +467,7 @@ const AppContainer = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="AuthLogin" component={AuthLoginCheck} />
+        {/* <Stack.Screen name="AuthLogin" component={AuthLoginCheck} /> */}
         <Stack.Screen name="Login" component={LoginStackNavigator} />
         <Stack.Screen name="AppDrawer" component={AppDrawerNavigator} />
       </Stack.Navigator>

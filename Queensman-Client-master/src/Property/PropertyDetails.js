@@ -120,99 +120,6 @@ const PropertyDetails = (props) => {
     _storeData(item.id, "leased", item.country);
   };
 
-  /* async componentDidMount() {
-    setState({
-      loading: true,
-    });
-    // fetch customer orrder list
-    const ID = await AsyncStorage.getItem("QueensUserID"); // assign customer id here
-    setState({
-      cusID: ID,
-    });
-    let link = `http://queensman.com/queens_client_Apis/FetchClientOwnedPropertyViaClientID.php?ID=${ID}`;
-    console.log(link);
-    axios.get(link).then((result) => {
-      console.log(result.data);
-      if (result.data.server_responce == -1) {
-        setState({
-          loading: false,
-          OwnedDataAvaible: false,
-        });
-      } else {
-        setState({ OwnedPropertyData: result.data.server_responce });
-        // console.log(state.onGoingCallouts)
-        setState({
-          loading: false,
-          OwnedDataAvaible: true,
-        });
-      }
-    });
-    link = `http://queensman.com/queens_client_Apis/FetchClientLeasedPropertiesViaClientID.php?ID=${ID}`;
-    console.log(link);
-    axios.get(link).then((result) => {
-      console.log(result.data);
-      if (result.data.server_responce == -1) {
-        setState({
-          loading: false,
-          LeasedDataAvaible: false,
-        });
-      } else {
-        setState({ leasedPropertyData: result.data.server_responce });
-        // console.log(state.onGoingCallouts)
-        setState({
-          loading: false,
-          LeasedDataAvaible: true,
-        });
-      }
-    });
-  } */
-
-  const _refresh = () => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // fetch customer orrder list
-        const ID = state.cusID; // assign customer id here
-        let link = `http://queensman.com/queens_client_Apis/FetchClientOwnedPropertyViaClientID.php?ID=${ID}`;
-        console.log(link);
-        axios.get(link).then((result) => {
-          console.log(result.data);
-          if (result.data.server_responce === -1) {
-            setState({
-              loading: false,
-              OwnedDataAvaible: false,
-            });
-          } else {
-            setState({ OwnedPropertyData: result.data.server_responce });
-            // console.log(state.onGoingCallouts)
-            setState({
-              loading: false,
-              OwnedDataAvaible: true,
-            });
-          }
-        });
-        link = `http://queensman.com/queens_client_Apis/FetchClientLeasedPropertiesViaClientID.php?ID=${ID}`;
-        console.log(link);
-        axios.get(link).then((result) => {
-          console.log(result.data);
-          if (result.data.server_responce === -1) {
-            setState({
-              loading: false,
-              LeasedDataAvaible: false,
-            });
-          } else {
-            setState({ leasedPropertyData: result.data.server_responce });
-            // console.log(state.onGoingCallouts)
-            setState({
-              loading: false,
-              LeasedDataAvaible: true,
-            });
-          }
-        });
-        resolve();
-      }, 2000);
-    });
-  };
-
   return (
     <View style={styles.container}>
       <Text style={{ paddingTop: "5%" }}> </Text>
@@ -248,7 +155,7 @@ const PropertyDetails = (props) => {
         <Select
           note
           mode="dialog"
-          style={{ paddingTop: "2%" }}
+          style={{ paddingTop: "2%", color: "black" }}
           itemStyle={{ fontFamily: "Helvetica" }}
           selectedValue={state.selected}
           onValueChange={onValueChange}
@@ -263,7 +170,7 @@ const PropertyDetails = (props) => {
         <View>
           {state.selected === "Owned" ? (
             <View>
-              {data?.client?.[0]?.property_owneds.length === 0 ? (
+              {(data?.client?.[0]?.property_owneds?.length ?? []) === 0 ? (
                 <Text
                   style={[
                     styles.TextFam,
@@ -312,7 +219,7 @@ const PropertyDetails = (props) => {
                               {property.community},{property.city}
                             </Text>
 
-                            <ListItem>
+                            <View>
                               <View
                                 style={{
                                   flexDirection: "column",
@@ -327,7 +234,7 @@ const PropertyDetails = (props) => {
                                   Property Category: {property.category ? property.category : "Not Listed"}
                                 </Text>
                               </View>
-                            </ListItem>
+                            </View>
                           </View>
                         </TouchableOpacity>
                         <Text> </Text>

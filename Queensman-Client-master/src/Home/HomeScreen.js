@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable consistent-return */
 /* eslint-disable no-shadow */
 /* eslint-disable no-console */
@@ -5,7 +6,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
-import { StyleSheet, RefreshControl, View, TouchableOpacity, Dimensions, Platform, Alert, SegmentedControlIOSComponent } from "react-native";
+import {
+  StyleSheet,
+  RefreshControl,
+  View,
+  TouchableOpacity,
+  Dimensions,
+  Platform,
+  Alert,
+  SegmentedControlIOSComponent,
+} from "react-native";
 import {
   Box,
   Content,
@@ -23,12 +33,12 @@ import {
   Spinner,
   Center,
   AlertDialog,
-  Button
+  Button,
 } from "native-base";
 import { AntDesign, Ionicons, FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { gql, useQuery, useMutation } from "@apollo/client";
+import { gql, useQuery, useLazyQuery, useMutation } from "@apollo/client";
 import * as Notifications from "expo-notifications";
 import { LinearGradient } from "expo-linear-gradient";
 import FlashMessage from "react-native-flash-message";
@@ -74,14 +84,14 @@ const GET_CALLOUT = gql`
 `;
 
 const GET_CLIENT_STATUS = gql`
-query GetClient($email: String!) {
-  client(where: {email: {_eq: $email}}) {
-    id
-    email
-    active
+  query GetClient($email: String!) {
+    client(where: { email: { _eq: $email } }) {
+      id
+      email
+      active
+    }
   }
-}
-`
+`;
 
 const styles = StyleSheet.create({
   container: {
@@ -219,12 +229,9 @@ const AlertLogout = (navigation) => {
   );
 };
 
-const logout = async (navigation) => {
+const logout = async () => {
   try {
-    await AsyncStorage.removeItem("QueensUser");
-    setTimeout(() => {
-      navigation.navigate("Login");
-    }, 500);
+    auth.logout();
   } catch (error) {
     // Error saving data
   }
@@ -251,9 +258,9 @@ const NOTIFICATION_LIST = gql`
 `;
 
 const HomeScreen = ({ navigation }) => {
-  const [email, setEmail] = useState("");
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(true);
   const email2 = auth?.currentSession?.session?.user.email;
+  // console.log(auth?.currentSession);
   const {
     loading,
     data,
@@ -270,40 +277,54 @@ const HomeScreen = ({ navigation }) => {
     loading: clientLoading,
     data: clientStatus,
     error: clientError,
-    refetch: refetchClientStatus
+    refetch: refetchClientStatus,
   } = useQuery(GET_CLIENT_STATUS, {
     variables: {
       email: email2,
     },
   });
 
-  const {
-    loading: loadingNotification,
-    data: notifications,
-    error: notificationError,
-    refetch: refetchNotification,
-  } = useQuery(NOTIFICATION_LIST, {
-    variables: {
-      email: email2,
-    },
-    onCompleted: () => {
-      setRefreshing(false);
-    },
-  });
+  const [refetchNotification, { loading: loadingNotification, data: notifications, error: notificationError }] =
+    useLazyQuery(NOTIFICATION_LIST, {
+      variables: {
+        email: email2,
+      },
+      onCompleted: () => {
+        setRefreshing(false);
+      },
+      onError: (err) => {
+        console.log("error", err);
+      },
+    });
 
   useFocusEffect(
     React.useCallback(() => {
+      if (!email2) {
+        return;
+      }
+      const unsubscribe = auth.onAuthStateChanged(async (loggedIn) => {
+        if (!loggedIn) {
+          navigation.navigate("Login");
+        }
+      });
       refetchClientStatus();
       refetchService();
       refetchNotification();
-    }, [])
+      return unsubscribe;
+    }, [email2])
   );
+  useEffect(() => {
+    if (!email2) {
+      return;
+    }
+    refetchClientStatus();
+    refetchService();
+    refetchNotification();
+  }, [email2]);
+
   const IsActive = () => (
     <Center>
-      <AlertDialog
-        isOpen={isOpen}
-        motionPreset={"fade"}
-      >
+      <AlertDialog isOpen={isOpen} motionPreset="fade">
         <AlertDialog.Content>
           <AlertDialog.Header fontSize="lg" fontWeight="bold">
             Account Inactive
@@ -312,20 +333,21 @@ const HomeScreen = ({ navigation }) => {
             Your account is inactive. Please contact administrator services@queensman.com
           </AlertDialog.Body>
           <AlertDialog.Footer>
-            <Button onPress={() => logout(navigation)}>
-              Ok
-            </Button>
+            <Button onPress={() => logout(navigation)}>Ok</Button>
           </AlertDialog.Footer>
         </AlertDialog.Content>
       </AlertDialog>
     </Center>
-  // <Text>NO</Text>
-  )
+    // <Text>NO</Text>
+  );
   const [refreshing, setRefreshing] = useState(false);
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
   const [updateToken, { loading: mutationLoading, error: mutationError }] = useMutation(UPDATE_TOKEN);
   useEffect(() => {
+    if (!email2) {
+      return;
+    }
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {});
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener(async (response) => {});
@@ -339,10 +361,10 @@ const HomeScreen = ({ navigation }) => {
     });
     registerForPushNotificationsAsync()
       .then(async (token) => {
-        const user = JSON.parse(await AsyncStorage.getItem("QueensUser"));
-        const email = user?.user?.email;
-        updateToken({ variables: { token, email } });
-        setEmail(email);
+        if (!token) {
+          return;
+        }
+        updateToken({ variables: { token, email: email2 } });
       })
       .catch(alert);
 
@@ -357,21 +379,22 @@ const HomeScreen = ({ navigation }) => {
     refetchClientStatus();
     refetchService();
     refetchNotification();
-    if(error || notificationError || clientError) {
-      setRefreshing(false)
-      console.log(error, "callout error")
-      console.log(notificationError, "notification error")
-      console.log(clientError, "client error")
+    if (error || notificationError || clientError) {
+      setRefreshing(false);
+      console.log(error, "callout error");
+      console.log(notificationError, "notification error");
+      console.log(clientError, "client error");
     }
   }, []);
-  console.log(clientStatus?.client?.[0]?.active)
-
+  // console.log(clientStatus?.client?.[0]?.active);
+  // console.log({ email2 }, error, notificationError, clientError, loading, clientLoading, loadingNotification);
   return (
     <View style={{ backgroundColor: "#111827", height: "100%" }}>
-      {clientStatus?.client?.[0]?.active && clientStatus?.client?.[0]?.active != 1 && !clientLoading && !loadingNotification && !loading && 
-     
-        <IsActive />
-      }
+      {clientStatus?.client?.[0]?.active &&
+        clientStatus?.client?.[0]?.active != 1 &&
+        !clientLoading &&
+        !loadingNotification &&
+        !loading && <IsActive />}
       <View style={styles.Name}>
         <View
           style={{
@@ -383,7 +406,7 @@ const HomeScreen = ({ navigation }) => {
           <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
             <Image alt="pic" source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }} />
           </TouchableOpacity>
-          <Text style={{ color: "white", fontWeight: "bold", fontSize: 12 }}>{email}</Text>
+          <Text style={{ color: "white", fontWeight: "bold", fontSize: 12 }}>{email2}</Text>
           <View style={{ flexDirection: "row" }}>
             <TouchableOpacity onPress={() => AlertLogout(navigation)}>
               <Icon as={Ionicons} name="power" style={{ fontSize: 25, color: "#FFCA5D" }} />
@@ -551,7 +574,7 @@ const CalloutItem = ({ item, toggleGalleryEventModal }) => {
             Assigned to
           </Text>
           <Text color="indigo.800" bold fontSize="sm">
-          {item?.schedule?.worker?.full_name}
+            {item?.schedule?.worker?.full_name}
           </Text>
         </HStack>
         <VStack>

@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { StyleSheet, View, Text, ActivityIndicator, Dimensions } from "react-native";
 import { useAuth } from "@nhost/react-auth";
 import { LinearGradient } from "expo-linear-gradient";
@@ -24,28 +25,35 @@ const styles = StyleSheet.create({
 });
 
 const AuthLoginCheck = ({ navigation }) => {
-  const email = auth?.currentSession?.session?.user.email;
-  useEffect(() => {
-    if (!email) {
-      navigation.navigate("Login");
-    } else {
-      navigation.navigate("AppDrawer");
-    }
-  }, [email]);
-
-  if (email === null) {
-    return (
-      <View style={styles.container}>
-        {/* background gradinet   */}
-        <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
-
-        <ActivityIndicator size="large" color="#fff" />
-      </View>
-    );
-  }
+  useFocusEffect(
+    React.useCallback(() => {
+      if (auth.isAuthenticated() === false) {
+        console.log("not logged in");
+        navigation.navigate("Login");
+      }
+      const unsubscribe = auth.onAuthStateChanged(async (loggedIn) => {
+        if (loggedIn) {
+          setTimeout(() => {
+            console.log("redirect from here 1");
+            navigation.navigate("AppDrawer");
+          }, 2000);
+        } else {
+          console.log("not logged in");
+          navigation.navigate("Login");
+        }
+      });
+      return () => {
+        console.log("unmount");
+        unsubscribe();
+      };
+    }, [auth])
+  );
   return (
-    <View>
-      <Text>Hi</Text>
+    <View style={styles.container}>
+      {/* background gradinet   */}
+      <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
+
+      <ActivityIndicator size="large" color="#fff" />
     </View>
   );
 };
