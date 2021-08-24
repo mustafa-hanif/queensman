@@ -14,21 +14,13 @@ import ReactPaginate from "react-paginate"
 import DataTable from "react-data-table-component"
 import { toast } from "react-toastify"
 import {
-  MoreVertical,
   Edit,
   ChevronDown,
   Plus,
-  Trash,
-  Eye,
-  EyeOff,
-  Edit3,
-  Upload,
-  Loader,
   Check,
   XCircle
 } from "react-feather"
 import {
-  Badge,
   Card,
   CardHeader,
   CardBody,
@@ -39,10 +31,6 @@ import {
   Row,
   Col,
   Button,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   Modal,
   ModalHeader,
   ModalBody,
@@ -77,9 +65,21 @@ import "@styles/react/libs/flatpickr/flatpickr.scss"
 import { gql, useMutation, useQuery } from "@apollo/client"
 import AddNewModal from "./AddNewModal"
 import ButtonGroup from "reactstrap/lib/ButtonGroup"
-import { months } from "moment"
-import axios from "axios"
+import moment from "moment"
 import TabsVerticalLeft from "./TabsVerticalLeft"
+
+const conditionalRowStyles = [
+  {
+    when: row => moment(row?.contract_end_date) < moment(),
+    style: {
+      backgroundColor: '#fd9090',
+      color: 'black',
+      '&:hover': {
+        backgroundColor: '#fd9090'
+      }
+    }
+  }
+]
 
 const GET_CLIENT = gql`
   query GetClient {
@@ -201,86 +201,12 @@ const ADD_CLIENT = gql`
   }
 `
 
-const DELETE_CLIENT = gql`
-  mutation DeleteClient($id: Int!) {
-    delete_client_by_pk(id: $id) {
-      id
-    }
-  }
-`
-const UPDATE_CLIENT_HASPLAN = gql`
-  mutation UpdateHasPLan($id: Int!, $hasPlan: Boolean!) {
-    update_client_by_pk(pk_columns: { id: $id }, _set: { hasPlan: $hasPlan }) {
-      hasPlan
-    }
-  }
-`
-const UPLOAD_PLAN = gql`
-  mutation AddCallout(
-    $date_on_calendar: date
-    $callout_by: Int
-    $notes: String
-    $time_on_calendar: time
-    $end_time_on_calendar: time
-    $end_date_on_calendar: date
-    $email: String
-    $property_id: Int
-    $blocked: Boolean
-    $worker_id: Int
-  ) {
-    insert_scheduler_one(
-      object: {
-        callout: {
-          data: {
-            callout_by_email: $email
-            callout_by: $callout_by
-            property_id: $property_id
-            category: "Uncategorized"
-            job_type: "Scheduled Services"
-            status: "Planned"
-            urgency_level: "Scheduled"
-            active: 1,
-            job_worker: {
-              data: {
-                worker_id: $worker_id
-              }
-            }
-          }
-        }
-        date_on_calendar: $date_on_calendar
-        time_on_calendar: $time_on_calendar
-        end_time_on_calendar: $end_time_on_calendar
-        end_date_on_calendar: $end_date_on_calendar
-        notes: "Scheduled Services"
-        blocked: $blocked
-        worker_id: $worker_id
-      }
-    ) {
-      date_on_calendar
-    }
-  }
-`
-
-const DELETE_PLAN = gql`
-  mutation MyMutation($email: String, $callout_id: Int!) {
-    delete_callout(
-      where: {
-        _or: { callout_by_email: { _eq: $email } }
-        callout_by: { _eq: $callout_id }
-      }
-    ) {
-      affected_rows
-    }
-  }
-`
-
 const UPDATE_ACTIVE = gql`
 mutation MyMutation($active: Boolean!, $email: citext!) {
   update_auth_accounts(where: {email: {_eq: $email}}, _set: {active: $active}) {
     affected_rows
   }
-}
-`
+}`
 
 const DataTableAdvSearch = () => {
   // ** States
@@ -295,14 +221,7 @@ const DataTableAdvSearch = () => {
   const [addClient, { loading: addClientLoading }] = useMutation(ADD_CLIENT, {
     refetchQueries: [{ query: GET_CLIENT }]
   })
-  const [deleteClient, { loading: deleteClientLoading }] = useMutation(
-    DELETE_CLIENT,
-    { refetchQueries: [{ query: GET_CLIENT }] }
-  )
-  const [addPlan, { loading: addPlanLoading }] = useMutation(UPLOAD_PLAN)
   const [updateClientActive] = useMutation(UPDATE_ACTIVE)
-  const [deletePlan, { loading: deletePlanLoading }] = useMutation(DELETE_PLAN)
-  const [updateClientPlan] = useMutation(UPDATE_CLIENT_HASPLAN, { refetchQueries: [{ query: GET_CLIENT }] })
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState("")
   const [searchOccupation, setSearchOccupation] = useState("")
@@ -381,10 +300,6 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
   )
 }
 
-  const openModalAlert = (id) => {
-    setRowId(id)
-    setModalAlert(true)
-  }
 
   const closeModal = () => {
     setModal(!modal)
@@ -405,222 +320,8 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
     setToAddNewRecord(false)
   }
 
-  const addHours = (date, hours) => {
-    return new Date(new Date(date).setHours(new Date(date).getHours() + hours))
-  }
-
-  const handleAddPlan = async (row) => {
-    console.log("meow")
-    let year = new Date().getFullYear()
-    let month = new Date().getMonth() + 1
-    let day = new Date().getDate()
-    console.log(day)
-    const planArray = []
-    setQueryLoading(true)
-    setTimeout(() => {
-      setLoaderButton(true)
-      if (!queryLoading) {
-        setLoaderButton(false)
-      }
-    }, 10000)
-    try {
-      for (let i = 0; i < 4; i++) {
-        if (month >= 13) {
-          month = 1
-          year++
-        }
-        const date_on_calendar = `${year}-${
-          month < 10 ? `0${month}` : month
-        }-${day}` //new Date().getMonth()+1
-        const time_on_calendar = "10:00:00" //10:00:00
-        console.log({ date_on_calendar })
-        console.log({ time_on_calendar })
-        const end_time_on_calendar = addHours(
-          `${date_on_calendar} ${time_on_calendar}`,
-          4
-        )
-          .toTimeString()
-          .substr(0, 8)
-        const end_date_on_calendar = addHours(
-          `${date_on_calendar} ${time_on_calendar}`,
-          4
-        )
-          .toISOString()
-          .substr(0, 10)
-        console.log({
-          property_id: row.property_owneds[0]?.property_id,
-          callout_by: row.id,
-          email: row.email,
-          date_on_calendar,
-          time_on_calendar,
-          end_time_on_calendar,
-          end_date_on_calendar,
-          blocked: true
-        })
-        planArray.push(
-          {
-            property_id: row.property_owneds[0]?.property_id,
-          callout_by: row.id,
-          email: row.email,
-          date_on_calendar,
-          time_on_calendar,
-          end_time_on_calendar,
-          end_date_on_calendar,
-          blocked: true
-        }
-        )
-          await addPlan({
-            variables: {
-              property_id: row.property_owneds[0]?.property_id,
-              callout_by: row.id,
-              email: row.email,
-              date_on_calendar,
-              time_on_calendar,
-              end_time_on_calendar,
-              end_date_on_calendar,
-              blocked: true,
-              worker_id: 21
-            }
-          })
-        month += 3
-        day = "01"
-      }
-      toast.success(
-        <ToastComponent title="Plan Added" color="success" icon={<Check />} />,
-        {
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeButton: false
-        }
-      )
-      if (!queryLoading || !addPlanLoading) {
-          await updateClientPlan({
-            variables: {
-              id: row.id,
-              hasPlan: true
-            }
-          })
-          const res = await axios.post(
-            "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendPlanEmail",
-            {
-              planArray
-            }
-          )
-      }
-  
-      const currentDate = new Date().toLocaleDateString().split("/") // "7/11/2021"
-      year = parseInt(currentDate[2])
-      month = parseInt(currentDate[0])
-      day = parseInt(currentDate[1])
-      for (let i = 0; i < 4; i++) {
-        if (month >= 13) {
-          month = 1
-          year++
-        }
-        const date = new Date(`${month}/${day}/${year}`)
-          .toDateString()
-          .split(" ")
-        let dateString = ""
-        if (i > 0) {
-          dateString = `${date[1]} 01, ${date[3]}`
-        } else {
-          dateString = `${date[1]} ${date[2]}, ${date[3]}`
-        }
-        /*eslint-disable*/
-        console.log({
-          Subject: `Task Client ${date[1]}`,
-          Description: `Task Client ${date[1]}`,
-          Status: `Open`,
-          Due_Date: `${dateString}`,
-          email: `${row.email}`,
-        });
-  
-          // const res = await axios.post(
-          //   "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/quarterlyTasks",
-          //   {
-          //     Subject: `Task Client ${date[1]}`,
-          //     Description: `Task Client ${date[1]}`,
-          //     Status: `Open`,
-          //     Due_Date: `${dateString}`,
-          //     email: `${row.email}`,
-          //   }
-          // );
-        month += 3;
-      }
-      refetchClient()
-      clearRecord()
-      setQueryLoading(false)
-      setLoaderButton(false)
-    } catch (e) {
-      console.log(e)
-      setQueryLoading(false)
-      setLoaderButton(false)
-      // toast.error(
-      //   <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
-      //   {
-      //     autoClose: 2000,
-      //     hideProgressBar: true,
-      //     closeButton: false
-      //   }
-      // )
-    }
-  };
-
-  const handleDeletePlan = async (row) => {
-    setQueryLoading(true)
-    setTimeout(() => {
-      setLoaderButton(true)
-      if (!queryLoading) {
-        setLoaderButton(false)
-      }
-    }, 10000)
-    console.log({
-      email: row.email,
-      callout_id: row.id,
-    });
-    await deletePlan({
-      variables: {
-        email: row.email,
-        callout_id: row.id,
-      },
-    });
-    if (!deletePlanLoading) {
-      console.log("delete");
-      try {
-        await updateClientPlan({
-          variables: {
-            id: row.id,
-            hasPlan: false,
-          },
-        });
-        toast.error(
-          <ToastComponent title="Plan Removed" color="danger" icon={<Trash />} />,
-          {
-            autoClose: 2000,
-            hideProgressBar: true,
-            closeButton: false,
-          }
-        );
-        refetchClient()
-        clearRecord()
-        setQueryLoading(false)
-        setLoaderButton(false)
-      } catch (e) {
-        console.log(e)
-        toast.error(
-          <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
-          {
-            autoClose: 2000,
-            hideProgressBar: true,
-            closeButton: false,
-          }
-        );
-      }
-    }
-  };
-
   // ** Function to handle Pagination
-  const handlePagination = (page) => setCurrentPage(page.selected);
+  const handlePagination = (page) => setCurrentPage(page.selected)
 
   // ** Table Columns
   const advSearchColumns = [
@@ -628,90 +329,50 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
       name: "Id",
       selector: "id",
       sortable: true,
-      minWidth: "5px",
+      minWidth: "5px"
     },
     {
       name: "Full Name",
       selector: "full_name",
       sortable: true,
-      minWidth: "200px",
+      minWidth: "200px"
     },
     {
       name: "Email",
       selector: "email",
       sortable: true,
-      minWidth: "230px",
+      minWidth: "230px"
     },
-    /*{
-      name: "Password",
-      minWidth: "150px",
-      cell: (row) => {
-        const [eye, setEye] = useState(true);
-        if (row?.password && row?.password !== "null") {
-          return (
-            <div className="d-flex w-100 justify-content-between">
-              {eye ? (
-                <span>{row?.password.split("").map((value) => "*")}</span>
-              ) : (
-                <span>{row.password}</span>
-              )}
-              {eye ? (
-                <Eye
-                  size={15}
-                  onClick={() => {
-                    setEye(!eye);
-                  }}
-                />
-              ) : (
-                <EyeOff
-                  size={15}
-                  onClick={() => {
-                    setEye(!eye);
-                  }}
-                />
-              )}
-            </div>
-          );
-        } else {
-          return (
-            <div className="d-flex w-100 justify-content-between">
-              No password
-            </div>
-          );
-        }
-      },
-    },*/
     {
       name: "Phone",
       selector: "phone",
       sortable: true,
-      minWidth: "150px",
+      minWidth: "150px"
     },
     {
-      name: "Account Type",
-      selector: "account_type",
+      name: "Contract Start Date",
+      selector: "contract_start_date",
       sortable: true,
-      minWidth: "160px",
+      minWidth: "150px",
       cell: (row) => {
-        const [eye, setEye] = useState(true);
-        if (row?.account_type && row?.account_type !== "null") {
-          return <div>{row?.account_type}</div>;
+        if (row?.contract_start_date) {
+          return moment(row?.contract_start_date).format("YYYY-MM-DD")
         } else {
-          return <div>Null</div>;
+          return "No date"
         }
-      },
+      }
     },
     {
-      name: "Active/Inactive",
-      selector: "active",
+      name: "Contract End Date",
+      selector: "contract_end_date",
       sortable: true,
       minWidth: "150px",
-      cell: row => {
-        return (
-          <Badge color={row?.active == 1 ? 'light-success' :  'light-danger'} pill>
-            {row?.active == 1 ? "Active" : "Inactive"}
-          </Badge>
-        )
+      cell: (row) => {
+        if (row?.contract_end_date) {
+          return moment(row?.contract_end_date).format("YYYY-MM-DD")
+        } else {
+          return "No date"
+        }
       }
     },
     {
@@ -722,93 +383,39 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         return (
           <div className="d-flex w-100 align-items-center">
             <ButtonGroup size="sm">
-              {/* <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
-                  <Trash size={15} />
-                  </Button> */}
               <Button color="primary" className="btn-icon" size="sm">
                 <Edit size={15} onClick={() => handleModal(row)} />
               </Button>
-              {!row.hasPlan ? (
-                <Button
-                  color="secondary"
-                  outline
-                  className="btn"
-                  size="sm"
-                  onClick={() => {
-                    handleAddPlan(row);
-                  }}
-                >
-                  <Edit3 size={15} />
-                  <span className="align-middle ml-25">Upload Plan</span>
-                </Button>
-              ) : (
-                <Button
-                  color="danger"
-                  outline
-                  className="btn"
-                  size="sm"
-                  onClick={() => {
-                    handleDeletePlan(row);
-                  }}
-                >
-                  <span className="align-middle ml-25">Delete Plan</span>
-                </Button>
-              )}
             </ButtonGroup>
           </div>
-        );
-      },
-    },
-  ];
+        )
+      }
+    }
+  ]
 
   const clearRecord = () => {
     setSearchName("")
     setSearchEmail("")
-    setSearchOccupation("")
-    setSearchOrganization("")
     setSearchPhone("")
-    setSearchGender("")
   }
 
   // ** Table data to render
   const dataToRender = () => {
     if (
       searchName.length ||
-      searchOccupation.length ||
       searchEmail.length ||
-      searchPhone.length ||
-      searchGender.length ||
-      searchOrganization.length
+      searchPhone.length
     ) {
-      return filteredData;
+      return filteredData
     } else {
-      return data?.client;
+      return data?.client
     }
-  };
+  }
 
   const handleUpdate = async (updatedRow, newPassword, oldPassword) => {
     // auth.requestPasswordChange(updatedRow.email)
     if (newPassword) {
       console.log(oldPassword, newPassword)
-      return;
-      try {
-        const res = await auth.changePassword(oldPassword, newPassword)
-      } catch (error) {
-        console.log(error)
-        toast.error(
-          <ToastComponent
-            title="Error Changing Password"
-            color="danger"
-            icon={<XCircle />}
-          />,
-          {
-            autoClose: 2000,
-            hideProgressBar: true,
-            closeButton: false,
-          }
-        );
-        updatedRow.password = oldPassword
-      }
     }
     updateClient({
       variables: {
@@ -823,8 +430,8 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         referred_by: updatedRow.referred_by,
         contract_start_date: updatedRow.contract_start_date,
         contract_end_date: updatedRow.contract_end_date,
-        sign_up_time: updatedRow.sign_up_time,
-      },
+        sign_up_time: updatedRow.sign_up_time
+      }
     }).then(() => {
       toast.success(
         <ToastComponent
@@ -835,9 +442,9 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         {
           autoClose: 2000,
           hideProgressBar: true,
-          closeButton: false,
+          closeButton: false
         }
-      );
+      )
       refetchClient()
     }).catch(err => {
       console.log(err)
@@ -850,23 +457,23 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         {
           autoClose: 2000,
           hideProgressBar: true,
-          closeButton: false,
+          closeButton: false
         }
-      );
-    });
-    dataToRender();
+      )
+    })
+    dataToRender()
     if (!clientLoading) {
-      setModal(!modal);
+      setModal(!modal)
     }
-  };
+  }
 
   const addClientRecord = () => {
-    setToAddNewRecord(true);
-    setRow({active: 1});
+    setToAddNewRecord(true)
+    setRow({active: 1})
     setTimeout(() => {
-      setModal(!modal);
-    }, 200);
-  };
+      setModal(!modal)
+    }, 200)
+  }
 
   const updateActive = async (active, row) => {
     try {
@@ -885,9 +492,9 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
       {
         autoClose: 2000,
         hideProgressBar: true,
-        closeButton: false,
+        closeButton: false
       }
-    );
+    )
   }
   }
   const handleAddRecord = async (newRow, redirect = false) => {
@@ -905,41 +512,36 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
           referred_by: newRow?.referred_by,
           contract_start_date: newRow?.contract_start_date,
           contract_end_date: newRow?.contract_end_date
-        },
+        }
       })
-      console.log("client added")
-        await auth.register({
+        auth.register({
           email: newRow.email,
           password: "0000", // newRow.password,
-          options: { userData: { display_name: newRow.full_name } },
-        });
-        console.log("client registerd")
+          options: { userData: { display_name: newRow.full_name } }
+        })
         toast.success(<SuccessToast data={newRow} />, { hideProgressBar: true })
       
-      const url = 'https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendWelcomeEmail';
+      const url = 'https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendWelcomeEmail'
       const data = new URLSearchParams()
       data.set('clientName', newRow.full_name)
       data.set('clientEmail', newRow.email)
-      data.set('clientPassword', '0000')
   
       fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/x-www-form-urlencoded'
         },
         redirect: 'follow',
         referrerPolicy: 'no-referrer',
         body: data.toString()
-      });
-      console.log("email sent")
+      })
       setRow(null)
       if (redirect) {
-        console.log("pushing")
         history.push({pathname: '/property', state: {active: "4"}})
       }
     } catch (e) {
       console.log(e.message)
-      if (e.message.substr(0,20) === "Uniqueness violation") {
+      if (e.message.substr(0, 20) === "Uniqueness violation") {
         return toast.error(
           <ToastComponent title="Client already exists with same email" color="danger" icon={<XCircle />} />,
           {
@@ -950,23 +552,23 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         )
       }
     }
-    dataToRender();
+    dataToRender()
     if (!addClientLoading) {
-      setModal(!modal);
+      setModal(!modal)
     }
-  };
+  }
 
   const handleDeleteRecord = (id) => {
     deleteClient({
       variables: {
-        id,
-      },
-    });
-    dataToRender();
+        id
+      }
+    })
+    dataToRender()
     if (!deleteClientLoading) {
-      toggleModal();
+      toggleModal()
     }
-  };
+  }
 
   // ** Custom Pagination
   const CustomPagination = () => (
@@ -992,53 +594,50 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         "pagination react-paginate separated-pagination pagination-sm justify-content-end pr-1 mt-1"
       }
     />
-  );
+  )
 
   // ** Function to handle name filter
   const handleNameFilter = (e) => {
-    const value = e.target.value;
-    let updatedData = [];
+    const value = e.target.value
+    let updatedData = []
     const dataToFilter = () => {
       if (
         searchEmail.length ||
         searchName.length ||
-        searchOccupation.length ||
-        searchOrganization.length ||
-        searchPhone.length ||
-        searchGender.length
+        searchPhone.length
       ) {
-        return filteredData;
+        return filteredData
       } else {
-        return data?.client;
+        return data?.client
       }
-    };
+    }
 
-    setSearchName(value);
+    setSearchName(value)
     if (value.length) {
       updatedData = dataToFilter().filter((item) => {
         const startsWith = item.full_name
           ?.toLowerCase()
-          .startsWith(value.toLowerCase());
+          .startsWith(value.toLowerCase())
 
         const includes = item.full_name
           ?.toLowerCase()
-          .includes(value.toLowerCase());
+          .includes(value.toLowerCase())
 
         if (startsWith) {
-          return startsWith;
+          return startsWith
         } else if (!startsWith && includes) {
-          return includes;
-        } else return null;
-      });
-      setFilteredData([...updatedData]);
-      setSearchName(value);
+          return includes
+        } else return null
+      })
+      setFilteredData([...updatedData])
+      setSearchName(value)
     }
-  };
+  }
 
   // ** Function to handle email filter
   const handleEmailFilter = (e) => {
-    const value = e.target.value;
-    let updatedData = [];
+    const value = e.target.value
+    let updatedData = []
     const dataToFilter = () => {
       if (
         searchEmail.length ||
@@ -1048,197 +647,71 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         searchPhone.length ||
         searchGender.length
       ) {
-        return filteredData;
+        return filteredData
       } else {
-        return data?.client;
+        return data?.client
       }
-    };
+    }
 
-    setSearchEmail(value);
+    setSearchEmail(value)
     if (value.length) {
       updatedData = dataToFilter().filter((item) => {
         const startsWith = item.email
           ?.toLowerCase()
-          .startsWith(value.toLowerCase());
+          .startsWith(value.toLowerCase())
 
         const includes = item.email
           ?.toLowerCase()
-          .includes(value.toLowerCase());
+          .includes(value.toLowerCase())
 
         if (startsWith) {
-          return startsWith;
+          return startsWith
         } else if (!startsWith && includes) {
-          return includes;
-        } else return null;
-      });
-      setFilteredData([...updatedData]);
-      setSearchEmail(value);
+          return includes
+        } else return null
+      })
+      setFilteredData([...updatedData])
+      setSearchEmail(value)
     }
-  };
-
-  // ** Function to handle Occupation filter
-  const handleOccupationFilter = (e) => {
-    const value = e.target.value;
-    let updatedData = [];
-    const dataToFilter = () => {
-      if (
-        searchEmail.length ||
-        searchName.length ||
-        searchOccupation.length ||
-        searchOrganization.length ||
-        searchPhone.length ||
-        searchGender.length
-      ) {
-        return filteredData;
-      } else {
-        return data?.client;
-      }
-    };
-
-    setSearchOccupation(value);
-    if (value.length) {
-      updatedData = dataToFilter().filter((item) => {
-        const startsWith = item.occupation
-          ?.toLowerCase()
-          .startsWith(value.toLowerCase());
-
-        const includes = item.occupation
-          ?.toLowerCase()
-          .includes(value.toLowerCase());
-
-        if (startsWith) {
-          return startsWith;
-        } else if (!startsWith && includes) {
-          return includes;
-        } else return null;
-      });
-      setFilteredData([...updatedData]);
-      setSearchOccupation(value);
-    }
-  };
-
-  // ** Function to handle organization filter
-  const handleOrganizationFilter = (e) => {
-    const value = e.target.value;
-    let updatedData = [];
-    const dataToFilter = () => {
-      if (
-        searchEmail.length ||
-        searchName.length ||
-        searchOccupation.length ||
-        searchOrganization.length ||
-        searchPhone.length ||
-        searchGender.length
-      ) {
-        return filteredData;
-      } else {
-        return data?.client;
-      }
-    };
-
-    setSearchOrganization(value);
-    if (value.length) {
-      updatedData = dataToFilter().filter((item) => {
-        const startsWith = item?.organization
-          ?.toLowerCase()
-          .startsWith(value.toLowerCase());
-
-        const includes = item?.organization
-          ?.toLowerCase()
-          .includes(value.toLowerCase());
-
-        if (startsWith) {
-          return startsWith;
-        } else if (!startsWith && includes) {
-          return includes;
-        } else return null;
-      });
-      setFilteredData([...updatedData]);
-      setSearchOrganization(value);
-    }
-  };
+  }
 
   // ** Function to handle phone filter
   const handlePhoneFilter = (e) => {
-    const value = e.target.value;
-    let updatedData = [];
+    const value = e.target.value
+    let updatedData = []
     const dataToFilter = () => {
       if (
         searchEmail.length ||
         searchName.length ||
-        searchOccupation.length ||
-        searchOrganization.length ||
-        searchPhone.length ||
-        searchGender.length
+        searchPhone.length
       ) {
-        return filteredData;
+        return filteredData
       } else {
-        return data?.client;
+        return data?.client
       }
-    };
+    }
 
-    setSearchPhone(value);
+    setSearchPhone(value)
     if (value.length) {
       updatedData = dataToFilter().filter((item) => {
         const startsWith = item.phone
           ?.toLowerCase()
-          .startsWith(value.toLowerCase());
+          .startsWith(value.toLowerCase())
 
         const includes = item.phone
           ?.toLowerCase()
-          .includes(value.toLowerCase());
+          .includes(value.toLowerCase())
 
         if (startsWith) {
-          return startsWith;
+          return startsWith
         } else if (!startsWith && includes) {
-          return includes;
-        } else return null;
-      });
-      setFilteredData([...updatedData]);
-      setSearchPhone(value);
+          return includes
+        } else return null
+      })
+      setFilteredData([...updatedData])
+      setSearchPhone(value)
     }
-  };
-
-  // ** Function to handle gender filter
-  const handleGenderFilter = (e) => {
-    const value = e.target.value;
-    let updatedData = [];
-    const dataToFilter = () => {
-      if (
-        searchEmail.length ||
-        searchName.length ||
-        searchOccupation.length ||
-        searchOrganization.length ||
-        searchPhone.length ||
-        searchGender.length
-      ) {
-        return filteredData;
-      } else {
-        return data?.client;
-      }
-    };
-
-    setSearchGender(value);
-    if (value.length) {
-      updatedData = dataToFilter().filter((item) => {
-        const startsWith = item.gender
-          ?.toLowerCase()
-          .startsWith(value.toLowerCase());
-
-        const includes = item.gender
-          ?.toLowerCase()
-          .includes(value.toLowerCase());
-
-        if (startsWith) {
-          return startsWith;
-        } else if (!startsWith && includes) {
-          return includes;
-        } else return null;
-      });
-      setFilteredData([...updatedData]);
-      setSearchGender(value);
-    }
-  };
+  }
 
   return (
     <Fragment>
@@ -1247,7 +720,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         <CardHeader className="border-bottom">
           <CardTitle tag="h4">Advance Search</CardTitle>
           <div className="d-flex mt-md-0 mt-1">
-          { (searchName || searchEmail || searchOrganization || searchOccupation || searchPhone || searchGender) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
+          { (searchName || searchEmail || searchPhone) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
               <XCircle size={15} />
               <span className='align-middle ml-50'>Clear filter</span>
             </Button>}
@@ -1284,28 +757,6 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
             </Col>
             <Col lg="4" md="6">
               <FormGroup>
-                <Label for="occupation">Occupation:</Label>
-                <Input
-                  id="occupation"
-                  placeholder="Web Designer"
-                  value={searchOccupation}
-                  onChange={handleOccupationFilter}
-                />
-              </FormGroup>
-            </Col>
-            <Col lg="4" md="6">
-              <FormGroup>
-                <Label for="organization">Organization:</Label>
-                <Input
-                  id="organization"
-                  placeholder="San Diego"
-                  value={searchOrganization}
-                  onChange={handleOrganizationFilter}
-                />
-              </FormGroup>
-            </Col>
-            <Col lg="4" md="6">
-              <FormGroup>
                 <Label for="phone">Phone:</Label>
                 <Input
                   id="phone"
@@ -1315,24 +766,13 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
                 />
               </FormGroup>
             </Col>
-            <Col lg="4" md="6">
-              <FormGroup>
-                <Label for="gender">Gender:</Label>
-                <Input
-                  id="gender"
-                  placeholder="Male"
-                  value={searchGender}
-                  onChange={handleGenderFilter}
-                />
-              </FormGroup>
-            </Col>
           </Row>
         </CardBody>
         {!loading ? (
           <DataTable
             noHeader
             pagination
-            // selectableRows
+            conditionalRowStyles={conditionalRowStyles}
             columns={advSearchColumns}
             paginationPerPage={7}
             className="react-dataTable"
@@ -1375,7 +815,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
             <Button
               color="danger"
               onClick={() => {
-                handleDeleteRecord(rowId);
+                handleDeleteRecord(rowId)
               }}
             >
               Delete
@@ -1401,7 +841,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         </Modal>
       </div>
     </Fragment>
-  );
-};
+  )
+}
 
-export default DataTableAdvSearch;
+export default DataTableAdvSearch

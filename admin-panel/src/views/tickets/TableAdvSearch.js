@@ -37,6 +37,20 @@ const ToastComponent = ({ title, icon, color }) => (
 //     )
 // })
 
+// ** Conditional Style
+const conditionalRowStyles = [
+  {
+    when: row => row?.type === "Deferred",
+    style: {
+      backgroundColor: '#4b4b4b',
+      color: 'white',
+      '&:hover': {
+        cursor: 'pointer'
+      }
+    }
+  }
+]
+
 // ** Styles
 import '@styles/react/libs/flatpickr/flatpickr.scss'
 import { gql, useMutation, useQuery } from '@apollo/client'
@@ -776,7 +790,7 @@ const DataTableAdvSearch = () => {
         {!loading ? <DataTable
           noHeader
           pagination
-          // selectableRows
+          conditionalRowStyles={conditionalRowStyles}
           columns={advSearchColumns}
           paginationPerPage={7}
           className='react-dataTable'

@@ -62,7 +62,8 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
       }
     )
   },
-onError: () => {
+onError: (e) => {
+  console.log(e)
     toast.error(
       <ToastComponent title="Could not change password" color="danger" icon={<XCircle />} />,
       {
