@@ -64,7 +64,7 @@ const AddNewModal = ({
   setLease_end_date
 }) => {
 
-  const clientOptions = data?.map(client => ({value: client.id, label: client.full_name, ownedPropID: client?.property_owneds?.map(prop => (prop.property_id)), leasedPropID: client?.leases?.map(prop => (prop.property_id))}))
+  const clientOptions = data?.map(client => ({value: client.id, label: `${client.full_name} (${client.email})`, ownedPropID: client?.property_owneds?.map(prop => (prop.property_id)), leasedPropID: client?.leases?.map(prop => (prop.property_id))}))
   const activeOptions = [
     { value: 1, label: 'Active'},
     { value: 0, label: 'Not Active' }

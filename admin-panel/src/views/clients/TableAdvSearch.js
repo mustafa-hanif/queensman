@@ -146,7 +146,7 @@ const UPDATE_CLIENT = gql`
     $referred_by: Int
     $contract_start_date: date
     $contract_end_date: date
-    $sign_up_time: timestamp
+    $sign_up_time: timestamptz
   ) {
     update_client_by_pk(
       pk_columns: { id: $id }
@@ -841,8 +841,9 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
           closeButton: false,
         }
       );
+      refetchClient()
     }).catch(err => {
-      console.log(err?.response)
+      console.log(err)
       toast.error(
         <ToastComponent
           title="Error"
@@ -909,17 +910,20 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
           contract_end_date: newRow?.contract_end_date
         },
       })
-        auth.register({
+      console.log("client added")
+        await auth.register({
           email: newRow.email,
           password: "0000", // newRow.password,
           options: { userData: { display_name: newRow.full_name } },
         });
+        console.log("client registerd")
         toast.success(<SuccessToast data={newRow} />, { hideProgressBar: true })
       
       const url = 'https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendWelcomeEmail';
       const data = new URLSearchParams()
       data.set('clientName', newRow.full_name)
       data.set('clientEmail', newRow.email)
+      data.set('clientPassword', '0000')
   
       fetch(url, {
         method: 'POST',
@@ -930,8 +934,10 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         referrerPolicy: 'no-referrer',
         body: data.toString()
       });
+      console.log("email sent")
       setRow(null)
       if (redirect) {
+        console.log("pushing")
         history.push({pathname: '/property', state: {active: "4"}})
       }
     } catch (e) {

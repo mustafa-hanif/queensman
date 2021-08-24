@@ -1,7 +1,7 @@
 import classnames from 'classnames'
 import Avatar from '@components/avatar'
 import { TrendingUp, User, Box, DollarSign } from 'react-feather'
-import { Card, CardHeader, CardTitle, CardBody, CardText, Row, Col, Media } from 'reactstrap'
+import { Card, CardHeader, CardTitle, CardBody, CardText, Row, Col, Media, Spinner } from 'reactstrap'
 import { gql, useMutation, useQuery } from '@apollo/client'
 
 const STATS = gql`query MyQuery {
@@ -30,37 +30,66 @@ const STATS = gql`query MyQuery {
 `
 const StatsCard = ({ cols }) => {
   const { loading, data: apiData, error } = useQuery(STATS)
-  if (loading || error) return null
-  console.log(apiData)
+  if (loading || error) {
+    console.log(error)
+  }
+  
   const data = [
     {
-      title: apiData.callout.aggregate.count,
+      title: apiData?.callout?.aggregate?.count,
       subtitle: 'Callouts',
       color: 'light-primary',
       icon: <TrendingUp size={24} />
     },
     {
-      title: apiData.closed.aggregate.count,
+      title: apiData?.closed?.aggregate?.count,
       subtitle: 'Tickets Closed',
       color: 'light-info',
       icon: <User size={24} />
     },
     {
-      title: apiData.client.aggregate.count,
+      title: apiData?.client?.aggregate?.count,
       subtitle: 'Clients',
       color: 'light-danger',
       icon: <Box size={24} />
     },
     {
-      title: apiData.property.aggregate.count,
+      title: apiData?.property?.aggregate?.count,
       subtitle: 'Properties Registered',
       color: 'light-success',
       icon: <DollarSign size={24} />
     }
   ]
 
-  const renderData = () => {
-    return data.map((item, index) => {
+  const loadingData = [
+    {
+      title: "",
+      subtitle: 'Callouts',
+      color: 'light-primary',
+      icon: <TrendingUp size={24} />
+    },
+    {
+      title: "",
+      subtitle: 'Tickets Closed',
+      color: 'light-info',
+      icon: <User size={24} />
+    },
+    {
+      title: "",
+      subtitle: 'Clients',
+      color: 'light-danger',
+      icon: <Box size={24} />
+    },
+    {
+      title: "",
+      subtitle: 'Properties Registered',
+      color: 'light-success',
+      icon: <DollarSign size={24} />
+    }
+  ]
+
+  const renderLoadingData = () => {
+    return loadingData?.map((item, index) => {
       const margin = Object.keys(cols)
       return (
         <Col
@@ -73,7 +102,30 @@ const StatsCard = ({ cols }) => {
           <Media>
             <Avatar color={item.color} icon={item.icon} className='mr-2' />
             <Media className='my-auto' body>
-              <h4 className='font-weight-bolder mb-0'>{item.title}</h4>
+              <h4 className='font-weight-bolder mb-0'><Spinner color="primary" size="sm" /></h4>
+              <CardText className='font-small-3 mb-0'>{item.subtitle}</CardText>
+            </Media>
+          </Media>
+        </Col>
+      )
+    })
+  }
+
+  const renderData = () => {
+    return data?.map((item, index) => {
+      const margin = Object.keys(cols)
+      return (
+        <Col
+          key={index}
+          {...cols}
+          className={classnames({
+            [`mb-2 mb-${margin[0]}-0`]: index !== data.length - 1
+          })}
+        >
+          <Media>
+            <Avatar color={item.color} icon={item.icon} className='mr-2' />
+            <Media className='my-auto' body>
+              <h4 className='mb-0'>{item.title}</h4>
               <CardText className='font-small-3 mb-0'>{item.subtitle}</CardText>
             </Media>
           </Media>
@@ -86,10 +138,9 @@ const StatsCard = ({ cols }) => {
     <Card className='card-statistics'>
       <CardHeader>
         <CardTitle tag='h4'>Statistics</CardTitle>
-        <CardText className='card-text font-small-2 mr-25 mb-0'>Updated 1 month ago</CardText>
       </CardHeader>
       <CardBody className='statistics-body'>
-        <Row>{renderData()}</Row>
+        {error ? <Row className="justify-content-center"><p className="text-danger">Unable to load stats</p></Row> : <Row className="justify-content-center">{loading ? renderLoadingData() : renderData()}</Row>}
       </CardBody>
     </Card>
   )

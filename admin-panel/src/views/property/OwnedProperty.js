@@ -120,7 +120,7 @@ const DELETE_PROPS = gql`mutation DeleteProperty($id: Int = 10) {
 const DataTableAdvSearch = () => {
 
         // ** States
-  const { loading, data, error } = useQuery(GET_CLIENT_PROPS)
+  const { loading, data, error, refetch: refetchProps } = useQuery(GET_CLIENT_PROPS)
   const [updateProp, {loading: propertyLoading}] = useMutation(UPDATE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
   const [unassignProp, {loading: unAssignpropertyLoading}] = useMutation(UNASSIGN, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
   const [addProp, {loading: addPropertyLoading}] = useMutation(ADD_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
@@ -145,7 +145,15 @@ const DataTableAdvSearch = () => {
   const [lease_start_date, setLease_start_date] = useState(null)
   const [lease_end_date, setLease_end_date] = useState(null)
   let propertyOwnedData = []
-
+  const clearRecord = () => {
+    setSearchName("")
+    setSearchEmail("")
+    setSearchCountry("")
+    setSearchCity("")
+    setSearchCommunity("")
+    setSearchAddress("")
+    setSearchPropertyId("")
+  }
   const [modalAlert, setModalAlert] = useState(null)
 
   const toggleModal = () => {
@@ -254,6 +262,8 @@ const advSearchColumns = [
           address: updatedRow.address,
           country: updatedRow.country
           }})
+          clearRecord()
+          refetchProps()
       toast.success(
         <ToastComponent title="Property Updated" color="success" icon={<Check />} />,
         {
@@ -566,16 +576,6 @@ const advSearchColumns = [
         setFilteredData([...updatedData])
         setSearchPropertyId(value)
       }
-    }
-
-    const clearRecord = () => {
-      setSearchName("")
-      setSearchEmail("")
-      setSearchCountry("")
-      setSearchCity("")
-      setSearchCommunity("")
-      setSearchAddress("")
-      setSearchPropertyId("")
     }
 
   return (
