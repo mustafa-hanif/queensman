@@ -899,7 +899,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
           full_name: newRow?.full_name,
           phone: newRow?.phone,
           active: newRow?.active,
-          sec_email: newRow?.sec_email.toLowerCase(),
+          sec_email: newRow?.sec_email?.toLowerCase(),
           sec_phone: newRow?.sec_phone,
           account_type: newRow?.account_type,
           referred_by: newRow?.referred_by,
