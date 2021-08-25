@@ -54,7 +54,6 @@ query GetWorker {
       team_id
       role
       phone
-      password
       teams {
         team_color
       }
@@ -200,23 +199,6 @@ const advSearchColumns = [
         }
       },
     {
-      name: 'Password',
-      minWidth: '150px',
-      cell: row => {
-        const [eye, setEye] = useState(true)
-        return (
-        <>
-            {row?.password !== 'null' && row?.password &&  
-            <div className='d-flex w-100 justify-content-between'>
-            {eye ? <span>{row?.password.split('').map(value => "*")}</span> : <span>{row.password}</span>}
-            {eye ? <Eye size={15} onClick={() => { setEye(!eye) }}/> : <EyeOff size={15} onClick={() => { setEye(!eye) }} />}
-            </div>
-            }
-        </>
-        )
-      }
-    },
-    {
       name: 'Actions',
       minWidth: '200px',
       allowOverflow: true,
@@ -358,10 +340,10 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchPhone.length)  {
+        if (searchEmail.length || description.length || searchPhone.length)  {
         return filteredData
       } else {
-        return data?.client
+        return data?.worker
       }
     }
 
@@ -388,10 +370,10 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchPhone.length) {
+        if (searchName.length || description.length || searchPhone.length) {
         return filteredData
       } else {
-        return data?.client
+        return data?.worker
       }
     }
 
@@ -418,10 +400,10 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchPhone.length) {
+        if (searchEmail.length || searchName.length || searchPhone.length) {
         return filteredData
       } else {
-        return data?.client
+        return data?.worker
       }
     }
 
@@ -448,10 +430,10 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchPhone.length) {
+        if (searchEmail.length || searchName.length || description.length) {
         return filteredData
       } else {
-        return data?.client
+        return data?.worker
       }
     }
 
@@ -490,7 +472,7 @@ const advSearchColumns = [
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='name'>Name:</Label>
-                <Input id='name' placeholder='Bruce Wayne' value={searchName} onChange={handleNameFilter} />
+                <Input id='name' placeholder='Search Worker Name' value={searchName} onChange={handleNameFilter} />
               </FormGroup>
             </Col>
             <Col lg='4' md='6'>
@@ -499,7 +481,7 @@ const advSearchColumns = [
                 <Input
                   type='email'
                   id='email'
-                  placeholder='Bwayne@email.com'
+                  placeholder='Search Worker Email'
                   value={searchEmail}
                   onChange={handleEmailFilter}
                 />
@@ -508,7 +490,7 @@ const advSearchColumns = [
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='occupation'>Description:</Label>
-                <Input id='occupation' placeholder='Web Designer' value={description} onChange={handleDescriptionFilter} />
+                <Input id='occupation' placeholder='Search Worker Description' value={description} onChange={handleDescriptionFilter} />
               </FormGroup>
             </Col>
             {/* <Col lg='4' md='6'>
@@ -520,7 +502,7 @@ const advSearchColumns = [
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='phone'>Phone:</Label>
-                <Input id='phone' placeholder='San Diego' value={searchPhone} onChange={handlePhoneFilter} />
+                <Input id='phone' placeholder='Search Worker Phone' value={searchPhone} onChange={handlePhoneFilter} />
               </FormGroup>
             </Col>
           </Row>

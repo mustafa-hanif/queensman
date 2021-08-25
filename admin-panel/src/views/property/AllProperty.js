@@ -327,7 +327,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchCountry.length)  {
+        if (searchEmail.length || searchCountry.length)  {
         return filteredData
       } else {
         return data?.client
@@ -357,7 +357,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchCountry.length) {
+        if (searchName.length || searchCountry.length) {
         return filteredData
       } else {
         return data?.client
@@ -387,7 +387,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-          if (searchEmail.length || searchName.length || searchCountry.length) {
+          if (searchEmail.length || searchName.length) {
           return filteredData
         } else {
           return data?.client

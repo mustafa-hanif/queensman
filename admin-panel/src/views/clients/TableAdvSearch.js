@@ -911,7 +911,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         await auth.register({
           email: newRow.email,
           password: "0000", // newRow.password,
-          options: { userData: { display_name: newRow.full_name } },
+          options: { userData: { display_name: newRow.full_name }},
         });
         console.log("client registerd")
         toast.success(<SuccessToast data={newRow} />, { hideProgressBar: true })
@@ -1001,7 +1001,6 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
     const dataToFilter = () => {
       if (
         searchEmail.length ||
-        searchName.length ||
         searchOccupation.length ||
         searchOrganization.length ||
         searchPhone.length ||
@@ -1041,7 +1040,6 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
     let updatedData = [];
     const dataToFilter = () => {
       if (
-        searchEmail.length ||
         searchName.length ||
         searchOccupation.length ||
         searchOrganization.length ||
@@ -1084,7 +1082,6 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
       if (
         searchEmail.length ||
         searchName.length ||
-        searchOccupation.length ||
         searchOrganization.length ||
         searchPhone.length ||
         searchGender.length
@@ -1126,7 +1123,6 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         searchEmail.length ||
         searchName.length ||
         searchOccupation.length ||
-        searchOrganization.length ||
         searchPhone.length ||
         searchGender.length
       ) {
@@ -1168,7 +1164,6 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         searchName.length ||
         searchOccupation.length ||
         searchOrganization.length ||
-        searchPhone.length ||
         searchGender.length
       ) {
         return filteredData;
@@ -1209,8 +1204,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         searchName.length ||
         searchOccupation.length ||
         searchOrganization.length ||
-        searchPhone.length ||
-        searchGender.length
+        searchPhone.length
       ) {
         return filteredData;
       } else {
@@ -1264,7 +1258,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
                 <Label for="name">Name:</Label>
                 <Input
                   id="name"
-                  placeholder="Bruce Wayne"
+                  placeholder="Search Client Name"
                   value={searchName}
                   onChange={handleNameFilter}
                 />
@@ -1276,7 +1270,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
                 <Input
                   type="email"
                   id="email"
-                  placeholder="Bwayne@email.com"
+                  placeholder="Search Client Email"
                   value={searchEmail}
                   onChange={handleEmailFilter}
                 />
@@ -1287,7 +1281,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
                 <Label for="occupation">Occupation:</Label>
                 <Input
                   id="occupation"
-                  placeholder="Web Designer"
+                  placeholder="Search Client Occupation"
                   value={searchOccupation}
                   onChange={handleOccupationFilter}
                 />
@@ -1298,7 +1292,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
                 <Label for="organization">Organization:</Label>
                 <Input
                   id="organization"
-                  placeholder="San Diego"
+                  placeholder="Search Client Organization"
                   value={searchOrganization}
                   onChange={handleOrganizationFilter}
                 />
@@ -1309,7 +1303,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
                 <Label for="phone">Phone:</Label>
                 <Input
                   id="phone"
-                  placeholder="San Diego"
+                  placeholder="Search Client Phone"
                   value={searchPhone}
                   onChange={handlePhoneFilter}
                 />
@@ -1320,7 +1314,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
                 <Label for="gender">Gender:</Label>
                 <Input
                   id="gender"
-                  placeholder="Male"
+                  placeholder="Search Client Gender"
                   value={searchGender}
                   onChange={handleGenderFilter}
                 />

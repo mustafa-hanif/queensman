@@ -27,81 +27,74 @@ const ToastComponent = ({ title, icon, color }) => (
   </Fragment>
 )
 
-// ** Bootstrap Checkbox Component
-// const BootstrapCheckbox = forwardRef(({ onClick, ...rest }, ref) => {
-//     return (
-// <div className='custom-control custom-checkbox'>
-//     <input type='checkbox' className='custom-control-input' ref={ref} {...rest} />
-//     <label className='custom-control-label' onClick={onClick} />
-//   </div>
-//     )
-// })
-
-// ** Conditional Style
-const conditionalRowStyles = [
-  {
-    when: row => row?.type === "Deferred",
-    style: {
-      backgroundColor: '#4b4b4b',
-      color: 'white',
-      '&:hover': {
-        cursor: 'pointer'
-      }
-    }
-  }
-]
-
 // ** Styles
 import '@styles/react/libs/flatpickr/flatpickr.scss'
 import { gql, useMutation, useQuery } from '@apollo/client'
-import AddNewModal from './AddNewModal'
 import ButtonGroup from 'reactstrap/lib/ButtonGroup'
 import Badge from 'reactstrap/lib/Badge'
 import TabsVerticalLeft from './TabsVerticalLeft'
 
-const GET_JOB_TICKETS = gql`
-query getJobTickets {
-  job_tickets(order_by: {id: desc}) {
-    id
-    notes
-    name
-    callout_id
-    description
-    type
-    worker_email
-    worker_id
-    status
-    created_at
-    worker_email_rel {
-      full_name
-    }
-    callout {
+const GET_CALLOUT = gql`
+query GetCallout {
+    callout(order_by: {id: desc}) {
       id
+      callout_by_email
       property_id
       job_type
-      description
-      status
-      request_time
       urgency_level
+      category
+      active
+      request_time
+      status
+      description
       picture1
       picture2
       picture3
       picture4
       video
-      client: client_callout_email {
-        full_name
-        email
-        phone
-      }
-      job: callout_job {
-        instructions
-      }
       property {
         id
-        address
-        community
-        country
         city
+        country
+        community
+        address
+        comments
+        type
+      }
+      client_callout_email {
+        id
+        full_name
+        email
+      }
+      pre_pics {
+        picture_location
+        id
+      }
+      postpics {
+        id
+        picture_location
+      }
+      job_history {
+        id
+        updated_by
+        status_update
+        time
+        location
+      }
+      job_worker {
+        worker {
+          id
+          full_name
+          email
+          team_id
+        }
+      }
+      callout_job {
+        feedback
+        instructions
+        rating
+        signature
+        solution
       }
       schedulers {
         id
@@ -110,39 +103,12 @@ query getJobTickets {
       }
     }
   }
-}
-`
-
-const UPDATE_JOB_TICKET = gql`
-mutation UpdateJobTicket($id: Int!, $description: String, $name: String, $notes: _text, $worker_email: String, $type: String) {
-  update_job_tickets_by_pk(pk_columns: {id: $id}, _set: {description: $description, name: $name, worker_email: $worker_email, type: $type}) {
-    id
-  }
-}
-`
-const ADD_JOB_TICKET = gql`
-mutation AddJobTicket($name: String, $description: String, $worker_email: String, $type: String) {
-  insert_job_tickets_one(object: {name: $name, description: $description, worker_email: $worker_email, type: $type}) {
-    id
-  }
-}
-`
-
-const DELETE_JOB_TICKET = gql`
-mutation deleteJobTicket($id: Int!) {
-  delete_job_tickets_by_pk(id: $id) {
-    id
-  }
-}
 `
 
 const DataTableAdvSearch = () => {
 
   // ** States
-  const { loading, data, error } = useQuery(GET_JOB_TICKETS)
-  const [updateJobTicket, { loading: updateJobTicketLoading }] = useMutation(UPDATE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
-  const [addJobTicket, { loading: addJobTicketLoading }] = useMutation(ADD_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
-  const [deleteJobTicket, { loading: deleteJobLoading }] = useMutation(DELETE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
+  const { loading, data, error } = useQuery(GET_CALLOUT)
   const [modal, setModal] = useState(false)
   const [detailsModal, setDetailsModal] = useState(false)
   const [modalDetails, setModalDetails] = useState(null)
@@ -154,10 +120,6 @@ const DataTableAdvSearch = () => {
   const [description, setDescription] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
   const [filteredData, setFilteredData] = useState([])
-  const [toAddNewJobTicket, setToAddNewJobTicket] = useState(false)
-  const [row, setRow] = useState(null)
-  const [rowId, setRowId] = useState(null)
-  const [modalAlert, setModalAlert] = useState(null)
 
   const typeOptions = [
     { value: "", label: "All" },
@@ -170,39 +132,20 @@ const DataTableAdvSearch = () => {
   ]
 
   const statusOptions = [
-    { value: "Open", label: "Open" },
+    { value: "Requested", label: "Requested" },
+    { value: "Planned", label: "Planned" },
+    { value: "Assigned", label: "Assigned" },
+    { value: "In Progress", label: "In Progress" },
     { value: "Closed", label: "Closed" },
-    { value: "In Progress", label: "In Progress" }
+    { value: "Cancelled", label: "Cancelled" }
   ]
-  const toggleModal = () => {
-    setModalAlert(!modalAlert)
-  }
-
-  const openModalAlert = (id) => {
-    setRowId(id)
-    setModalAlert(true)
-  }
-
-  const closeModal = () => {
-    setModal(!modal)
-  }
 
   //** Function to open details modal */
   const openDetailsModal = (item) => {
-    console.log(item)
-    setDetailsModal(true)
-    setModalDetails(item) //set row value 
-  }
-
-  // ** Function to handle Modal toggle
-  const handleModal = (row) => {
-    console.log(row)
-    setRow(row)
-    setTimeout(() => {
-      setModal(!modal)
-    }, 10)
-    setToAddNewJobTicket(false)
-  }
+      console.log(item)
+      setDetailsModal(true)
+      setModalDetails(item) //set row value 
+    }
 
   // ** Function to handle Pagination
   const handlePagination = page => setCurrentPage(page.selected)
@@ -216,227 +159,84 @@ const DataTableAdvSearch = () => {
       minWidth: '10px'
     },
     {
-      name: 'Callout ID',
-      selector: 'callout_id',
+      name: 'Callout by',
+      selector: 'callout_by_email',
       sortable: true,
-      minWidth: '10px',
+      wrap: true,
+      minWidth: '150px',
       cell: row => (
-        row?.callout_id ? row.callout_id : "No ID"
+        row?.callout_by_email ? row?.callout_by_email : "No Email"
       )
     },
-    // {
-    //   name: 'Email',
-    //   selector: 'worker_email',
-    //   sortable: true,
-    //   minWidth: '200px'
-    // },
-    // {
-    //   name: 'Name',
-    //   selector: 'name',
-    //   sortable: true,
-    //   minWidth: '200px'
-    // },
     {
-      name: 'Type',
-      selector: 'type',
+      name: 'Property Address',
+      selector: 'property.address',
       sortable: true,
-      minWidth: '200px'
-    },
-    {
-      name: 'Description',
-      selector: 'description',
-      sortable: true,
-      minWidth: '250px',
-      compact: false,
       wrap: true,
-      cell: row => {
-        if (row?.type === 'Deferred') {
-          if (row?.description && row?.name) {
-            return `${row?.description}; ${row?.name}`
-          } else if (row?.description) {
-            return `${row?.description}`
-          } else if (row?.name) {
-            return `${row?.name}`
-          } else {
-            return "No description"
-          }
-        } else {
-          if (row?.description) {
-            return `${row?.description}`
-          } else {
-            return "No description"
-          }
-        }
-
-      }
+      minWidth: '150px',
+      cell: row => (
+        row?.property?.address ? row?.property?.address : "No Address"
+      )
     },
     {
-      name: 'Worker Assigned',
-      selector: 'worker_email_rel',
+      name: 'Job Type',
+      selector: 'job_type',
       sortable: true,
-      minWidth: '100px',
+      minWidth: '150px',
       wrap: true,
-      cell: row => {
-        if (row?.worker_email_rel?.full_name) {
-          return row?.worker_email_rel?.full_name
-        } else {
-          return "No worker Assigned"
-        }
-      }
+      cell: row => (
+        row?.job_type ? row?.job_type : "No Job type"
+      )
     },
-    // {
-    //   name: 'Scheduler Id',
-    //   selector: 'scheduler_id',
-    //   sortable: true,
-    //   minWidth: '150px'
-    // },
     {
       name: 'Status',
       selector: 'status',
       sortable: true,
-      minWidth: '150px',
-      cell: row => {
-        if (row?.status) {
-          return (
-            <Badge color={row?.status === 'Open' ? 'light-danger' : (row.status === 'In Progress' ? 'light-warning' : 'light-success')} pill>
-              {row?.status}
-            </Badge>
-          )
-        } else {
-          return "No Status"
-        }
-      }
+      minWidth: '100px',
+      wrap: true,
+      cell: row => (
+        row?.status ? row?.status : "No Status"
+      )
     },
     {
       name: 'Urgency',
-      selector: 'callout.urgency_level',
+      selector: 'urgency_level',
       sortable: true,
-      minWidth: '100px',
+      minWidth: '50px',
+      wrap: true,
       cell: row => {
-        if (row?.callout?.urgency_level) {
+        if (row?.urgency_level) {
           return (
-            <Badge color={row?.callout?.urgency_level === 'High' ? 'light-danger' : 'light-success'} pill>
-              {row?.callout?.urgency_level}
+            <Badge color={row?.urgency_level === 'High' ? 'light-danger' : 'light-success'} pill>
+              {row?.urgency_level}
             </Badge>
           )
         } else {
-          return "No Urgerncy"
+          return "No Urgency"
         }
       }
     },
     {
-      name: "Date",
-      selector: "created_at",
+      name: 'Category',
+      selector: 'category',
       sortable: true,
-      minWidth: "250px",
-      wrap: true,
-      cell: row => {
-        return (
-          moment(row?.created_at).format('MMMM Do YYYY, h:mm:ss a')
-        )
-      }
-    },
-    {
-      name: 'Actions',
-      minWidth: '200px',
-      allowOverflow: true,
-      cell: row => {
-        return (
-          <div className="d-flex w-100 align-items-center">
-            <ButtonGroup size="sm" >
-              <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
-                <Trash size={15} />
-              </Button>
-              {/* <Button color='primary' className="btn-icon" size="sm">
-                <Edit size={15} onClick={() => handleModal(row)} />
-              </Button> */}
-            </ButtonGroup>
-
-          </div>
-
-        )
-      }
+      minWidth: '150px',
+      cell: row => (
+        row?.category ? row?.job_type : "No Category"
+      )
     }
   ]
 
   // ** Table data to render
   const dataToRender = () => {
     if (
-      searchName.length ||
-      description.length ||
-      searchEmail.length ||
-      searchType?.length || searchStatus?.length || searchCalloutId.length
+      searchStatus?.length || searchCalloutId.length
     ) {
       return filteredData
     } else {
-      return data?.job_tickets
+      return data?.callout
     }
   }
-
-  const handleUpdate = (updatedRow) => {
-    updateJobTicket({
-      variables: {
-        description: updatedRow.description,
-        worker_email: updatedRow.worker_email,
-        name: updatedRow.name,
-        type: updatedRow.type,
-        id: updatedRow.id
-      }
-    })
-    dataToRender()
-    if (!updateJobTicketLoading) {
-      setModal(!modal)
-    }
-  }
-
-  const addJobTicketRecord = () => {
-    setToAddNewJobTicket(true)
-    setRow({
-      description: "",
-      worker_email: "",
-      name: "",
-      type: "Deferred"
-    })
-    setTimeout(() => {
-      setModal(!modal)
-    }, 200)
-  }
-
-
-  const handleAddJobTicket = (newRow) => {
-    console.log(newRow)
-    addJobTicket({
-      variables: {
-        description: newRow.description,
-        worker_email: newRow.worker_email,
-        name: newRow.name,
-        type: newRow.type
-      }
-    })
-    dataToRender()
-    if (!addJobTicketLoading) {
-      setModal(!modal)
-    }
-  }
-
-  const handleDeleteJobTicket = (id) => {
-
-    deleteJobTicket({
-      variables: {
-        id
-      }
-    })
-    toast.error(<ToastComponent title='Job Ticket Removed' color='danger' icon={<Trash />} />, {
-      autoClose: 2000,
-      hideProgressBar: true,
-      closeButton: false
-    })
-    dataToRender()
-    if (!deleteJobLoading) {
-      toggleModal()
-    }
-  }
-
 
   // ** Custom Pagination
   const CustomPagination = () => (
@@ -527,19 +327,19 @@ const DataTableAdvSearch = () => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || description.length || searchType?.length || searchStatus?.length) {
+      if (searchStatus?.length) {
         return filteredData
       } else {
-        return data?.job_tickets
+        return data?.callout
       }
     }
 
     setSearchCalloutId(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item?.callout_id?.toString().startsWith(value.toLowerCase())
+        const startsWith = item?.id?.toString().startsWith(value.toLowerCase())
 
-        const includes = item?.callout_id?.toString().includes(value.toLowerCase())
+        const includes = item?.id?.toString().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -589,13 +389,13 @@ const DataTableAdvSearch = () => {
     const value = e?.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || description.length || searchCalloutId.length || searchType?.length) {
+      if (searchCalloutId.length) {
        return filteredData
      } else {
-    return data?.job_tickets
+    return data?.callout
       }
   }
-
+  setSearchStatus(value)
     if (value?.length) {
       updatedData = dataToFilter().filter(item => {
         const startsWith = item.status?.toLowerCase().startsWith(value.toLowerCase())
@@ -665,7 +465,7 @@ const DataTableAdvSearch = () => {
       <Card>
 
         <CardHeader className='border-bottom'>
-          <CardTitle tag='h4'>Ticket Search</CardTitle>
+          <CardTitle tag='h4'>Callout Search</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
           { (searchEmail || searchName || description || searchType || searchStatus || searchCalloutId) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
               <XCircle size={15} />
@@ -680,7 +480,7 @@ const DataTableAdvSearch = () => {
 
         <CardBody>
           <Row form className='mt-1 mb-50'>
-            <Col lg='4' md='6'>
+            {/* <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='name'>Name:</Label>
                 <Input id='name' placeholder='Search Worker Name' value={searchName} onChange={handleNameFilter} />
@@ -691,14 +491,14 @@ const DataTableAdvSearch = () => {
                 <Label for='occupation'>Description:</Label>
                 <Input id='occupation' placeholder='AC not working' value={description} onChange={handleDescriptionFilter} />
               </FormGroup>
-            </Col>
+            </Col> */}
             {/* <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='organization'>Organization:</Label>
                 <Input id='organization' placeholder='San Diego' value={teamId} onChange={handleOrganizationFilter} />
               </FormGroup>
             </Col> */}
-            <Col lg='4' md='6'>
+            {/* <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='type'>Job Type:</Label>
                 <Select
@@ -711,7 +511,7 @@ const DataTableAdvSearch = () => {
                   isClearable={true}
                 />
               </FormGroup>
-            </Col>
+            </Col> */}
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='type'>Status Type:</Label>
@@ -725,16 +525,6 @@ const DataTableAdvSearch = () => {
                   isClearable={true}
                 />
               </FormGroup>
-              {/* <FormGroup>
-                <Label for='Status'>Status:</Label>
-                <Input id='status' type='select' value={searchStatus} onChange={handleStatusFilter}>
-                  <option></option>
-                  <option>Open</option>
-                  <option>Closed</option>
-                  <option>In Progress</option>
-
-                </Input>
-              </FormGroup> */}
             </Col>
             <Col lg='4' md='6'>
               <FormGroup>
@@ -748,7 +538,6 @@ const DataTableAdvSearch = () => {
         {!loading ? <DataTable
           noHeader
           pagination
-          conditionalRowStyles={conditionalRowStyles}
           columns={advSearchColumns}
           paginationPerPage={7}
           className='react-dataTable'
@@ -760,43 +549,12 @@ const DataTableAdvSearch = () => {
           highlightOnHover={true}
           pointerOnHover={true}
         // selectableRowsComponent={BootstrapCheckbox}
-        /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Job Ticket information</h4>}
+        /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Callouts information</h4>}
 
       </Card>
-      <AddNewModal
-        open={modal}
-        handleModal={handleModal}
-        handleAddJobTicket={handleAddJobTicket}
-        toAddNewJobTicket={toAddNewJobTicket}
-        closeModal={closeModal}
-        row={row}
-        setRow={setRow}
-        handleUpdate={handleUpdate}
-      />
-      <div className='theme-modal-danger'>
-        <Modal
-          isOpen={modalAlert}
-          toggle={toggleModal}
-          className='modal-dialog-centered'
-          modalClassName="modal-danger"
-        >
-          <ModalHeader toggle={toggleModal}>Delete Record</ModalHeader>
-          <ModalBody>
-            Are you sure you want to delete?
-          </ModalBody>
-          <ModalFooter>
-            <Button color="danger" onClick={() => { handleDeleteJobTicket(rowId) }} >
-              Delete
-            </Button>
-            <Button color='secondary' onClick={toggleModal} outline>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </Modal>
-      </div>
       <div className='vertically-centered-modal'>
         <Modal isOpen={detailsModal} toggle={() => setDetailsModal(!detailsModal)} className='modal-dialog-centered modal-xl'>
-          <ModalHeader className="d-flex justify-content-center" toggle={() => setDetailsModal(!detailsModal)}>Job Details</ModalHeader>
+          <ModalHeader className="d-flex justify-content-center" toggle={() => setDetailsModal(!detailsModal)}>Callout Details</ModalHeader>
           <ModalBody>
             <TabsVerticalLeft item={modalDetails} />
           </ModalBody>

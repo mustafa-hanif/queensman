@@ -386,7 +386,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+      if (searchEmail.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
         return filteredData
       } else {
         return propertyOwnedData
@@ -416,7 +416,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+      if (searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
         return filteredData
       } else {
         return propertyOwnedData
@@ -446,7 +446,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+        if (searchEmail.length || searchName.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
           return filteredData
         } else {
           return propertyOwnedData
@@ -475,7 +475,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchAddress.length || searchCommunity.length) {
           return filteredData
         } else {
           return propertyOwnedData
@@ -503,7 +503,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length) {
           return filteredData
         } else {
           return propertyOwnedData
@@ -531,7 +531,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchCommunity.length) {
           return filteredData
         } else {
           return propertyOwnedData
@@ -559,7 +559,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-          if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+          if (searchEmail.length || searchName.length || searchCountry.length || searchCity.length || searchAddress.length || searchCommunity.length) {
           return filteredData
         } else {
           return propertyOwnedData

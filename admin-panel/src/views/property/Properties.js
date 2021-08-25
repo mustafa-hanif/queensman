@@ -540,7 +540,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchAddress.length || searchCity.length || searchCountry.length || searchCommunity.length) {
+      if (searchAddress.length || searchCountry.length || searchCommunity.length) {
         return filteredData
       } else {
         return data?.property
@@ -570,7 +570,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchAddress.length || searchCity.length || searchCountry.length || searchCommunity.length) {
+      if (searchCity.length || searchCountry.length || searchCommunity.length) {
         return filteredData
       } else {
         return data?.property
@@ -600,7 +600,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-          if (searchAddress.length || searchCity.length || searchCountry.length || searchCommunity.length) {
+          if (searchAddress.length || searchCity.length || searchCommunity.length) {
           return filteredData
         } else {
           return data?.property
@@ -630,7 +630,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-          if (searchAddress.length || searchCity.length || searchCountry.length || searchCommunity.length) {
+          if (searchAddress.length || searchCity.length || searchCountry.length) {
           return filteredData
         } else {
           return data?.property
