@@ -96,7 +96,7 @@ const additional_request_email = (callout, worker) => {
                   <table style="font-family: ''Roboto Condensed'',Arial,sans-serif; width: 100%;" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                     <tr>
                       <td class="sm-px-24" style="--bg-opacity: 1; background-color: #ffffff; background-color: rgba(255, 255, 255, 1); border-radius: 4px; font-family: 'Roboto Condensed', -apple-system, 'Segoe UI', sans-serif; font-size: 16px; line-height: 24px; padding: 48px; text-align: left; --text-opacity: 1; color: #000; color: rgba(0, 0, 0, var(--text-opacity));" bgcolor="rgba(255, 255, 255, 1)" align="left">
-                        <p style="font-weight: 700; font-size: 20px; margin-top: 0; --text-opacity: 1; color: #ff5850;">New Callout Created</p>
+                        <p style="font-weight: 700; font-size: 20px; margin-top: 0; --text-opacity: 1; color: #ff5850;">New Additional Request Created</p>
                         <p style="margin: 0 0 24px;">
                           <strong>Client Details</strong><br />
                           Client ID: ${callout?.client_callout_email?.id}<br />
@@ -107,12 +107,12 @@ const additional_request_email = (callout, worker) => {
 
                           Client Phone: ${callout?.client_callout_email?.phone}<br />
 </p><p>
-                          <strong>Callout Details</strong><br />
+                          <strong>Additional Request Details</strong><br />
                           Callout ID: ${callout?.id}<br />
 
                           Job Type: Other: ${callout?.job_type}<br />
 
-                          Callout Urgency: ${callout?.urgency_level}<br />
+                          Urgency: ${callout?.urgency_level}<br />
 
                           Description: ${callout?.description}<br />
 

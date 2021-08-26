@@ -23,7 +23,7 @@ const additionalRequestEmail = async ({ callout, worker }) => {
       },
       Subject: {
         Charset: 'UTF-8',
-        Data: `[UAT] New Callout ${callout.id} Created by ${callout.client_callout_email.full_name}`
+        Data: `[UAT] New Additional Request ${callout.id} Created by ${callout.client_callout_email.full_name}`
       }
     },
     Source: 'services@queensman.com', /* required */
