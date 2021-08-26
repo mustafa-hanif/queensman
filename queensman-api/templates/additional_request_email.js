@@ -1,9 +1,8 @@
 const moment = require('moment');
 const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
-const calloutTemplate = (callout, worker, time) => {
-  const timeZone = 'Asia/Dubai'
-  const zonedDate = utcToZonedTime(callout.request_time, timeZone)
-  const color = worker?.teams?.[0]?.team_color ?? worker?.teams_member?.team_color
+const additional_request_email = (callout, worker) => {
+    const timeZone = 'Asia/Dubai'
+    const zonedDate = utcToZonedTime(callout.request_time, timeZone)
   return `<!DOCTYPE html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
@@ -19,7 +18,7 @@ const calloutTemplate = (callout, worker, time) => {
       td,th,div,p,a,h1,h2,h3,h4,h5,h6 {font-family: "Segoe UI", sans-serif; mso-line-height-rule: exactly;}
     </style>
   <![endif]-->
-    <title>New Callout Created</title>
+    <title>New Additional Request</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700" rel="stylesheet" media="screen">
     <style>
       .hover-underline:hover {
@@ -131,15 +130,12 @@ const calloutTemplate = (callout, worker, time) => {
                           Country: ${callout?.property?.country}<br />
                         </p>
                         <p>
-                          <strong>Assigned to Team Details</strong><br />
-                          Team Name: ${worker?.full_name}<br />
+                        <strong>Assigned to Team Details</strong><br />
+                        Team Name: ${worker?.full_name}<br />
 
-                          Team Part of emergency team?: ${worker?.isEmergency ? 'Yes' : 'No'}<br />
+                        Team phone: ${worker?.phone}<br />
 
-                          Team phone: ${worker?.phone}<br />
-
-                          Team team color: <span style="background-color: ${color}; width: 24px; height: 24px;     display: inline-block;"></span><br />
-                        </p>
+                      </p>
                         <!-- <a href="https://pixinvent.com?reset_password_url" style="display: block; font-size: 14px; line-height: 100%; margin-bottom: 24px; --text-opacity: 1; color: #ecc65d; color: rgba(115, 103, 240, var(--text-opacity)); text-decoration: none;">https://pixinvent.com?reset_password_url</a> -->
                         <!-- <table style="font-family: ''Roboto Condensed'',Arial,sans-serif;" cellpadding="0" cellspacing="0" role="presentation">
                           <tr>
@@ -182,4 +178,4 @@ const calloutTemplate = (callout, worker, time) => {
 </html>`
 }
 
-module.exports = { calloutTemplate };
+module.exports = { additional_request_email };

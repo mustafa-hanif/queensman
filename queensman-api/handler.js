@@ -10,6 +10,7 @@ const uploadDocument = require('./api/uploadDocument').uploadDocument;
 const downloadDocument = require('./api/downloadDocument').downloadDocument;
 const sendWelcomeEmail = require('./api/sendWelcomeEmail').sendWelcomeEmail;
 const sendPlanEmail = require('./api/sendPlanEmail').sendPlanEmail;
+const sendAdditionalRequestEmail = require('./api/sendAdditionalRequestEmail').sendAdditionalRequestEmail;
 const expresstest = require('./api/expresstest').expresstest;
 
 module.exports.sendNotification = sendNotification;
@@ -23,4 +24,5 @@ module.exports.quarterlyTasks = quarterlyTasks;
 module.exports.uploadDocument = uploadDocument;
 module.exports.downloadDocument = downloadDocument;
 module.exports.sendWelcomeEmail = sendWelcomeEmail;
+module.exports.sendAdditionalRequestEmail = sendAdditionalRequestEmail;
 module.exports.expresstest = expresstest;

@@ -95,9 +95,10 @@ const welcomeEmail = (clientName, clientEmail, clientPassword) => {
                           <p style="font-weight: 700; font-size: 20px; margin-top: 0; --text-opacity: 1; color: #ff5850;">Welcome ${clientName}!</p>
                           <p style="margin: 0 0 24px;">
                             Please download the Queensman Spades App from apple store or play store, and sign in with your email address provided on the signed contract.</p><p>You can now submit your callouts through the app and view scheduled services.</p><p>Thank you for being part of Queensman Spades family.</p>
-                            <p>Use the following credentials to login.</p>
-                            <p style="font-weight: 700;">Email: <span style="font-weight: 100">${clientEmail}</span></p>
-                            <p style="font-weight: 700;">Password: <span style="font-weight: 100">${clientPassword}</span></p>
+                            <p style="margin: 0 0 24px;">Use the following credentials to login.
+                            Email: <span style="font-weight: 100">${clientEmail}</span><br />
+                            Password: <span style="font-weight: 100">${clientPassword}</span><br />
+                            </p>
                           <a href=""><img src="https://backend-8106d23e.nhost.app/storage/o/public/google-play-badge.png" width="180"/></a>
                           <table style="font-family: ''Roboto Condensed'',Arial,sans-serif; width: 100%;" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                             <tr>
