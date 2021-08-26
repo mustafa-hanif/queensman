@@ -212,6 +212,7 @@ const ADD_CALLOUT = gql`
   mutation AddCallOut(
     $callout_by_email: String = ""
     $picture1: String
+    $property_id: Int
     $description: String
     $picture2: String
     $picture3: String
@@ -230,6 +231,7 @@ const ADD_CALLOUT = gql`
         callout: {
           data: {
             callout_by_email: $callout_by_email
+            property_id: $property_id
             description: $description
             picture1: $picture1
             picture2: $picture2
@@ -240,6 +242,11 @@ const ADD_CALLOUT = gql`
             status: $status
             active: 1
             urgency_level: $urgency_level
+            job_worker: {
+              data: {
+                worker_id: $worker_id
+              }
+            }
           }
         }
         name: "Additional Request"
@@ -606,7 +613,6 @@ const RequestCallOut = (props) => {
         category,
         job_type: jobTypeSelect.value,
         status: "Requested",
-        request_time: new Date().toLocaleDateString(),
         urgency_level: state.Urgency,
         video: state.videoUrl,
         ...pictures,
@@ -735,9 +741,10 @@ const RequestCallOut = (props) => {
     addCalloutApiCall({
       variables: {
         callout_by_email: auth?.currentSession?.session?.user.email,
-        worker_email: "antony@queensman.com", // add email client
+        property_id: state.PropertyID,
+        worker_email: "opscord@queensman.com",
         client_email: auth?.currentSession?.session?.user.email,
-        worker_id: 16,
+        worker_id: 21,
         description: state.Description,
         category,
         job_type: jobCategorySelect.value,
