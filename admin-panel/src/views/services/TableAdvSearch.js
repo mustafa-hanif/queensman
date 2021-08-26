@@ -222,7 +222,7 @@ const DataTableAdvSearch = () => {
       sortable: true,
       minWidth: '150px',
       cell: row => (
-        row?.category ? row?.job_type : "No Category"
+        row?.category ? row?.category : "No Category"
       )
     }
   ]

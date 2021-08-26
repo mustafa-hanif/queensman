@@ -152,31 +152,36 @@ const advSearchColumns = [
       name: 'Email',
       selector: 'email',
       sortable: true,
-      minWidth: '200px'
+      wrap: true,
+      minWidth: '250px'
     },
     {
       name: 'Full Name',
       selector: 'full_name',
       sortable: true,
+      wrap: true,
       minWidth: '200px'
     },
     {
       name: 'Phone',
       selector: 'phone',
       sortable: true,
-      minWidth: '200px'
+      wrap: true,
+      minWidth: '150px'
     },
     {
       name: 'Description',
       selector: 'description',
       sortable: true,
-      minWidth: '250px'
+      wrap: true,
+      minWidth: '200px'
     },
     {
         name: 'Emergency Team',
         selector: 'isEmergency',
         sortable: true,
-        minWidth: '200px',
+        wrap: true,
+        minWidth: '150px',
         cell: row => {
             return (
                 <>
@@ -189,6 +194,7 @@ const advSearchColumns = [
         name: 'Team',
         selector: 'teams',
         sortable: true,
+        wrap: true,
         minWidth: '50px',
         cell: row => {
           const color = row?.teams?.[0]?.team_color ?? row?.teams_member?.team_color
@@ -204,18 +210,16 @@ const advSearchColumns = [
       allowOverflow: true,
       cell: row => {
         return (
-                <div className="d-flex w-100 align-items-center">
-                  <ButtonGroup size="sm" >
-                  <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
-                  <Trash size={15} />
-                  </Button>
-                  <Button color='primary' className="btn-icon" size="sm">
-                  <Edit size={15} onClick={() => handleModal(row)} />
-                  </Button>
-                </ButtonGroup>
-                
-                </div>
-          
+          <div className="d-flex w-100 align-items-center">
+            <ButtonGroup size="sm" >
+            <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
+            <Trash size={15} />
+            </Button>
+            <Button color='primary' className="btn-icon" size="sm">
+            <Edit size={15} onClick={() => handleModal(row)} />
+            </Button>
+          </ButtonGroup>
+          </div>
         )
       }
     }

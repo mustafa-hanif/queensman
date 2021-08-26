@@ -12,24 +12,43 @@ const TabsVerticalLeft = ({item}) => {
     }
   }
 
-  const RowContent = ({data: prop}) => (
+  const RowContent = ({data: jobHistory}) => (
     <div>
     <div className='meetup-header d-flex align-items-center'>
-      <h5 className='mb-1'>Address: </h5> 
-      <h6 className='mb-1 ml-1'>{prop.address}</h6>
+      <h5 className='mb-1'>Status Update: </h5> 
+      <h6 className='mb-1 ml-1'>{jobHistory?.status_update}</h6>
     </div>
     <div className='meetup-header d-flex align-items-center'>
-      <h5 className='mb-1'>Country: </h5>
-      <h6 className='mb-1 ml-1'>{prop.country}</h6>
+      <h5 className='mb-1'>Updated By: </h5>
+      <h6 className='mb-1 ml-1'>{jobHistory?.updated_by}</h6>
     </div>
     <div className='meetup-header d-flex align-items-center'>
-      <h5 className='mb-1'>City: </h5>
-      <h6 className='mb-1 ml-1'>{prop.city}</h6>
+      <h5 className='mb-1'>Updated At: </h5>
+      <h6 className='mb-1 ml-1'>{moment(jobHistory?.time).format('MMMM Do YYYY, h:mm:ss a')}</h6>
     </div>
   </div>
   )
 
-  // const CollapseDefault = ({data}) => <AppCollapse data={data} type='border' />
+  const RowContentWorker = ({data: jobWorker}) => (
+    <div>
+    <div className='meetup-header d-flex align-items-center'>
+      <h5 className='mb-1'>Name: </h5> 
+      <h6 className='mb-1 ml-1'>{jobWorker?.full_name}</h6>
+    </div>
+    <div className='meetup-header d-flex align-items-center'>
+      <h5 className='mb-1'>Email: </h5>
+      <h6 className='mb-1 ml-1'>{jobWorker?.email}</h6>
+    </div>
+    <div className='meetup-header d-flex align-items-center'>
+      <h5 className='mb-1'>Team ID: </h5>
+      <h6 className='mb-1 ml-1'>{jobWorker?.team_id}</h6>
+    </div>
+  </div>
+  )
+
+  const CollapseDefault = ({ data }) => (
+    <AppCollapse data={data} type="border" />
+  )
 
   const CalloutPicture = ({picture}) => {
     return <div style={{width: "250px", margin:4}}>
@@ -38,32 +57,45 @@ const TabsVerticalLeft = ({item}) => {
   }
 
   const client = item?.client_callout_email
+  const property = item?.property
   const callout = item
+  const pre_images = item?.pre_pics
+  const post_images = item?.postpics
+  const job_history = item?.job_history
+  const job_worker = item?.job_worker
   const schedule = item?.schedulers[0]
-  const {id, notes, name, callout_id, description, type, worker_email, status, created_at } = item
-  const job_ticket = {id, notes, name, callout_id, description, type, worker_email, status, created_at }
-  // const property_owneds = item.callout.property
-  //   const prop_count = property_owneds.length
-  //   const property_owneds_modified = prop_count !== 0 ? {
-  //           title: `Property id: ${property_owneds.id} Adddress: ${property_owneds.address}`,
-  //           content: (
-  //             <RowContent data={property_owneds} count={property_owneds.length}/>
-  //           )
-  //         } : [
-  //       {
-  //       title: `No data Available`,
-  //       content: (
-  //         <div>
-  //       </div>
-  //       )
-  //     }
-  //   ]
+  // const {id, notes, name, callout_id, description, type, worker_email, status, request_time } = item
+  // const job_ticket = {id, notes, name, callout_id, description, type, worker_email, status, request_time }
+  // console.log(job_ticket)
+    const job_history_count = job_history.length
+    const job_history_modified =
+    job_history_count !== 0 ? job_history.map((jobHistory, i) => ({
+      title: `History id: ${jobHistory.id}`,
+      content: <RowContent data={jobHistory} count={job_history_count} />
+    })) : [
+      {
+        title: `No data Available`,
+        content: <div></div>
+      }
+    ]
+
+    const job_worker_count = job_worker.length
+    const job_worker_modified =
+    job_worker_count !== 0 ? job_worker.map((jobWorker, i) => ({
+      title: `Worker id: ${jobWorker.worker.id}`,
+      content: <RowContentWorker data={jobWorker.worker} count={job_worker_count} />
+    })) : [
+      {
+        title: `No data Available`,
+        content: <div></div>
+      }
+    ]
 
   const ItemValue = ({item, itemKey}) => (
     <ListGroupItem>
     <span style={{fontWeight: "bold"}}>
       {itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}: </span> 
-      { (itemKey === "request_time" || itemKey === "created_at") ? moment(item[itemKey]).format('MMMM Do YYYY, h:mm:ss a') : item[itemKey] ? item[itemKey] : "N/A"}
+      { (itemKey === "request_time") ? moment(item[itemKey]).format('MMMM Do YYYY, h:mm:ss a') : item[itemKey] ? item[itemKey] : "N/A"}
     </ListGroupItem>
   )
   return (
@@ -76,7 +108,7 @@ const TabsVerticalLeft = ({item}) => {
               toggle('1')
             }}
           >
-            Ticket Details
+            Callout Details
           </NavLink>
         </NavItem>
         <NavItem>
@@ -96,7 +128,7 @@ const TabsVerticalLeft = ({item}) => {
               toggle('3')
             }}
           >
-            Job Details
+            Job Worker
           </NavLink>
         </NavItem>
         <NavItem>
@@ -106,47 +138,53 @@ const TabsVerticalLeft = ({item}) => {
               toggle('4')
             }}
           >
+            Property Details
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            active={active === '5'}
+            onClick={() => {
+              toggle('5')
+            }}
+          >
             Scheduled Time
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            active={active === '6'}
+            onClick={() => {
+              toggle('6')
+            }}
+          >
+            Pre Images
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            active={active === '7'}
+            onClick={() => {
+              toggle('7')
+            }}
+          >
+            Post Images
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            active={active === '8'}
+            onClick={() => {
+              toggle('8')
+            }}
+          >
+            Job History
           </NavLink>
         </NavItem>
       </Nav>
       <TabContent activeTab={active}>
-        <TabPane tabId='1'>
-        <h1>Job Ticket Details</h1>
-            <ListGroup flush>
-            {job_ticket && Object.keys(job_ticket).map(itemKey => {
-              if ((![""].includes(itemKey))) {
-                if ((["notes"].includes(itemKey)) && job_ticket["notes"]?.length > 0 && job_ticket["notes"] !== "{}") {
-                  <ListGroupItem>Notes: </ListGroupItem>
-                  return job_ticket?.["notes"].map(note => (
-                  <ListGroupItem>
-                    <span style={{fontWeight: "bold"}}>Notes: </span>From: {note?.from}; Message: {note?.message}
-                  </ListGroupItem>
-                  ))
-                } else {
-                  return (
-                    <ItemValue item={job_ticket} itemKey={itemKey} />
-                )
-                }
-                  
-              }
-              })}
-            </ListGroup>
-        </TabPane>
-        <TabPane tabId='2'>
-        <h1>Client Details</h1>
-            <ListGroup flush>
-               {client && Object.keys(client).map(itemKey => {
-              if (!(["__typename"].includes(itemKey))) {
-                  return (
-                    <ItemValue item={client} itemKey={itemKey} />
-                  )
-              }
-              })}
-            </ListGroup>
-        </TabPane>
-        <TabPane tabId='3'>
-        <h1>Job Details</h1>
+      <TabPane tabId='1'>
+        <h1>Callout Details</h1>
             <ListGroup flush>
             {callout && Object.keys(callout).map(itemKey => {
               if (!(["callout_job", "client_callout_email", "job_history", "job_worker", "property", "postpics", "pre_pics", "__typename", "schedulers"].includes(itemKey))) {
@@ -170,7 +208,35 @@ const TabsVerticalLeft = ({item}) => {
               })}
             </ListGroup>
         </TabPane>
+        <TabPane tabId='2'>
+        <h1>Client Details</h1>
+            <ListGroup flush>
+               {client && Object.keys(client).map(itemKey => {
+              if (!(["__typename"].includes(itemKey))) {
+                  return (
+                    <ItemValue item={client} itemKey={itemKey} />
+                  )
+              }
+              })}
+            </ListGroup>
+        </TabPane>
+        <TabPane tabId='3'>
+        <h1>Job Worker Details</h1>
+        <CollapseDefault data={job_worker_modified} />
+        </TabPane>
         <TabPane tabId='4'>
+        <h1>Property Details</h1>
+            <ListGroup flush>
+               {property && Object.keys(property).map(itemKey => {
+              if (!(["__typename"].includes(itemKey))) {
+                  return (
+                    <ItemValue item={property} itemKey={itemKey} />
+                  )
+              }
+              })}
+            </ListGroup>
+        </TabPane>
+        <TabPane tabId='5'>
         <h1>Schedule Details</h1>
             <ListGroup flush>
             {schedule && Object.keys(schedule).map(itemKey => {
@@ -181,6 +247,22 @@ const TabsVerticalLeft = ({item}) => {
               }
               })}
             </ListGroup>
+        </TabPane>
+        <TabPane tabId='6'>
+        <h1>Pre Images</h1>
+            {pre_images && pre_images.map((preImage, i) => (
+              <CalloutPicture key={i} picture={""} />
+            ))}
+        </TabPane>
+        <TabPane tabId='7'>
+        <h1>Post Images</h1>
+        {post_images && post_images.map((postImages, i) => (
+              <CalloutPicture key={i} picture={""} />
+            ))}
+        </TabPane>
+        <TabPane tabId='8'>
+        <h1>Job History Details</h1>
+        <CollapseDefault data={job_history_modified} />
         </TabPane>
       </TabContent>
     </div>

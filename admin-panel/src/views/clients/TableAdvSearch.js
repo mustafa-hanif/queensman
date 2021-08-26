@@ -922,7 +922,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
       data.set('clientEmail', newRow.email)
       data.set('clientPassword', '0000')
   
-      fetch(url, {
+      await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

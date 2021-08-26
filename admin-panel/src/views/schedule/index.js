@@ -233,7 +233,6 @@ const REQUEST_CALLOUT = gql`
     $picture2: String
     $picture3: String
     $picture4: String
-    $request_time: timestamp
     $urgency_level: String
     $worker_id: Int
   ) {
@@ -246,7 +245,6 @@ const REQUEST_CALLOUT = gql`
             category: $category
             job_type: $job_type
             status: $status
-            request_time: $request_time
             urgency_level: $urgency_level
             picture1: $picture1
             picture2: $picture2
