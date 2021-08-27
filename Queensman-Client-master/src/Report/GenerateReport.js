@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable consistent-return */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable default-case */
@@ -9,7 +10,21 @@
 import React from "react";
 import { format, parseISO } from "date-fns";
 import { StyleSheet, View, Dimensions, Linking } from "react-native";
-import { Box, FlatList, Spinner, Text, ScrollView, Modal, Button, Divider, VStack, HStack, Icon, AlertDialog, Center } from "native-base";
+import {
+  Box,
+  FlatList,
+  Spinner,
+  Text,
+  ScrollView,
+  Modal,
+  Button,
+  Divider,
+  VStack,
+  HStack,
+  Icon,
+  AlertDialog,
+  Center,
+} from "native-base";
 
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
@@ -174,7 +189,7 @@ class GenerateReport extends React.Component {
           <Modal.Content h={400}>{this.renderReportModalContent()}</Modal.Content>
         </Modal>
         {/* background gradinet   */}
-        <LoadProperties setPropertyId={this.setPropertyId} props={this.props}/>
+        <LoadProperties setPropertyId={this.setPropertyId} props={this.props} />
         <Text style={styles.HeadingStyle}>Reports</Text>
         <Text color="white" paddingBottom={2}>
           Select the type of report to download{" "}
@@ -285,31 +300,24 @@ const LoadProperties = ({ setPropertyId, props }) => {
   });
 
   if (allProperties?.client?.[0].property_owneds.length === 0) {
-    console.log("mewo")
-    return (    
-    <Center>
-    <AlertDialog
-      isOpen={true}
-      motionPreset={"fade"}
-    >
-      <AlertDialog.Content>
-        <AlertDialog.Header fontSize="lg" fontWeight="bold">
-          No property found
-        </AlertDialog.Header>
-        <AlertDialog.Body>
-          You currently don't have any property assigned.
-        </AlertDialog.Body>
-        <AlertDialog.Footer>
-          <Button onPress={() => props.navigation.navigate("HomeNaviagtor")}>
-            Ok
-          </Button>
-        </AlertDialog.Footer>
-      </AlertDialog.Content>
-    </AlertDialog>
-  </Center>
-    )
-  };
-  return <></>
+    console.log("mewo");
+    return (
+      <Center>
+        <AlertDialog isOpen motionPreset="fade">
+          <AlertDialog.Content>
+            <AlertDialog.Header fontSize="lg" fontWeight="bold">
+              No property found
+            </AlertDialog.Header>
+            <AlertDialog.Body>You currently don't have any property assigned.</AlertDialog.Body>
+            <AlertDialog.Footer>
+              <Button onPress={() => props.navigation.navigate("HomeNaviagtor")}>Ok</Button>
+            </AlertDialog.Footer>
+          </AlertDialog.Content>
+        </AlertDialog>
+      </Center>
+    );
+  }
+  return <></>;
 };
 
 const GET_CONTRACT_COPY = gql`
