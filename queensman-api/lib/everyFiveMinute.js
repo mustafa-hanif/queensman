@@ -79,7 +79,7 @@ async function notifyTeamisComing() {
       const lastJobWorkerTime = parseJSON(`${data?.job_history[0]?.time}`);
 
       const diff = differenceInMinutes(jobTime, lastJobWorkerTime);
-      console.log(diff)
+      console.log("running late ", diff)
       if (diff >= 40 && diff <= 45) {
         await addNotification(clientEmail, 'Sorry the team is running late on the previous job. The coordinator will be in contact shortly', 'client', {});
       }
@@ -117,8 +117,8 @@ async function notifyScheduledTasks() {
       }
     }`,
     'GetPendingSchedule', {
-      _eq: addWeeks(new Date(), 2),
-    }
+    _eq: addWeeks(new Date(), 2),
+  }
   );
   for (let i = 0; i < data.scheduler.length; i++) {
     const item = data.scheduler[i];
