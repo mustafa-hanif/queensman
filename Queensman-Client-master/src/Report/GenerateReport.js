@@ -1,12 +1,4 @@
-/* eslint-disable consistent-return */
-/* eslint-disable no-nested-ternary */
-/* eslint-disable default-case */
-/* eslint-disable prefer-destructuring */
-/* eslint-disable no-console */
-/* eslint-disable react/no-access-state-in-setstate */
-/* eslint-disable camelcase */
-/* eslint-disable no-use-before-define */
-import React from "react";
+import React, { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { StyleSheet, View, Dimensions, Linking } from "react-native";
 import { Box, FlatList, Spinner, Text, ScrollView, Modal, Button, Divider, VStack, HStack, Icon, AlertDialog, Center } from "native-base";
@@ -14,33 +6,9 @@ import { Box, FlatList, Spinner, Text, ScrollView, Modal, Button, Divider, VStac
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import * as Print from "expo-print";
-import * as MediaLibrary from "expo-media-library";
-import * as Sharing from "expo-sharing";
 import { storage, auth } from "../utils/nhost";
 import { calloutTemplate } from "./pdf_template";
 
-const htmlContent = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Pdf Content</title>
-        <style>
-            body {
-                font-size: 16px;
-                color: rgb(255, 196, 0);
-            }
-            h1 {
-                text-align: center;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Hello, UppLabs!</h1>
-    </body>
-    </html>
-`;
 
 const expoFileToFormFile = (url) => {
   const localUri = url;
@@ -51,19 +19,17 @@ const expoFileToFormFile = (url) => {
   return { uri: localUri, name: filename, type };
 };
 
-const createAndSavePDF = async (html, propertyID) => {
-  console.log(propertyID);
+const createAndSavePDF = async (html, propertyID, clientName, state, setState, reportLoading) => {
   try {
+    setState({...state, reportLoading: true})
     const { uri } = await Print.printToFileAsync({ html });
     const file = expoFileToFormFile(uri);
-    console.log(file);
-    storage
-      .put(`/public/${file.name}`, file)
-      .then((fileUploaded) => {
-        console.log(fileUploaded);
-        Linking.openURL(`https://backend-8106d23e.nhost.app/storage/o/public/${file.name}`);
-      })
-      .catch(console.error);
+    let fileName = file.name
+    fileName = `${clientName}-${propertyID}-Monthly-Report.pdf`
+    console.log(fileName);
+    await storage.put(`/monthly_report/${fileName}`, file)
+    Linking.openURL(`https://backend-8106d23e.nhost.app/storage/o/monthly_report/${fileName}`);
+    setState({...state, reportLoading: false})
   } catch (error) {
     console.error(error);
   }
@@ -71,10 +37,8 @@ const createAndSavePDF = async (html, propertyID) => {
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
 
-class GenerateReport extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
+const GenerateReport = (props) => {
+    const [state, setState] = useState({
       code: "",
       value: -1,
       isReportModelVisible: false,
@@ -84,115 +48,102 @@ class GenerateReport extends React.Component {
       MarkertReportData: [],
       loading: false,
       propertyID: "",
-    };
-  }
+      reportLoading: false,
+    })
 
-  setPropertyId = (id) => {
-    this.setState({ ...this.state, propertyID: id });
+  const setPropertyId = (id) => {
+    setState({ ...state, propertyID: id });
   };
 
-  toggleReportModel = (value) => {
+  const toggleReportModel = (value) => {
     if (value === 1) {
-      this.setState({
-        isReportModelVisible: !this.state.isReportModelVisible,
+      setState({...state, 
+        isReportModelVisible: !state.isReportModelVisible,
         modeltype: true,
         value,
-        // ModelData: this.state.ManagementReportData,
       });
     } else if (value === 2) {
-      this.setState({
-        isReportModelVisible: !this.state.isReportModelVisible,
+      setState({...state, 
+        isReportModelVisible: !state.isReportModelVisible,
         modeltype: false,
         value,
-        // ModelData: this.state.MarkertReportData,
+        // ModelData: state.MarkertReportData,
       });
     } else if (value === 3) {
-      this.setState({
-        isReportModelVisible: !this.state.isReportModelVisible,
+      setState({...state, 
+        isReportModelVisible: !state.isReportModelVisible,
         modeltype: false,
         value,
-        // ModelData: this.state.MarkertReportData,
+        // ModelData: state.MarkertReportData,
       });
     }
   };
 
-  HandleMaterialwarranty = () => {
-    this.props.navigation.navigate("MaterialWarrantyReport", {
-      propertyId: this.state.propertyID,
-    });
-  };
-
-  PerfReporthandle = () => {
-    this.props.navigation.navigate("MonthlyStatsReport");
-  };
-
-  Reporthandle = async (Value) => {
-    this.setState({ loading: true });
-    this.setState({ isReportModelVisible: !this.state.isReportModelVisible });
+  const reporthandle = async (Value) => {
+    setState({...state, loading: true });
+    setState({...state, isReportModelVisible: !state.isReportModelVisible });
 
     Linking.openURL(Value);
-    this.setState({ loading: false });
+    setState({...state,loading: false });
   };
 
-  renderReportModalContent = () => (
+  const renderReportModalContent = () => (
     <Box>
-      {this.state.value === 1 ? (
+      {state.value === 1 ? (
         <Text>Property Management Reports</Text>
-      ) : this.state.value === 2 ? (
+      ) : state.value === 2 ? (
         <Text>Markert Analysis Reports</Text>
       ) : (
         <Text>Inventory Reports</Text>
       )}
       <Text mb={4}>Tap to view or download a report.</Text>
-      {this.state.value === 3 ? (
+      {state.value === 3 ? (
         <MyFlatList2
-          property_ID={this.state.propertyID}
-          setPropertyId={this.setPropertyId}
-          value={this.state.value}
-          Reporthandle={this.Reporthandle}
+          property_ID={state.propertyID}
+          setPropertyId={setPropertyId}
+          value={state.value}
+          reporthandle={reporthandle}
         />
       ) : (
         <MyFlatList
-          property_ID={this.state.propertyID}
-          setPropertyId={this.setPropertyId}
-          value={this.state.value}
-          Reporthandle={this.Reporthandle}
+          property_ID={state.propertyID}
+          setPropertyId={setPropertyId}
+          value={state.value}
+          reporthandle={reporthandle}
         />
       )}
     </Box>
   );
 
-  render() {
-    return (
-      // content as view type  and touch exit
-      <ScrollView backgroundColor="#000E1E" p={12}>
-        <Modal
-          size="full"
-          isOpen={this.state.isReportModelVisible}
-          onClose={() => this.setState({ isReportModelVisible: false })}
-        >
-          <Modal.Content h={400}>{this.renderReportModalContent()}</Modal.Content>
-        </Modal>
-        {/* background gradinet   */}
-        <LoadProperties setPropertyId={this.setPropertyId} props={this.props}/>
-        <Text style={styles.HeadingStyle}>Reports</Text>
-        <Text color="white" paddingBottom={2}>
-          Select the type of report to download{" "}
-        </Text>
+  return (
+    // content as view type  and touch exit
+    <ScrollView backgroundColor="#000E1E" p={12}>
+      <Modal
+        size="full"
+        isOpen={state.isReportModelVisible}
+        onClose={() => setState({...state, isReportModelVisible: false })}
+      >
+        <Modal.Content h={400}>{renderReportModalContent()}</Modal.Content>
+      </Modal>
+      {/* background gradinet   */}
+      <LoadProperties setPropertyId={setPropertyId} props={props}/>
+      <Text style={styles.HeadingStyle}>Reports</Text>
+      <Text color="white" paddingBottom={2}>
+        Select the type of report to download{" "}
+      </Text>
 
-        <View style={{ height: "10%" }} />
+      <View style={{ height: "10%" }} />
 
-        <View style={{ width: "100%", height: "100%" }}>
-          <GetContractCopy />
+      <View style={{ width: "100%", height: "100%" }}>
+        <GetContractCopy />
 
-          <Button mb={10} onPress={() => this.toggleReportModel(3)}>
-            Inventory Report
-          </Button>
-          <MonthlyReportPDF propertyID={this.state.propertyID} />
-        </View>
-      </ScrollView>
-    );
-  }
+        <Button mb={10} onPress={() => toggleReportModel(3)}>
+          Inventory Report
+        </Button>
+        <MonthlyReportPDF propertyID={state.propertyID} state={state} reportLoading={state.reportLoading} setState={setState} />
+      </View>
+    </ScrollView>
+  );
 }
 
 const GET_CALLOUTS = gql`
@@ -216,6 +167,7 @@ const GET_CALLOUTS = gql`
       picture4
       job_type
       status
+      description
       urgency_level
       schedule {
         date_on_calendar
@@ -229,12 +181,14 @@ const GET_CALLOUTS = gql`
         instructions
       }
       client_callout_email {
-        client_id: id
-        client_username: email
+        id
+        email
         phone
         full_name
       }
       property {
+        id
+        country
         address
         community
         city
@@ -243,12 +197,55 @@ const GET_CALLOUTS = gql`
   }
 `;
 
-const MonthlyReportPDF = ({ propertyID }) => {
+const MonthlyReportPDF = ({ propertyID, state, setState, reportLoading }) => {
   const user = auth?.currentSession?.session?.user;
+  const displayName = user?.display_name.replace(/ /g, '-')
   const email = user?.email;
   const [loadCallouts, { loading, data, error }] = useLazyQuery(GET_CALLOUTS, {
     onCompleted: (data2) => {
-      createAndSavePDF(calloutTemplate(data2.callout[0]), propertyID);
+      let years = {}
+      let months = {}
+      const groups = data2?.callout.reduce((months, callout) => {
+        const date = callout.schedule.date_on_calendar;
+        console.log(date)
+        if (!months[date]) {
+          months[date] = [];
+        }
+        months[date].push(callout);
+        return months;
+      }, {});
+
+      const dateGroups = Object.keys(groups).map((date) => {
+        return {
+          date,
+          callouts: groups[date]
+        };
+      });
+      
+    // Group by year
+    dateGroups.map(item => {
+      let yearValue = item.date.split("-")[0]
+      if(years[yearValue]) {
+        years[yearValue].push({date: item.date, callouts: item.callouts})
+      } else {
+        years[yearValue] = [{date: item.date, callouts: item.callouts}]
+      }
+    })
+      //Group by months
+    Object.keys(years).map(year => {
+      years[year].map(item => {
+          let monthValue = item.date.split("-")[1]
+          if(months[monthValue]) {
+            months[monthValue].push({date: item.date, callouts: item.callouts})
+          } else {
+            months[monthValue] = [{date: item.date, callouts: item.callouts}]
+          }
+        })
+      years[year] = months
+      months = {}
+    })
+
+      createAndSavePDF(calloutTemplate(years), propertyID, displayName, state, setState, reportLoading);
     },
   });
   // console.log(loading, data, error);
@@ -265,7 +262,7 @@ const MonthlyReportPDF = ({ propertyID }) => {
         });
       }}
     >
-      {loading ? "Loading..." : "Monthly Report"}
+      {reportLoading ? <Spinner size="sm" color="white" /> : "Monthly Report"}
     </Button>
   );
 };

@@ -1,4 +1,6 @@
-const calloutTemplate = (callout) => {
+import moment from "moment";
+const calloutTemplate = (years) => {
+  const monthArray = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   return `<!DOCTYPE html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
@@ -92,43 +94,52 @@ const calloutTemplate = (callout) => {
                   <table style="font-family: ''Roboto Condensed'',Arial,sans-serif; width: 100%;" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                     <tr>
                       <td class="sm-px-24" style="--bg-opacity: 1; background-color: #ffffff; background-color: rgba(255, 255, 255, 1); border-radius: 4px; font-family: 'Roboto Condensed', -apple-system, 'Segoe UI', sans-serif; font-size: 16px; line-height: 24px; padding: 48px; text-align: left; --text-opacity: 1; color: #000; color: rgba(0, 0, 0, var(--text-opacity));" bgcolor="rgba(255, 255, 255, 1)" align="left">
-                        <p style="font-weight: 700; font-size: 20px; margin-top: 0; --text-opacity: 1; color: #ff5850;">New Callout Created</p>
+                        <p style="font-weight: 700; font-size: 24px; margin-top: 0; --text-opacity: 1; color: #ff5850;">Monthly Report</p>
                         <p style="margin: 0 0 24px;">
-                          <p>
-                            <strong>Monthly report for:</strong><br />
-                            <p>
-                              <strong>Property Details</strong><br />
-                              Property ID: ${callout?.property?.id}<br />
-
-                              Property Address: ${callout?.property?.address}<br />
-
-                              Community: ${callout?.property?.community}<br />
-
-                              City: ${callout?.property?.city}<br />
-
-                              Country: ${callout?.property?.country}<br />
-                            </p>
-                          </p>
-                          <strong>Client Details</strong><br />
-                          Client ID: ${callout?.client_callout_email?.id}<br />
-
-                          Client Name: ${callout?.client_callout_email?.full_name}<br />
-
-                          Client Email: ${callout?.client_callout_email?.email}<br />
-
-                          Client Phone: ${callout?.client_callout_email?.phone}<br />
-</p><p>
-                          <strong>Callout Details</strong><br />
-                          Callout ID: ${callout?.id}<br />
-
-                          Job Type: Other: ${callout?.job_type}<br />
-
-                          Callout Urgency: ${callout?.urgency_level}<br />
-
-                          Description: ${callout?.description}<br />
-
+                        ${Object.keys(years).map((year,i) => (
+                          // console.log(year)
                           
+                          `
+                          <p style="font-weight: 700; font-size: 20px; margin-top: 0; --text-opacity: 1; color: #ff5850;"><strong>Monthly report for year: ${year}</strong><br />
+                              ${Object.keys(years[year]).map((month,i2) => (
+                          //     console.log(month, year)
+                          `<p style="font-weight: 700; font-size: 18px; margin-top: 0; --text-opacity: 1; color: #ff5850;"><strong>Month: ${monthArray[(parseInt(month)-1)]}</strong><br />
+                              ${years[year][month].map((item,i3) => (
+                          //     console.log(item)
+                              item.callouts.map(callout => (
+                                `
+                                <p>
+                                <strong style="font-weight: 700; font-size: 15px; margin-top: 0; --text-opacity: 1; color: #ff5850;">Date: ${moment(`${item.date} ${callout?.schedule.time_on_calendar}`).format('MMMM Do YYYY, hh:mm')}</strong><br />
+                                <strong>Callout Details</strong><br />
+                                Callout ID: ${callout?.id}<br />
+                                <strong>Callout Status: ${callout?.status}</strong><br />
+                                Job Type: Other: ${callout?.job_type}<br />
+                                Callout Urgency: ${callout?.urgency_level}<br />
+                                Description: ${callout?.description}<br />                              
+                              </p>
+                              <p>
+                                <strong>Property Details</strong><br />
+                                Property ID: ${callout?.property?.id}<br />
+                                Property Address: ${callout?.property?.address}<br />
+                                Community: ${callout?.property?.community}<br />
+                                City: ${callout?.property?.city}<br />
+                                Country: ${callout?.property?.country}<br />
+                              </p>
+                              <p>
+                                <strong>Client Details</strong><br />
+                                Client ID: ${callout?.client_callout_email?.id}<br />
+                                Client Name: ${callout?.client_callout_email?.full_name}<br />
+                                Client Email: ${callout?.client_callout_email?.email}<br />
+                                Client Phone: ${callout?.client_callout_email?.phone}<br />
+                              </p>`
+                              ))
+                              ))}`
+                              ))}`
+                        ))}
                         </p>
+                        </p>
+                        </p>
+                          
                         
                         <table style="font-family: ''Roboto Condensed'',Arial,sans-serif; width: 100%;" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                           <tr>
