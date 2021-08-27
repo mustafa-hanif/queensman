@@ -5,13 +5,14 @@ const additionalRequestEmail = async ({ callout, worker }) => {
   const params = {
     Destination: { /* required */
       CcAddresses: [
-        'murtaza.hanif@techinoviq.com', 'icemelt7@gmail.com',
-        'salmanhanif133@gmail.com'
-      /* more items */
+        'gnyahuma@queensman.com', 'aalvi@queensman.com',
+        'ffakhri@queensman.com', 'bvictor@queensman.com',
+        'murtaza.hanif@techinoviq.com', 'salman.h@techinoviq.com'
+        /* more items */
       ],
       ToAddresses: [
         'services@queensman.com',
-      /* more items */
+        /* more items */
       ]
     },
     Message: { /* required */
@@ -29,7 +30,7 @@ const additionalRequestEmail = async ({ callout, worker }) => {
     Source: 'services@queensman.com', /* required */
     ReplyToAddresses: [
       'services@queensman.com',
-    /* more items */
+      /* more items */
     ],
   };
 
