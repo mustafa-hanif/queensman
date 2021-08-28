@@ -146,7 +146,7 @@ const UPDATE_CLIENT = gql`
     $referred_by: Int
     $contract_start_date: date
     $contract_end_date: date
-    $sign_up_time: timestamp
+    $sign_up_time: timestamptz
   ) {
     update_client_by_pk(
       pk_columns: { id: $id }
@@ -335,9 +335,6 @@ const DataTableAdvSearch = () => {
         </div>
         <div className='toastify-body'>
           <ul className='list-unstyled mb-0'>
-            <li>
-              <strong>ID</strong>: {data.id}
-            </li>
             <li>
             <strong>Full name</strong>: {data.full_name}
             </li>
@@ -841,8 +838,9 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
           closeButton: false,
         }
       );
+      refetchClient()
     }).catch(err => {
-      console.log(err?.response)
+      console.log(err)
       toast.error(
         <ToastComponent
           title="Error"
@@ -901,7 +899,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
           full_name: newRow?.full_name,
           phone: newRow?.phone,
           active: newRow?.active,
-          sec_email: newRow?.sec_email.toLowerCase(),
+          sec_email: newRow?.sec_email?.toLowerCase(),
           sec_phone: newRow?.sec_phone,
           account_type: newRow?.account_type,
           referred_by: newRow?.referred_by,
@@ -909,19 +907,22 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
           contract_end_date: newRow?.contract_end_date
         },
       })
-        auth.register({
+      console.log("client added")
+        await auth.register({
           email: newRow.email,
           password: "0000", // newRow.password,
-          options: { userData: { display_name: newRow.full_name } },
+          options: { userData: { display_name: newRow.full_name }},
         });
+        console.log("client registerd")
         toast.success(<SuccessToast data={newRow} />, { hideProgressBar: true })
       
       const url = 'https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendWelcomeEmail';
       const data = new URLSearchParams()
       data.set('clientName', newRow.full_name)
       data.set('clientEmail', newRow.email)
+      data.set('clientPassword', '0000')
   
-      fetch(url, {
+      await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -930,8 +931,10 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         referrerPolicy: 'no-referrer',
         body: data.toString()
       });
+      console.log("email sent")
       setRow(null)
       if (redirect) {
+        console.log("pushing")
         history.push({pathname: '/property', state: {active: "4"}})
       }
     } catch (e) {
@@ -998,7 +1001,6 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
     const dataToFilter = () => {
       if (
         searchEmail.length ||
-        searchName.length ||
         searchOccupation.length ||
         searchOrganization.length ||
         searchPhone.length ||
@@ -1038,7 +1040,6 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
     let updatedData = [];
     const dataToFilter = () => {
       if (
-        searchEmail.length ||
         searchName.length ||
         searchOccupation.length ||
         searchOrganization.length ||
@@ -1081,7 +1082,6 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
       if (
         searchEmail.length ||
         searchName.length ||
-        searchOccupation.length ||
         searchOrganization.length ||
         searchPhone.length ||
         searchGender.length
@@ -1123,7 +1123,6 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         searchEmail.length ||
         searchName.length ||
         searchOccupation.length ||
-        searchOrganization.length ||
         searchPhone.length ||
         searchGender.length
       ) {
@@ -1165,7 +1164,6 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         searchName.length ||
         searchOccupation.length ||
         searchOrganization.length ||
-        searchPhone.length ||
         searchGender.length
       ) {
         return filteredData;
@@ -1206,8 +1204,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         searchName.length ||
         searchOccupation.length ||
         searchOrganization.length ||
-        searchPhone.length ||
-        searchGender.length
+        searchPhone.length
       ) {
         return filteredData;
       } else {
@@ -1261,7 +1258,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
                 <Label for="name">Name:</Label>
                 <Input
                   id="name"
-                  placeholder="Bruce Wayne"
+                  placeholder="Search Client Name"
                   value={searchName}
                   onChange={handleNameFilter}
                 />
@@ -1273,7 +1270,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
                 <Input
                   type="email"
                   id="email"
-                  placeholder="Bwayne@email.com"
+                  placeholder="Search Client Email"
                   value={searchEmail}
                   onChange={handleEmailFilter}
                 />
@@ -1284,7 +1281,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
                 <Label for="occupation">Occupation:</Label>
                 <Input
                   id="occupation"
-                  placeholder="Web Designer"
+                  placeholder="Search Client Occupation"
                   value={searchOccupation}
                   onChange={handleOccupationFilter}
                 />
@@ -1295,7 +1292,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
                 <Label for="organization">Organization:</Label>
                 <Input
                   id="organization"
-                  placeholder="San Diego"
+                  placeholder="Search Client Organization"
                   value={searchOrganization}
                   onChange={handleOrganizationFilter}
                 />
@@ -1306,7 +1303,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
                 <Label for="phone">Phone:</Label>
                 <Input
                   id="phone"
-                  placeholder="San Diego"
+                  placeholder="Search Client Phone"
                   value={searchPhone}
                   onChange={handlePhoneFilter}
                 />
@@ -1317,7 +1314,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
                 <Label for="gender">Gender:</Label>
                 <Input
                   id="gender"
-                  placeholder="Male"
+                  placeholder="Search Client Gender"
                   value={searchGender}
                   onChange={handleGenderFilter}
                 />

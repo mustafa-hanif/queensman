@@ -209,7 +209,7 @@ const dataToRender = () => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchCountry.length || searchCity.length || searchCommunity.length || searchAddress.length || searchPropertyId.length)  {
+        if (searchEmail.length || searchCountry.length || searchCity.length || searchCommunity.length || searchAddress.length || searchPropertyId.length)  {
         return filteredData
       } else {
         return data?.lease
@@ -239,7 +239,7 @@ const dataToRender = () => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchCountry.length || searchCity.length || searchCommunity.length || searchAddress.length || searchPropertyId.length) {
+        if (searchName.length || searchCountry.length || searchCity.length || searchCommunity.length || searchAddress.length || searchPropertyId.length) {
         return filteredData
       } else {
         return data?.lease
@@ -269,7 +269,7 @@ const dataToRender = () => {
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-          if (searchEmail.length || searchName.length || searchCountry.length || searchCity.length || searchCommunity.length || searchAddress.length || searchPropertyId.length) {
+          if (searchEmail.length || searchName.length || searchCity.length || searchCommunity.length || searchAddress.length || searchPropertyId.length) {
           return filteredData
         } else {
           return data?.lease
@@ -298,7 +298,7 @@ const dataToRender = () => {
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-          if (searchEmail.length || searchName.length || searchCountry.length || searchCity.length || searchCommunity.length || searchAddress.length || searchPropertyId.length) {
+          if (searchEmail.length || searchName.length || searchCountry.length || searchCommunity.length || searchAddress.length || searchPropertyId.length) {
           return filteredData
         } else {
           return data?.lease
@@ -326,7 +326,7 @@ const dataToRender = () => {
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-          if (searchEmail.length || searchName.length || searchCountry.length || searchCity.length || searchCommunity.length || searchAddress.length || searchPropertyId.length) {
+          if (searchEmail.length || searchName.length || searchCountry.length || searchCity.length || searchAddress.length || searchPropertyId.length) {
           return filteredData
         } else {
           return data?.lease
@@ -354,7 +354,7 @@ const dataToRender = () => {
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-          if (searchEmail.length || searchName.length || searchCountry.length || searchCity.length || searchCommunity.length || searchAddress.length || searchPropertyId.length) {
+          if (searchEmail.length || searchName.length || searchCountry.length || searchCity.length || searchCommunity.length || searchPropertyId.length) {
           return filteredData
         } else {
           return data?.lease
@@ -382,7 +382,7 @@ const dataToRender = () => {
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-          if (searchEmail.length || searchName.length || searchCountry.length || searchCity.length || searchCommunity.length || searchAddress.length || searchPropertyId.length) {
+          if (searchEmail.length || searchName.length || searchCountry.length || searchCity.length || searchCommunity.length || searchAddress.length) {
           return filteredData
         } else {
           return data?.lease

@@ -1,7 +1,7 @@
 import { useState, Fragment  } from 'react'
 import AppCollapse from '@components/app-collapse'
 import moment from "moment"
-import { TabContent, TabPane, Nav, NavItem, NavLink, ListGroup, ListGroupItem, Card, Col, Row, Button, Modal, ModalHeader, ModalBody, ModalFooter, Input  } from 'reactstrap'
+import { TabContent, TabPane, Nav, NavItem, NavLink, ListGroup, ListGroupItem, Card, Col, Row, Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Spinner  } from 'reactstrap'
 
 import { auth, storage } from "../../utility/nhost"
 import { toast } from "react-toastify"
@@ -9,7 +9,6 @@ import axios from "axios"
 import { gql, useMutation, useQuery, useLazyQuery } from "@apollo/client"
 import Avatar from "@components/avatar"
 import { Trash, Upload, XCircle, Check } from 'react-feather'
-import Spinner from 'reactstrap/lib/Spinner'
 import { DivOverlay } from 'leaflet'
 
 const MANAGEMENT_REPORT = gql`

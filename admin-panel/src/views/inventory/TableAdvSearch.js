@@ -23,7 +23,8 @@ import {
   Edit3,
   Upload,
   Loader,
-  Check
+  Check,
+  XCircle
 } from "react-feather"
 import {
   Badge,
@@ -178,11 +179,10 @@ const DataTableAdvSearch = () => {
   const [detailsModal, setDetailsModal] = useState(false)
   const [modalDetails, setModalDetails] = useState(null)
   const StatusOptions = [
-    { value: "", label: "All" },
-    { value: 0, label: "Unapproved" },
-    { value: 1, label: "Review" },
-    { value: 2, label: "Approval" },
-    { value: 3, label: "Approved" }
+    { value: "0", label: "Unapproved" },
+    { value: "1", label: "Review" },
+    { value: "2", label: "Approval" },
+    { value: "3", label: "Approved" }
 
   ]
   const toggleModal = () => {
@@ -296,7 +296,7 @@ const DataTableAdvSearch = () => {
       searchReportId.length ||
       searchInspectionBy.length ||
       searchAddress.length ||
-      searchStatus
+      searchStatus?.length
     ) {
       return filteredData
     } else {
@@ -426,9 +426,8 @@ const DataTableAdvSearch = () => {
     const dataToFilter = () => {
       if (
         searchAddress.length ||
-        searchReportId.length ||
         searchInspectionBy.length ||
-        searchStatus.length
+        searchStatus?.length
       ) {
         return filteredData
       } else {
@@ -465,8 +464,7 @@ const DataTableAdvSearch = () => {
       if (
         searchAddress.length ||
         searchReportId.length ||
-        searchInspectionBy.length ||
-        searchStatus.length
+        searchStatus?.length
       ) {
         return filteredData
       } else {
@@ -503,10 +501,9 @@ const DataTableAdvSearch = () => {
     let updatedData = []
     const dataToFilter = () => {
       if (
-        searchAddress.length ||
         searchReportId.length ||
         searchInspectionBy.length ||
-        searchStatus.length
+        searchStatus?.length
       ) {
         return filteredData
       } else {
@@ -537,27 +534,40 @@ const DataTableAdvSearch = () => {
   }
   // ** Function to handle Status filter
   const handleStatusFilter = (e) => {
-
-    const value = e.value
+    console.log(e)
+    const value = e?.value
 
     let updatedData = []
     const dataToFilter = () => {
-      return data?.inventory_report
+      if (
+        searchReportId.length ||
+        searchInspectionBy.length ||
+        searchAddress.length 
+      ) {
+        return filteredData
+      } else {
+        return data?.inventory_report
+      }
     }
 
     setsearchStatus(value)
-    if (value >= 0) {
-      updatedData = dataToFilter().filter((item) => {
-        if (item.approved === value) {
-          return item.approved
-        } else {
-          return null
-        }
+    if (parseInt(value) >= 0) {
+      updatedData = dataToFilter().filter(item => {
+        const startsWith = item?.approved?.toString().startsWith(value)
+
+        const includes = item?.approved?.toString().includes(value)
+
+        if (startsWith) {
+          return startsWith
+        } else if (!startsWith && includes) {
+          return includes
+        } else return null
       })
-      console.log(updatedData)
+
       setFilteredData([...updatedData])
       setsearchStatus(value)
     }
+
   }
   //for export data start
   //=================================
@@ -594,18 +604,28 @@ const DataTableAdvSearch = () => {
   //for export data end
   //=================================
 
+  const clearRecord = () => {
+    setSearchReportId("") 
+    setsearchAddress("")  
+    setsearchInspectionBy("")  
+    setsearchStatus(null)
+  }
 
   return (
     <Fragment>
       <Card>
         <CardHeader className="border-bottom">
           <CardTitle tag="h4">Inventory Search</CardTitle>
-          {/* <div className="d-flex mt-md-0 mt-1">
-            <Button className="ml-2" color="primary" onClick={addClientRecord}>
+          <div className="d-flex mt-md-0 mt-1">
+          { (searchReportId || searchAddress || searchInspectionBy || searchStatus) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
+              <XCircle size={15} />
+              <span className='align-middle ml-50'>Clear filter</span>
+            </Button>}
+            {/* <Button className="ml-2" color="primary" onClick={addClientRecord}>
               <Plus size={15} />
               <span className="align-middle ml-50">Add Record</span>
-            </Button>
-          </div> */}
+            </Button> */}
+          </div>
         </CardHeader>
         <CardBody>
           <Row form className="mt-1 mb-50">
@@ -653,7 +673,7 @@ const DataTableAdvSearch = () => {
                   defaultValue={searchStatus}
                   placeholder="Select Status"
                   options={StatusOptions}
-                  isClearable={false}
+                  isClearable={true}
                 />
                 {/* <option>Deferred</option>
                   <option>Additional Request</option>

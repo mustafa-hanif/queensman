@@ -95,11 +95,11 @@ const plan_email = (planArray, moment) => {
                             <p style="font-weight: 700; font-size: 20px; margin-top: 0; --text-opacity: 1; color: #ff5850;">Your plan</p>
                             <p>${planArray.map((plan,i) => (
                                 `<p> Plan ${(i+1)}
-                                <p style="font-weight: 700;">Email: <span style="font-weight: 100">${plan.email}</span></p>
-                                <p style="font-weight: 700;">Start Date: <span style="font-weight: 100">${moment(plan.date_on_calendar).format('MMMM Do YYYY')}</span></p>
-                                <p style="font-weight: 700;">End Date: <span style="font-weight: 100">${moment(plan.end_date_on_calendar).format('MMMM Do YYYY')}</span></p>
-                                <p style="font-weight: 700;">Start Time: <span style="font-weight: 100">${moment(plan.time_on_calendar, "HH:mm:ss").format('h:mm a')}</span></p>
-                                <p style="font-weight: 700;">End Time: <span style="font-weight: 100">${moment(plan.end_time_on_calendar, "HH:mm:ss").format('h:mm a')}</span></p>
+                                <span style="font-weight: 700;">Email: <span style="font-weight: 100">${plan.email}</span></span><br />
+                                <span style="font-weight: 700;">Start Date: <span style="font-weight: 100">${moment(plan.date_on_calendar).format('MMMM Do YYYY')}</span></span><br />
+                                <span style="font-weight: 700;">End Date: <span style="font-weight: 100">${moment(plan.end_date_on_calendar).format('MMMM Do YYYY')}</span></span><br />
+                                <span style="font-weight: 700;">Start Time: <span style="font-weight: 100">${moment(plan.time_on_calendar, "HH:mm:ss").format('h:mm a')}</span></span><br />
+                                <span style="font-weight: 700;">End Time: <span style="font-weight: 100">${moment(plan.end_time_on_calendar, "HH:mm:ss").format('h:mm a')}</span></span><br />
                                 </p>`
                             ))}
                             </p>

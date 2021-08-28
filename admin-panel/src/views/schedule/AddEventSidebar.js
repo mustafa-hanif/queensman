@@ -227,8 +227,7 @@ const AddEventSidebar = props => {
         // category: value[0].value, 
         category: "Uncategorized", 
         job_type: calloutJobType.value, 
-        status: "Requested",
-        request_time: new Date().toLocaleDateString(),
+        status: "Opened",
         urgency_level: "Medium",
         worker_id: workerId
         // ...pictures,

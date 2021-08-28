@@ -37,6 +37,20 @@ const ToastComponent = ({ title, icon, color }) => (
 //     )
 // })
 
+// ** Conditional Style
+const conditionalRowStyles = [
+  {
+    when: row => row?.type === "Deferred",
+    style: {
+      backgroundColor: '#4b4b4b',
+      color: 'white',
+      '&:hover': {
+        cursor: 'pointer'
+      }
+    }
+  }
+]
+
 // ** Styles
 import '@styles/react/libs/flatpickr/flatpickr.scss'
 import { gql, useMutation, useQuery } from '@apollo/client'
@@ -453,7 +467,7 @@ const DataTableAdvSearch = () => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || description.length || searchType?.length || searchCalloutId.length || searchStatus?.length) {
+      if (searchEmail.length || description.length || searchType?.length || searchCalloutId.length || searchStatus?.length) {
         return filteredData
       } else {
         return data?.job_tickets
@@ -463,9 +477,9 @@ const DataTableAdvSearch = () => {
     setSearchName(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.name?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item?.worker_email_rel?.full_name?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.name?.toLowerCase().includes(value.toLowerCase())
+        const includes = item?.worker_email_rel?.full_name?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -478,42 +492,12 @@ const DataTableAdvSearch = () => {
     }
   }
 
-  // ** Function to handle email filter
-  const handleEmailFilter = e => {
-    const value = e.target.value
-    let updatedData = []
-    const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || description.length || searchType?.length || searchCalloutId.length || searchStatus?.length) {
-        return filteredData
-      } else {
-        return data?.job_tickets
-      }
-    }
-
-    setSearchEmail(value)
-    if (value.length) {
-      updatedData = dataToFilter().filter(item => {
-        const startsWith = item.worker_email?.toLowerCase().startsWith(value.toLowerCase())
-
-        const includes = item.worker_email?.toLowerCase().includes(value.toLowerCase())
-
-        if (startsWith) {
-          return startsWith
-        } else if (!startsWith && includes) {
-          return includes
-        } else return null
-      })
-      setFilteredData([...updatedData])
-      setSearchEmail(value)
-    }
-  }
-
   // ** Function to handle Occupation filter
   const handleDescriptionFilter = e => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || description.length || searchType?.length || searchCalloutId.length || searchStatus?.length) {
+      if (searchEmail.length || searchName.length || searchType?.length || searchCalloutId.length || searchStatus?.length) {
         return filteredData
       } else {
         return data?.job_tickets
@@ -543,7 +527,7 @@ const DataTableAdvSearch = () => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || description.length || searchType?.length || searchCalloutId.length || searchStatus?.length) {
+      if (searchEmail.length || searchName.length || description.length || searchType?.length || searchStatus?.length) {
         return filteredData
       } else {
         return data?.job_tickets
@@ -568,19 +552,19 @@ const DataTableAdvSearch = () => {
     }
   }
 
-  // ** Function to handle phone filter
+  // ** Function to handle type filter
   const handleTypeFilter = e => {
 
     const value = e?.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchType?.length || searchCalloutId.length || searchStatus?.length) {
+        if (searchEmail.length || searchName.length || description.length || searchCalloutId.length || searchStatus?.length) {
          return filteredData
        } else {
       return data?.job_tickets
         }
     }
-    setSearchType(value)
+    
     if (value?.length) {
       updatedData = dataToFilter().filter(item => {
         const startsWith = item.type?.toLowerCase().startsWith(value.toLowerCase())
@@ -605,14 +589,13 @@ const DataTableAdvSearch = () => {
     const value = e?.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchType?.length || searchCalloutId.length || searchStatus?.length) {
-         return filteredData
-       } else {
-      return data?.job_tickets
-        }
-    }
+      if (searchEmail.length || searchName.length || description.length || searchCalloutId.length || searchType?.length) {
+       return filteredData
+     } else {
+    return data?.job_tickets
+      }
+  }
 
-    setSearchStatus(value)
     if (value?.length) {
       updatedData = dataToFilter().filter(item => {
         const startsWith = item.status?.toLowerCase().startsWith(value.toLowerCase())
@@ -630,6 +613,7 @@ const DataTableAdvSearch = () => {
       // console.log(filteredData)
       setSearchStatus(value)
     }
+    
   }
   //for export data start
   //=================================
@@ -699,19 +683,7 @@ const DataTableAdvSearch = () => {
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='name'>Name:</Label>
-                <Input id='name' placeholder='Bruce Wayne' value={searchName} onChange={handleNameFilter} />
-              </FormGroup>
-            </Col>
-            <Col lg='4' md='6'>
-              <FormGroup>
-                <Label for='email'>Email:</Label>
-                <Input
-                  type='email'
-                  id='email'
-                  placeholder='abc@email.com'
-                  value={searchEmail}
-                  onChange={handleEmailFilter}
-                />
+                <Input id='name' placeholder='Search Worker Name' value={searchName} onChange={handleNameFilter} />
               </FormGroup>
             </Col>
             <Col lg='4' md='6'>
@@ -776,7 +748,7 @@ const DataTableAdvSearch = () => {
         {!loading ? <DataTable
           noHeader
           pagination
-          // selectableRows
+          conditionalRowStyles={conditionalRowStyles}
           columns={advSearchColumns}
           paginationPerPage={7}
           className='react-dataTable'

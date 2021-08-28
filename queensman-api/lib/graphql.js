@@ -164,6 +164,9 @@ async function updateScheduleWithWoker({
     insert_notifications_one(object: {worker_email: $worker_email, text: "A new scheduled job has been assigned to you", type: "worker"}) {
       text
     }
+    insert_job_history_one(object: {callout_id: $callout_id, updated_by: "Admin", status_update: "Job Assigned"}) {
+      id
+    }
   }
   `,
     'UpdateSchedulerWithWorker',
@@ -238,6 +241,9 @@ async function getCallout({ callout_id }) {
         community
         city
         country
+      }
+      job_worker {
+        worker_id
       }
       request_time
     }

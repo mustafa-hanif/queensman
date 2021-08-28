@@ -1,5 +1,8 @@
-const dateFns = require('date-fns');
+const moment = require('moment');
+const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
 const calloutTemplate = (callout, worker, time) => {
+  const timeZone = 'Asia/Dubai'
+  const zonedDate = utcToZonedTime(callout.request_time, timeZone)
   const color = worker?.teams?.[0]?.team_color ?? worker?.teams_member?.team_color
   return `<!DOCTYPE html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -114,7 +117,7 @@ const calloutTemplate = (callout, worker, time) => {
 
                           Description: ${callout?.description}<br />
 
-                          Request Time: ${dateFns.format(new Date(`${callout?.request_time.split('T')[0]}T${time}`), 'MMM, dd, yyyy hh:mm:ss aa')}<br />
+                          Request Time: ${moment(zonedDate).format('MMMM Do YYYY, h:mm:ss a')}<br />
                         </p><p>
                           <strong>Property Details</strong><br />
                           Property ID: ${callout?.property?.id}<br />

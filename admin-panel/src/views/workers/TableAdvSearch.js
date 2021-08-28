@@ -54,7 +54,6 @@ query GetWorker {
       team_id
       role
       phone
-      password
       teams {
         team_color
       }
@@ -153,31 +152,36 @@ const advSearchColumns = [
       name: 'Email',
       selector: 'email',
       sortable: true,
-      minWidth: '200px'
+      wrap: true,
+      minWidth: '250px'
     },
     {
       name: 'Full Name',
       selector: 'full_name',
       sortable: true,
+      wrap: true,
       minWidth: '200px'
     },
     {
       name: 'Phone',
       selector: 'phone',
       sortable: true,
-      minWidth: '200px'
+      wrap: true,
+      minWidth: '150px'
     },
     {
       name: 'Description',
       selector: 'description',
       sortable: true,
-      minWidth: '250px'
+      wrap: true,
+      minWidth: '200px'
     },
     {
         name: 'Emergency Team',
         selector: 'isEmergency',
         sortable: true,
-        minWidth: '200px',
+        wrap: true,
+        minWidth: '150px',
         cell: row => {
             return (
                 <>
@@ -190,6 +194,7 @@ const advSearchColumns = [
         name: 'Team',
         selector: 'teams',
         sortable: true,
+        wrap: true,
         minWidth: '50px',
         cell: row => {
           const color = row?.teams?.[0]?.team_color ?? row?.teams_member?.team_color
@@ -200,40 +205,21 @@ const advSearchColumns = [
         }
       },
     {
-      name: 'Password',
-      minWidth: '150px',
-      cell: row => {
-        const [eye, setEye] = useState(true)
-        return (
-        <>
-            {row?.password !== 'null' && row?.password &&  
-            <div className='d-flex w-100 justify-content-between'>
-            {eye ? <span>{row?.password.split('').map(value => "*")}</span> : <span>{row.password}</span>}
-            {eye ? <Eye size={15} onClick={() => { setEye(!eye) }}/> : <EyeOff size={15} onClick={() => { setEye(!eye) }} />}
-            </div>
-            }
-        </>
-        )
-      }
-    },
-    {
       name: 'Actions',
       minWidth: '200px',
       allowOverflow: true,
       cell: row => {
         return (
-                <div className="d-flex w-100 align-items-center">
-                  <ButtonGroup size="sm" >
-                  <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
-                  <Trash size={15} />
-                  </Button>
-                  <Button color='primary' className="btn-icon" size="sm">
-                  <Edit size={15} onClick={() => handleModal(row)} />
-                  </Button>
-                </ButtonGroup>
-                
-                </div>
-          
+          <div className="d-flex w-100 align-items-center">
+            <ButtonGroup size="sm" >
+            <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
+            <Trash size={15} />
+            </Button>
+            <Button color='primary' className="btn-icon" size="sm">
+            <Edit size={15} onClick={() => handleModal(row)} />
+            </Button>
+          </ButtonGroup>
+          </div>
         )
       }
     }
@@ -358,10 +344,10 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchPhone.length)  {
+        if (searchEmail.length || description.length || searchPhone.length)  {
         return filteredData
       } else {
-        return data?.client
+        return data?.worker
       }
     }
 
@@ -388,10 +374,10 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchPhone.length) {
+        if (searchName.length || description.length || searchPhone.length) {
         return filteredData
       } else {
-        return data?.client
+        return data?.worker
       }
     }
 
@@ -418,10 +404,10 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchPhone.length) {
+        if (searchEmail.length || searchName.length || searchPhone.length) {
         return filteredData
       } else {
-        return data?.client
+        return data?.worker
       }
     }
 
@@ -448,10 +434,10 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchPhone.length) {
+        if (searchEmail.length || searchName.length || description.length) {
         return filteredData
       } else {
-        return data?.client
+        return data?.worker
       }
     }
 
@@ -490,7 +476,7 @@ const advSearchColumns = [
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='name'>Name:</Label>
-                <Input id='name' placeholder='Bruce Wayne' value={searchName} onChange={handleNameFilter} />
+                <Input id='name' placeholder='Search Worker Name' value={searchName} onChange={handleNameFilter} />
               </FormGroup>
             </Col>
             <Col lg='4' md='6'>
@@ -499,7 +485,7 @@ const advSearchColumns = [
                 <Input
                   type='email'
                   id='email'
-                  placeholder='Bwayne@email.com'
+                  placeholder='Search Worker Email'
                   value={searchEmail}
                   onChange={handleEmailFilter}
                 />
@@ -508,7 +494,7 @@ const advSearchColumns = [
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='occupation'>Description:</Label>
-                <Input id='occupation' placeholder='Web Designer' value={description} onChange={handleDescriptionFilter} />
+                <Input id='occupation' placeholder='Search Worker Description' value={description} onChange={handleDescriptionFilter} />
               </FormGroup>
             </Col>
             {/* <Col lg='4' md='6'>
@@ -520,7 +506,7 @@ const advSearchColumns = [
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='phone'>Phone:</Label>
-                <Input id='phone' placeholder='San Diego' value={searchPhone} onChange={handlePhoneFilter} />
+                <Input id='phone' placeholder='Search Worker Phone' value={searchPhone} onChange={handlePhoneFilter} />
               </FormGroup>
             </Col>
           </Row>

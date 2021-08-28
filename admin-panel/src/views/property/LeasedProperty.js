@@ -72,6 +72,13 @@ query GetClientLeased {
     }
   }
 `
+const UNASSIGN = gql`
+mutation Unassign($id: Int = 10, $lease_id: Int = 10) {
+  delete_lease(where: {property_id: {_eq: $id}, _and: {lease_id: {_eq: $lease_id}}}) {
+    affected_rows
+  }
+}
+`
 
 const UPDATE_PROPS = gql`
 mutation UpdateProperty($id: Int!, $address: String!, $city: String!, $community: String!, $country: String!) {
@@ -114,9 +121,10 @@ const DELETE_PROPS = gql`mutation DeleteProperty($id: Int = 10) {
 const LeasedProperty = () => {
 
         // ** States
-  const { loading, data, error } = useQuery(GET_CLIENT_PROPS)
+  const { loading, data, error, refetch: refetchProps } = useQuery(GET_CLIENT_PROPS)
   const [updateProp, {loading: propertyLoading}] = useMutation(UPDATE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
   const [addProp, {loading: addPropertyLoading}] = useMutation(ADD_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [unassignProp, {loading: unAssignpropertyLoading}] = useMutation(UNASSIGN, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
   const [addPropOwned, {loading: addPropertyOwnedLoading}] = useMutation(ADD_PROP_OWNED, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
   const [addLease, {loading: addLeaseLoading}] = useMutation(ADD_LEASE, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
   const [deleteProp, {loading: deletePropertyLoading}] = useMutation(DELETE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
@@ -138,6 +146,15 @@ const LeasedProperty = () => {
   const [lease_start_date, setLease_start_date] = useState(null)
   const [lease_end_date, setLease_end_date] = useState(null)
   let propertyOwnedData = []
+  const clearRecord = () => {
+    setSearchName("")
+    setSearchEmail("")
+    setSearchCountry("")
+    setSearchCity("")
+    setSearchCommunity("")
+    setSearchAddress("")
+    setSearchPropertyId("")
+  }
 
   const [modalAlert, setModalAlert] = useState(null)
 
@@ -233,19 +250,46 @@ const advSearchColumns = [
       }
   }
 
-  const handleUpdate = (updatedRow) => {
-    updateProp({variables: {
-        id: updatedRow.id,
-        city: updatedRow.city,
-        community: updatedRow.community,
-        address: updatedRow.address,
-        country: updatedRow.country
+  const handleUpdate = async (updatedRow, assigned, data) => {
+    try {
+      if (assigned) {
+        await unassignProp({variables: {
+          id: updatedRow.id,
+          lease_id: data.id 
         }})
-      dataToRender()
-      if (!propertyLoading) {
-        // setModal(!modal)
       }
+      await updateProp({variables: {
+          id: updatedRow.id,
+          city: updatedRow.city,
+          community: updatedRow.community,
+          address: updatedRow.address,
+          country: updatedRow.country
+          }})
+          clearRecord()
+          refetchProps()
+      toast.success(
+        <ToastComponent title="Property Updated" color="success" icon={<Check />} />,
+        {
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeButton: false
+        }
+      )
+    } catch (e) {
+      console.log(e)
+      toast.error(
+        <ToastComponent title="Error updating property" color="danger" icon={<XCircle />} />,
+        {
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeButton: false
+        }
+      )
+    }
+    
+      dataToRender()
   }
+
 
   const addPropertyRecord = () => {
     setToAddNewRecord(true)
@@ -342,7 +386,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+      if (searchEmail.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
         return filteredData
       } else {
         return propertyOwnedData
@@ -372,7 +416,7 @@ const advSearchColumns = [
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+      if (searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
         return filteredData
       } else {
         return propertyOwnedData
@@ -402,7 +446,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+        if (searchEmail.length || searchName.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
           return filteredData
         } else {
           return propertyOwnedData
@@ -431,7 +475,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchAddress.length || searchCommunity.length) {
           return filteredData
         } else {
           return propertyOwnedData
@@ -459,7 +503,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length) {
           return filteredData
         } else {
           return propertyOwnedData
@@ -487,7 +531,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+        if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchCommunity.length) {
           return filteredData
         } else {
           return propertyOwnedData
@@ -515,7 +559,7 @@ const advSearchColumns = [
       const value = e.target.value
       let updatedData = []
       const dataToFilter = () => {
-          if (searchEmail.length || searchName.length || searchCountry.length || searchPropertyId.length || searchCity.length || searchAddress.length || searchCommunity.length) {
+          if (searchEmail.length || searchName.length || searchCountry.length || searchCity.length || searchAddress.length || searchCommunity.length) {
           return filteredData
         } else {
           return propertyOwnedData
@@ -537,16 +581,6 @@ const advSearchColumns = [
         setFilteredData([...updatedData])
         setSearchPropertyId(value)
       }
-    }
-
-    const clearRecord = () => {
-      setSearchName("")
-      setSearchEmail("")
-      setSearchCountry("")
-      setSearchCity("")
-      setSearchCommunity("")
-      setSearchAddress("")
-      setSearchPropertyId("")
     }
 
   return (

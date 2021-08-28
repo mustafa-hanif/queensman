@@ -1,6 +1,8 @@
-import moment from "moment";
-const calloutTemplate = (years) => {
-  const monthArray = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const moment = require('moment');
+const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
+const additional_request_email = (callout, worker) => {
+    const timeZone = 'Asia/Dubai'
+    const zonedDate = utcToZonedTime(callout.request_time, timeZone)
   return `<!DOCTYPE html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
@@ -16,7 +18,7 @@ const calloutTemplate = (years) => {
       td,th,div,p,a,h1,h2,h3,h4,h5,h6 {font-family: "Segoe UI", sans-serif; mso-line-height-rule: exactly;}
     </style>
   <![endif]-->
-    <title>New Callout Created</title>
+    <title>New Additional Request</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700" rel="stylesheet" media="screen">
     <style>
       .hover-underline:hover {
@@ -94,52 +96,54 @@ const calloutTemplate = (years) => {
                   <table style="font-family: ''Roboto Condensed'',Arial,sans-serif; width: 100%;" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                     <tr>
                       <td class="sm-px-24" style="--bg-opacity: 1; background-color: #ffffff; background-color: rgba(255, 255, 255, 1); border-radius: 4px; font-family: 'Roboto Condensed', -apple-system, 'Segoe UI', sans-serif; font-size: 16px; line-height: 24px; padding: 48px; text-align: left; --text-opacity: 1; color: #000; color: rgba(0, 0, 0, var(--text-opacity));" bgcolor="rgba(255, 255, 255, 1)" align="left">
-                        <p style="font-weight: 700; font-size: 24px; margin-top: 0; --text-opacity: 1; color: #ff5850;">Monthly Report</p>
+                        <p style="font-weight: 700; font-size: 20px; margin-top: 0; --text-opacity: 1; color: #ff5850;">New Additional Request Created</p>
                         <p style="margin: 0 0 24px;">
-                        ${Object.keys(years).map((year,i) => (
-                          // console.log(year)
-                          
-                          `
-                          <p style="font-weight: 700; font-size: 20px; margin-top: 0; --text-opacity: 1; color: #ff5850;"><strong>Monthly report for year: ${year}</strong><br />
-                              ${Object.keys(years[year]).map((month,i2) => (
-                          //     console.log(month, year)
-                          `<p style="font-weight: 700; font-size: 18px; margin-top: 0; --text-opacity: 1; color: #ff5850;"><strong>Month: ${monthArray[(parseInt(month)-1)]}</strong><br />
-                              ${years[year][month].map((item,i3) => (
-                          //     console.log(item)
-                              item.callouts.map(callout => (
-                                `
-                                <p>
-                                <strong style="font-weight: 700; font-size: 15px; margin-top: 0; --text-opacity: 1; color: #ff5850;">Date: ${moment(`${item.date} ${callout?.schedule.time_on_calendar}`).format('MMMM Do YYYY, hh:mm')}</strong><br />
-                                <strong>Callout Details</strong><br />
-                                Callout ID: ${callout?.id}<br />
-                                <strong>Callout Status: ${callout?.status}</strong><br />
-                                Job Type: Other: ${callout?.job_type}<br />
-                                Callout Urgency: ${callout?.urgency_level}<br />
-                                Description: ${callout?.description}<br />                              
-                              </p>
-                              <p>
-                                <strong>Property Details</strong><br />
-                                Property ID: ${callout?.property?.id}<br />
-                                Property Address: ${callout?.property?.address}<br />
-                                Community: ${callout?.property?.community}<br />
-                                City: ${callout?.property?.city}<br />
-                                Country: ${callout?.property?.country}<br />
-                              </p>
-                              <p>
-                                <strong>Client Details</strong><br />
-                                Client ID: ${callout?.client_callout_email?.id}<br />
-                                Client Name: ${callout?.client_callout_email?.full_name}<br />
-                                Client Email: ${callout?.client_callout_email?.email}<br />
-                                Client Phone: ${callout?.client_callout_email?.phone}<br />
-                              </p>`
-                              ))
-                              ))}`
-                              ))}`
-                        ))}
+                          <strong>Client Details</strong><br />
+                          Client ID: ${callout?.client_callout_email?.id}<br />
+
+                          Client Name: ${callout?.client_callout_email?.full_name}<br />
+
+                          Client Email: ${callout?.client_callout_email?.email}<br />
+
+                          Client Phone: ${callout?.client_callout_email?.phone}<br />
+</p><p>
+                          <strong>Additional Request Details</strong><br />
+                          Callout ID: ${callout?.id}<br />
+
+                          Job Type: Other: ${callout?.job_type}<br />
+
+                          Urgency: ${callout?.urgency_level}<br />
+
+                          Description: ${callout?.description}<br />
+
+                          Request Time: ${moment(zonedDate).format('MMMM Do YYYY, h:mm:ss a')}<br />
+                        </p><p>
+                          <strong>Property Details</strong><br />
+                          Property ID: ${callout?.property?.id}<br />
+
+                          Property Address: ${callout?.property?.address}<br />
+
+                          Community: ${callout?.property?.community}<br />
+
+                          City: ${callout?.property?.city}<br />
+
+                          Country: ${callout?.property?.country}<br />
                         </p>
-                        </p>
-                        </p>
-                          
+                        <p>
+                        <strong>Assigned to Team Details</strong><br />
+                        Team Name: ${worker?.full_name}<br />
+
+                        Team phone: ${worker?.phone}<br />
+
+                      </p>
+                        <!-- <a href="https://pixinvent.com?reset_password_url" style="display: block; font-size: 14px; line-height: 100%; margin-bottom: 24px; --text-opacity: 1; color: #ecc65d; color: rgba(115, 103, 240, var(--text-opacity)); text-decoration: none;">https://pixinvent.com?reset_password_url</a> -->
+                        <!-- <table style="font-family: ''Roboto Condensed'',Arial,sans-serif;" cellpadding="0" cellspacing="0" role="presentation">
+                          <tr>
+                            <td style="mso-padding-alt: 16px 24px; --bg-opacity: 1; background-color: #ecc65d; background-color: rgba(115, 103, 240, 1); border-radius: 4px; font-family: 'Roboto Condensed', -apple-system, 'Segoe UI', sans-serif;" bgcolor="rgba(115, 103, 240, 1)">
+                              <a href="https://pixinvent.com?reset_password_url" style="display: block; font-weight: 600; font-size: 14px; line-height: 100%; padding: 16px 24px; --text-opacity: 1; color: #ffffff; color: rgba(255, 255, 255, var(--text-opacity)); text-decoration: none;">Reset Password &rarr;</a>
+                            </td>
+                          </tr>
+                        </table> -->
                         
                         <table style="font-family: ''Roboto Condensed'',Arial,sans-serif; width: 100%;" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                           <tr>
@@ -148,6 +152,10 @@ const calloutTemplate = (years) => {
                             </td>
                           </tr>
                         </table>
+                        <p style="margin: 0 0 16px;">
+                          Not sure why you received this email? Please
+                          <a href="mailto:services@queensman.com" class="hover-underline" style="--text-opacity: 1; color: #ecc65d; color: rgba(115, 103, 240, var(--text-opacity)); text-decoration: none;">let us know</a>.
+                        </p>
                         <p style="margin: 0 0 16px;">Thanks, <br>The Queensman Team</p>
                       </td>
                     </tr>
@@ -167,7 +175,7 @@ const calloutTemplate = (years) => {
     </div>
   </body>
 
-</html>`;
-};
+</html>`
+}
 
-module.exports = { calloutTemplate };
+module.exports = { additional_request_email };

@@ -388,23 +388,23 @@ const HomeScreen = ({ navigation }) => {
   // console.log(clientStatus?.client?.[0]?.active);
   // console.log({ email2 }, error, notificationError, clientError, loading, clientLoading, loadingNotification);
   return (
-    <Box display="flex" h="100%" backgroundColor="#111827">
-      <View style={{ marginLeft: "auto", marginRight: "auto", backgroundColor: "#111827", height: "100%" }}>
-        {clientStatus?.client?.[0]?.active &&
-          clientStatus?.client?.[0]?.active != 1 &&
-          !clientLoading &&
-          !loadingNotification &&
-          !loading && <IsActive />}
-        <View style={styles.Name}>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-              <Image alt="pic" source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }} />
+    <View style={{ backgroundColor: "#111827", height: "100%" }}>
+      {clientStatus?.client?.[0]?.active != 1 && !clientLoading && !loadingNotification && !loading && <IsActive />}
+      <View style={styles.Name}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+            <Image alt="pic" source={require("../../assets/Home/menu.png")} style={{ height: 25, width: 25 }} />
+          </TouchableOpacity>
+          <Text style={{ color: "white", fontWeight: "bold", fontSize: 12 }}>{email2}</Text>
+          <View style={{ flexDirection: "row" }}>
+            <TouchableOpacity onPress={() => AlertLogout(navigation)}>
+              <Icon as={Ionicons} name="power" style={{ fontSize: 25, color: "#FFCA5D" }} />
             </TouchableOpacity>
             <Text style={{ color: "white", fontWeight: "bold", fontSize: 12 }}>{email2}</Text>
             <View style={{ flexDirection: "row" }}>
@@ -506,7 +506,7 @@ const HomeScreen = ({ navigation }) => {
           All rights reserved © 2021 - Queensman
         </Text>
       </View>
-    </Box>
+    </View>
   );
 };
 

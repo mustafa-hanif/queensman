@@ -83,7 +83,7 @@ const TabsVerticalLeft = ({ item }) => {
     <ListGroupItem>
       <span style={{ fontWeight: "bold" }}>
         {itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}: </span>
-      {item[itemKey] ? item[itemKey] : "N/A"}
+      {itemKey === "sign_up_time" ? moment(item[itemKey]).format('MMMM Do YYYY, h:mm:ss a') : item[itemKey] ? item[itemKey] : "N/A"}
     </ListGroupItem>
   )
 
@@ -127,7 +127,7 @@ const TabsVerticalLeft = ({ item }) => {
           <h5>Client Details</h5>
           <ListGroup flush>
             {item && Object.keys(item).map((itemKey) => {
-              if (!["documents", "property_owneds", "hasPlan", "leases"].includes(itemKey)) {
+              if (!["documents", "property_owneds", "hasPlan", "leases", "__typename"].includes(itemKey)) {
                 return (
                   <ItemValue item={item} itemKey={itemKey} />
                 )
