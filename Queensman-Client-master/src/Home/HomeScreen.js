@@ -390,10 +390,7 @@ const HomeScreen = ({ navigation }) => {
   // console.log({ email2 }, error, notificationError, clientError, loading, clientLoading, loadingNotification);
   return (
     <View style={{ backgroundColor: "#111827", height: "100%" }}>
-      { clientStatus?.client?.[0]?.active != 1 &&
-        !clientLoading &&
-        !loadingNotification &&
-        !loading && <IsActive />}
+      {clientStatus?.client?.[0]?.active != 1 && !clientLoading && !loadingNotification && !loading && <IsActive />}
       <View style={styles.Name}>
         <View
           style={{
