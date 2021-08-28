@@ -1,13 +1,15 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable camelcase */
 /* eslint-disable no-unreachable */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-use-before-define */
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Modal, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { Calendar, CalendarList, Agenda } from "react-native-calendars";
-import { Box, Button } from "native-base";
+import { Box, Button, Modal } from "native-base";
 import moment from "moment";
-import DateTimePicker from "@react-native-community/datetimepicker";
+// import DateTimePicker from "@react-native-community/datetimepicker";
+import { format, parseISO, parse, differenceInHours } from "date-fns";
 
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 
@@ -58,7 +60,6 @@ const REQUEST_CALLOUT = gql`
     $picture3: String
     $picture4: String
     $video: String
-    $request_time: timestamp
     $urgency_level: String
   ) {
     insert_scheduler_one(
@@ -70,7 +71,6 @@ const REQUEST_CALLOUT = gql`
             category: $category
             job_type: $job_type
             status: $status
-            request_time: $request_time
             urgency_level: $urgency_level
             description: $notes
             picture1: $picture1
@@ -128,6 +128,14 @@ export default function SelectSchedule(props) {
   const [requestCalloutApiCall, { loading: requestCalloutLoading, data }] =
     useMutation(REQUEST_CALLOUT, {
       onCompleted: (data) => {
+        console.log({
+          callout_id: data?.insert_scheduler_one?.callout_id,
+          scheduler_id: data?.insert_scheduler_one?.id,
+          notes: state.Description,
+          client_email,
+          worker_id,
+          worker_email
+        });
         addJobTicket({variables: {
           callout_id: data?.insert_scheduler_one?.callout_id,
           scheduler_id: data?.insert_scheduler_one?.id,
@@ -152,16 +160,16 @@ export default function SelectSchedule(props) {
     setmarkedDate(mark);
   };
 
-  const onChange = (event, selectedDate) => {
-    if (selectedDate === undefined) {
-      setShow(false);
-      return;
-    }
-    setDate(selectedDate);
-    const currentTime = moment(selectedDate).format("hh:mm a");
-    settime(currentTime);
-    onConfirmTime();
-  };
+  // const onChange = (event, selectedDate) => {
+  //   if (selectedDate === undefined) {
+  //     setShow(false);
+  //     return;
+  //   }
+  //   setDate(selectedDate);
+  //   const currentTime = moment(selectedDate).format("hh:mm a");
+  //   settime(currentTime);
+  //   onConfirmTime();
+  // };
 
   const onConfirmTime = () => {
     setShow(false);
@@ -215,13 +223,13 @@ export default function SelectSchedule(props) {
           category,
           job_type: props.navigation.getParam("JobType", {}),
           status: "Requested",
-          request_time: new Date().toLocaleDateString(),
           urgency_level: "Medium",
           video: state.videoUrl,
           ...pictures,
         },
       })
         .then((res) => {
+          settime(null);
           props.navigation.navigate("Home");
           setTimeout(() => {
             SubmittedCalloutAlert();
@@ -247,74 +255,71 @@ export default function SelectSchedule(props) {
   // console.log({ markedDate });
 
   const Confirmmodal = () => {
+    if (!time) {
+      return null;
+    }
     return (
-      <Modal animationType="slide" transparent visible={modalVisible}>
-        <View style={{ flex: 1 }}>
-          <TouchableOpacity activeOpacity={1} onPress={() => setmodalVisible(false)} style={{ flex: 1 }} />
-          <View
-            style={{
-              backgroundColor: "white",
-              borderColor: "#cccccc",
-              borderWidth: 0.2,
-              borderTopEndRadius: 12,
-              borderTopLeftRadius: 12,
-              padding: 35,
-            }}
-          >
-            <Text style={{ ...styles.heading }}>Schedule the service for</Text>
-            <Text style={{ ...styles.heading }}>
-              {moment(selectedDate).format("Do MMMM, YYYY")} at {time}
-            </Text>
-            <Button
-              onPress={() => onConfirmButtonPress()}
-              style={{ backgroundColor: colors.buttonPrimaryBg, marginVertical: 20 }}
-              block
-            >
-              <Text style={{ fontWeight: "bold", fontSize: 18 }}>Confirm</Text>
-            </Button>
-          </View>
-        </View>
+      <Modal isOpen={time} onClose={() => settime(null)}>
+        <Modal.Content justifyContent="center" pr={4}>
+          <Text style={{ ...styles.heading }}>Schedule the service for</Text>
+          <Text style={{ ...styles.heading }}>
+            {moment(selectedDate).format("Do MMMM, YYYY")} at {format(parse(time, "HH:mm:ss", new Date()), "hh:mm aa")}
+          </Text>
+          <Button onPress={() => onConfirmButtonPress()} width={200} mx="auto" mt={4} mb={4}>
+            <Text style={{ fontWeight: "bold", fontSize: 18 }}>Confirm</Text>
+          </Button>
+        </Modal.Content>
       </Modal>
     );
   };
 
-  const getMarkedDates = () => {
-    const disable = {
-      // selected: true,
-      selectedColor: colors.buttonDisabledBg,
-      disabled: true,
-      disableTouchEvent: true,
-      activeOpacity: 0.1,
-    };
+  // eslint-disable-next-line prefer-const
+  let slots = [];
+  for (let i = 0; i < 4; i += 1) {
+    slots.push({
+      time: `${`${i * 2 + 9}`.padStart(2, 0)}:00:00`,
+      text: `${`${(i * 2 + 9) % 12}`.padStart(2, 0)}:00 to ${((i + 1) * 2 + 9) % 12}:00`,
+    });
+  }
+  (data?.scheduler ?? []).forEach((element) => {
+    const timeOnCalender = parseISO(`${element.start}T${element.startTime}`);
+    slots = slots.map((slot) => {
+      const timeOnSlot = parseISO(`${selectedDate}T${slot.time}`);
+      if (element.blocked) {
+        const diff = differenceInHours(timeOnSlot, timeOnCalender);
+        if (diff === 0 || diff === 1) {
+          return { ...slot, disabled: true };
+        }
+      }
+      return slot;
+    });
 
-    const markedDates = {};
-    // data.scheduler.forEach((element) => {
-    //   markedDates[element.start] = disable;
-    // });
-    // console.log(markedDates);
+    // console.log(element.start, element.startTime, element.blocked);
+  });
 
-    return markedDates;
+  const selectSlot = (time) => {
+    setmarkedDate(false);
+    settime(time);
   };
 
   const onDayPress = (day) => {
-    console.log({ day });
     setselectedDate(day.dateString);
-    setMarkedDATE(day.dateString);
+    setmarkedDate({ date: day.dateString });
     setShow(true);
   };
 
-  console.log({ show });
+  // console.log({ show });
 
-  const dateComponent = React.useMemo(() => {
-    return show && <DateTimePicker
-      value={date}
-      mode="time" 
-      is24Hour={false} 
-      display="default" 
-      disabled={!show}
-      onChange={onChange} 
-    />
-  }, [show]);
+  // const dateComponent = React.useMemo(() => {
+  //   return show && <DateTimePicker
+  //     value={date}
+  //     mode="time" 
+  //     is24Hour={false} 
+  //     display="default" 
+  //     disabled={!show}
+  //     onChange={onChange} 
+  //   />
+  // }, [show]);
 
   if (requestCalloutLoading) {
     return (
@@ -330,7 +335,7 @@ export default function SelectSchedule(props) {
         <CalendarList
           minDate={Date.now()}
           pastScrollRange={0}
-          markedDates={getMarkedDates()}
+          // markedDates={getMarkedDates()}
           onDayPress={onDayPress}
           hideArrows
           hideExtraDays
@@ -361,28 +366,29 @@ export default function SelectSchedule(props) {
         />
       </View>
       <Confirmmodal />
-      {dateComponent}
-      {time && <Modal animationType="slide" transparent visible={time}>
-        <View style={{ backgroundColor: 'white', width:'100%', borderTopColor: "black",
-    borderTopWidth: StyleSheet.hairlineWidth, height: 220, flex: 0.25, position: 'absolute', bottom: 0 }}>
-        {/* <DateTimePicker 
-          value={date}
-          mode="time" 
-          is24Hour={false} 
-          display="spinner" 
-          onChange={onChange} 
-        /> */}
-        <Box pt={4}>
-          <Button onPress={onConfirmTime}>Confirm Time</Button>
-        </Box>
-        </View>
-      </Modal>
-      }
+      <Modal isOpen={markedDate} onClose={() => setmarkedDate(false)}>
+          <Modal.Content>
+            <Box pt={4} pr={6}>
+              {slots.map((slot) => (
+                <Button
+                  key={slot.time}
+                  mb={8}
+                  mx="auto"
+                  width={240}
+                  isDisabled={slot.disabled}
+                  onPress={() => selectSlot(slot.time)}
+                >
+                  {slot.text}
+                </Button>
+              ))}
+            </Box>
+          </Modal.Content>
+        </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   textStyle: { fontSize: 18, fontWeight: "bold", paddingTop: 10, paddingBottom: 10, color: "#5E60CE", paddingRight: 5 },
-  heading: { fontSize: 18, alignSelf: "center" },
+  heading: { fontSize: 18, alignSelf: "center", color: "white" },
 });
