@@ -230,14 +230,15 @@ const MonthlyReportPDF = ({ propertyID, state, setState, reportLoading }) => {
     onCompleted: (data2) => {
       const years = {};
       let months = {};
-      const groups = data2?.callout.reduce((months, callout) => {
+      const groups = data2?.callout.reduce((months2, callout) => {
         const date = callout.schedule.date_on_calendar;
         console.log(date);
-        if (!months[date]) {
-          months[date] = [];
+        if (!months2[date]) {
+          // eslint-disable-next-line no-param-reassign
+          months2[date] = [];
         }
-        months[date].push(callout);
-        return months;
+        months2[date].push(callout);
+        return months2;
       }, {});
 
       const dateGroups = Object.keys(groups).map((date) => {
