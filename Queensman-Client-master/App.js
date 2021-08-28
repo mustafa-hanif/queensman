@@ -9,7 +9,7 @@ import React, { PureComponent } from "react";
 import { Text, View, SafeAreaView, Image, TouchableOpacity, Linking } from "react-native";
 import { Icon, Box, NativeBaseProvider, extendTheme } from "native-base";
 import AppLoading from "expo-app-loading";
-import * as Font from "expo-font";
+// import * as Font from "expo-font";
 import { Asset } from "expo-asset";
 
 import { NhostApolloProvider } from "@nhost/react-apollo";
@@ -17,7 +17,7 @@ import { NhostAuthProvider } from "@nhost/react-auth";
 import { auth } from "./src/utils/nhost";
 
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItem, DrawerItemList } from "@react-navigation/drawer";
 
 // Classes import
@@ -36,7 +36,6 @@ import CalloutHistory from "./src/CallOut/CalloutHistory";
 import OngoingCallout from "./src/CallOut/OngoingCallout";
 import OngoingCalloutItem from "./src/CallOut/CallotComponent/OngoingCalloutItem";
 import CallOutHistoryItem from "./src/CallOut/CallotComponent/CallOutHistoryItem";
-import SignupChangePassword from "./src/Login/SignupChangePassword";
 import PinVerfication from "./src/Auth/PinVerfication";
 import SignupContectUs from "./src/Login/SignupContectUs";
 import SettingPasswordChange from "./src/Component/SettingPasswordChange";
@@ -97,14 +96,14 @@ export default class App extends PureComponent {
   }
 }
 
-async function FontLoad() {
-  await Font.loadAsync({
-    "Helvetica-Bold": require("./assets/Fonts/Helvetica-Bold.ttf"),
-    Helvetica: require("./assets/Fonts/Helvetica.ttf"),
-    "helvetica-rounded-bold": require("./assets/Fonts/helvetica-rounded-bold-5871d05ead8de.otf"),
-    "Helvetica-Oblique": require("./assets/Fonts/Helvetica-Oblique.ttf"),
-  });
-}
+// async function FontLoad() {
+//   await Font.loadAsync({
+//     "Helvetica-Bold": require("./assets/Fonts/Helvetica-Bold.ttf"),
+//     Helvetica: require("./assets/Fonts/Helvetica.ttf"),
+//     "helvetica-rounded-bold": require("./assets/Fonts/helvetica-rounded-bold-5871d05ead8de.otf"),
+//     "Helvetica-Oblique": require("./assets/Fonts/Helvetica-Oblique.ttf"),
+//   });
+// }
 
 async function _cacheResourcesAsync() {
   const images = [
@@ -123,13 +122,13 @@ async function _cacheResourcesAsync() {
     require("./assets/Home/pendingHome.png"),
     require("./assets/Home/reportHome.png"),
   ];
-  FontLoad();
-  await Font.loadAsync({
-    "Helvetica-Bold": require("./assets/Fonts/Helvetica-Bold.ttf"),
-    Helvetica: require("./assets/Fonts/Helvetica.ttf"),
-    "helvetica-rounded-bold": require("./assets/Fonts/helvetica-rounded-bold-5871d05ead8de.otf"),
-    "Helvetica-Oblique": require("./assets/Fonts/Helvetica-Oblique.ttf"),
-  });
+  // FontLoad();
+  // await Font.loadAsync({
+  //   "Helvetica-Bold": require("./assets/Fonts/Helvetica-Bold.ttf"),
+  //   Helvetica: require("./assets/Fonts/Helvetica.ttf"),
+  //   "helvetica-rounded-bold": require("./assets/Fonts/helvetica-rounded-bold-5871d05ead8de.otf"),
+  //   "Helvetica-Oblique": require("./assets/Fonts/Helvetica-Oblique.ttf"),
+  // });
 
   const cacheImages = images.map((image) => {
     return Asset.fromModule(image).downloadAsync();
@@ -138,13 +137,12 @@ async function _cacheResourcesAsync() {
 }
 
 /** Login Screen */
-const LoginStack = createNativeStackNavigator();
+const LoginStack = createStackNavigator();
 const LoginStackNavigator = () => {
   return (
     <LoginStack.Navigator screenOptions={{ headerShown: false }}>
       <LoginStack.Screen name="LoginScreen" component={LoginScreen} />
       <LoginStack.Screen name="PinVerify" component={PinVerfication} />
-      <LoginStack.Screen name="SignUpChangePass" component={SignupChangePassword} />
       <LoginStack.Screen name="SignUpContectUs" component={SignupContectUs} />
       <LoginStack.Screen name="SelectProperty" component={PropertyDetails} />
       <LoginStack.Screen name="ForgotPassword" component={ForgotPassword} />
@@ -152,56 +150,11 @@ const LoginStackNavigator = () => {
   );
 };
 
-/** Setting Screen */
-const SettingStack = createNativeStackNavigator();
-const SettingStackNavigator = () => {
-  return (
-    <SettingStack.Navigator>
-      <SettingStack.Screen name="Settings" component={Settings} />
-      <SettingStack.Screen name="SettingPasswordChange" component={SettingPasswordChange} />
-    </SettingStack.Navigator>
-  );
-};
-// const SettingStackNavigator = createStackNavigator(
-//   {
-//     Settings: {
-//       screen: Settings,
-//       navigationOptions: ({ navigation }) => ({
-//         title: "Settings",
-//         headerTransparent: true,
-//         headerTitleStyle: {
-//           fontFamily: "Helvetica",
-//         },
-//         headerLeft: (
-//           <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-//             <View style={{ flexDirection: "row" }}>
-//               <Text> </Text>
-//               <Icon name="arrow-back" style={{ fontSize: 24, color: "#000" }} />
-//             </View>
-//           </TouchableOpacity>
-//         ),
-//       }),
-//     },
-//     SettingPasswordChange: {
-//       screen: SettingPasswordChange,
-//       navigationOptions: ({ navigation }) => ({
-//         headerTintColor: "#fff",
-//         headerTransparent: true,
-//       }),
-//     },
-//   },
-//   {
-//     initialRouteName: "Settings",
-//     // transitionConfig: () => fromTop(500),
-//   }
-// );
-// createAppContainer(SettingStackNavigator);
-
 /** HomeScreen Stack Naviagtor */
-const HomeScreenStack = createNativeStackNavigator();
+const HomeScreenStack = createStackNavigator();
 const HomeScreenStackNavigator = () => {
   return (
-    <HomeScreenStack.Navigator>
+    <HomeScreenStack.Navigator linking={{ enabled: true }}>
       <HomeScreenStack.Screen options={{ headerShown: false }} name="HomeNaviagtor" component={HomeScreen} />
       <HomeScreenStack.Screen options={{ title: "Notifications" }} name="Notification" component={Notification} />
       <HomeScreenStack.Screen name="VideoScreen" component={VideoScreen} />
@@ -271,7 +224,7 @@ const HomeScreenStackNavigator = () => {
 //         headerTransparent: true,
 //         headerTintColor: "#FFCA5D",
 //         headerTitleStyle: {
-//           fontFamily: "Helvetica",
+//           
 //         },
 //       }),
 //     },
@@ -432,7 +385,7 @@ const CustomDrawerComponent = (props) => (
 //     contentOptions: {
 //       activeTintColor: "#FFCA5D",
 //       labelStyle: {
-//         fontFamily: "Helvetica",
+//         
 //         fontWeight: "300",
 //       },
 //     },
@@ -461,11 +414,11 @@ const AppDrawerNavigator = () => {
 };
 
 /** App start Switch navigator */
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 const AppContainer = () => {
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={{ enabled: true }}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {/* <Stack.Screen name="AuthLogin" component={AuthLoginCheck} /> */}
         <Stack.Screen name="Login" component={LoginStackNavigator} />

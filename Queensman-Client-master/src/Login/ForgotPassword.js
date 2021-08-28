@@ -91,7 +91,7 @@ export default class ForgotPassword extends React.Component {
           style={{
             color: "#fff",
             fontSize: 15,
-            fontFamily: "Helvetica",
+            
             paddingBottom: "10%",
           }}
         >
@@ -111,7 +111,7 @@ export default class ForgotPassword extends React.Component {
           }}
           textStyle={{
             fontSize: 30,
-            fontFamily: "Helvetica",
+            
           }}
           value={this.state.code}
           cellSize={40}
@@ -126,7 +126,7 @@ export default class ForgotPassword extends React.Component {
           style={{
             color: "#fff",
             fontSize: 15,
-            fontFamily: "Helvetica",
+            
             paddingBottom: "5%",
           }}
         >
@@ -136,7 +136,7 @@ export default class ForgotPassword extends React.Component {
           style={{
             color: "#fff",
             fontSize: 11,
-            fontFamily: "Helvetica",
+            
             paddingBottom: "8%",
           }}
         >
@@ -193,7 +193,7 @@ export default class ForgotPassword extends React.Component {
             style={{
               color: "#000E1E",
               fontSize: 15,
-              fontFamily: "Helvetica",
+              
               alignSelf: "center",
             }}
           >
@@ -222,6 +222,6 @@ const styles = StyleSheet.create({
     fontSize: 23,
     color: "#FFCA5D",
     paddingBottom: "5%",
-    fontFamily: "Helvetica",
+    
   },
 });

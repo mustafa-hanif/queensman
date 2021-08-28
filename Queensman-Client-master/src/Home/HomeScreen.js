@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
     // shadowOpacity: 1, // IOS
     // shadowRadius: 1, // IOS
     // elevation: 3, // Android
-    // fontFamily: "Helvetica",
   },
   bottomView: {
     // shadowColor: 'rgba(0,0,0, .4)', // IOS

@@ -1,0 +1,25 @@
+diff --git a/node_modules/react-native-web/dist/index.js b/node_modules/react-native-web/dist/index.js
+index 592354f..4aba47f 100644
+--- a/node_modules/react-native-web/dist/index.js
++++ b/node_modules/react-native-web/dist/index.js
+@@ -72,3 +72,4 @@ export { default as DeviceEventEmitter } from './exports/DeviceEventEmitter'; //
+ 
+ export { default as useColorScheme } from './exports/useColorScheme';
+ export { default as useWindowDimensions } from './exports/useWindowDimensions';
++export const ViewPropTypes = { style: ()=> null };
+\ No newline at end of file
+diff --git a/node_modules/react-native-web/src/exports/Text/index.js b/node_modules/react-native-web/src/exports/Text/index.js
+index e87af4c..f5a6508 100644
+--- a/node_modules/react-native-web/src/exports/Text/index.js
++++ b/node_modules/react-native-web/src/exports/Text/index.js
+@@ -162,7 +162,9 @@ const Text: React.AbstractComponent<TextProps, HTMLElement & PlatformMethods> =
+ );
+ 
+ Text.displayName = 'Text';
+-
++Text.propTypes = {
++  style: {}
++}
+ const classes = css.create({
+   text: {
+     border: '0 solid black',

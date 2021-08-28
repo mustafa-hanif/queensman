@@ -39,7 +39,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     // justifyContent: "center",
-    paddingTop: "30%",
     paddingHorizontal: "12%",
   },
   gradiantStyle: {
@@ -206,7 +205,7 @@ const LoginScreen = ({ navigation }) => {
             <View style={{ justifyContent: "center", paddingLeft: "15%" }}>
               <TextInput
                 keyboardType="email-address"
-                style={{ fontSize: 15, fontFamily: "Helvetica" }}
+                style={{ fontSize: 15 }}
                 value={state.email}
                 placeholder="Email"
                 autoCapitalize="none"
@@ -234,7 +233,7 @@ const LoginScreen = ({ navigation }) => {
                 <TextInput
                   style={{
                     fontSize: 15,
-                    fontFamily: "Helvetica",
+
                     width: "80%",
                   }}
                   value={state.password}
@@ -286,7 +285,7 @@ const LoginScreen = ({ navigation }) => {
           </TouchableOpacity>
 
           {/* <TouchableOpacity style={{ alignSelf: "center", paddingTop: "5%" }} onPress={ForgotPassword}>
-            <Text style={{ fontSize: 15, fontFamily: "Helvetica", color: "#fff" }}>Forgot Password?</Text>
+            <Text style={{ fontSize: 15,  color: "#fff" }}>Forgot Password?</Text>
           </TouchableOpacity> */}
         </View>
 
@@ -303,12 +302,12 @@ const LoginScreen = ({ navigation }) => {
 
         <TouchableOpacity onPress={ContectUsFuntion}>
           <View style={{ flexDirection: "column", paddingTop: "5%", alignSelf: "center" }}>
-            <Text style={{ fontSize: 11, fontFamily: "Helvetica", color: "#fff" }}>Haven't registered yet?</Text>
+            <Text style={{ fontSize: 11, color: "#fff" }}>Haven't registered yet?</Text>
 
             <Text
               style={{
                 fontSize: 20,
-                fontFamily: "Helvetica",
+
                 color: "#FFCA5D",
                 textDecorationLine: "underline",
               }}
@@ -329,7 +328,7 @@ const LoginScreen = ({ navigation }) => {
             <Text
               style={{
                 fontSize: 11,
-                fontFamily: "Helvetica",
+
                 color: "#fff",
               }}
             >
@@ -338,7 +337,7 @@ const LoginScreen = ({ navigation }) => {
             <Text
               style={{
                 fontSize: 11,
-                fontFamily: "Helvetica",
+
                 color: "#FFCA5D",
               }}
             >

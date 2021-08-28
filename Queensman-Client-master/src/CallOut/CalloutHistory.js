@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable camelcase */
 /* eslint-disable no-use-before-define */
@@ -21,7 +22,7 @@ import {
   ScrollView,
   AlertDialog,
   Button,
-  Center
+  Center,
 } from "native-base";
 import { gql, useLazyQuery } from "@apollo/client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -86,7 +87,7 @@ const GET_CALLOUTS = gql`
 `;
 const CalloutHistoryClass = (props) => {
   const [CalloutData, setCalloutData] = useState([]);
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(true);
 
   const [loadProperty, { loading: loadingSingleProperty, data: selectedProperty, error: propertyError }] = useLazyQuery(
     GET_PROPERTY_BY_ID,
@@ -142,28 +143,21 @@ const CalloutHistoryClass = (props) => {
   }
 
   if (error) {
-    return (    
-    <Center>
-    <AlertDialog
-      isOpen={isOpen}
-      motionPreset={"fade"}
-    >
-      <AlertDialog.Content>
-        <AlertDialog.Header fontSize="lg" fontWeight="bold">
-          No property found
-        </AlertDialog.Header>
-        <AlertDialog.Body>
-          You currently don't have any property assigned.
-        </AlertDialog.Body>
-        <AlertDialog.Footer>
-          <Button onPress={() => props.navigation.navigate("HomeNaviagtor")}>
-            Ok
-          </Button>
-        </AlertDialog.Footer>
-      </AlertDialog.Content>
-    </AlertDialog>
-  </Center>
-    )
+    return (
+      <Center>
+        <AlertDialog isOpen={isOpen} motionPreset="fade">
+          <AlertDialog.Content>
+            <AlertDialog.Header fontSize="lg" fontWeight="bold">
+              No property found
+            </AlertDialog.Header>
+            <AlertDialog.Body>You currently don't have any property assigned.</AlertDialog.Body>
+            <AlertDialog.Footer>
+              <Button onPress={() => props.navigation.navigate("HomeNaviagtor")}>Ok</Button>
+            </AlertDialog.Footer>
+          </AlertDialog.Content>
+        </AlertDialog>
+      </Center>
+    );
   }
   console.log(CalloutData);
   return (
@@ -216,7 +210,7 @@ const styles = StyleSheet.create({
     paddingLeft: "6%",
     color: "#FFCA5D",
 
-    fontFamily: "Helvetica",
+    
   },
   Card: {
     shadowColor: "rgba(0,0,0, .4)", // IOS
@@ -234,7 +228,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   TextFam: {
-    fontFamily: "Helvetica",
+    
   },
 });
 

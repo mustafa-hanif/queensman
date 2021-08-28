@@ -69,7 +69,7 @@ export default class ContactUs extends React.Component {
         <View style={{ height: "7%" }} />
 
         <Text style={styles.HeadingStyle}>Contact Us</Text>
-        <Text style={{ color: "#fff", fontSize: 15, fontFamily: "Helvetica" }}>We are always here to help! </Text>
+        <Text style={{ color: "#fff", fontSize: 15 }}>We are always here to help! </Text>
 
         <View style={{ height: "10%" }} />
 
@@ -80,7 +80,6 @@ export default class ContactUs extends React.Component {
               fontSize: 15,
               color: "#FFCA5D",
               width: "90%",
-              fontFamily: "Helvetica",
             }}
             placeholder="Type WhatsApp message here"
             placeholderTextColor="#FFCA5D"
@@ -117,7 +116,7 @@ export default class ContactUs extends React.Component {
             style={{
               color: "#000E1E",
               fontSize: 15,
-              fontFamily: "Helvetica",
+
               alignSelf: "center",
             }}
           >
@@ -129,7 +128,7 @@ export default class ContactUs extends React.Component {
           style={{
             color: "#fff",
             fontSize: 15,
-            fontFamily: "Helvetica",
+
             alignSelf: "center",
           }}
         >
@@ -153,7 +152,7 @@ export default class ContactUs extends React.Component {
             style={{
               color: "#000E1E",
               fontSize: 15,
-              fontFamily: "Helvetica",
+
               alignSelf: "center",
             }}
           >
@@ -182,6 +181,5 @@ const styles = StyleSheet.create({
     fontSize: 23,
     color: "#FFCA5D",
     paddingBottom: "5%",
-    fontFamily: "Helvetica",
   },
 });

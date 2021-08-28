@@ -28,8 +28,6 @@ const styles = StyleSheet.create({
     paddingTop: "6%",
     paddingLeft: "4%",
     color: "#FFCA5D",
-
-    fontFamily: "Helvetica",
   },
   Card: {
     shadowColor: "rgba(0,0,0, .4)", // IOS
@@ -44,9 +42,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     backgroundColor: "#FFF",
     borderRadius: 5,
-  },
-  TextFam: {
-    fontFamily: "Helvetica",
   },
 });
 
@@ -137,7 +132,6 @@ const PropertyDetails = (props) => {
       <Text style={styles.HeadingStyle}>Property Details</Text>
       <Text
         style={[
-          styles.TextFam,
           {
             fontSize: 14,
             color: "#aaa",
@@ -151,12 +145,11 @@ const PropertyDetails = (props) => {
       <Text> </Text>
 
       <View style={{ paddingHorizontal: "5%", flexDirection: "column" }}>
-        <Text style={[styles.TextFam, { fontSize: 10, color: "#FFCA5D" }]}>Select Property Type:</Text>
+        <Text style={[{ fontSize: 10, color: "#FFCA5D" }]}>Select Property Type:</Text>
         <Select
           note
           mode="dialog"
           style={{ paddingTop: "2%", color: "black" }}
-          itemStyle={{ fontFamily: "Helvetica" }}
           selectedValue={state.selected}
           onValueChange={onValueChange}
         >

@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     fontSize: 23,
     color: "#FFCA5D",
     paddingBottom: "5%",
-    fontFamily: "Helvetica",
+    
   },
   buttonstyle: {
     // backgroundColor: "#FFCA5D",
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   buttonTxt: {
     color: "#000E1E",
     fontSize: 13,
-    fontFamily: "Helvetica",
+    
     alignSelf: "center",
   },
   Card: {
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   TextFam: {
-    fontFamily: "Helvetica",
+    
   },
 });
 

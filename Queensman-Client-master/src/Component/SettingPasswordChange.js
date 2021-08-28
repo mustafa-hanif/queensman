@@ -94,7 +94,7 @@ export default class SettingPasswordChange extends React.Component {
           style={{
             color: "#fff",
             fontSize: 15,
-            fontFamily: "Helvetica",
+            
             paddingBottom: "5%",
           }}
         >
@@ -104,7 +104,7 @@ export default class SettingPasswordChange extends React.Component {
           style={{
             color: "#fff",
             fontSize: 11,
-            fontFamily: "Helvetica",
+            
             paddingBottom: "12%",
           }}
         >
@@ -199,7 +199,7 @@ export default class SettingPasswordChange extends React.Component {
             style={{
               color: "#000E1E",
               fontSize: 15,
-              fontFamily: "Helvetica",
+              
               alignSelf: "center",
             }}
           >
@@ -228,6 +228,6 @@ const styles = StyleSheet.create({
     fontSize: 23,
     color: "#FFCA5D",
     paddingBottom: "5%",
-    fontFamily: "Helvetica",
+    
   },
 });

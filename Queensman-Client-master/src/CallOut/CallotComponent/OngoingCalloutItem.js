@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     width: 100,
   },
   TextFam: {
-    fontFamily: "Helvetica",
+    
   },
   GalleryEventModel: {
     // backgroundColor: '',

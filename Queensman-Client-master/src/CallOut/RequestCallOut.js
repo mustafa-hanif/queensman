@@ -1,3 +1,5 @@
+/* eslint-disable prefer-destructuring */
+/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable eqeqeq */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable consistent-return */
@@ -11,7 +13,7 @@
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
-import { Button, Box, ScrollView, Select, Icon, AlertDialog, Center} from "native-base";
+import { Button, Radio, Box, ScrollView, Select, Icon, AlertDialog, Center, Pressable, HStack } from "native-base";
 import { Video } from "expo-av";
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image } from "react-native";
 
@@ -80,9 +82,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: "10%",
     paddingVertical: "10%",
   },
-  TextFam: {
-    fontFamily: "Helvetica",
-  },
+  TextFam: {},
   ButtonSty: {
     backgroundColor: "#FFCA5D",
     //  borderRadius: 20,
@@ -332,14 +332,15 @@ const ADD_JOB_TICKET = gql`
 `;
 
 const RequestCallOut = (props) => {
-  const [state, setState] = useState({
+  const additionalServices = JSON.parse(props?.route?.params?.additionalServices);
+  const [state, _setState] = useState({
     PropertyDetails: [],
     property_type: "",
     address: "",
     community: "",
     city: "",
     country: "",
-    Urgency: props.route.params.additionalServices ? "Medium" : "",
+    Urgency: additionalServices ? "Medium" : "",
     OtherJobType: "",
     Description: "",
     character: 0,
@@ -368,6 +369,10 @@ const RequestCallOut = (props) => {
     selectedPic: "",
     selectedNo: 0,
   });
+  const setState = (props) => {
+    console.log(props);
+    _setState(props);
+  };
   const { loading: jobCategoryLoading, data: jobCategory, error: jobCategoryError } = useQuery(GET_JOB_CATEGORY);
   const [getJobType, { loading: loadingJobType, data: jobType, error: JobTypeError }] = useLazyQuery(GET_JOB_TYPE);
   const [addCalloutApiCall, { loading: addCalloutApiLoading, error: mutationError }] = useMutation(ADD_CALLOUT);
@@ -390,9 +395,11 @@ const RequestCallOut = (props) => {
   const [jobTypeSelect, setJobTypeSelect] = useState(null);
 
   const onJobCategoryValueChange = (value) => {
-    setJobCategorySelect({ value, label: value });
+    const item = jobCategory?.team_expertise.find((i) => i.id === parseInt(value, 10));
+    setJobCategorySelect({ value: item.id, label: item.skill_name });
+    selectJobCategoryPressed(item.id);
   };
-
+  // console.log({ jobCategorySelect });
   const onJobTypeValueChange = (value) => {
     setJobTypeSelect({ value, label: value });
   };
@@ -418,7 +425,7 @@ const RequestCallOut = (props) => {
       variables: { id: allProperties?.client?.[0]?.property_owneds?.[0]?.id },
     }
   );
-  
+
   const [videoDurationinMillis, setvideoDurationinMillis] = useState("0:00");
 
   // Did mount - Select the first property of the client, or use the one in async storage
@@ -511,7 +518,7 @@ const RequestCallOut = (props) => {
     if (!jobCategorySelect.value) {
       return alert("Please Select Job Category!");
     }
-    if (!props.route.params.additionalServices && !jobTypeSelect?.value) {
+    if (!additionalServices && !jobTypeSelect?.value) {
       return alert("Please Select Job Type!");
     }
     if (state.Urgency === "") {
@@ -523,7 +530,7 @@ const RequestCallOut = (props) => {
     if (state.picture1 === "") {
       return alert("Please upload atleast one image!");
     }
-    if (!props.route.params.additionalServices) {
+    if (!additionalServices) {
       if (state.Urgency === "medium") {
         return props.navigation.navigate("SelectSchedule", { state: { ...state, JobType: jobTypeSelect?.value } });
       }
@@ -783,28 +790,21 @@ const RequestCallOut = (props) => {
     );
   }
   if (propertyError) {
-    return (    
+    return (
       <Center>
-      <AlertDialog
-        isOpen={true}
-        motionPreset={"fade"}
-      >
-        <AlertDialog.Content>
-          <AlertDialog.Header fontSize="lg" fontWeight="bold">
-            No property found
-          </AlertDialog.Header>
-          <AlertDialog.Body>
-            You currently don't have any property assigned.
-          </AlertDialog.Body>
-          <AlertDialog.Footer>
-            <Button onPress={() => props.navigation.navigate("HomeNaviagtor")}>
-              Ok
-            </Button>
-          </AlertDialog.Footer>
-        </AlertDialog.Content>
-      </AlertDialog>
-    </Center>
-      )
+        <AlertDialog isOpen motionPreset="fade">
+          <AlertDialog.Content>
+            <AlertDialog.Header fontSize="lg" fontWeight="bold">
+              No property found
+            </AlertDialog.Header>
+            <AlertDialog.Body>You currently don't have any property assigned.</AlertDialog.Body>
+            <AlertDialog.Footer>
+              <Button onPress={() => props.navigation.navigate("HomeNaviagtor")}>Ok</Button>
+            </AlertDialog.Footer>
+          </AlertDialog.Content>
+        </AlertDialog>
+      </Center>
+    );
   }
   return (
     <ScrollView style={{ height: "100%" }}>
@@ -827,12 +827,12 @@ const RequestCallOut = (props) => {
       <View style={styles.Card}>
         <View style={styles.container} showsVerticalScrollIndicator={false}>
           <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
-            {!props.route.params.additionalServices ? "Job Category" : "Request Type"}
+            {!additionalServices ? "Job Category" : "Request Type"}
             <Text style={{ color: "red" }}>*</Text>
           </Text>
 
           <View>
-            {!props.route.params.additionalServices ? ( // If it is request callout
+            {!additionalServices ? ( // If it is request callout
               <Select // Select Job category
                 mode="dialog"
                 onValueChange={onJobCategoryValueChange}
@@ -849,9 +849,9 @@ const RequestCallOut = (props) => {
                     ) => (
                       <Select.Item
                         label={element.skill_name}
-                        value={element.skill_name}
+                        value={element.id}
                         key={i}
-                        onTouchEnd={() => selectJobCategoryPressed(element.id)}
+                        // onTouchEnd={() => selectJobCategoryPressed(element.id)}
                       />
                     )
                   )
@@ -881,7 +881,7 @@ const RequestCallOut = (props) => {
             )}
           </View>
 
-          {!props.route.params.additionalServices && (
+          {!additionalServices && (
             <View style={{ paddingTop: "5%" }}>
               <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
                 Job Type<Text style={{ color: "red" }}>*</Text>
@@ -910,7 +910,7 @@ const RequestCallOut = (props) => {
             <View style={{ paddingTop: "3%" }}>
               <View style={styles.OthertxtStyle}>
                 <TextInput
-                  style={{ fontSize: 14, fontFamily: "Helvetica" }}
+                  style={{ fontSize: 14 }}
                   placeholder="Type other here...."
                   underlineColorAndroid="transparent"
                   numberOfLines={1}
@@ -921,30 +921,45 @@ const RequestCallOut = (props) => {
               </View>
             </View>
           ) : null}
-          {!props.route.params.additionalServices && <View style={{ height: "3%" }} />}
-          {!props.route.params.additionalServices && (
+          {!additionalServices && <View style={{ height: "3%" }} />}
+          {!additionalServices && (
             <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
               Urgency<Text style={{ color: "red" }}>*</Text>
             </Text>
           )}
-          {!props.route.params.additionalServices && <View style={{ height: "2%" }} />}
-          {!props.route.params.additionalServices && (
-            <View
-              style={{
-                flex: 1,
-                flexDirection: "row",
-                width: "100%",
-                justifyContent: "space-between",
-                // paddingHorizontal: "5%",
-              }}
-            >
-              <View style={{ flex: 1, flexDirection: "row", width: "100%" }}>
-                <TouchableOpacity
+          {!additionalServices && <View style={{ height: "2%" }} />}
+          {!additionalServices && (
+            <Box>
+              <Radio.Group
+                name="Urgency"
+                accessibilityLabel="Urgency"
+                value={state.Urgency}
+                onChange={(nextValue) => {
+                  setState({ ...state, Urgency: nextValue });
+                }}
+              >
+                <HStack>
+                  <Radio value="High" mr={2}>
+                    <HStack ml={1} space={0.5} alignItems="center">
+                      <Text color="black">High</Text>
+                      <Icon size={5} name="flag" as={<Ionicons name="flag-sharp" />} style={{ color: "red" }} />
+                    </HStack>
+                  </Radio>
+                  <Radio value="medium">
+                    <HStack ml={1} space={0.5} alignItems="center">
+                      <Text color="black">Medium</Text>
+                      <Icon size={5} name="flag" as={<Ionicons name="flag-sharp" />} style={{ color: "#FFCA5D" }} />
+                    </HStack>
+                  </Radio>
+                </HStack>
+              </Radio.Group>
+              {/* <View style={{ flex: 1, flexDirection: "row", width: "100%" }}>
+                <Pressable
                   style={styles.circle}
                   onPress={() => setState({ ...state, Urgency: "High" })} // we set our value state to key
                 >
                   {state.Urgency === "High" ? <View style={styles.checkedCircle} /> : null}
-                </TouchableOpacity>
+                </Pressable>
 
                 <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "2%", fontSize: 14 }]}>High</Text>
                 <Icon
@@ -954,20 +969,20 @@ const RequestCallOut = (props) => {
                 />
               </View>
               <View style={{ flex: 1, flexDirection: "row", width: "100%", justifyContent: "flex-end" }}>
-                <TouchableOpacity
+                <Pressable
                   style={styles.circle}
                   onPress={() => setState({ ...state, Urgency: "medium" })} // we set our value state to key
                 >
                   {state.Urgency === "medium" ? <View style={styles.checkedCircle} /> : null}
-                </TouchableOpacity>
+                </Pressable>
                 <Text style={[styles.TextFam, { paddingLeft: "2%", paddingRight: "2%", fontSize: 14 }]}>Medium</Text>
                 <Icon
                   name="flag"
                   as={<Ionicons name="flag-sharp" />}
                   style={{ fontSize: 16, color: "#FFCA5D", marginTop: -6 }}
                 />
-              </View>
-            </View>
+              </View> */}
+            </Box>
           )}
           <View style={{ height: "3%" }} />
           <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
@@ -980,7 +995,7 @@ const RequestCallOut = (props) => {
                 // fontSize: 14,
                 color: "#8c8c8c",
                 width: "90%",
-                fontFamily: "Helvetica",
+
                 // padding: "2%",
               }}
               placeholder="Type description here ...."
@@ -1022,7 +1037,7 @@ const RequestCallOut = (props) => {
             <TouchableOpacity style={styles.ImageSelectStyle} onPress={selectFromGallery}>
               <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 10 }]}> Select Images From Gallery </Text>
             </TouchableOpacity>
-            {!props.route.params.additionalServices ? (
+            {!additionalServices ? (
               state.video ? (
                 !videoSaving ? (
                   <View>
@@ -1209,11 +1224,7 @@ const RequestCallOut = (props) => {
             ) : (
               <Button mb={12} isLoading={state.loading} onPress={() => askSubmitCallout()}>
                 <Text>
-                  {state.Urgency === "medium"
-                    ? "Select Date"
-                    : !props.route.params.additionalServices
-                    ? "Submit Callout"
-                    : "Make Request"}
+                  {state.Urgency === "medium" ? "Select Date" : !additionalServices ? "Submit Callout" : "Make Request"}
                 </Text>
               </Button>
             )}

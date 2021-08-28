@@ -1,9 +1,12 @@
-/* eslint-disable consistent-return */
 /* eslint-disable react/no-unescaped-entities */
-/* eslint-disable no-use-before-define */
+/* eslint-disable consistent-return */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable default-case */
+/* eslint-disable prefer-destructuring */
+/* eslint-disable no-console */
+/* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable camelcase */
+/* eslint-disable no-use-before-define */
 import React, { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { StyleSheet, View, Dimensions, Linking } from "react-native";
@@ -234,7 +237,7 @@ const MonthlyReportPDF = ({ propertyID, state, setState, reportLoading }) => {
           months2[date] = [];
         }
         months2[date].push(callout);
-        return months;
+        return months2;
       }, {});
 
       const dateGroups = Object.keys(groups).map((date) => {
@@ -607,7 +610,6 @@ const styles = StyleSheet.create({
     fontSize: 23,
     color: "#FFCA5D",
     paddingBottom: "5%",
-    fontFamily: "Helvetica",
   },
   ReportModel: {
     backgroundColor: "#fff",

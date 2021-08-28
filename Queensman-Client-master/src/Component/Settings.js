@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   TextFam: {
-    fontFamily: "Helvetica",
+    
   },
 });
 

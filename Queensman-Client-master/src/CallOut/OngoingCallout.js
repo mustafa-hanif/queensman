@@ -24,7 +24,6 @@ import { AntDesign, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { gql, useQuery } from "@apollo/client";
-import PTRView from "react-native-pull-to-refresh";
 import { auth } from "../utils/nhost";
 
 const GET_CALLOUT = gql`
@@ -130,7 +129,7 @@ const styles = StyleSheet.create({
     paddingLeft: "6%",
     color: "#FFCA5D",
 
-    fontFamily: "Helvetica",
+    
   },
   Card: {
     shadowColor: "rgba(0,0,0, .4)", // IOS
@@ -148,7 +147,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   TextFam: {
-    fontFamily: "Helvetica",
+    
   },
 });
 
