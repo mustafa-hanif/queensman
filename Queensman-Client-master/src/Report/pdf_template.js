@@ -1,6 +1,20 @@
 import moment from "moment";
+
 const calloutTemplate = (years) => {
-  const monthArray = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const monthArray = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
   return `<!DOCTYPE html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
@@ -96,20 +110,27 @@ const calloutTemplate = (years) => {
                       <td class="sm-px-24" style="--bg-opacity: 1; background-color: #ffffff; background-color: rgba(255, 255, 255, 1); border-radius: 4px; font-family: 'Roboto Condensed', -apple-system, 'Segoe UI', sans-serif; font-size: 16px; line-height: 24px; padding: 48px; text-align: left; --text-opacity: 1; color: #000; color: rgba(0, 0, 0, var(--text-opacity));" bgcolor="rgba(255, 255, 255, 1)" align="left">
                         <p style="font-weight: 700; font-size: 24px; margin-top: 0; --text-opacity: 1; color: #ff5850;">Monthly Report</p>
                         <p style="margin: 0 0 24px;">
-                        ${Object.keys(years).map((year,i) => (
-                          // console.log(year)
-                          
-                          `
+                        ${Object.keys(years).map(
+                          (year, i) =>
+                            // console.log(year)
+
+                            `
                           <p style="font-weight: 700; font-size: 20px; margin-top: 0; --text-opacity: 1; color: #ff5850;"><strong>Monthly report for year: ${year}</strong><br />
-                              ${Object.keys(years[year]).map((month,i2) => (
-                          //     console.log(month, year)
-                          `<p style="font-weight: 700; font-size: 18px; margin-top: 0; --text-opacity: 1; color: #ff5850;"><strong>Month: ${monthArray[(parseInt(month)-1)]}</strong><br />
-                              ${years[year][month].map((item,i3) => (
-                          //     console.log(item)
-                              item.callouts.map(callout => (
-                                `
+                              ${Object.keys(years[year]).map(
+                                (month, i2) =>
+                                  //     console.log(month, year)
+                                  `<p style="font-weight: 700; font-size: 18px; margin-top: 0; --text-opacity: 1; color: #ff5850;"><strong>Month: ${
+                                    monthArray[parseInt(month) - 1]
+                                  }</strong><br />
+                              ${years[year][month].map((item, i3) =>
+                                //     console.log(item)
+                                item.callouts.map(
+                                  (callout) =>
+                                    `
                                 <p>
-                                <strong style="font-weight: 700; font-size: 15px; margin-top: 0; --text-opacity: 1; color: #ff5850;">Date: ${moment(`${item.date} ${callout?.schedule.time_on_calendar}`).format('MMMM Do YYYY, hh:mm')}</strong><br />
+                                <strong style="font-weight: 700; font-size: 15px; margin-top: 0; --text-opacity: 1; color: #ff5850;">Date: ${moment(
+                                  `${item.date} ${callout?.schedule.time_on_calendar}`
+                                ).format("MMMM Do YYYY, hh:mm")}</strong><br />
                                 <strong>Callout Details</strong><br />
                                 Callout ID: ${callout?.id}<br />
                                 <strong>Callout Status: ${callout?.status}</strong><br />
@@ -132,10 +153,10 @@ const calloutTemplate = (years) => {
                                 Client Email: ${callout?.client_callout_email?.email}<br />
                                 Client Phone: ${callout?.client_callout_email?.phone}<br />
                               </p>`
-                              ))
-                              ))}`
-                              ))}`
-                        ))}
+                                )
+                              )}`
+                              )}`
+                        )}
                         </p>
                         </p>
                         </p>
@@ -170,4 +191,5 @@ const calloutTemplate = (years) => {
 </html>`;
 };
 
-module.exports = { calloutTemplate };
+// eslint-disable-next-line import/prefer-default-export
+export { calloutTemplate };
