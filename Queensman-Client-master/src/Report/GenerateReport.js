@@ -1,14 +1,33 @@
+/* eslint-disable consistent-return */
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable default-case */
+/* eslint-disable camelcase */
 import React, { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { StyleSheet, View, Dimensions, Linking } from "react-native";
-import { Box, FlatList, Spinner, Text, ScrollView, Modal, Button, Divider, VStack, HStack, Icon, AlertDialog, Center } from "native-base";
+import {
+  Box,
+  FlatList,
+  Spinner,
+  Text,
+  ScrollView,
+  Modal,
+  Button,
+  Divider,
+  VStack,
+  HStack,
+  Icon,
+  AlertDialog,
+  Center,
+} from "native-base";
 
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import * as Print from "expo-print";
 import { storage, auth } from "../utils/nhost";
 import { calloutTemplate } from "./pdf_template";
-
 
 const expoFileToFormFile = (url) => {
   const localUri = url;
@@ -21,15 +40,15 @@ const expoFileToFormFile = (url) => {
 
 const createAndSavePDF = async (html, propertyID, clientName, state, setState, reportLoading) => {
   try {
-    setState({...state, reportLoading: true})
+    setState({ ...state, reportLoading: true });
     const { uri } = await Print.printToFileAsync({ html });
     const file = expoFileToFormFile(uri);
-    let fileName = file.name
-    fileName = `${clientName}-${propertyID}-Monthly-Report.pdf`
+    let fileName = file.name;
+    fileName = `${clientName}-${propertyID}-Monthly-Report.pdf`;
     console.log(fileName);
-    await storage.put(`/monthly_report/${fileName}`, file)
+    await storage.put(`/monthly_report/${fileName}`, file);
     Linking.openURL(`https://backend-8106d23e.nhost.app/storage/o/monthly_report/${fileName}`);
-    setState({...state, reportLoading: false})
+    setState({ ...state, reportLoading: false });
   } catch (error) {
     console.error(error);
   }
@@ -38,18 +57,18 @@ const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
 
 const GenerateReport = (props) => {
-    const [state, setState] = useState({
-      code: "",
-      value: -1,
-      isReportModelVisible: false,
-      modeltype: true, // true for property manage ment false for market
-      ModelData: [],
-      ManagementReportData: [],
-      MarkertReportData: [],
-      loading: false,
-      propertyID: "",
-      reportLoading: false,
-    })
+  const [state, setState] = useState({
+    code: "",
+    value: -1,
+    isReportModelVisible: false,
+    modeltype: true, // true for property manage ment false for market
+    ModelData: [],
+    ManagementReportData: [],
+    MarkertReportData: [],
+    loading: false,
+    propertyID: "",
+    reportLoading: false,
+  });
 
   const setPropertyId = (id) => {
     setState({ ...state, propertyID: id });
@@ -57,20 +76,18 @@ const GenerateReport = (props) => {
 
   const toggleReportModel = (value) => {
     if (value === 1) {
-      setState({...state, 
-        isReportModelVisible: !state.isReportModelVisible,
-        modeltype: true,
-        value,
-      });
+      setState({ ...state, isReportModelVisible: !state.isReportModelVisible, modeltype: true, value });
     } else if (value === 2) {
-      setState({...state, 
+      setState({
+        ...state,
         isReportModelVisible: !state.isReportModelVisible,
         modeltype: false,
         value,
         // ModelData: state.MarkertReportData,
       });
     } else if (value === 3) {
-      setState({...state, 
+      setState({
+        ...state,
         isReportModelVisible: !state.isReportModelVisible,
         modeltype: false,
         value,
@@ -80,11 +97,11 @@ const GenerateReport = (props) => {
   };
 
   const reporthandle = async (Value) => {
-    setState({...state, loading: true });
-    setState({...state, isReportModelVisible: !state.isReportModelVisible });
+    setState({ ...state, loading: true });
+    setState({ ...state, isReportModelVisible: !state.isReportModelVisible });
 
     Linking.openURL(Value);
-    setState({...state,loading: false });
+    setState({ ...state, loading: false });
   };
 
   const renderReportModalContent = () => (
@@ -121,12 +138,12 @@ const GenerateReport = (props) => {
       <Modal
         size="full"
         isOpen={state.isReportModelVisible}
-        onClose={() => setState({...state, isReportModelVisible: false })}
+        onClose={() => setState({ ...state, isReportModelVisible: false })}
       >
         <Modal.Content h={400}>{renderReportModalContent()}</Modal.Content>
       </Modal>
       {/* background gradinet   */}
-      <LoadProperties setPropertyId={setPropertyId} props={props}/>
+      <LoadProperties setPropertyId={setPropertyId} props={props} />
       <Text style={styles.HeadingStyle}>Reports</Text>
       <Text color="white" paddingBottom={2}>
         Select the type of report to download{" "}
@@ -140,11 +157,16 @@ const GenerateReport = (props) => {
         <Button mb={10} onPress={() => toggleReportModel(3)}>
           Inventory Report
         </Button>
-        <MonthlyReportPDF propertyID={state.propertyID} state={state} reportLoading={state.reportLoading} setState={setState} />
+        <MonthlyReportPDF
+          propertyID={state.propertyID}
+          state={state}
+          reportLoading={state.reportLoading}
+          setState={setState}
+        />
       </View>
     </ScrollView>
   );
-}
+};
 
 const GET_CALLOUTS = gql`
   query MyQuery($callout_by_email: String!, $property_id: Int!, $today: date!) {
@@ -199,51 +221,51 @@ const GET_CALLOUTS = gql`
 
 const MonthlyReportPDF = ({ propertyID, state, setState, reportLoading }) => {
   const user = auth?.currentSession?.session?.user;
-  const displayName = user?.display_name.replace(/ /g, '-')
+  const displayName = user?.display_name.replace(/ /g, "-");
   const email = user?.email;
   const [loadCallouts, { loading, data, error }] = useLazyQuery(GET_CALLOUTS, {
     onCompleted: (data2) => {
-      let years = {}
-      let months = {}
-      const groups = data2?.callout.reduce((months, callout) => {
+      const years = {};
+      let months = {};
+      const groups = data2?.callout.reduce((months2, callout) => {
         const date = callout.schedule.date_on_calendar;
-        console.log(date)
-        if (!months[date]) {
-          months[date] = [];
+        if (!months2[date]) {
+          // eslint-disable-next-line no-param-reassign
+          months2[date] = [];
         }
-        months[date].push(callout);
+        months2[date].push(callout);
         return months;
       }, {});
 
       const dateGroups = Object.keys(groups).map((date) => {
         return {
           date,
-          callouts: groups[date]
+          callouts: groups[date],
         };
       });
-      
-    // Group by year
-    dateGroups.map(item => {
-      let yearValue = item.date.split("-")[0]
-      if(years[yearValue]) {
-        years[yearValue].push({date: item.date, callouts: item.callouts})
-      } else {
-        years[yearValue] = [{date: item.date, callouts: item.callouts}]
-      }
-    })
-      //Group by months
-    Object.keys(years).map(year => {
-      years[year].map(item => {
-          let monthValue = item.date.split("-")[1]
-          if(months[monthValue]) {
-            months[monthValue].push({date: item.date, callouts: item.callouts})
+
+      // Group by year
+      dateGroups.forEach((item) => {
+        const yearValue = item.date.split("-")[0];
+        if (years[yearValue]) {
+          years[yearValue].push({ date: item.date, callouts: item.callouts });
+        } else {
+          years[yearValue] = [{ date: item.date, callouts: item.callouts }];
+        }
+      });
+      // Group by months
+      Object.keys(years).forEach((year) => {
+        years[year].forEach((item) => {
+          const monthValue = item.date.split("-")[1];
+          if (months[monthValue]) {
+            months[monthValue].push({ date: item.date, callouts: item.callouts });
           } else {
-            months[monthValue] = [{date: item.date, callouts: item.callouts}]
+            months[monthValue] = [{ date: item.date, callouts: item.callouts }];
           }
-        })
-      years[year] = months
-      months = {}
-    })
+        });
+        years[year] = months;
+        months = {};
+      });
 
       createAndSavePDF(calloutTemplate(years), propertyID, displayName, state, setState, reportLoading);
     },
@@ -282,31 +304,24 @@ const LoadProperties = ({ setPropertyId, props }) => {
   });
 
   if (allProperties?.client?.[0].property_owneds.length === 0) {
-    console.log("mewo")
-    return (    
-    <Center>
-    <AlertDialog
-      isOpen={true}
-      motionPreset={"fade"}
-    >
-      <AlertDialog.Content>
-        <AlertDialog.Header fontSize="lg" fontWeight="bold">
-          No property found
-        </AlertDialog.Header>
-        <AlertDialog.Body>
-          You currently don't have any property assigned.
-        </AlertDialog.Body>
-        <AlertDialog.Footer>
-          <Button onPress={() => props.navigation.navigate("HomeNaviagtor")}>
-            Ok
-          </Button>
-        </AlertDialog.Footer>
-      </AlertDialog.Content>
-    </AlertDialog>
-  </Center>
-    )
-  };
-  return <></>
+    console.log("mewo");
+    return (
+      <Center>
+        <AlertDialog isOpen motionPreset="fade">
+          <AlertDialog.Content>
+            <AlertDialog.Header fontSize="lg" fontWeight="bold">
+              No property found
+            </AlertDialog.Header>
+            <AlertDialog.Body>You currently don't have any property assigned.</AlertDialog.Body>
+            <AlertDialog.Footer>
+              <Button onPress={() => props.navigation.navigate("HomeNaviagtor")}>Ok</Button>
+            </AlertDialog.Footer>
+          </AlertDialog.Content>
+        </AlertDialog>
+      </Center>
+    );
+  }
+  return <></>;
 };
 
 const GET_CONTRACT_COPY = gql`
