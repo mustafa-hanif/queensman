@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   },
   text: {
     marginLeft: 1,
-    // fontFamily: "Helvetica",
+    // 
   },
   time: {
     marginRight: 1,
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
   },
   timeText: {
     opacity: 0.4,
-    // fontFamily: "Helvetica",
+    // 
   },
   dot: {
     height: 12,

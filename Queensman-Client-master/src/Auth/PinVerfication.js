@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Dimensions,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Content } from "native-base";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -32,7 +26,6 @@ const styles = StyleSheet.create({
     fontSize: 23,
     color: "#FFCA5D",
     paddingBottom: "5%",
-    fontFamily: "Helvetica",
   },
 });
 
@@ -69,50 +62,19 @@ export default class PinVerfication extends React.Component {
     //   );
   };
 
-  nexthandle = () => {
-    const username = this.state.email;
-    const { code } = this.state;
-    console.log(`${code}${username}`);
-    Auth.confirmSignUp(username, code, {
-      // Optional. Force user confirmation irrespective of existing alias. By default set to True.
-      forceAliasCreation: true,
-    })
-      .then((data) => {
-        console.log(data);
-        const { email } = this.state;
-        const { pass } = this.state;
-        Auth.signIn(email, pass)
-          .then((user) => {
-            this.setState({ user });
-            console.log("successful sign in!");
-            this.props.navigation.navigate("SignUpChangePass", {
-              UserPassword: this.state.pass,
-              UserEmail: this.state.email,
-            });
-          })
-          .catch((err) => console.log("error signing in!: ", err));
-      })
-      .catch((err) =>
-        this.pinInput.current.shake().then(() => this.setState({ code: "" }))
-      );
-  };
-
   render() {
     return (
       // content as view type  and touch exit
       <Content scrollEnabled={false} contentContainerStyle={styles.container}>
         {/* background gradinet   */}
-        <LinearGradient
-          colors={["#000E1E", "#001E2B", "#000E1E"]}
-          style={styles.gradiantStyle}
-        />
+        <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
 
         <Text style={styles.HeadingStyle}>Verification Code</Text>
         <Text
           style={{
             color: "#fff",
             fontSize: 15,
-            fontFamily: "Helvetica",
+
             paddingBottom: "10%",
           }}
         >
@@ -132,7 +94,6 @@ export default class PinVerfication extends React.Component {
           }}
           textStyle={{
             fontSize: 30,
-            fontFamily: "Helvetica",
           }}
           value={this.state.code}
           cellSize={40}
@@ -157,7 +118,7 @@ export default class PinVerfication extends React.Component {
             style={{
               color: "#000E1E",
               fontSize: 15,
-              fontFamily: "Helvetica",
+
               alignSelf: "center",
             }}
           >

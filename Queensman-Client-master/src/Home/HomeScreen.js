@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
     // shadowOpacity: 1, // IOS
     // shadowRadius: 1, // IOS
     // elevation: 3, // Android
-    // fontFamily: "Helvetica",
   },
   bottomView: {
     // shadowColor: 'rgba(0,0,0, .4)', // IOS
@@ -389,7 +388,7 @@ const HomeScreen = ({ navigation }) => {
   // console.log(clientStatus?.client?.[0]?.active);
   // console.log({ email2 }, error, notificationError, clientError, loading, clientLoading, loadingNotification);
   return (
-    <Box display="flex" backgroundColor="#111827">
+    <Box display="flex" h="100%" backgroundColor="#111827">
       <View style={{ marginLeft: "auto", marginRight: "auto", backgroundColor: "#111827", height: "100%" }}>
         {clientStatus?.client?.[0]?.active &&
           clientStatus?.client?.[0]?.active != 1 &&

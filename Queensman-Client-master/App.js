@@ -36,7 +36,6 @@ import CalloutHistory from "./src/CallOut/CalloutHistory";
 import OngoingCallout from "./src/CallOut/OngoingCallout";
 import OngoingCalloutItem from "./src/CallOut/CallotComponent/OngoingCalloutItem";
 import CallOutHistoryItem from "./src/CallOut/CallotComponent/CallOutHistoryItem";
-import SignupChangePassword from "./src/Login/SignupChangePassword";
 import PinVerfication from "./src/Auth/PinVerfication";
 import SignupContectUs from "./src/Login/SignupContectUs";
 import SettingPasswordChange from "./src/Component/SettingPasswordChange";
@@ -144,58 +143,12 @@ const LoginStackNavigator = () => {
     <LoginStack.Navigator screenOptions={{ headerShown: false }}>
       <LoginStack.Screen name="LoginScreen" component={LoginScreen} />
       <LoginStack.Screen name="PinVerify" component={PinVerfication} />
-      <LoginStack.Screen name="SignUpChangePass" component={SignupChangePassword} />
       <LoginStack.Screen name="SignUpContectUs" component={SignupContectUs} />
       <LoginStack.Screen name="SelectProperty" component={PropertyDetails} />
       <LoginStack.Screen name="ForgotPassword" component={ForgotPassword} />
     </LoginStack.Navigator>
   );
 };
-
-/** Setting Screen */
-const SettingStack = createStackNavigator();
-const SettingStackNavigator = () => {
-  return (
-    <SettingStack.Navigator>
-      <SettingStack.Screen name="Settings" component={Settings} />
-      <SettingStack.Screen name="SettingPasswordChange" component={SettingPasswordChange} />
-    </SettingStack.Navigator>
-  );
-};
-// const SettingStackNavigator = createStackNavigator(
-//   {
-//     Settings: {
-//       screen: Settings,
-//       navigationOptions: ({ navigation }) => ({
-//         title: "Settings",
-//         headerTransparent: true,
-//         headerTitleStyle: {
-//           fontFamily: "Helvetica",
-//         },
-//         headerLeft: (
-//           <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-//             <View style={{ flexDirection: "row" }}>
-//               <Text> </Text>
-//               <Icon name="arrow-back" style={{ fontSize: 24, color: "#000" }} />
-//             </View>
-//           </TouchableOpacity>
-//         ),
-//       }),
-//     },
-//     SettingPasswordChange: {
-//       screen: SettingPasswordChange,
-//       navigationOptions: ({ navigation }) => ({
-//         headerTintColor: "#fff",
-//         headerTransparent: true,
-//       }),
-//     },
-//   },
-//   {
-//     initialRouteName: "Settings",
-//     // transitionConfig: () => fromTop(500),
-//   }
-// );
-// createAppContainer(SettingStackNavigator);
 
 /** HomeScreen Stack Naviagtor */
 const HomeScreenStack = createStackNavigator();
@@ -271,7 +224,7 @@ const HomeScreenStackNavigator = () => {
 //         headerTransparent: true,
 //         headerTintColor: "#FFCA5D",
 //         headerTitleStyle: {
-//           fontFamily: "Helvetica",
+//           
 //         },
 //       }),
 //     },
@@ -432,7 +385,7 @@ const CustomDrawerComponent = (props) => (
 //     contentOptions: {
 //       activeTintColor: "#FFCA5D",
 //       labelStyle: {
-//         fontFamily: "Helvetica",
+//         
 //         fontWeight: "300",
 //       },
 //     },

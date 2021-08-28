@@ -21,21 +21,20 @@ const VideoScreen = ({ setShowVideoScreen, saveVideo, getDuration }) => {
     (async () => {
       const { status } = await Camera.requestPermissionsAsync();
       const { status: status2 } = await Audio.requestPermissionsAsync();
-      setHasPermission(status === "granted" && status2 === "granted");
+      setHasPermission(status === "granted");
     })();
   }, []);
 
   const startRecording = () => {
-    var d = new Date();
-    var time = d.getTime();
+    const d = new Date();
+    const time = d.getTime();
     setduration({ ...duration, startduration: time });
 
     camera.current
       .recordAsync({ maxDuration: 30, quality: Camera.Constants.VideoQuality["720p"] })
       .then((video) => {
-        console.log({ video });
-        var d2 = new Date();
-        var time2 = d2.getTime();
+        const d2 = new Date();
+        const time2 = d2.getTime();
 
         getDuration(time2 - time);
         setShowVideoScreen(false);

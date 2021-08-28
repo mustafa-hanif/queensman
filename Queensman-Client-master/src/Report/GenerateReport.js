@@ -603,7 +603,7 @@ const styles = StyleSheet.create({
     fontSize: 23,
     color: "#FFCA5D",
     paddingBottom: "5%",
-    fontFamily: "Helvetica",
+    
   },
   ReportModel: {
     backgroundColor: "#fff",
