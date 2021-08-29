@@ -241,7 +241,6 @@ const REQUEST_CALLOUT = gql`
             category: $category
             job_type: $job_type
             status: $status
-            request_time: $request_time
             urgency_level: $urgency_level
             description: $notes
             picture1: $picture1
