@@ -502,7 +502,7 @@ const RequestCallOut = (props) => {
         date_on_calendar: null,
         category,
         job_type: jobTypeSelect.value,
-        status: "Opened",
+        status: "Open",
         urgency_level: state.Urgency,
         video: state.videoUrl,
         worker_id,

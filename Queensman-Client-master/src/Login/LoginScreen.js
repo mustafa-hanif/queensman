@@ -6,32 +6,43 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable no-console */
 /* eslint-disable no-alert */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
-
+import bcrypt from 'react-native-bcrypt'
 import {
   StyleSheet,
-  Text,
   View,
   Dimensions,
   Image,
   TextInput,
   ImageBackground,
   TouchableOpacity,
-  Linking,
   ActivityIndicator,
+  Linking,
+  Modal as Modal2
 } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { Button, Icon, Input, Modal, VStack } from "native-base";
+import { Button, Icon, Input, Modal, VStack, Text, Center } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 import { auth } from "../utils/nhost";
+import { gql, useMutation } from '@apollo/client'
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
+
+const resetPasswordGql = gql
+`mutation UpdatePassword($email: citext = "", $password_hash: String = "") {
+  update_auth_accounts(where: {email: {_eq: $email}}, _set: {password_hash: $password_hash}) {
+    returning {
+      email
+    }
+  }
+}
+`
 
 const styles = StyleSheet.create({
   container: {
@@ -56,10 +67,12 @@ const styles = StyleSheet.create({
 
 const LoginScreen = ({ navigation }) => {
   // animation ref
-  const [state, setState] = React.useState({
-    email: "murtaza.hanif@techinoviq.com",
+  const [resetPassword, { data, loading, error }] = useMutation(resetPasswordGql)
+  const [state, setState] = useState({
+    email: "salmanhanif133@gmail.com",
     emailpage: true,
     changePasswordModal: false,
+    resetPasswordModal: true,
     password: "123456789",
     phoneno: "97148721301",
     passwordcheck: "",
@@ -76,6 +89,8 @@ const LoginScreen = ({ navigation }) => {
     showPassword: true,
     retrievedID: "",
   });
+  const [loadingModalVisible, setLoadingModalVisible] = useState(false)
+  const [resetDoneVisible, setResetDoneVisible] = useState(true)
   const { currentLogin } = useLoginCheck();
   const isFocused = useIsFocused();
 
@@ -108,6 +123,43 @@ const LoginScreen = ({ navigation }) => {
         alert(`Error changing the password! ${err.response.data.message}`);
       });
   };
+
+  const sendResetEmail = async () => {
+    setState({...state, resetPasswordModal: false})
+    setLoadingModalVisible(true)
+    // await auth.login({ email: state.emai, password })
+    try {
+      await resetPassword({
+        variables: {
+          email: "salmanhanif133@gmail.com",
+          password_hash: bcrypt.hashSync("0000", 8)
+        }
+      })
+      console.log("password rested")
+      const url = 'https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendResetPasswordEmail';
+      const data = {
+        clientEmail: state.email
+      }
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
+        body: JSON.stringify(data)
+      });
+  
+      console.log("password reset!")
+      setLoadingModalVisible(false);
+      setResetDoneVisible(true)
+      return response.json()
+    } catch (e) {
+      console.log(e)
+      setLoadingModalVisible(false);
+    } 
+    
+  }
 
   const proceedFunctionEmail = async () => {
     const { email, password } = state;
@@ -149,10 +201,6 @@ const LoginScreen = ({ navigation }) => {
     proceedFunctionEmail();
   };
 
-  // const ForgotPassword = () => {
-  //   return console.log("Forgot password will not work, its old code");
-  // };
-
   const contactEmailHandler = () => {
     Linking.openURL("mailto:services@queensman.com");
   };
@@ -168,9 +216,9 @@ const LoginScreen = ({ navigation }) => {
   return (
     <View style={styles.container} behavior="padding" enabled>
       <Modal isOpen={state.changePasswordModal}>
-        <Modal.Content bgColor="yellow.50" px={8} py={8}>
+        <Modal.Content bgColor="white" px={8} py={8}>
           <VStack space={4}>
-            <Text>Please provide a new password</Text>
+            <Text fontSize={17} bold={true} color="black">Please provide a new password</Text>
             <Input
               color="black"
               value={state.password}
@@ -179,12 +227,43 @@ const LoginScreen = ({ navigation }) => {
               }}
               placeholder="New password type here"
             />
-            <Button w="70%" onPress={() => updatePassword()}>
+            <Button w="100%" onPress={() => updatePassword()}>
               Update password
             </Button>
           </VStack>
         </Modal.Content>
       </Modal>
+      <Modal isOpen={state.resetPasswordModal} onClose={() => setState({ ...state, resetPasswordModal: false})}>
+        <Modal.Content bgColor="white" px={4} py={8}>
+          <VStack space={6}>
+            <Text fontSize={17} bold={true} color="black">Enter your email</Text>
+            <Input
+              color="black"
+              value={state.email}
+              onChangeText={(email) => {
+                setState({ ...state, email });
+              }}
+              />
+            <Button w="100%" onPress={() => sendResetEmail()}>
+              Reset
+            </Button>
+            <Button w="100%" onPress={() => setState({ ...state, resetPasswordModal: false})}>
+              Cancel
+            </Button>
+          </VStack>
+        </Modal.Content>
+      </Modal>
+      <Modal isOpen={loadingModalVisible} size="full" onClose={() => setLoadingModalVisible(false)}>
+        <Modal.Body>
+        <ActivityIndicator size="large" color="white" />
+        </Modal.Body>
+      </Modal>
+      <Modal isOpen={resetDoneVisible} size="full" onClose={() => setResetDoneVisible(false)}>
+        <Modal.Header bg="white" px={5} py={5}>
+        Password Reset successfully!
+        </Modal.Header>
+      </Modal>
+      
       {/* background gradinet   */}
       <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
 
@@ -284,9 +363,9 @@ const LoginScreen = ({ navigation }) => {
             )}
           </TouchableOpacity>
 
-          {/* <TouchableOpacity style={{ alignSelf: "center", paddingTop: "5%" }} onPress={ForgotPassword}>
-            <Text style={{ fontSize: 15,  color: "#fff" }}>Forgot Password?</Text>
-          </TouchableOpacity> */}
+          <TouchableOpacity style={{ alignSelf: "center", paddingTop: "5%" }} onPress={() => setState({ ...state, resetPasswordModal: true})}>
+            <Text style={{ fontSize: 15,  color: "#fff" }}>Reset Password</Text>
+          </TouchableOpacity>
         </View>
 
         <View
@@ -294,7 +373,7 @@ const LoginScreen = ({ navigation }) => {
             borderBottomColor: "#FFCA5D",
             borderBottomWidth: 1,
             width: 280,
-            paddingTop: "17%",
+            paddingTop: "5%",
             alignSelf: "center",
             justifyContent: "center",
           }}

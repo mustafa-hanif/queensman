@@ -229,7 +229,7 @@ export default function SelectSchedule(props) {
           date_on_calendar: selectedDate,
           category,
           job_type: props.navigation.getParam("JobType", {}),
-          status: "Opened",
+          status: "Open",
           urgency_level: "Medium",
           video: state.videoUrl,
           worker_id, 

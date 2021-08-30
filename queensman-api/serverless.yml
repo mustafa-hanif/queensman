@@ -163,6 +163,14 @@ functions:
           method: post
           cors: true
 
+  sendResetPasswordEmail:
+    handler: handler.sendResetPasswordEmail
+    events:
+      - http:
+          path: /sendResetPasswordEmail
+          method: post
+          cors: true
+
   expresstest:
     handler: handler.expresstest
     events:

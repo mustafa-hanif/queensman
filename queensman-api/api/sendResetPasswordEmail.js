@@ -2,12 +2,11 @@ var sendEmail = require('../lib/sendEmail').sendEmail;
 var reset_password_email = require('../templates/reset_password_email').reset_password_email;
 
 const sendResetPasswordEmail = async (event) => {
-  console.log(event.body)
+  console.log(event)
   try {
-    const u = new URLSearchParams(event.body);
-    // const clientEmail = u.get('clientEmail');
-    // const clientName = u.get('clientName');
-    // const clientPassword = u.get('clientPassword')
+    const data = JSON.parse(event.body)
+    const clientEmail = data.clientEmail   
+    console.log(clientEmail) 
     const params = {
       Destination: { /* required */
         CcAddresses: [
@@ -16,7 +15,7 @@ const sendResetPasswordEmail = async (event) => {
         ],
         ToAddresses: [
           'icemelt7@gmail.com',
-          "salmanhanif133@gmail.com"
+          clientEmail
           /* more items */
         ]
       },
@@ -24,7 +23,7 @@ const sendResetPasswordEmail = async (event) => {
         Body: { /* required */
           Html: {
             Charset: 'UTF-8',
-            Data: reset_password_email("salmanhanif133@gmail.com", "0000")
+            Data: reset_password_email(clientEmail, "0000")
           },
         },
         Subject: {
