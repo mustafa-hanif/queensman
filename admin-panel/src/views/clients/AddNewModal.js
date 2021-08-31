@@ -233,10 +233,11 @@ onError: (e) => {
                         <Mail size={15} />
                       </InputGroupText>
                     </InputGroupAddon>
-                    <Input type='email' name="email" id='email' placeholder='brucewayne@email.com' value={row?.email} onChange={handleChange}
+                    {toAddNewRecord ? <Input type='email' name="email" id='email' placeholder='brucewayne@email.com' value={row?.email} onChange={handleChange}
                       innerRef={register({ required: true })}
                       invalid={errors.email && true}
-                    />
+                    /> : <Input type='email' name="email" id='email' placeholder='brucewayne@email.com' disabled value={row?.email} />}
+                    
                   </InputGroup>
                 </FormGroup>
               </Col>
@@ -253,21 +254,6 @@ onError: (e) => {
                   </InputGroup>
                 </FormGroup>
               </Col>
-              {/* <Col>
-        <FormGroup>
-        <Label for='gender'>Gender</Label>
-        <InputGroup>
-          <InputGroupAddon addonType='prepend'>
-            <InputGroupText>
-              <Key size={15} />
-            </InputGroupText>
-          </InputGroupAddon>
-          <Input id='gender' placeholder='Gender' name="gender" value={row?.gender} onChange={handleChange} 
-           innerRef={register({ required: true })}
-           invalid={errors.gender && true}/>
-        </InputGroup>
-      </FormGroup> 
-        </Col> */}
             </Row>
             {/* Third 3rd Row */}
             <Row>
@@ -302,129 +288,6 @@ onError: (e) => {
             </Row>
             {/* Fourth 4th Row */}
             <Row>
-              <Col>
-                {/* <FormGroup>
-        <Label for='occupation'>Occupation</Label>
-          <InputGroup>
-            <InputGroupAddon addonType='prepend'>
-              <InputGroupText>
-                <Briefcase size={15} />
-              </InputGroupText>
-            </InputGroupAddon>
-            <Input id='occupation' placeholder='Occupation' name="occupation" value={row?.occupation} onChange={handleChange}/>
-          </InputGroup>
-        </FormGroup> */}
-              </Col>
-              <Col>
-                {/* <FormGroup>
-        <Label for='organization'>Organization</Label>
-          <InputGroup>
-            <InputGroupAddon addonType='prepend'>
-              <InputGroupText>
-                <Briefcase size={15} />
-              </InputGroupText>
-            </InputGroupAddon>
-            <Input id='organization' placeholder='Organization' name="organization" value={row?.organization} onChange={handleChange}/>
-          </InputGroup>
-        </FormGroup> */}
-              </Col>
-              <Col>
-                {/* <FormGroup>
-        <Label for='age_range'>Age Range</Label>
-          <InputGroup>
-            <InputGroupAddon addonType='prepend'>
-              <InputGroupText>
-                <Code size={15} />
-              </InputGroupText>
-            </InputGroupAddon>
-            <Input id='age_range' placeholder='Age Range' name="age_range" value={row?.age_range} onChange={handleChange}/>
-          </InputGroup>
-        </FormGroup> */}
-              </Col>
-            </Row>
-            {/* Fifth 5th row */}
-            <Row>
-              <Col>
-                {/* <FormGroup>
-        <Label for='family_size'>Family Size</Label>
-          <InputGroup>
-            <InputGroupAddon addonType='prepend'>
-              <InputGroupText>
-                <Info size={15} />
-              </InputGroupText>
-            </InputGroupAddon>
-            <Input id='family_size' placeholder='Family Size' name="family_size" value={row?.family_size} onChange={handleChange}/>
-          </InputGroup>
-        </FormGroup> */}
-              </Col>
-              <Col>
-                {/* <FormGroup>
-        <Label for='ages_of_children'>Ages of children</Label>
-          <InputGroup>
-            <InputGroupAddon addonType='prepend'>
-              <InputGroupText>
-                <Info size={15} />
-              </InputGroupText>
-            </InputGroupAddon>
-            <Input id='ages_of_children' placeholder='Ages of children' name="ages_of_children" value={row?.ages_of_children} onChange={handleChange}/>
-          </InputGroup>
-        </FormGroup> */}
-              </Col>
-              <Col>
-                {/* <FormGroup>
-        <Label for='earning_bracket'>Earning Bracket</Label>
-          <InputGroup>
-            <InputGroupAddon addonType='prepend'>
-              <InputGroupText>
-                <Info size={15} />
-              </InputGroupText>
-            </InputGroupAddon>
-            <Input id='earning_bracket' placeholder='Earning Bracket' name="earning_bracket" value={row?.earning_bracket} onChange={handleChange}/>
-          </InputGroup>
-        </FormGroup> */}
-              </Col>
-            </Row>
-            {/* Sixth 6th row */}
-            <Row>
-              <Col>
-                {/* <FormGroup>
-        <Label for='nationality'>Nationality</Label>
-          <InputGroup>
-            <InputGroupAddon addonType='prepend'>
-              <InputGroupText>
-                <Info size={15} />
-              </InputGroupText>
-            </InputGroupAddon>
-            <Input id='nationality' placeholder='Nationality' name="nationality" value={row?.nationality} onChange={handleChange}/>
-          </InputGroup>
-        </FormGroup> */}
-              </Col>
-              <Col>
-                {/* <FormGroup>
-        <Label for='years_expatriate'>Years Expatriate</Label>
-          <InputGroup>
-            <InputGroupAddon addonType='prepend'>
-              <InputGroupText>
-                <Info size={15} />
-              </InputGroupText>
-            </InputGroupAddon>
-            <Input id='years_expatriate' placeholder='Years Expriate' name="years_expatriate" value={row?.years_expatriate} onChange={handleChange}/>
-          </InputGroup>
-        </FormGroup> */}
-              </Col>
-              <Col>
-                {/* <FormGroup>
-        <Label for='years_native'>Years Native</Label>
-          <InputGroup>
-            <InputGroupAddon addonType='prepend'>
-              <InputGroupText>
-                <Info size={15} />
-              </InputGroupText>
-            </InputGroupAddon>
-            <Input id='years_native' placeholder='Years Native' name="years_native" value={row?.earning_bracket} onChange={handleChange}/>
-          </InputGroup>
-        </FormGroup> */}
-              </Col>
             </Row>
             {/* Seventh 7th row */}
             <Row>
@@ -442,17 +305,6 @@ onError: (e) => {
                 </FormGroup>
               </Col>
               <Col>
-                {/* <FormGroup>
-        <Label for='other_properties'>Other Properties</Label>
-          <InputGroup>
-            <InputGroupAddon addonType='prepend'>
-              <InputGroupText>
-                <Info size={15} />
-              </InputGroupText>
-            </InputGroupAddon>
-            <Input id='other_properties' placeholder='Other Properties' name="other_properties" value={row?.other_properties} onChange={handleChange}/>
-          </InputGroup>
-        </FormGroup> */}
               </Col>
               <Col>
               </Col>

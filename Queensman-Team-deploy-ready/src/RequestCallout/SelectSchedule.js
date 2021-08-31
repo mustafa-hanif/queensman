@@ -61,6 +61,7 @@ const REQUEST_CALLOUT = gql`
     $picture4: String
     $video: String
     $urgency_level: String
+    $worker_id: int
   ) {
     insert_scheduler_one(
       object: {
@@ -79,11 +80,17 @@ const REQUEST_CALLOUT = gql`
             picture4: $picture4
             video: $video
             active: 1
+            job_worker: {
+              data: {
+                worker_id: $worker_id
+              }
+            }
           }
         }
         date_on_calendar: $date_on_calendar
         time_on_calendar: $time_on_calendar
         notes: $notes
+        worker_id: $worker_id
       }
     ) {
       date_on_calendar
@@ -211,9 +218,10 @@ export default function SelectSchedule(props) {
           date_on_calendar: selectedDate,
           category,
           job_type: props.navigation.getParam("JobType", {}),
-          status: "Requested",
+          status: "Open",
           urgency_level: "Medium",
           video: state.videoUrl,
+          worker_id, 
           ...pictures,
         },
       })

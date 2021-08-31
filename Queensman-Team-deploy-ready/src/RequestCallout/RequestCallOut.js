@@ -229,8 +229,8 @@ const REQUEST_CALLOUT = gql`
     $picture3: String
     $picture4: String
     $video: String
-    $request_time: timestamp
     $urgency_level: String
+    $worker_id: Int
   ) {
     insert_scheduler_one(
       object: {
@@ -241,7 +241,6 @@ const REQUEST_CALLOUT = gql`
             category: $category
             job_type: $job_type
             status: $status
-            request_time: $request_time
             urgency_level: $urgency_level
             description: $notes
             picture1: $picture1
@@ -250,10 +249,16 @@ const REQUEST_CALLOUT = gql`
             picture4: $picture4
             video: $video
             active: 1
+            job_worker: {
+              data: {
+                worker_id: $worker_id
+              }
+            }
           }
         }
         date_on_calendar: $date_on_calendar
         time_on_calendar: $time_on_calendar
+        worker_id: $worker_id
         notes: $notes
       }
     ) {
@@ -497,10 +502,10 @@ const RequestCallOut = (props) => {
         date_on_calendar: null,
         category,
         job_type: jobTypeSelect.value,
-        status: "Requested",
-        request_time: new Date().toLocaleDateString(),
+        status: "Open",
         urgency_level: state.Urgency,
         video: state.videoUrl,
+        worker_id,
         ...pictures,
       },
     })
