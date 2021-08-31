@@ -37,8 +37,8 @@
       "withoutCredentials": true
     },
     "ios": {
-      "simulator": true,
-      "buildConfiguration": "Debug",
+      "simulator": false,
+      "buildConfiguration": "Release",
       "distribution": "adhoc"
     }
   }
