@@ -1,7 +1,7 @@
 {
   "build": {
     "android": {
-      "image": "latest",
+      "image": "default",
       "env": {
         "PLATFORM": "android"
       }
@@ -13,18 +13,20 @@
       }
     }
   },
+  "release": {
+    "extends": "base",
+    "env": {
+      "ENVIRONMENT": "production"
+    }
+  },
   "staging": {
     "extends": "base",
     "env": {
       "ENVIRONMENT": "staging"
     },
+    "distribution": "internal",
     "android": {
-      "buildType": "apk",
-      "distribution": "internal"
-    },
-    "ios": {
-      "releaseChannel": "staging",
-      "distribution": "store"
+      "buildType": "apk"
     }
   },
   "development": {
@@ -38,9 +40,7 @@
       "withoutCredentials": true
     },
     "ios": {
-      "simulator": false,
-      "buildConfiguration": "Release",
-      "distribution": "adhoc"
+      "simulator": true
     }
   }
 }
