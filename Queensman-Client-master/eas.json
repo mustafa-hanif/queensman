@@ -18,12 +18,13 @@
     "env": {
       "ENVIRONMENT": "staging"
     },
-    "distribution": "internal",
     "android": {
-      "buildType": "apk"
+      "buildType": "apk",
+      "distribution": "internal"
     },
     "ios": {
-      "buildType": "ipa"
+      "releaseChannel": "staging",
+      "distribution": "store"
     }
   },
   "development": {
