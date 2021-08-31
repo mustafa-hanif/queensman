@@ -1,13 +1,32 @@
 {
-  "builds": {
+  "build": {
     "android": {
-      "release": {
-        "buildType": "apk"
-      },
-      "development": {
-        "buildType": "development-client",
-        "distribution": "internal"
+      "image": "latest",
+      "env": {
+        "PLATFORM": "android"
       }
+    },
+    "ios": {
+      "image": "latest",
+      "env": {
+        "PLATFORM": "ios"
+      }
+    }
+  },
+  "development": {
+    "extends": "base",
+    "developmentClient": true,
+    "env": {
+      "ENVIRONMENT": "development"
+    },
+    "android": {
+      "distribution": "internal",
+      "withoutCredentials": true
+    },
+    "ios": {
+      "simulator": true,
+      "buildConfiguration": "Debug",
+      "distribution": "adhoc"
     }
   }
 }
