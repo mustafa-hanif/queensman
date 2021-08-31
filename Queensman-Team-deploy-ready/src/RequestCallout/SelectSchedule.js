@@ -4,9 +4,9 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-use-before-define */
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
-import { Calendar, CalendarList, Agenda } from "react-native-calendars";
-import { Box, Button, Modal } from "native-base";
+import { StyleSheet } from "react-native";
+import { CalendarList } from "react-native-calendars";
+import { Text, View, ActivityIndicator, Alert, Box, Button, Modal, ScrollView } from "native-base";
 import moment from "moment";
 // import DateTimePicker from "@react-native-community/datetimepicker";
 import { format, parseISO, parse, differenceInHours } from "date-fns";
@@ -159,17 +159,6 @@ export default function SelectSchedule(props) {
     // console.log({ mark });
     setmarkedDate(mark);
   };
-
-  // const onChange = (event, selectedDate) => {
-  //   if (selectedDate === undefined) {
-  //     setShow(false);
-  //     return;
-  //   }
-  //   setDate(selectedDate);
-  //   const currentTime = moment(selectedDate).format("hh:mm a");
-  //   settime(currentTime);
-  //   onConfirmTime();
-  // };
 
   const onConfirmTime = () => {
     setShow(false);
@@ -330,8 +319,8 @@ export default function SelectSchedule(props) {
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <View>
+    <ScrollView>
+      <Box>
         <CalendarList
           minDate={Date.now()}
           pastScrollRange={0}
@@ -351,7 +340,7 @@ export default function SelectSchedule(props) {
             const [month, year] = header.split(" ");
 
             return (
-              <View
+              <Box
                 style={{
                   flexDirection: "row",
                   marginVertical: 10,
@@ -359,12 +348,12 @@ export default function SelectSchedule(props) {
               >
                 <Text style={{ marginLeft: 5, ...styles.textStyle }}>{`${month}`}</Text>
                 <Text style={{ marginRight: 5, ...styles.textStyle }}>{year}</Text>
-              </View>
+              </Box>
             );
           }}
           enableSwipeMonths={false}
         />
-      </View>
+      </Box>
       <Confirmmodal />
       <Modal isOpen={markedDate} onClose={() => setmarkedDate(false)}>
           <Modal.Content>
@@ -384,7 +373,7 @@ export default function SelectSchedule(props) {
             </Box>
           </Modal.Content>
         </Modal>
-    </View>
+    </ScrollView>
   );
 }
 
