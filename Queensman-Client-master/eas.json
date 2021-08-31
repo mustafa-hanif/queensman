@@ -13,6 +13,19 @@
       }
     }
   },
+  "staging": {
+    "extends": "base",
+    "env": {
+      "ENVIRONMENT": "staging"
+    },
+    "distribution": "internal",
+    "android": {
+      "buildType": "apk"
+    },
+    "ios": {
+      "buildType": "ipa"
+    }
+  },
   "development": {
     "extends": "base",
     "developmentClient": true,
