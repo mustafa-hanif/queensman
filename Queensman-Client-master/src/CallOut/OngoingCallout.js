@@ -73,10 +73,10 @@ const OngoingCallout = (props) => {
       it: item,
     });
   };
-
+console.log(data?.callout)
   return (
     <View style={styles.container}>
-      {!data?.callout ? (
+      {!data?.callout?.length !== 0 ? (
         <Text
           style={[
             styles.TextFam,

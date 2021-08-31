@@ -72,7 +72,7 @@ const LoginScreen = ({ navigation }) => {
     email: "salmanhanif133@gmail.com",
     emailpage: true,
     changePasswordModal: false,
-    resetPasswordModal: true,
+    resetPasswordModal: false,
     password: "123456789",
     phoneno: "97148721301",
     passwordcheck: "",
@@ -90,7 +90,7 @@ const LoginScreen = ({ navigation }) => {
     retrievedID: "",
   });
   const [loadingModalVisible, setLoadingModalVisible] = useState(false)
-  const [resetDoneVisible, setResetDoneVisible] = useState(true)
+  const [resetDoneVisible, setResetDoneVisible] = useState(false)
   const { currentLogin } = useLoginCheck();
   const isFocused = useIsFocused();
 
@@ -136,6 +136,7 @@ const LoginScreen = ({ navigation }) => {
         }
       })
       console.log("password rested")
+      setResetDoneVisible(true)
       const url = 'https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendResetPasswordEmail';
       const data = {
         clientEmail: state.email
@@ -152,7 +153,7 @@ const LoginScreen = ({ navigation }) => {
   
       console.log("password reset!")
       setLoadingModalVisible(false);
-      setResetDoneVisible(true)
+      // setResetDoneVisible(true)
       return response.json()
     } catch (e) {
       console.log(e)
@@ -254,9 +255,9 @@ const LoginScreen = ({ navigation }) => {
         </Modal.Content>
       </Modal>
       <Modal isOpen={loadingModalVisible} size="full" onClose={() => setLoadingModalVisible(false)}>
-        <Modal.Body>
+        <Modal.Header>
         <ActivityIndicator size="large" color="white" />
-        </Modal.Body>
+        </Modal.Header>
       </Modal>
       <Modal isOpen={resetDoneVisible} size="full" onClose={() => setResetDoneVisible(false)}>
         <Modal.Header bg="white" px={5} py={5}>
