@@ -4,7 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Content } from "native-base";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import SmoothPinCodeInput from "react-native-smooth-pincode-input";
+// import SmoothPinCodeInput from "react-native-smooth-pincode-input";
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
@@ -80,7 +80,7 @@ export default class PinVerfication extends React.Component {
         >
           Please type verification code sent to {this.state.email} via email.{" "}
         </Text>
-        <SmoothPinCodeInput
+        {/* <SmoothPinCodeInput
           ref={this.pinInput}
           cellStyle={{
             borderWidth: 2,
@@ -101,7 +101,7 @@ export default class PinVerfication extends React.Component {
           onTextChange={(code) => this.setState({ code })}
           // onFulfill={this._checkCode}
           onBackspace={() => console.log("No more back.")}
-        />
+        /> */}
 
         <View style={{ height: "30%" }} />
 

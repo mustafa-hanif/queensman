@@ -132,11 +132,6 @@ const CalloutHistoryClass = (props) => {
     };
     load();
   }, []);
-  const passItem = (item) => {
-    // props.navigation.navigate("CalloutHistoryItem", {
-    //   it: item,
-    // });
-  };
 
   if (loading) {
     return <ActivityIndicator size="large" color="#FFCA5D" />;
@@ -159,7 +154,6 @@ const CalloutHistoryClass = (props) => {
       </Center>
     );
   }
-  console.log(CalloutData);
   return (
     <View style={styles.container}>
       <Text
@@ -177,7 +171,19 @@ const CalloutHistoryClass = (props) => {
       </Text>
 
       <View>
-        {CalloutData && (
+        {CalloutData.length === 0 ?  <Text
+        style={[
+          styles.TextFam,
+          {
+            fontSize: 14,
+            color: "#000E1E",
+            paddingVertical: "5%",
+            alignSelf: "center",
+          },
+        ]}
+      >
+        No history
+      </Text> : 
           <View>
             <FlatList
               data={CalloutData}
@@ -185,7 +191,7 @@ const CalloutHistoryClass = (props) => {
               keyExtractor={(item, index) => index.toString()}
             />
           </View>
-        )}
+        }
       </View>
     </View>
   );

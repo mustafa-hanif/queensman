@@ -95,6 +95,16 @@ const FINISH_JOB_SINGLE = gql`
   }
 `;
 
+const PRE_PIC = gql`
+mutation AddPrePictures($objects: [pre_job_picture_insert_input!] = {}) {
+  insert_pre_job_picture(objects: $objects) {
+    returning {
+      id
+    }
+  }
+}
+`;
+
 const PreJob = (props) => {
   const ticketId = props.navigation.getParam("ticketDetails", {}).id;
   const workerId = props.navigation.getParam("workerId", {});
@@ -107,7 +117,6 @@ const PreJob = (props) => {
   );
 
   const CallOutIdFromParams = props.navigation.getParam("QJobID", null);
-  console.log(pics)
   const [state, setState] = useState({
     Note: "",
     Notes: [{ note: "" }],
@@ -132,6 +141,12 @@ const PreJob = (props) => {
   const [deleteJobNote, { loading: delNoteLoading, error: delNoteError }] =
     useMutation(DELETE_NOTE);
 
+  const [addPrePictures, { loading: prePicLoading, error: prePicErrors }] =
+    useMutation(PRE_PIC, { onCompleted: () => {
+      setState({ ...state, IsImageuploaded: true });
+    }, onError: (e) => {
+      console.log(e);
+    }});
   const [fetchNotes, { loading, data }] = useLazyQuery(GET_NOTES, {
     variables: {
       callout_id: CallOutIdFromParams,
@@ -292,9 +307,17 @@ const PreJob = (props) => {
         })
         .filter(Boolean)
     );
-    console.log({ pictures });
+    addPrePictures({
+      variables: {
+        objects: Object.values(pictures).map(pic => ({
+          picture_location: pic,
+          callout_id: state.CallOutID
+        }))
+      }
+    })
+    // eslint-disable-next-line no-empty
     if (Object.keys(pictures).length > 0) {
-      setState({ ...state, IsImageuploaded: true });
+      
     } else {
       alert("Please Select an Image First");
     }
