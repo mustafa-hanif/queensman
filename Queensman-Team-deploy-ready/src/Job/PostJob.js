@@ -1,5 +1,7 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -14,7 +16,7 @@ import {
   Image,
   ScrollView,
 } from "react-native";
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Modal from "react-native-modal";
 import { auth, storage } from "../utils/nhost";
@@ -24,29 +26,50 @@ import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
+import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
+
+const POST_PIC = gql`
+  mutation AddPostPictures($objects: [post_job_picture_insert_input!] = {}) {
+    insert_post_job_picture(objects: $objects) {
+      returning {
+        id
+      }
+    }
+  }
+`;
 
 const PostJob = (props) => {
-  const workerId = props.navigation.getParam("workerId", {})
-    const [state, setState] = useState({
-      solution: "",
-      Pic1: "link",
-      Pic2: "link",
-      Pic3: "link",
-      Pic4: "link",
-      Pic5: "link",
-      Pic6: "link",
-      Pic7: "link",
-      Pic8: "link",
-      Pic9: "link",
-      Pic10: "link",
-      picturename: "",
-      CallOutID: props.navigation.getParam("QJobID", "Something"),
-      selectedPic:
-        "https://en.wikipedia.org/wiki/Art#/media/File:Art-portrait-collage_2.jpg",
-      isPicvisible: false, //veiw image app kay lia
-      IsImageuploaded: false,
-      selectedNo: 0,
-      ViewOpacity: 1
+  const workerId = props.navigation.getParam("workerId", {});
+  const [state, setState] = useState({
+    solution: "",
+    Pic1: "link",
+    Pic2: "link",
+    Pic3: "link",
+    Pic4: "link",
+    Pic5: "link",
+    Pic6: "link",
+    Pic7: "link",
+    Pic8: "link",
+    Pic9: "link",
+    Pic10: "link",
+    picturename: "",
+    CallOutID: props.navigation.getParam("QJobID", "Something"),
+    selectedPic:
+      "https://en.wikipedia.org/wiki/Art#/media/File:Art-portrait-collage_2.jpg",
+    isPicvisible: false, //veiw image app kay lia
+    IsImageuploaded: false,
+    selectedNo: 0,
+    ViewOpacity: 1,
+  });
+
+  const [addPostPictures, { loading: prePicLoading, error: prePicErrors }] =
+    useMutation(POST_PIC, {
+      onCompleted: () => {
+        setState({ ...state, IsImageuploaded: true });
+      },
+      onError: (e) => {
+        console.log(e);
+      },
     });
 
   const toggleGalleryEventModal = (vale, no) => {
@@ -68,8 +91,8 @@ const PostJob = (props) => {
         Sol: state.solution,
         it: props.navigation.getParam("it", {}),
         ticketDetails: props.navigation.getParam("ticketDetails", {}),
-        ticketCount: props.navigation.getParam('ticketCount', {}),
-        workerId
+        ticketCount: props.navigation.getParam("ticketCount", {}),
+        workerId,
       });
     }
   };
@@ -336,9 +359,16 @@ const PostJob = (props) => {
         })
         .filter(Boolean)
     );
-    console.log({ pictures });
+    addPostPictures({
+      variables: {
+        objects: Object.values(pictures).map((pic) => ({
+          picture_location: pic,
+          callout_id: state.CallOutID,
+        })),
+      },
+    });
+    // eslint-disable-next-line no-empty
     if (Object.keys(pictures).length > 0) {
-      setState({ ...state, IsImageuploaded: true });
     } else {
       alert("Please Select an Image First");
     }
@@ -362,472 +392,481 @@ const PostJob = (props) => {
     );
   };
 
-    return (
-      <ScrollView style={styles.container}>
-         <Heading style={{ fontSize: 20, alignSelf: "center", color: "black", marginVertical:20 }}>
+  return (
+    <ScrollView style={styles.container}>
+      <Heading
+        style={{
+          fontSize: 20,
+          alignSelf: "center",
+          color: "black",
+          marginVertical: 20,
+        }}
+      >
         Post Job
-        </Heading>
-        <Text
-          style={{
-            fontSize: 15,
-            fontWeight: "500",
-            color: "#FFCA5D",
-            marginBottom: "1.5%",
-          }}
-        >
-          Solution
-        </Text>
-        <View style={{ height: 15 }}></View>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Icon
+      </Heading>
+      <Text
+        style={{
+          fontSize: 15,
+          fontWeight: "500",
+          color: "#FFCA5D",
+          marginBottom: "1.5%",
+        }}
+      >
+        Solution
+      </Text>
+      <View style={{ height: 15 }}></View>
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <Icon
           as={Ionicons}
-            name="today"
-            style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
-          />
-          <TextInput
-            // ref="textInputMobile"
-            style={{ fontSize: 15, color: "#000E1E", width: "83%" }}
-            placeholder="Type solution here"
-            defaultValue={state.solution}
-            placeholderTextColor="#000E1E"
-            underlineColorAndroid="transparent"
-            onChangeText={(solution) => {
-              setState({ ...state, solution });
-            }} //email set
-          />
-        </View>
-        <View
-          style={{
-            borderBottomColor: "#aaa",
-            borderBottomWidth: 2,
-            width: "100%",
-            paddingTop: "3%",
-            marginBottom: 20
-          }}
-        ></View>
-
-        <Text
-          style={{
-            fontSize: 15,
-            fontWeight: "500",
-            color: "#FFCA5D",
-            marginBottom: "1.5%",
-          }}
-        >
-          Post Images
-        </Text>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            paddingHorizontal: "5%",
-            opacity: state.IsImageuploaded ? 0.3 : 1,
-          }}
-          pointerEvents={state.IsImageuploaded ? "none" : "auto"}
-        >
-          <TouchableOpacity onPress={cameraSnap}>
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-              as={Ionicons}
-                name="camera"
-                style={{ fontSize: 20, color: "#000E1E", paddingRight: "3%" }}
-              />
-              <Text style={{ fontSize: 13, marginBottom: "1%", color: "#000E1E"}}>Camera</Text>
-            </View>
-          </TouchableOpacity>
-          <Text style={{ fontSize: 13, marginBottom: "1%" }}>OR</Text>
-
-          <TouchableOpacity onPress={selectImages}>
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-              as={Ionicons}
-                name="add-circle"
-                style={{ fontSize: 20, color: "#000E1E", paddingRight: "3%" }}
-              />
-              <Text style={{ fontSize: 13, marginBottom: "1%", color: "#000E1E" }}>
-                Select images to upload
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        <View
-          style={{
-            width: "100%",
-            paddingHorizontal: "5%",
-            marginTop: "2%",
-            opacity: state.IsImageuploaded ? 0.3 : 1,
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => toggleGalleryEventModal(state.Pic1, 1)}
-            disabled={state.Pic1 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-              as={Ionicons}
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: state.Pic1 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              />
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: state.Pic1 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 1
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => toggleGalleryEventModal(state.Pic2, 2)}
-            disabled={state.Pic2 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-              as={Ionicons}
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: state.Pic2 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              />
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: state.Pic2 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 2
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => toggleGalleryEventModal(state.Pic3, 3)}
-            disabled={state.Pic3 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-              as={Ionicons}
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: state.Pic3 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              />
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: state.Pic3 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 3
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => toggleGalleryEventModal(state.Pic4, 4)}
-            disabled={state.Pic4 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-              as={Ionicons}
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: state.Pic4 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              />
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: state.Pic4 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 4
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => toggleGalleryEventModal(state.Pic5, 5)}
-            disabled={state.Pic5 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-              as={Ionicons}
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: state.Pic5 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              />
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: state.Pic5 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 5
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => toggleGalleryEventModal(state.Pic6, 6)}
-            disabled={state.Pic6 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-              as={Ionicons}
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: state.Pic6 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              />
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: state.Pic6 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 6
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => toggleGalleryEventModal(state.Pic7, 7)}
-            disabled={state.Pic7 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-              as={Ionicons}
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: state.Pic7 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              />
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: state.Pic7 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 7
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => toggleGalleryEventModal(state.Pic8, 8)}
-            disabled={state.Pic8 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-              as={Ionicons}
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: state.Pic8 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              />
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: state.Pic8 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 8
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => toggleGalleryEventModal(state.Pic9, 9)}
-            disabled={state.Pic9 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-              as={Ionicons}
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: state.Pic9 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              />
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: state.Pic9 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 9
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => toggleGalleryEventModal(state.Pic10, 10)}
-            disabled={state.Pic10 == "link" ? true : false}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-              as={Ionicons}
-                name="link"
-                style={{
-                  fontSize: 20,
-                  color: state.Pic10 == "link" ? "#aaa" : "#000E1E",
-                  paddingRight: "3%",
-                }}
-              />
-              <Text
-                style={{
-                  fontSize: 13,
-                  marginBottom: "1%",
-                  color: state.Pic10 == "link" ? "#aaa" : "#000E1E",
-                }}
-              >
-                Picture 10
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-        <View style={{ height: "3%" }}></View>
-        <View style={{ height: "3%" }}></View>
-        <Button
-          disabled={state.IsImageuploaded}
-          onPress={alertUploadImage}
-          title="UPLOAD IMAGES"
-          color="#FFCA5D"
+          name="today"
+          style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
         />
-        <View style={{ height: "2%" }}></View>
-        <Button
-          onPress={alertPostJobHandler}
-          title="PROCEED"
-          color="#FFCA5D"
+        <TextInput
+          // ref="textInputMobile"
+          style={{ fontSize: 15, color: "#000E1E", width: "83%" }}
+          placeholder="Type solution here"
+          defaultValue={state.solution}
+          placeholderTextColor="#000E1E"
+          underlineColorAndroid="transparent"
+          onChangeText={(solution) => {
+            setState({ ...state, solution });
+          }} //email set
         />
-        <View style={{ height: 80 }}></View>
-        <Modal
-          isVisible={state.isPicvisible}
-          onSwipeComplete={() => setState({ isPicvisible: false })}
-          swipeDirection={["left", "right", "down"]}
-          onBackdropPress={() => setState({ isPicvisible: false })}
-        >
-          <View style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}>
-            <Image
-              style={{ width: "80%", height: "80%", alignSelf: "center" }}
-              source={{ uri: state.selectedPic }}
+      </View>
+      <View
+        style={{
+          borderBottomColor: "#aaa",
+          borderBottomWidth: 2,
+          width: "100%",
+          paddingTop: "3%",
+          marginBottom: 20,
+        }}
+      ></View>
+
+      <Text
+        style={{
+          fontSize: 15,
+          fontWeight: "500",
+          color: "#FFCA5D",
+          marginBottom: "1.5%",
+        }}
+      >
+        Post Images
+      </Text>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          paddingHorizontal: "5%",
+          opacity: state.IsImageuploaded ? 0.3 : 1,
+        }}
+        pointerEvents={state.IsImageuploaded ? "none" : "auto"}
+      >
+        <TouchableOpacity onPress={cameraSnap}>
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              as={Ionicons}
+              name="camera"
+              style={{ fontSize: 20, color: "#000E1E", paddingRight: "3%" }}
             />
-            <Text> </Text>
-            <Button
-              onPress={() => removeImages()}
-              disabled={state.IsImageuploaded}
-              title="REMOVE IMAGE"
-              color="#FFCA5D"
-            />
-            <Text> </Text>
-            <Text> </Text>
-            <Button
-              onPress={() => setState({ isPicvisible: false })}
-              title="CLOSE"
-              color="#FFCA5D"
-            />
+            <Text
+              style={{ fontSize: 13, marginBottom: "1%", color: "#000E1E" }}
+            >
+              Camera
+            </Text>
           </View>
-        </Modal>
-      </ScrollView>
-    );
-  }
+        </TouchableOpacity>
+        <Text style={{ fontSize: 13, marginBottom: "1%" }}>OR</Text>
+
+        <TouchableOpacity onPress={selectImages}>
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              as={Ionicons}
+              name="add-circle"
+              style={{ fontSize: 20, color: "#000E1E", paddingRight: "3%" }}
+            />
+            <Text
+              style={{ fontSize: 13, marginBottom: "1%", color: "#000E1E" }}
+            >
+              Select images to upload
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+
+      <View
+        style={{
+          width: "100%",
+          paddingHorizontal: "5%",
+          marginTop: "2%",
+          opacity: state.IsImageuploaded ? 0.3 : 1,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => toggleGalleryEventModal(state.Pic1, 1)}
+          disabled={state.Pic1 == "link" ? true : false}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              as={Ionicons}
+              name="link"
+              style={{
+                fontSize: 20,
+                color: state.Pic1 == "link" ? "#aaa" : "#000E1E",
+                paddingRight: "3%",
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 13,
+                marginBottom: "1%",
+                color: state.Pic1 == "link" ? "#aaa" : "#000E1E",
+              }}
+            >
+              Picture 1
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => toggleGalleryEventModal(state.Pic2, 2)}
+          disabled={state.Pic2 == "link" ? true : false}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              as={Ionicons}
+              name="link"
+              style={{
+                fontSize: 20,
+                color: state.Pic2 == "link" ? "#aaa" : "#000E1E",
+                paddingRight: "3%",
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 13,
+                marginBottom: "1%",
+                color: state.Pic2 == "link" ? "#aaa" : "#000E1E",
+              }}
+            >
+              Picture 2
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => toggleGalleryEventModal(state.Pic3, 3)}
+          disabled={state.Pic3 == "link" ? true : false}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              as={Ionicons}
+              name="link"
+              style={{
+                fontSize: 20,
+                color: state.Pic3 == "link" ? "#aaa" : "#000E1E",
+                paddingRight: "3%",
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 13,
+                marginBottom: "1%",
+                color: state.Pic3 == "link" ? "#aaa" : "#000E1E",
+              }}
+            >
+              Picture 3
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => toggleGalleryEventModal(state.Pic4, 4)}
+          disabled={state.Pic4 == "link" ? true : false}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              as={Ionicons}
+              name="link"
+              style={{
+                fontSize: 20,
+                color: state.Pic4 == "link" ? "#aaa" : "#000E1E",
+                paddingRight: "3%",
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 13,
+                marginBottom: "1%",
+                color: state.Pic4 == "link" ? "#aaa" : "#000E1E",
+              }}
+            >
+              Picture 4
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => toggleGalleryEventModal(state.Pic5, 5)}
+          disabled={state.Pic5 == "link" ? true : false}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              as={Ionicons}
+              name="link"
+              style={{
+                fontSize: 20,
+                color: state.Pic5 == "link" ? "#aaa" : "#000E1E",
+                paddingRight: "3%",
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 13,
+                marginBottom: "1%",
+                color: state.Pic5 == "link" ? "#aaa" : "#000E1E",
+              }}
+            >
+              Picture 5
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => toggleGalleryEventModal(state.Pic6, 6)}
+          disabled={state.Pic6 == "link" ? true : false}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              as={Ionicons}
+              name="link"
+              style={{
+                fontSize: 20,
+                color: state.Pic6 == "link" ? "#aaa" : "#000E1E",
+                paddingRight: "3%",
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 13,
+                marginBottom: "1%",
+                color: state.Pic6 == "link" ? "#aaa" : "#000E1E",
+              }}
+            >
+              Picture 6
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => toggleGalleryEventModal(state.Pic7, 7)}
+          disabled={state.Pic7 == "link" ? true : false}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              as={Ionicons}
+              name="link"
+              style={{
+                fontSize: 20,
+                color: state.Pic7 == "link" ? "#aaa" : "#000E1E",
+                paddingRight: "3%",
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 13,
+                marginBottom: "1%",
+                color: state.Pic7 == "link" ? "#aaa" : "#000E1E",
+              }}
+            >
+              Picture 7
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => toggleGalleryEventModal(state.Pic8, 8)}
+          disabled={state.Pic8 == "link" ? true : false}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              as={Ionicons}
+              name="link"
+              style={{
+                fontSize: 20,
+                color: state.Pic8 == "link" ? "#aaa" : "#000E1E",
+                paddingRight: "3%",
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 13,
+                marginBottom: "1%",
+                color: state.Pic8 == "link" ? "#aaa" : "#000E1E",
+              }}
+            >
+              Picture 8
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => toggleGalleryEventModal(state.Pic9, 9)}
+          disabled={state.Pic9 == "link" ? true : false}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              as={Ionicons}
+              name="link"
+              style={{
+                fontSize: 20,
+                color: state.Pic9 == "link" ? "#aaa" : "#000E1E",
+                paddingRight: "3%",
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 13,
+                marginBottom: "1%",
+                color: state.Pic9 == "link" ? "#aaa" : "#000E1E",
+              }}
+            >
+              Picture 9
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => toggleGalleryEventModal(state.Pic10, 10)}
+          disabled={state.Pic10 == "link" ? true : false}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              as={Ionicons}
+              name="link"
+              style={{
+                fontSize: 20,
+                color: state.Pic10 == "link" ? "#aaa" : "#000E1E",
+                paddingRight: "3%",
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 13,
+                marginBottom: "1%",
+                color: state.Pic10 == "link" ? "#aaa" : "#000E1E",
+              }}
+            >
+              Picture 10
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+      <View style={{ height: "3%" }}></View>
+      <View style={{ height: "3%" }}></View>
+      <Button
+        disabled={state.IsImageuploaded}
+        onPress={alertUploadImage}
+        title="UPLOAD IMAGES"
+        color="#FFCA5D"
+      />
+      <View style={{ height: "2%" }}></View>
+      <Button onPress={alertPostJobHandler} title="PROCEED" color="#FFCA5D" />
+      <View style={{ height: 80 }}></View>
+      <Modal
+        isVisible={state.isPicvisible}
+        onSwipeComplete={() => setState({ isPicvisible: false })}
+        swipeDirection={["left", "right", "down"]}
+        onBackdropPress={() => setState({ isPicvisible: false })}
+      >
+        <View style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}>
+          <Image
+            style={{ width: "80%", height: "80%", alignSelf: "center" }}
+            source={{ uri: state.selectedPic }}
+          />
+          <Text> </Text>
+          <Button
+            onPress={() => removeImages()}
+            disabled={state.IsImageuploaded}
+            title="REMOVE IMAGE"
+            color="#FFCA5D"
+          />
+          <Text> </Text>
+          <Text> </Text>
+          <Button
+            onPress={() => setState({ isPicvisible: false })}
+            title="CLOSE"
+            color="#FFCA5D"
+          />
+        </View>
+      </Modal>
+    </ScrollView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -866,4 +905,4 @@ const expoFileToFormFile = (url) => {
   return { uri: localUri, name: filename, type };
 };
 
-export default PostJob
+export default PostJob;

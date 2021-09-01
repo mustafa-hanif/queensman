@@ -1,3 +1,6 @@
+/* eslint-disable no-constant-condition */
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import React, { useEffect, useState } from "react";
 import { Button, Box, ScrollView } from "native-base";
 import { Video } from "expo-av";
@@ -513,19 +516,7 @@ const RequestCallOut = (props) => {
         // SubmittedCalloutAlert();
         setState({...state, loading: false})
         props.navigation.navigate(
-          "Home",
-          showMessage({
-            message: "Callout Request Submitted",
-            description: "One of our team will be in touch shortly",
-            type: "danger",
-            style: {
-              height: "20%",
-              flexDirection: "row",
-              alignItems: "center",
-            },
-            textStyle: { textAlignVertical: "center" },
-            duration: 3000,
-          })
+          "Home"
         );
       })
       .catch((err) => console.log({ err }));

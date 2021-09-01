@@ -16,7 +16,7 @@ import {
   TextInput,
 } from "react-native";
 import { Icon } from "native-base";
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import Modal from "react-native-modal";
 
@@ -41,14 +41,23 @@ const GET_JOB_WORKERS = gql`
 `;
 
 const START_JOB = gql`
-  mutation StartJob($callout_id: Int!, $ticket_id: Int!, $time: timestamp!, $location:String = "", $updater_id: Int!) {
+  mutation StartJob(
+    $callout_id: Int!
+    $ticket_id: Int!
+    $time: timestamp!
+    $location: String = ""
+    $updater_id: Int!
+  ) {
     update_callout_by_pk(
       pk_columns: { id: $callout_id }
       _set: { status: "In Progress" }
     ) {
       status
     }
-    update_job_tickets_by_pk(pk_columns: {id: $ticket_id}, _set: {status: "In Progress"}) {
+    update_job_tickets_by_pk(
+      pk_columns: { id: $ticket_id }
+      _set: { status: "In Progress" }
+    ) {
       status
     }
     insert_job_history_one(
@@ -89,14 +98,15 @@ const UPDATE_TICKET_VERIFICATION = gql`
 `;
 
 const STOP_JOB = gql`
-  mutation CloseTicket($id: Int!, 
-    $callout_id: Int!, 
-    $worker_email: String!,
-    $name: String!,
-    $desc: String!,
-    $notes: jsonb!,
-    $type: String!,
-    $status: String!,
+  mutation CloseTicket(
+    $id: Int!
+    $callout_id: Int!
+    $worker_email: String!
+    $name: String!
+    $desc: String!
+    $notes: jsonb!
+    $type: String!
+    $status: String!
     $client_email: String!
   ) {
     update_job_tickets_by_pk(
@@ -108,13 +118,13 @@ const STOP_JOB = gql`
     }
     insert_job_tickets_one(
       object: {
-        name: $name,
-        description: $desc,
-        callout_id: $callout_id, 
-        type: $type, 
-        worker_email: $worker_email, 
-        notes: [$notes], 
-        status: $status,
+        name: $name
+        description: $desc
+        callout_id: $callout_id
+        type: $type
+        worker_email: $worker_email
+        notes: [$notes]
+        status: $status
         client_email: $client_email
       }
     ) {
@@ -124,23 +134,24 @@ const STOP_JOB = gql`
 `;
 
 const CHANGE_JOB_TYPE = gql`
-mutation CloseTicket($id: Int!, 
-  $notes: jsonb!,
-  $status: String!,
-  $type: String!,
-) {
-  update_job_tickets_by_pk(
-    pk_columns: { id: $id }
-    _set: { status: $status, type: $type }
-    _append: { notes: $notes }
+  mutation CloseTicket(
+    $id: Int!
+    $notes: jsonb!
+    $status: String!
+    $type: String!
   ) {
-    id
+    update_job_tickets_by_pk(
+      pk_columns: { id: $id }
+      _set: { status: $status, type: $type }
+      _append: { notes: $notes }
+    ) {
+      id
+    }
   }
-}
-`
+`;
 
 const Job = (props) => {
-  const worker_email = auth.user().email
+  const worker_email = auth.user().email;
   const [state, setState] = useState({
     Pic1: "photos/0690da3e-9c38-4a3f-ba45-8971697bd925.jpg",
     Pic2: "link",
@@ -165,7 +176,7 @@ const Job = (props) => {
     W3Name: "none",
     W3Phone: "none",
     W3Email: "none",
-    type: ticket?.type
+    type: ticket?.type,
   });
 
   const [notes, setnotes] = useState("");
@@ -173,7 +184,7 @@ const Job = (props) => {
 
   const calloutIdFromParam = props.navigation.getParam("it", null);
   const ticket = props.navigation.getParam("ticketDetails", {});
-  const workerId = props.navigation.getParam("workerId", {})
+  const workerId = props.navigation.getParam("workerId", {});
   const [ticketNotesArray, setticketNotesArray] = useState(ticket.notes);
 
   // API
@@ -183,14 +194,15 @@ const Job = (props) => {
   ] = useMutation(START_JOB);
 
   const [stopJobModalVisible, setstopJobModalVisible] = useState(false);
-  const [loadingModalVisible, setLoadingModalVisible] = useState(false)
+  const [loadingModalVisible, setLoadingModalVisible] = useState(false);
   const [addNote, { Notesdata, loading: addNoteLoading, error: addNoteError }] =
     useMutation(ADD_TICKET_NOTE);
 
   // console.log({ Notesdata, addNoteLoading, addNoteError });
-  const [isVerified, setIsVerified] = useState(ticket.isVerified)
-  const [updateVerification, { data: verificationData }] = useMutation(UPDATE_TICKET_VERIFICATION);
-
+  const [isVerified, setIsVerified] = useState(ticket.isVerified);
+  const [updateVerification, { data: verificationData }] = useMutation(
+    UPDATE_TICKET_VERIFICATION
+  );
 
   const [
     stopJob,
@@ -199,7 +211,11 @@ const Job = (props) => {
 
   const [
     changeJobType,
-    { changeJobTypeData, loading: changeJobTypeLoading, error: changeJobTypeError },
+    {
+      changeJobTypeData,
+      loading: changeJobTypeLoading,
+      error: changeJobTypeError,
+    },
   ] = useMutation(CHANGE_JOB_TYPE);
 
   // if (startJobCalled && !startJobLoading) {
@@ -218,17 +234,21 @@ const Job = (props) => {
   });
 
   const getLocation = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      console.log("Permission to access location was denied");
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
+        return null;
+      }
+
+      let location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
+
+      return JSON.stringify(location);
+    } catch (e) {
       return null;
     }
-
-    let location = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.High,
-    });
-
-    return JSON.stringify(location);
   };
 
   useEffect(() => {
@@ -256,11 +276,14 @@ const Job = (props) => {
       "Error",
       "An error occured while submitting.",
       [
-        { text: "Go back", onPress: () => props.navigation.navigate("JobList") },
+        {
+          text: "Go back",
+          onPress: () => props.navigation.navigate("JobList"),
+        },
       ],
       { cancelable: false }
     );
-  }
+  };
   const AlertStartJob = () => {
     Alert.alert(
       "Start the Job.",
@@ -278,32 +301,35 @@ const Job = (props) => {
   };
 
   const markAsVerified = (isVerified) => {
-    updateVerification({variables: {
-      id: ticket.id,
-      isVerified
-    }})
-    setIsVerified(isVerified)
-  }
+    updateVerification({
+      variables: {
+        id: ticket.id,
+        isVerified,
+      },
+    });
+    setIsVerified(isVerified);
+  };
 
   const StartJobHandler = async () => {
+    const location = await getLocation();
     await startJob({
       variables: {
         ticket_id: ticket.id,
         callout_id: state.JobData.id,
         updater_id: state.workerID,
         time: new Date().toJSON(),
-        location: await getLocation(),
+        location: location,
       },
     });
-    console.log("navigating")
+    console.log("navigating");
     props.navigation.navigate("PreJob", {
       QJobID: state.JobData.id,
       it: props.navigation.getParam("it", {}),
       ticketDetails: props.navigation.getParam("ticketDetails", {}),
-      ticketCount: props.navigation.getParam('ticketCount', {}),
+      ticketCount: props.navigation.getParam("ticketCount", {}),
       workerId,
     });
-    console.log("navigated")
+    console.log("navigated");
   };
 
   const toggleGalleryEventModal = (value) => {
@@ -337,7 +363,7 @@ const Job = (props) => {
           }}
         >
           <Icon
-          as={Ionicons}
+            as={Ionicons}
             name="image"
             style={{
               fontSize: 20,
@@ -415,7 +441,7 @@ const Job = (props) => {
     if (notes === "") {
       return alert("Cannot add empty Note");
     }
-    console.log(auth.user())
+    console.log(auth.user());
     const { display_name } = auth.user();
 
     const param = {
@@ -423,12 +449,12 @@ const Job = (props) => {
       id: ticket.id,
     };
 
-    // console.log("calling api", param);
+    console.log("calling api", param);
     addNote({
       variables: param,
     })
       .then((res) => {
-        // console.log({ res });
+        console.log({ res });
         setnotes("");
         setticketNotesArray(res.data.update_job_tickets_by_pk.notes);
       })
@@ -445,7 +471,7 @@ const Job = (props) => {
         }}
       >
         <Icon
-        as={Ionicons}
+          as={Ionicons}
           name="ios-newspaper-outline"
           style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
         />
@@ -466,7 +492,7 @@ const Job = (props) => {
         />
         <TouchableOpacity onPress={AddNoteApiCall}>
           <Icon
-          as={Ionicons}
+            as={Ionicons}
             name="add-circle"
             style={{ fontSize: 25, color: "#000E1E" }}
           />
@@ -498,7 +524,7 @@ const Job = (props) => {
     if (closeJobNote === "") {
       return alert("Please enter a note");
     }
-    setLoadingModalVisible(true)
+    setLoadingModalVisible(true);
     const form = new FormData();
     /*eslint-disable*/
     form.append(
@@ -534,47 +560,52 @@ const Job = (props) => {
     }
     if (state.type != "Deferred") {
       try {
-      await stopJob({
-        variables: {
-          name: `Defer Ticket of ${ticket.id}`,
-          desc: closeJobNote,
-          id: ticket.id,
-          worker_email: state.JobData.job_worker[0].worker.email,
-          callout_id: state.JobData.id,
-          notes: {from: state.JobData.job_worker[0].worker.full_name, message: closeJobNote},
-          status: "Open",
-          type: state.type,
-          client_email: client?.email
-        },
-      })
-      setstopJobModalVisible(false);
-      setLoadingModalVisible(false);
-      props.navigation.navigate("TicketListing");
-    } catch(e) {
-      console.log(e)
-    }
-      
+        await stopJob({
+          variables: {
+            name: `Defer Ticket of ${ticket.id}`,
+            desc: closeJobNote,
+            id: ticket.id,
+            worker_email: state.JobData.job_worker[0].worker.email,
+            callout_id: state.JobData.id,
+            notes: {
+              from: state.JobData.job_worker[0].worker.full_name,
+              message: closeJobNote,
+            },
+            status: "Open",
+            type: state.type,
+            client_email: client?.email,
+          },
+        });
+        setstopJobModalVisible(false);
+        setLoadingModalVisible(false);
+        props.navigation.navigate("TicketListing");
+      } catch (e) {
+        console.log(e);
+      }
     } else {
       try {
-      await stopJob({
-        variables: {
-          name: `Defer Ticket of ${ticket.id}`,
-          desc: closeJobNote,
-          id: ticket.id,
-          worker_email: state.JobData.job_worker[0].worker.email,
-          callout_id: state.JobData.id,
-          notes: {from: state.JobData.job_worker[0].worker.full_name, message: closeJobNote},
-          status: "Open",
-          type: "Deferred",
-          client_email: client?.email
-        },
-      })
-          setstopJobModalVisible(false);
-          props.navigation.navigate("TicketListing")
-          setLoadingModalVisible(false)
-    } catch(e) {
-      console.log(e)
-    }
+        await stopJob({
+          variables: {
+            name: `Defer Ticket of ${ticket.id}`,
+            desc: closeJobNote,
+            id: ticket.id,
+            worker_email: state.JobData.job_worker[0].worker.email,
+            callout_id: state.JobData.id,
+            notes: {
+              from: state.JobData.job_worker[0].worker.full_name,
+              message: closeJobNote,
+            },
+            status: "Open",
+            type: "Deferred",
+            client_email: client?.email,
+          },
+        });
+        setstopJobModalVisible(false);
+        props.navigation.navigate("TicketListing");
+        setLoadingModalVisible(false);
+      } catch (e) {
+        console.log(e);
+      }
     }
   };
   return (
@@ -585,7 +616,12 @@ const Job = (props) => {
         <Heading style={{ fontSize: 20, alignSelf: "center", color: "black" }}>
           Ticket Details
         </Heading>
-        <Text style={{ fontSize: 12, alignSelf: "center" }}>Status: <Text style={ ticket?.status == "Closed" && {color: 'red'}}>{ticket?.status}</Text></Text>
+        <Text style={{ fontSize: 12, alignSelf: "center" }}>
+          Status:{" "}
+          <Text style={ticket?.status == "Closed" && { color: "red" }}>
+            {ticket?.status}
+          </Text>
+        </Text>
         <Heading>Name</Heading>
         <RenderValue>{ticket.name}</RenderValue>
         <Heading>Description</Heading>
@@ -609,36 +645,60 @@ const Job = (props) => {
         {addNoteLoading && <ActivityIndicator size="small" color="#aaa" />}
         {!addNoteLoading && RenderAddNote()}
       </View>
-      {worker_email == "opscord@queensman.com" && <>
-      {isVerified ? <View>
-        <Button
-        style={{ width: "20%"}}
-        onPress={() => {markAsVerified(!isVerified)}}
-        title="Mark it as unverified"
-        color="#D2054E"
-      />
-      <View style={{backgroundColor: "#059669", width: "100%", borderBottomRadius: 5}}>
-        <Text style={{alignSelf: 'center', paddingVertical: 8, color: "white"}}>VERIFIED</Text>
-      </View>
-      </View> : 
-      <View>
-      <Button
-      style={{ width: "20%"}}
-      onPress={() => {markAsVerified(!isVerified)}}
-      title="Mark it as verified"
-      color="#539bf5"
-    />
-     <Button
-      style={{ width: "20%"}}
-      title="Unverified"
-      color="#539bf5"
-      disabled
-    />
-    </View>
-      }
-      </>}
-     
-      <Text style={[styles.HeadingStyle, { alignSelf: "center", marginTop: 10 }]}>
+      {worker_email == "opscord@queensman.com" && (
+        <>
+          {isVerified ? (
+            <View>
+              <Button
+                style={{ width: "20%" }}
+                onPress={() => {
+                  markAsVerified(!isVerified);
+                }}
+                title="Mark it as unverified"
+                color="#D2054E"
+              />
+              <View
+                style={{
+                  backgroundColor: "#059669",
+                  width: "100%",
+                  borderBottomRadius: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    alignSelf: "center",
+                    paddingVertical: 8,
+                    color: "white",
+                  }}
+                >
+                  VERIFIED
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <View>
+              <Button
+                style={{ width: "20%" }}
+                onPress={() => {
+                  markAsVerified(!isVerified);
+                }}
+                title="Mark it as verified"
+                color="#539bf5"
+              />
+              <Button
+                style={{ width: "20%" }}
+                title="Unverified"
+                color="#539bf5"
+                disabled
+              />
+            </View>
+          )}
+        </>
+      )}
+
+      <Text
+        style={[styles.HeadingStyle, { alignSelf: "center", marginTop: 10 }]}
+      >
         Overall Job Details
       </Text>
       <Text
@@ -846,23 +906,25 @@ const Job = (props) => {
       >
         Email: {state.W3Email}
       </Text>
-        {ticket.status != "Closed" && <View style={{marginBottom: 60}}>
-        <Button
-        style={{ width: "20%" }}
-        onPress={AlertStartJob}
-        title="Start Job"
-        color="#FFCA5D"
-      />
+      {ticket.status != "Closed" && (
+        <View style={{ marginBottom: 60 }}>
+          <Button
+            style={{ width: "20%" }}
+            onPress={AlertStartJob}
+            title="Start Job"
+            color="#FFCA5D"
+          />
 
-       <View style={{ marginTop: 20, marginBottom: 40 }}>
-        <Button
-          // style={{ width: "20%" }}
-          onPress={onStopJobPress}
-          title="Stop Job"
-          color="#cf142b"
-        />
-      </View>
-          </View>}
+          <View style={{ marginTop: 20, marginBottom: 40 }}>
+            <Button
+              // style={{ width: "20%" }}
+              onPress={onStopJobPress}
+              title="Stop Job"
+              color="#cf142b"
+            />
+          </View>
+        </View>
+      )}
 
       <Modal
         isVisible={state.isPicvisible}
@@ -893,10 +955,13 @@ const Job = (props) => {
           </TouchableOpacity>
         </View>
       </Modal>
-      <Modal isVisible={loadingModalVisible}
-      onBackButtonPress={()=>setLoadingModalVisible(false)}
+      <Modal
+        isVisible={loadingModalVisible}
+        onBackButtonPress={() => setLoadingModalVisible(false)}
       >
-        <View style={{flex: 1, alignItems: "center", justifyContent: "center"}}>
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
           <ActivityIndicator size="large" color="#FFCA5D" />
         </View>
       </Modal>
@@ -937,47 +1002,92 @@ const Job = (props) => {
               borderWidth: 1,
               borderRadius: 10,
               borderColor: "#DDD",
-              marginBottom: 15
+              marginBottom: 15,
             }}
           ></TextInput>
-          
-            <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>Job Type</Text>
+
+          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
+            Job Type
+          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              height: 80,
+            }}
+          >
             <View
               style={{
+                flex: 1,
                 flexDirection: "row",
                 width: "100%",
-                height: 80,
+                justifyContent: "flex-start",
+                alignItems: "center",
               }}
             >
-               <View style={{flex: 1, flexDirection:"row", width: "100%", justifyContent: "flex-start", alignItems: "center"}}>
               <TouchableOpacity
                 style={styles.circle}
                 onPress={() => setState({ ...state, type: "Deferred" })} // we set our value state to key
               >
-                {state.type === "Deferred" ? <View style={styles.checkedCircle} /> : null}
+                {state.type === "Deferred" ? (
+                  <View style={styles.checkedCircle} />
+                ) : null}
               </TouchableOpacity>
-              <Text style={{ paddingLeft: "2%", paddingRight: "2%", fontSize: 12 }}>Deferred</Text>              
-              </View>
-              <View style={{flex: 1, flexDirection:"row", width: "100%", justifyContent: "center", alignItems: "center"}}>
+              <Text
+                style={{ paddingLeft: "2%", paddingRight: "2%", fontSize: 12 }}
+              >
+                Deferred
+              </Text>
+            </View>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <TouchableOpacity
                 style={styles.circle}
                 onPress={() => setState({ ...state, type: "Material Request" })} // we set our value state to key
               >
-                {state.type === "Material Request" ? <View style={styles.checkedCircle} /> : null}
+                {state.type === "Material Request" ? (
+                  <View style={styles.checkedCircle} />
+                ) : null}
               </TouchableOpacity>
 
-              <Text style={{ paddingLeft: "2%", paddingRight: "2%", fontSize: 12 }}>Material Request</Text>
-              </View>
-              <View style={{flex: 1, flexDirection:"row", width: "100%", justifyContent: "flex-end",marginLeft: 15,  alignItems: "center"}}>
+              <Text
+                style={{ paddingLeft: "2%", paddingRight: "2%", fontSize: 12 }}
+              >
+                Material Request
+              </Text>
+            </View>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                width: "100%",
+                justifyContent: "flex-end",
+                marginLeft: 15,
+                alignItems: "center",
+              }}
+            >
               <TouchableOpacity
                 style={styles.circle}
                 onPress={() => setState({ ...state, type: "Out of scope" })} // we set our value state to key
               >
-                {state.type === "Out of scope" ? <View style={styles.checkedCircle} /> : null}
+                {state.type === "Out of scope" ? (
+                  <View style={styles.checkedCircle} />
+                ) : null}
               </TouchableOpacity>
-              <Text style={{ paddingLeft: "2%", paddingRight: "2%", fontSize: 12 }}>Out of scope</Text>              
-              </View>
+              <Text
+                style={{ paddingLeft: "2%", paddingRight: "2%", fontSize: 12 }}
+              >
+                Out of scope
+              </Text>
             </View>
+          </View>
 
           <Button
             style={{ width: "20%" }}
