@@ -1,13 +1,46 @@
 {
-  "builds": {
+  "build": {
     "android": {
-      "release": {
-        "buildType": "apk"
-      },
-      "development": {
-        "buildType": "development-client",
-        "distribution": "internal"
+      "image": "default",
+      "env": {
+        "PLATFORM": "android"
       }
+    },
+    "ios": {
+      "image": "latest",
+      "env": {
+        "PLATFORM": "ios"
+      }
+    }
+  },
+  "release": {
+    "extends": "base",
+    "env": {
+      "ENVIRONMENT": "production"
+    }
+  },
+  "staging": {
+    "extends": "base",
+    "env": {
+      "ENVIRONMENT": "staging"
+    },
+    "distribution": "internal",
+    "android": {
+      "buildType": "apk"
+    }
+  },
+  "development": {
+    "extends": "base",
+    "developmentClient": true,
+    "env": {
+      "ENVIRONMENT": "development"
+    },
+    "android": {
+      "distribution": "internal",
+      "withoutCredentials": true
+    },
+    "ios": {
+      "simulator": true
     }
   }
 }
