@@ -4,7 +4,7 @@
 /* eslint-disable no-console */
 /* eslint-disable import/order */
 /* eslint-disable no-use-before-define */
-const version = "v0.7";
+const version = "v0.7.1";
 import React, { PureComponent } from "react";
 import { Text, View, SafeAreaView, Image, TouchableOpacity, Linking } from "react-native";
 import { Icon, Box, NativeBaseProvider, extendTheme } from "native-base";
@@ -35,7 +35,6 @@ import RequestCallOut from "./src/CallOut/RequestCallOut";
 import CalloutHistory from "./src/CallOut/CalloutHistory";
 import OngoingCallout from "./src/CallOut/OngoingCallout";
 import OngoingCalloutItem from "./src/CallOut/CallotComponent/OngoingCalloutItem";
-import CallOutHistoryItem from "./src/CallOut/CallotComponent/CallOutHistoryItem";
 import PinVerfication from "./src/Auth/PinVerfication";
 import SignupContectUs from "./src/Login/SignupContectUs";
 import SettingPasswordChange from "./src/Component/SettingPasswordChange";
@@ -183,7 +182,6 @@ const HomeScreenStackNavigator = () => {
         name="OngoingcalloutItem"
         component={OngoingCalloutItem}
       />
-      <HomeScreenStack.Screen name="CalloutHistoryItem" component={CallOutHistoryItem} />
       <HomeScreenStack.Screen options={{ title: "Reports" }} name="CalloutReportItem" component={GenerateReport} />
       <HomeScreenStack.Screen name="MonthlyStatsReport" component={MonthlyStatsReport} />
       <HomeScreenStack.Screen name="MaterialWarrantyReport" component={MaterialWarrantyReport} />

@@ -94,7 +94,9 @@ query getJobTickets {
         phone
       }
       job: callout_job {
-        instructions
+        solution
+        feedback
+        rating
       }
       property {
         id
@@ -107,6 +109,18 @@ query getJobTickets {
         id
         date_on_calendar
         time_on_calendar
+      }
+      pre_pics {
+        picture_location
+      }
+      postpics {
+        picture_location
+      }
+      job_history {
+        id
+        location
+        status_update
+        time
       }
     }
   }

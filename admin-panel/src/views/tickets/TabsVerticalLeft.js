@@ -12,24 +12,27 @@ const TabsVerticalLeft = ({item}) => {
     }
   }
 
-  const RowContent = ({data: prop}) => (
+  const RowContent = ({data: jobHistory}) => (
     <div>
     <div className='meetup-header d-flex align-items-center'>
-      <h5 className='mb-1'>Address: </h5> 
-      <h6 className='mb-1 ml-1'>{prop.address}</h6>
+      <h5 className='mb-1'>Status Update: </h5> 
+      <h6 className='mb-1 ml-1'>{jobHistory?.status_update}</h6>
     </div>
+    {jobHistory?.location && <div className='meetup-header d-flex align-items-center'>
+      <h5 className='mb-1'>Location: </h5>
+      <h6 className='mb-1 ml-1'><a target="_blank" href={`https://www.google.com/maps/search/?api=1&query=${JSON.parse(jobHistory?.location).coords?.latitude}%2C${JSON.parse(jobHistory?.location).coords?.longitude}`}>Click here to view location</a></h6>
+    </div>}
     <div className='meetup-header d-flex align-items-center'>
-      <h5 className='mb-1'>Country: </h5>
-      <h6 className='mb-1 ml-1'>{prop.country}</h6>
-    </div>
-    <div className='meetup-header d-flex align-items-center'>
-      <h5 className='mb-1'>City: </h5>
-      <h6 className='mb-1 ml-1'>{prop.city}</h6>
+      <h5 className='mb-1'>Updated At: </h5>
+      <h6 className='mb-1 ml-1'>{moment(jobHistory?.time).format('MMMM Do YYYY, h:mm:ss a')}</h6>
     </div>
   </div>
   )
 
-  // const CollapseDefault = ({data}) => <AppCollapse data={data} type='border' />
+  const CollapseDefault = ({ data }) => (
+    <AppCollapse data={data} type="border" />
+  )
+
 
   const CalloutPicture = ({picture}) => {
     return <div style={{width: "250px", margin:4}}>
@@ -39,25 +42,24 @@ const TabsVerticalLeft = ({item}) => {
 
   const client = item?.callout?.client
   const callout = item?.callout
+  const { job } = callout
+  const job_history = callout?.job_history
   const schedule = item?.callout?.schedulers[0]
   const {id, notes, name, callout_id, description, type, worker_email, status, created_at } = item
   const job_ticket = {id, notes, name, callout_id, description, type, worker_email, status, created_at }
-  // const property_owneds = item.callout.property
-  //   const prop_count = property_owneds.length
-  //   const property_owneds_modified = prop_count !== 0 ? {
-  //           title: `Property id: ${property_owneds.id} Adddress: ${property_owneds.address}`,
-  //           content: (
-  //             <RowContent data={property_owneds} count={property_owneds.length}/>
-  //           )
-  //         } : [
-  //       {
-  //       title: `No data Available`,
-  //       content: (
-  //         <div>
-  //       </div>
-  //       )
-  //     }
-  //   ]
+
+  const job_history_count = job_history.length
+  const job_history_modified =
+  job_history_count !== 0 ? job_history.map((jobHistory, i) => ({
+    title: `History id: ${jobHistory.id}`,
+    content: <RowContent data={jobHistory} count={job_history_count} />
+  })) : [
+    {
+      title: `No data Available`,
+      content: <div></div>
+    }
+  ]
+
 
   const ItemValue = ({item, itemKey}) => (
     <ListGroupItem>
@@ -109,6 +111,16 @@ const TabsVerticalLeft = ({item}) => {
             Scheduled Time
           </NavLink>
         </NavItem>
+        <NavItem>
+          <NavLink
+            active={active === '5'}
+            onClick={() => {
+              toggle('5')
+            }}
+          >
+            Job History
+          </NavLink>
+        </NavItem>
       </Nav>
       <TabContent activeTab={active}>
         <TabPane tabId='1'>
@@ -131,6 +143,7 @@ const TabsVerticalLeft = ({item}) => {
                   
               }
               })}
+
             </ListGroup>
         </TabPane>
         <TabPane tabId='2'>
@@ -149,12 +162,28 @@ const TabsVerticalLeft = ({item}) => {
         <h1>Job Details</h1>
             <ListGroup flush>
             {callout && Object.keys(callout).map(itemKey => {
-              if (!(["client", "property", "job", "schedulers", "__typename"].includes(itemKey))) {
+              if (!(["client", "property", "job", "schedulers", "job_history", "__typename"].includes(itemKey))) {
                 if ((["picture1", "picture2", "picture3", "picture4"].includes(itemKey))) {
                   return (
                     <CalloutPicture key={itemKey} picture={callout[itemKey]} />
                   )
-                } 
+                }
+                if (itemKey === "pre_pics") {
+                  return (
+                    <div>
+                      <p style={{fontWeight: "bold", fontSize: 18, margin: 0, marginTop: 10}}>Pre job pictures: </p>
+                    {callout[itemKey].map(prePic => <CalloutPicture key={prePic?.picture_location} picture={prePic?.picture_location} />)}
+                    </div>
+                  )
+                }
+                if (itemKey === "postpics") {
+                  return (
+                    <div>
+                      <p style={{fontWeight: "bold", fontSize: 18, margin: 0, marginTop: 10}}>Post job pictures: </p>
+                    {callout[itemKey].map(prePic => <CalloutPicture key={prePic?.picture_location} picture={prePic?.picture_location} />)}
+                    </div>
+                  )
+                }
                 if ((["video"].includes(itemKey))) {
                   return (
                     <div>
@@ -168,6 +197,25 @@ const TabsVerticalLeft = ({item}) => {
                   )
               }
               })}
+              <div>
+                <p style={{fontWeight: "bold", fontSize: 18, margin: 0, marginTop: 10}}>Feedback for all the tickets in this job</p>  
+                   
+              {job.length > 0 ? job?.map(_job => {
+                if (_job?.feedback) {
+                  return <div>
+                  <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Solution: </p>
+                  {_job?.solution}
+
+                  <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Feedback: </p>
+                  {_job?.feedback}
+
+                  <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Rating (X/5): </p>
+                  {_job?.rating} / 5
+                  </div>
+                }
+                return null
+              }) : <div>No feedback</div>}
+              </div>
             </ListGroup>
         </TabPane>
         <TabPane tabId='4'>
@@ -181,6 +229,10 @@ const TabsVerticalLeft = ({item}) => {
               }
               })}
             </ListGroup>
+        </TabPane>
+        <TabPane tabId='5'>
+          <h1>Job History</h1>
+      <CollapseDefault data={job_history_modified} />
         </TabPane>
       </TabContent>
     </div>

@@ -41,7 +41,7 @@ const expoFileToFormFile = (url) => {
   return { uri: localUri, name: filename, type };
 };
 
-const createAndSavePDF = async (html, propertyID, clientName, state, setState, reportLoading) => {
+const createAndSavePDF = async (html, data2, propertyID, clientName, state, setState, reportLoading, setNoReport) => {
   try {
     setState({ ...state, reportLoading: true });
     const { uri } = await Print.printToFileAsync({ html });
@@ -71,6 +71,7 @@ const GenerateReport = (props) => {
     loading: false,
     propertyID: "",
     reportLoading: false,
+    noReport: false
   });
 
   const setPropertyId = (id) => {
@@ -147,6 +148,19 @@ const GenerateReport = (props) => {
       </Modal>
       {/* background gradinet   */}
       <LoadProperties setPropertyId={setPropertyId} props={props} />
+      <Center>
+        <AlertDialog isOpen={state.noReport} motionPreset="fade">
+          <AlertDialog.Content>
+            <AlertDialog.Header fontSize="lg" fontWeight="bold">
+              No callouts
+            </AlertDialog.Header>
+            <AlertDialog.Body>You currently don't have any callouts.</AlertDialog.Body>
+            <AlertDialog.Footer>
+              <Button onPress={() => setState({...state, noReport: false})}>Ok</Button>
+            </AlertDialog.Footer>
+          </AlertDialog.Content>
+        </AlertDialog>
+      </Center>
       <Text style={styles.HeadingStyle}>Reports</Text>
       <Text color="white" paddingBottom={2}>
         Select the type of report to download{" "}
@@ -269,8 +283,11 @@ const MonthlyReportPDF = ({ propertyID, state, setState, reportLoading }) => {
         years[year] = months;
         months = {};
       });
-
-      createAndSavePDF(calloutTemplate(years), propertyID, displayName, state, setState, reportLoading);
+      if (data2?.callout.length === 0) {
+        setState({...state, noReport: true})
+      } else {
+        createAndSavePDF(calloutTemplate(years), data2, propertyID, displayName, state, setState, reportLoading);  
+      }
     },
   });
   // console.log(loading, data, error);

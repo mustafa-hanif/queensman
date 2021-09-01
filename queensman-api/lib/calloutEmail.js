@@ -7,12 +7,12 @@ const calloutEmail = async ({ callout, worker, time }) => {
       CcAddresses: [
         'gnyahuma@queensman.com', 'aalvi@queensman.com',
         'ffakhri@queensman.com', 'bvictor@queensman.com',
-        'murtaza.hanif@techinoviq.com', 'icemelt7@gmail.com'
-      /* more items */
+        'murtaza.hanif@techinoviq.com', 'icemelt7@gmail.com', 'operations@queensman.com'
+        /* more items */
       ],
       ToAddresses: [
         'services@queensman.com',
-      /* more items */
+        /* more items */
       ]
     },
     Message: { /* required */
@@ -30,7 +30,7 @@ const calloutEmail = async ({ callout, worker, time }) => {
     Source: 'services@queensman.com', /* required */
     ReplyToAddresses: [
       'services@queensman.com',
-    /* more items */
+      /* more items */
     ],
   };
 

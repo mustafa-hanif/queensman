@@ -11,8 +11,8 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "native-base";
 import axios from "axios";
-import SmoothPinCodeInput from "react-native-smooth-pincode-input";
-import Toast from "react-native-whc-toast";
+// import SmoothPinCodeInput from "react-native-smooth-pincode-input";
+// import Toast from "react-native-whc-toast";
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
@@ -43,7 +43,7 @@ export default class ForgotPassword extends React.Component {
     const { code } = this.state;
     const new_password = this.state.pass;
     if (new_password.length < 8) {
-      this.refs.customToast.show("Password length should be greater than 8");
+      //do something
     } else {
       Auth.forgotPasswordSubmit(username, code, new_password)
         .then((data) => {
@@ -53,7 +53,7 @@ export default class ForgotPassword extends React.Component {
           console.log(link);
           axios.get(link).then((result) => {
             console.log(result.data.server_responce);
-            this.refs.customToast.show("New Password Set");
+            // this.refs.customToast.show("New Password Set");
             setTimeout(() => {
               this.props.navigation.goBack(null);
             }, 800);
@@ -70,7 +70,7 @@ export default class ForgotPassword extends React.Component {
     return (
       // content as view type  and touch exit
       <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
-        <Toast
+        {/* <Toast
           ref="customToast"
           textStyle={{
             color: "#fff",
@@ -78,7 +78,7 @@ export default class ForgotPassword extends React.Component {
           style={{
             backgroundColor: "#FFCA5D",
           }}
-        />
+        /> */}
         {/* background gradinet   */}
         <LinearGradient
           colors={["#000E1E", "#001E2B", "#000E1E"]}
@@ -97,7 +97,7 @@ export default class ForgotPassword extends React.Component {
         >
           Please type verification code sent to {this.state.email} via email.
         </Text>
-        <SmoothPinCodeInput
+        {/* <SmoothPinCodeInput
           ref={this.pinInput}
           cellStyle={{
             borderWidth: 2,
@@ -119,7 +119,7 @@ export default class ForgotPassword extends React.Component {
           onTextChange={(code) => this.setState({ code })}
           // onFulfill={this._checkCode}
           onBackspace={() => console.log("No more back.")}
-        />
+        /> */}
 
         <View style={{ height: "7%" }} />
         <Text

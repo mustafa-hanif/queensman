@@ -3,7 +3,7 @@
 import React, { useState, useRef } from "react";
 import { gql, useQuery } from "@apollo/client";
 
-import Toast from "react-native-whc-toast";
+// import Toast from "react-native-whc-toast";
 import axios from "axios";
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
 
@@ -79,7 +79,7 @@ const PropertyDetails = (props) => {
   const { loading, data, error } = useQuery(GET_PROPERTIES, {
     variables: { email },
   });
-  const customToast = useRef();
+  // const customToast = useRef();
 
   const _storeData = async (id, type, country) => {
     try {
@@ -119,7 +119,7 @@ const PropertyDetails = (props) => {
     <View style={styles.container}>
       <Text style={{ paddingTop: "5%" }}> </Text>
 
-      <Toast
+      {/* <Toast
         ref={customToast}
         textStyle={{
           color: "#fff",
@@ -127,7 +127,7 @@ const PropertyDetails = (props) => {
         style={{
           backgroundColor: "#FFCA5D",
         }}
-      />
+      /> */}
 
       <Text style={styles.HeadingStyle}>Property Details</Text>
       <Text

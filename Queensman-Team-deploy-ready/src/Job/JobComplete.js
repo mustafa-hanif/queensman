@@ -44,19 +44,16 @@ const FINISH_JOB = gql`
     ) {
       status
     }
-    update_job(
-      where: { callout_id: { _eq: $callout_id } }
-      _set: {
-        solution: $solution
-        rating: $rating
-        signature: $signature
-        feedback: $feedback
-      }
-    ) {
-      returning {
-        solution
-      }
+    insert_job_one( object: {
+      callout_id: $callout_id
+      solution: $solution
+      rating: $rating
+      signature: $signature
+      feedback: $feedback
+    }) {
+      solution
     }
+    
     update_job_tickets_by_pk(
       pk_columns: { id: $id }
       _set: { status: "Closed" }
@@ -75,18 +72,14 @@ const FINISH_JOB_SINGLE = gql`
     $solution: String!
     $signature: String!
   ) {
-    update_job(
-      where: { callout_id: { _eq: $callout_id } }
-      _set: {
-        solution: $solution
-        rating: $rating
-        signature: $signature
-        feedback: $feedback
-      }
-    ) {
-      returning {
-        solution
-      }
+    insert_job_one( object: {
+      callout_id: $callout_id
+      solution: $solution
+      rating: $rating
+      signature: $signature
+      feedback: $feedback
+    }) {
+      solution
     }
 
     update_job_tickets_by_pk(
@@ -204,7 +197,7 @@ const JobComplete = (props) => {
         let resultJson = await result.json();
         let output = resultJson.details.output;
         if (output.substring(0, 14) == "No email found") {
-          alert(output);
+          console.log(output);
         }
       } catch (e) {
         console.log("ERROR");
@@ -270,7 +263,7 @@ const JobComplete = (props) => {
         let resultJson = await result.json();
         let output = resultJson.details.output;
         if (output.substring(0, 14) == "No email found") {
-          alert(output);
+          console.log(output);
         }
       } catch (e) {
         console.log("ERROR");

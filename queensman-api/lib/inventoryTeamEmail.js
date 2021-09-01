@@ -9,8 +9,8 @@ const inventoryTeamEmail = async (inventory_report_pdf, property) => {
         // 'gnyahuma@queensman.com', 'aalvi@queensman.com',
         // 'ffakhri@queensman.com', 'bvictor@queensman.com',
         // 'murtaza.hanif@techinoviq.com', 'icemelt7@gmail.com'
-        'salmanhanif133@gmail.com','murtaza.hanif@techinoviq.com' , 'murtaza.hanif@gmail.com'
-      /* more items */
+        'salmanhanif133@gmail.com', 'murtaza.hanif@techinoviq.com', 'operations@queensman.com'
+        /* more items */
       ]
     },
     Message: { /* required */
@@ -28,7 +28,7 @@ const inventoryTeamEmail = async (inventory_report_pdf, property) => {
     Source: 'services@queensman.com', /* required */
     ReplyToAddresses: [
       'services@queensman.com',
-    /* more items */
+      /* more items */
     ],
   };
 
