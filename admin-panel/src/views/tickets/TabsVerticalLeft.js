@@ -39,6 +39,7 @@ const TabsVerticalLeft = ({item}) => {
 
   const client = item?.callout?.client
   const callout = item?.callout
+  const { job, job_history } = callout
   const schedule = item?.callout?.schedulers[0]
   const {id, notes, name, callout_id, description, type, worker_email, status, created_at } = item
   const job_ticket = {id, notes, name, callout_id, description, type, worker_email, status, created_at }
@@ -109,6 +110,16 @@ const TabsVerticalLeft = ({item}) => {
             Scheduled Time
           </NavLink>
         </NavItem>
+        <NavItem>
+          <NavLink
+            active={active === '5'}
+            onClick={() => {
+              toggle('5')
+            }}
+          >
+            Job History
+          </NavLink>
+        </NavItem>
       </Nav>
       <TabContent activeTab={active}>
         <TabPane tabId='1'>
@@ -131,6 +142,7 @@ const TabsVerticalLeft = ({item}) => {
                   
               }
               })}
+
             </ListGroup>
         </TabPane>
         <TabPane tabId='2'>
@@ -149,12 +161,28 @@ const TabsVerticalLeft = ({item}) => {
         <h1>Job Details</h1>
             <ListGroup flush>
             {callout && Object.keys(callout).map(itemKey => {
-              if (!(["client", "property", "job", "schedulers", "__typename"].includes(itemKey))) {
+              if (!(["client", "property", "job", "schedulers", "job_history", "__typename"].includes(itemKey))) {
                 if ((["picture1", "picture2", "picture3", "picture4"].includes(itemKey))) {
                   return (
                     <CalloutPicture key={itemKey} picture={callout[itemKey]} />
                   )
-                } 
+                }
+                if (itemKey === "pre_pics") {
+                  return (
+                    <div>
+                      <p style={{fontWeight: "bold", fontSize: 18, margin: 0, marginTop: 10}}>Pre job pictures: </p>
+                    {callout[itemKey].map(prePic => <CalloutPicture key={prePic?.picture_location} picture={prePic?.picture_location} />)}
+                    </div>
+                  )
+                }
+                if (itemKey === "postpics") {
+                  return (
+                    <div>
+                      <p style={{fontWeight: "bold", fontSize: 18, margin: 0, marginTop: 10}}>Post job pictures: </p>
+                    {callout[itemKey].map(prePic => <CalloutPicture key={prePic?.picture_location} picture={prePic?.picture_location} />)}
+                    </div>
+                  )
+                }
                 if ((["video"].includes(itemKey))) {
                   return (
                     <div>
@@ -168,6 +196,25 @@ const TabsVerticalLeft = ({item}) => {
                   )
               }
               })}
+              <div>
+                <p style={{fontWeight: "bold", fontSize: 18, margin: 0, marginTop: 10}}>Feedback for all the tickets in this job</p>  
+                   
+              {job?.map(_job => {
+                if (_job?.feedback) {
+                  return <div>
+                  <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Solution: </p>
+                  {_job?.solution}
+
+                  <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Feedback: </p>
+                  {_job?.feedback}
+
+                  <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Rating (X/5): </p>
+                  {_job?.rating} / 5
+                  </div>
+                }
+                return null
+              })}
+              </div>
             </ListGroup>
         </TabPane>
         <TabPane tabId='4'>
@@ -181,6 +228,28 @@ const TabsVerticalLeft = ({item}) => {
               }
               })}
             </ListGroup>
+        </TabPane>
+        <TabPane tabId='5'>
+          <h1>Job History</h1>
+          <ListGroup flush>
+              {job_history?.map((history) => {
+                return <div>
+                  {history?.location && <div>
+                    <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Location: </p>
+                    <p><a href={`https://www.google.com/maps/search/?api=1&query=${JSON.parse(history?.location).coords?.latitude}%2C${JSON.parse(history?.location).coords?.longitude}`}>Location</a></p>
+                  </div>}
+                  {history?.status_update && <div>
+                    <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Status Update: </p>
+                    <p>{history?.status_update}</p>
+                  </div>}
+                  {history?.time && <div>
+                    <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Time: </p>
+                    <p>{moment(history?.time).format('DD MMM YY, HH:mm:ss')}</p>
+                  </div>}
+                  <hr />
+                </div>
+              })}
+          </ListGroup>
         </TabPane>
       </TabContent>
     </div>
