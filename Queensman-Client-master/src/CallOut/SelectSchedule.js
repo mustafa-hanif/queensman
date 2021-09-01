@@ -227,9 +227,7 @@ export default function SelectSchedule(props) {
         })
         .catch((err) => console.log({ err }));
     } else {
-      const property_id = await AsyncStorage.getItem("QueensPropertyID");
       let category = "Uncategorized";
-      const current = new Date();
       setmodalVisible(false);
 
       if (

@@ -100,7 +100,6 @@ const CalloutHistoryClass = (props) => {
             property_id: data?.property_owned[0]?.property_id,
           },
         });
-        // AsyncStorage.setItem("QueensPropertyID", data.property_owned[0].property_id);
       },
     }
   );
@@ -114,8 +113,8 @@ const CalloutHistoryClass = (props) => {
   const email = user?.email;
   useEffect(() => {
     const load = async () => {
-      const property_ID = await AsyncStorage.getItem("QueensPropertyID");
-      if (!property_ID) {
+      const propertyDetails = await AsyncStorage.getItem("QueensPropertyDetails");
+      if (!propertyDetails) {
         loadProperty({
           variables: {
             callout_by_email: email,
@@ -124,8 +123,9 @@ const CalloutHistoryClass = (props) => {
       } else {
         loadCallouts({
           variables: {
+            today: moment().format("YYYY-MM-DD"),
             callout_by_email: email,
-            property_id: property_ID,
+            property_id: JSON.parse(propertyDetails).id,
           },
         });
       }

@@ -76,7 +76,7 @@ const OngoingCallout = (props) => {
 console.log(data?.callout)
   return (
     <View style={styles.container}>
-      {!data?.callout?.length !== 0 ? (
+      {data?.callout?.length === 0 ? (
         <Text
           style={[
             styles.TextFam,

@@ -61,6 +61,20 @@ const GET_PROPERTIES = gql`
   }
 `;
 
+const GET_LEASED_PROPERTIES = gql`
+query MyQuery($email: String) {
+  lease(where: {client: {email: {_eq: $email}}}) {
+    property {
+      address
+      community
+      city
+      country
+      id
+    }
+  }
+}
+`;
+
 const PropertyDetails = (props) => {
   const [state, setState] = useState({
     leasedPropertyData: [],
@@ -79,16 +93,20 @@ const PropertyDetails = (props) => {
   const { loading, data, error } = useQuery(GET_PROPERTIES, {
     variables: { email },
   });
+  const { leasedData } = useQuery(GET_LEASED_PROPERTIES, {
+    variables: { email },
+  });
   // const customToast = useRef();
 
-  const _storeData = async (id, type, country) => {
+  const _storeData = async (item) => {
     try {
-      await AsyncStorage.setItem("QueensPropertyID", JSON.stringify(id));
-      await AsyncStorage.setItem("QueensPropertyType", JSON.stringify(type));
-      await AsyncStorage.setItem("QueensPropertyCountry", JSON.stringify(country));
+      await AsyncStorage.setItem("QueensPropertyDetails", JSON.stringify(item));
+      // await AsyncStorage.setItem("QueensPropertyType", JSON.stringify(type));
+      // await AsyncStorage.setItem("QueensPropertyCountry", JSON.stringify(country));
       console.log("Item saved in asyncstorage");
       setTimeout(() => {
         props.navigation.navigate("HomeNaviagtor");
+        
       }, 800);
       // eslint-disable-next-line no-shadow
     } catch (error) {
@@ -104,15 +122,11 @@ const PropertyDetails = (props) => {
   };
 
   const Ontaps = (item) => {
-    // customToast.show("New Property Selected");
-    console.log(item.id);
-    console.log({ item });
-    _storeData(item.id, "owned", item.country);
+    _storeData(item);
   };
 
   const Ontaps2 = (item) => {
-    console.log(item.id);
-    _storeData(item.id, "leased", item.country);
+    _storeData(item);
   };
 
   return (
@@ -260,7 +274,7 @@ const PropertyDetails = (props) => {
             </View>
           ) : (
             <View>
-              {!state.LeasedDataAvaible ? (
+              {leasedData?.lease?.length === 0  ? (
                 <Text
                   style={[
                     styles.TextFam,
@@ -276,8 +290,8 @@ const PropertyDetails = (props) => {
                 </Text>
               ) : (
                 <FlatList
-                  data={state.leasedPropertyData}
-                  renderItem={({ item }) => (
+                  data={leasedData?.lease}
+                  renderItem={({ item: { property } }) => (
                     <View>
                       <TouchableOpacity onPress={() => Ontaps2(item)}>
                         <View style={styles.Card}>
@@ -292,7 +306,7 @@ const PropertyDetails = (props) => {
                               },
                             ]}
                           >
-                            {item.lease_property.address}{" "}
+                            {property.address}{" "}
                           </Text>
                           <Text
                             style={[
@@ -305,7 +319,7 @@ const PropertyDetails = (props) => {
                               },
                             ]}
                           >
-                            {item.lease_property.community},{item.lease_property.city}
+                            {property.community},{property.city}
                           </Text>
 
                           <ListItem>
@@ -316,18 +330,18 @@ const PropertyDetails = (props) => {
                                 flex: 1,
                               }}
                             >
-                              <Text style={styles.TextFam}>{item.lease_property.country}</Text>
-                              <Text style={styles.TextFam}>Property ID: {item.lease_property.property_id}</Text>
+                              <Text style={styles.TextFam}>{property.country}</Text>
+                              <Text style={styles.TextFam}>Property ID: {property.property_id}</Text>
                               <Text style={styles.TextFam}>
                                 Property Category:{" "}
-                                {item.lease_property.category ? item.Client_property.category : "Not Listed"}
+                                {property.category ? property.category : "Not Listed"}
                               </Text>
                             </View>
                           </ListItem>
                         </View>
                       </TouchableOpacity>
                       <Text> </Text>
-                      {state.taped === item.lease_property.property_id ? (
+                      {state.taped === property.property_id ? (
                         <View
                           style={{
                             position: "absolute",

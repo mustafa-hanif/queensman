@@ -332,7 +332,7 @@ const ADD_JOB_TICKET = gql`
 const RequestCallOut = (props) => {
   const additionalServices = JSON.parse(props?.route?.params?.additionalServices);
   const [state, _setState] = useState({
-    PropertyDetails: [],
+    PropertyDetails: null,
     property_type: "",
     address: "",
     community: "",
@@ -368,7 +368,6 @@ const RequestCallOut = (props) => {
     selectedNo: 0,
   });
   const setState = (props) => {
-    console.log(props);
     _setState(props);
   };
   const { loading: jobCategoryLoading, data: jobCategory, error: jobCategoryError } = useQuery(GET_JOB_CATEGORY);
@@ -427,34 +426,58 @@ const RequestCallOut = (props) => {
   const [videoDurationinMillis, setvideoDurationinMillis] = useState("0:00");
 
   // Did mount - Select the first property of the client, or use the one in async storage
-  useEffect(() => {
-    const loadSelectedProperty = async (properties) => {
-      loadProperty();
-    };
-    if (allProperties) {
-      loadSelectedProperty(allProperties?.client?.[0]?.property_owneds);
-    }
-  }, [allProperties]);
+    useEffect(() => {
+      const propertyFunction = async () => {
+        const propertyDetails = await AsyncStorage.getItem("QueensPropertyDetails");
+        if (!propertyDetails) {
+        const loadSelectedProperty = async (properties) => {
+          loadProperty();
+        };
+        if (allProperties) {
+          loadSelectedProperty(allProperties?.client?.[0]?.property_owneds);
+        }
+      }
+      }
+      propertyFunction()
+    }, [allProperties]); 
 
   // Once we have a selected property - Load it in the local state
   // TODO: This is not necessary, we can use the selected property directly
   useEffect(() => {
-    if (!loadingSingleProperty && selectedProperty) {
-      const propertyid = selectedProperty?.property_owned_by_pk?.property?.id;
-      const propertyDetails = selectedProperty?.property_owned_by_pk?.property;
-      const { category, address, community, city, country } = propertyDetails;
-      setState({ ...state, PropertyDetails: propertyDetails });
+    const propertyFunction = async () => {
+      const propertyDetails = await AsyncStorage.getItem("QueensPropertyDetails");
+      if (!propertyDetails) {
+      if (!loadingSingleProperty && selectedProperty && !propertyDetails) {
+        const propertyid = selectedProperty?.property_owned_by_pk?.property?.id;
+        const propertyDetails = selectedProperty?.property_owned_by_pk?.property;
+        const { category, address, community, city, country } = propertyDetails;
+        setState({ ...state, PropertyDetails: propertyDetails });
+        setState((state) => ({
+          ...state,
+          property_type: category,
+          address,
+          community,
+          city,
+          country,
+          PropertyID: propertyid,
+        }));
+      } 
+    } else {
+      const { id, address, community, city, country } = JSON.parse(propertyDetails);
+      setState({ ...state, PropertyDetails: JSON.parse(propertyDetails) });
       setState((state) => ({
         ...state,
-        property_type: category,
         address,
         community,
         city,
         country,
-        PropertyID: propertyid,
+        PropertyID: id,
       }));
     }
+    }
+    propertyFunction()
   }, [selectedProperty, loadingSingleProperty]);
+
 
   const selectFromGallery = async () => {
     if (Constants.platform.ios) {
@@ -809,7 +832,7 @@ const RequestCallOut = (props) => {
       <View style={{ backgroundColor: "#000", paddingHorizontal: "10%", paddingVertical: "10%" }}>
         <FlashMessage position="top" />
         <Text style={[styles.TextFam, { color: "#FFCA5D", fontSize: 10 }]}>Callout Address</Text>
-        {!loadingSingleProperty && selectedProperty ? (
+        {state.PropertyDetails != null ? (
           <View style={{}}>
             <Text style={[styles.TextFam, { fontSize: 16, fontWeight: "bold", color: "#fff" }]}>{state.address}</Text>
             <Text style={[styles.TextFam, { fontSize: 10, color: "#fff" }]}>
@@ -936,7 +959,7 @@ const RequestCallOut = (props) => {
                   setState({ ...state, Urgency: nextValue });
                 }}
               >
-                <HStack>
+                <HStack space={20}>
                   <Radio value="High" mr={2}>
                     <HStack ml={1} space={0.5} alignItems="center">
                       <Text color="black">High</Text>
