@@ -7,7 +7,7 @@ const additionalRequestEmail = async ({ callout, worker }) => {
       CcAddresses: [
         'gnyahuma@queensman.com', 'aalvi@queensman.com',
         'ffakhri@queensman.com', 'bvictor@queensman.com',
-        'murtaza.hanif@techinoviq.com', 'salman.h@techinoviq.com'
+        'murtaza.hanif@techinoviq.com', 'salman.h@techinoviq.com', 'operations@queensman.com'
         /* more items */
       ],
       ToAddresses: [
