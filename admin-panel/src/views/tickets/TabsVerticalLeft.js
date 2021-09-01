@@ -12,24 +12,27 @@ const TabsVerticalLeft = ({item}) => {
     }
   }
 
-  const RowContent = ({data: prop}) => (
+  const RowContent = ({data: jobHistory}) => (
     <div>
     <div className='meetup-header d-flex align-items-center'>
-      <h5 className='mb-1'>Address: </h5> 
-      <h6 className='mb-1 ml-1'>{prop.address}</h6>
+      <h5 className='mb-1'>Status Update: </h5> 
+      <h6 className='mb-1 ml-1'>{jobHistory?.status_update}</h6>
     </div>
+    {jobHistory?.location && <div className='meetup-header d-flex align-items-center'>
+      <h5 className='mb-1'>Location: </h5>
+      <h6 className='mb-1 ml-1'><a target="_blank" href={`https://www.google.com/maps/search/?api=1&query=${JSON.parse(jobHistory?.location).coords?.latitude}%2C${JSON.parse(jobHistory?.location).coords?.longitude}`}>Click here to view location</a></h6>
+    </div>}
     <div className='meetup-header d-flex align-items-center'>
-      <h5 className='mb-1'>Country: </h5>
-      <h6 className='mb-1 ml-1'>{prop.country}</h6>
-    </div>
-    <div className='meetup-header d-flex align-items-center'>
-      <h5 className='mb-1'>City: </h5>
-      <h6 className='mb-1 ml-1'>{prop.city}</h6>
+      <h5 className='mb-1'>Updated At: </h5>
+      <h6 className='mb-1 ml-1'>{moment(jobHistory?.time).format('MMMM Do YYYY, h:mm:ss a')}</h6>
     </div>
   </div>
   )
 
-  // const CollapseDefault = ({data}) => <AppCollapse data={data} type='border' />
+  const CollapseDefault = ({ data }) => (
+    <AppCollapse data={data} type="border" />
+  )
+
 
   const CalloutPicture = ({picture}) => {
     return <div style={{width: "250px", margin:4}}>
@@ -39,26 +42,24 @@ const TabsVerticalLeft = ({item}) => {
 
   const client = item?.callout?.client
   const callout = item?.callout
-  const { job, job_history } = callout
+  const { job } = callout
+  const job_history = callout?.job_history
   const schedule = item?.callout?.schedulers[0]
   const {id, notes, name, callout_id, description, type, worker_email, status, created_at } = item
   const job_ticket = {id, notes, name, callout_id, description, type, worker_email, status, created_at }
-  // const property_owneds = item.callout.property
-  //   const prop_count = property_owneds.length
-  //   const property_owneds_modified = prop_count !== 0 ? {
-  //           title: `Property id: ${property_owneds.id} Adddress: ${property_owneds.address}`,
-  //           content: (
-  //             <RowContent data={property_owneds} count={property_owneds.length}/>
-  //           )
-  //         } : [
-  //       {
-  //       title: `No data Available`,
-  //       content: (
-  //         <div>
-  //       </div>
-  //       )
-  //     }
-  //   ]
+
+  const job_history_count = job_history.length
+  const job_history_modified =
+  job_history_count !== 0 ? job_history.map((jobHistory, i) => ({
+    title: `History id: ${jobHistory.id}`,
+    content: <RowContent data={jobHistory} count={job_history_count} />
+  })) : [
+    {
+      title: `No data Available`,
+      content: <div></div>
+    }
+  ]
+
 
   const ItemValue = ({item, itemKey}) => (
     <ListGroupItem>
@@ -199,7 +200,7 @@ const TabsVerticalLeft = ({item}) => {
               <div>
                 <p style={{fontWeight: "bold", fontSize: 18, margin: 0, marginTop: 10}}>Feedback for all the tickets in this job</p>  
                    
-              {job?.map(_job => {
+              {job.length > 0 ? job?.map(_job => {
                 if (_job?.feedback) {
                   return <div>
                   <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Solution: </p>
@@ -213,7 +214,7 @@ const TabsVerticalLeft = ({item}) => {
                   </div>
                 }
                 return null
-              })}
+              }) : <div>No feedback</div>}
               </div>
             </ListGroup>
         </TabPane>
@@ -231,25 +232,7 @@ const TabsVerticalLeft = ({item}) => {
         </TabPane>
         <TabPane tabId='5'>
           <h1>Job History</h1>
-          <ListGroup flush>
-              {job_history?.map((history) => {
-                return <div>
-                  {history?.location && <div>
-                    <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Location: </p>
-                    <p><a href={`https://www.google.com/maps/search/?api=1&query=${JSON.parse(history?.location).coords?.latitude}%2C${JSON.parse(history?.location).coords?.longitude}`}>Location</a></p>
-                  </div>}
-                  {history?.status_update && <div>
-                    <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Status Update: </p>
-                    <p>{history?.status_update}</p>
-                  </div>}
-                  {history?.time && <div>
-                    <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Time: </p>
-                    <p>{moment(history?.time).format('DD MMM YY, HH:mm:ss')}</p>
-                  </div>}
-                  <hr />
-                </div>
-              })}
-          </ListGroup>
+      <CollapseDefault data={job_history_modified} />
         </TabPane>
       </TabContent>
     </div>

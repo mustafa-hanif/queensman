@@ -117,6 +117,7 @@ query getJobTickets {
         picture_location
       }
       job_history {
+        id
         location
         status_update
         time

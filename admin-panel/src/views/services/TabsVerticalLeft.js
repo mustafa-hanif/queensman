@@ -250,15 +250,15 @@ const TabsVerticalLeft = ({item}) => {
         </TabPane>
         <TabPane tabId='6'>
         <h1>Pre Images</h1>
-            {pre_images && pre_images.map((preImage, i) => (
-              <CalloutPicture key={i} picture={""} />
-            ))}
+            {pre_images.length > 0 ? pre_images.map((preImage, i) => (
+              <CalloutPicture key={i} picture={preImage.picture_location} />
+            )) : <div>No images</div>}
         </TabPane>
         <TabPane tabId='7'>
         <h1>Post Images</h1>
-        {post_images && post_images.map((postImages, i) => (
-              <CalloutPicture key={i} picture={""} />
-            ))}
+        {post_images.length > 0 ? post_images.map((postImages, i) => (
+              <CalloutPicture key={i} picture={postImages.picture_location} />
+            )) : <div>No images</div>}
         </TabPane>
         <TabPane tabId='8'>
         <h1>Job History Details</h1>
