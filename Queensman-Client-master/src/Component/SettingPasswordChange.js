@@ -10,7 +10,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Content, Icon } from "native-base";
 import axios from "axios";
-import Toast from "react-native-whc-toast";
+// import Toast from "react-native-whc-toast";
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
@@ -47,7 +47,7 @@ export default class SettingPasswordChange extends React.Component {
       });
     });
     if (this.state.password.length < 8) {
-      this.refs.customToast.show("Password length should be greater than 8");
+      // this.refs.customToast.show("Password length should be greater than 8");
     } else if (this.state.passwordcheck == this.state.OldPass) {
       const { OldPass } = this.state;
       const { password } = this.state;
@@ -62,7 +62,7 @@ export default class SettingPasswordChange extends React.Component {
       console.log(link);
       axios.get(link).then((result) => {
         console.log(result.data.server_responce);
-        this.refs.customToast.show("Password Updated");
+        // this.refs.customToast.show("Password Updated");
         setTimeout(() => {
           this.props.navigation.navigate("Settings");
         }, 800);
@@ -74,7 +74,7 @@ export default class SettingPasswordChange extends React.Component {
     return (
       // content as view type  and touch exit
       <Content scrollEnabled={false} contentContainerStyle={styles.container}>
-        <Toast
+        {/* <Toast
           ref="customToast"
           textStyle={{
             color: "#fff",
@@ -82,7 +82,7 @@ export default class SettingPasswordChange extends React.Component {
           style={{
             backgroundColor: "#FFCA5D",
           }}
-        />
+        /> */}
         {/* background gradinet   */}
         <LinearGradient
           colors={["#000E1E", "#001E2B", "#000E1E"]}

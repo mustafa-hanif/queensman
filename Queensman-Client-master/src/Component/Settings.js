@@ -6,7 +6,7 @@ import axios from "axios";
 import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import Toast from "react-native-whc-toast";
+// import Toast from "react-native-whc-toast";
 import { auth } from "../utils/nhost";
 
 const styles = StyleSheet.create({
@@ -115,7 +115,7 @@ class Settings extends React.Component {
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data.server_responce);
-      this.refs.customToast.show("Fingerprint enabled on this phone.");
+      // this.refs.customToast.show("Fingerprint enabled on this phone.");
     });
     // this.props.navigation.navigate('SettingPasswordChange')
   };
@@ -126,14 +126,14 @@ class Settings extends React.Component {
     console.log(link);
     axios.get(link).then((result) => {
       console.log(result.data.server_responce);
-      this.refs.customToast.show("Fingerprint disabled on this phone.");
+      // this.refs.customToast.show("Fingerprint disabled on this phone.");
     });
   };
 
   render() {
     return (
       <View style={styles.container}>
-        <Toast
+        {/* <Toast
           ref="customToast"
           textStyle={{
             color: "#fff",
@@ -141,7 +141,7 @@ class Settings extends React.Component {
           style={{
             backgroundColor: "#FFCA5D",
           }}
-        />
+        /> */}
         <Text style={{ paddingTop: "5%" }}> </Text>
 
         <View style={{ height: "5%" }} />
