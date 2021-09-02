@@ -440,7 +440,7 @@ const TabsVerticalLeft = ({item, allProperty, GET_INVENTORY}) => {
         <Row className='m-2'>
         {inventory_rooms && inventory_rooms.length === 0 ? <div>No Rooms</div> : inventory_rooms.map((items, i) => (
           <Col md={`${inventory_rooms.length > 2 ? '4' : ''}`}>
-          <Rooms inventory_articles={items.inventory_articles} inventory_pictures={items.inventory_pictures} title={items.room} index={(i + 1)}/>
+          <Rooms inventory_articles={items.inventory_articles} inventory_pictures={items.inventory_pictures} id={items.id} title={items.room} index={(i + 1)}/>
           </Col>
         ))}
         </Row>

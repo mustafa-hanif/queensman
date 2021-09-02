@@ -752,7 +752,7 @@ const DataTableAdvSearch = () => {
           className="modal-dialog-centered modal-xl"
         >
           <ModalHeader className="d-flex justify-content-center" toggle={() => setDetailsModal(!detailsModal)}>
-            Inventory Details
+            Inventory Details for ID: {modalDetails?.id}
           </ModalHeader>
           <ModalBody>
             <TabsVerticalLeft item={modalDetails} allProperty={allProperty} GET_INVENTORY={GET_INVENTORY}/>

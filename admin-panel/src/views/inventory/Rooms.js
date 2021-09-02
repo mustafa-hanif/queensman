@@ -11,7 +11,7 @@ const CalloutPicture = ({picture}) => {
    </div>
 }
 
-const Rooms = ({ inventory_articles, inventory_pictures, title, index }) => {
+const Rooms = ({ inventory_articles, inventory_pictures, title, index, id }) => {
   const renderTasks = () => {
     if (inventory_articles.length === 0) {
       return <h6>No articles</h6>
@@ -38,7 +38,7 @@ const Rooms = ({ inventory_articles, inventory_pictures, title, index }) => {
     <Card className='card-employee-task'>
       <CardHeader>
         <div className="d-flex">
-        <CardTitle tag='h4'>{`${index}) `} Name: {title}</CardTitle>
+        <CardTitle tag='h4'>{`${index}) `} Name: {title} <span className="font-small-4">ID: {id}</span></CardTitle>
         </div>
         
         {/* <MoreVertical size={18} className='cursor-pointer' /> */}
