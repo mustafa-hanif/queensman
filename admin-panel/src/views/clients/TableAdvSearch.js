@@ -414,8 +414,10 @@ const DataTableAdvSearch = () => {
     let year = new Date().getFullYear()
     let month = new Date().getMonth() + 1
     let day = new Date().getDate()
+    const propertyid = row.property_owneds[0]?.property?.id ? row.property_owneds[0]?.property?.id : row.leases[0]?.property?.id
 
-    console.log(day)
+    console.log(row)
+    console.log(row.property_owneds[0]?.property?.id)
     const planArray = []
     setQueryLoading(true)
     setTimeout(() => {
@@ -452,7 +454,7 @@ const DataTableAdvSearch = () => {
           .toISOString()
           .substr(0, 10)
         console.log({
-          property_id: row.property_owneds[0]?.property_id,
+          property_id: propertyid,
           callout_by: row.id,
           email: row.email,
           date_on_calendar,
@@ -463,7 +465,7 @@ const DataTableAdvSearch = () => {
         })
         planArray.push(
           {
-            property_id: row.property_owneds[0]?.property_id,
+            property_id: propertyid,
             callout_by: row.id,
             email: row.email,
             date_on_calendar,
@@ -475,7 +477,7 @@ const DataTableAdvSearch = () => {
         )
         await addPlan({
           variables: {
-            property_id: row.property_owneds[0]?.property_id,
+            property_id: propertyid,
             callout_by: row.id,
             email: row.email,
             date_on_calendar,
