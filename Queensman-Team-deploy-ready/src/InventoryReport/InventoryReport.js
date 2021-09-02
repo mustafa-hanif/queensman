@@ -121,7 +121,7 @@ class InventoryReportClass extends React.Component {
       dataAvaible: true,
       cusID: "",
       selected: "Owned",
-      workerID: 1,
+      workerID: this.props.navigation.getParam("workerId", {}),
       TotalClient: 0,
       clientList: [],
       totalData: [],
@@ -131,7 +131,7 @@ class InventoryReportClass extends React.Component {
         this.props.navigation.getParam("it", "").checked_on == ""
           ? dt
           : this.props.navigation.getParam("it", "").checked_on,
-      teamID: this.props.navigation.getParam("it", "").ops_team_id,
+      teamID: this.props.navigation.getParam("workerId", {}) || "NA",
       inspectedBy: this.props.navigation.getParam("it", "").inspection_done_by,
       Summery: this.props.navigation.getParam("it", "").summary,
       PropertyID: this.props.navigation.getParam("propertyid", "Something"),
@@ -143,11 +143,13 @@ class InventoryReportClass extends React.Component {
     this.props.navigation.navigate("InventoryReportRoom", {
       it: item,
       InventoryReportID: this.state.InventoryReportID,
+      workerID: this.state.workerID
     });
   };
   addRoom = () => {
     this.props.navigation.navigate("InventoryReportRoom", {
       InventoryReportID: this.state.InventoryReportID,
+      workerID: this.state.workerID
     });
   };
 
@@ -262,9 +264,9 @@ class InventoryReportClass extends React.Component {
           style={{
             borderBottomColor: "#FFCA5D",
             borderBottomWidth: 2,
-            width: "94%",
+            width: "100%",
             paddingTop: "3%",
-            marginBottom: "4%",
+            // marginBottom: "4%",
             alignSelf: "center",
           }}
         ></View>
@@ -275,6 +277,9 @@ class InventoryReportClass extends React.Component {
             justifyContent: "space-between",
             alignItems: "center",
             paddingHorizontal: "6%",
+            backgroundColor: "#ccc",
+            paddingTop: "4%",
+            paddingBottom: "4%"
           }}
         >
           <Icon
@@ -283,19 +288,18 @@ class InventoryReportClass extends React.Component {
             style={{ fontSize: 18, color: "#000E1E", paddingRight: "4%" }}
           ></Icon>
           <TextInput
-            defaultValue={this.state.teamID}
+            defaultValue={`Worker ID: ${this.state.teamID}`}
             style={{
               fontSize: 15,
               color: "#000E1E",
               width: "90%",
               paddingStart: "1%",
+              
             }}
-            placeholder="Team ID"
+            editable={false}
+            placeholder="Worker ID"
             placeholderTextColor="#000E1E"
             underlineColorAndroid="transparent"
-            onChangeText={(teamID) => {
-              this.setState({ teamID });
-            }} //email set
           />
         </View>
 
@@ -303,8 +307,8 @@ class InventoryReportClass extends React.Component {
           style={{
             borderBottomColor: "#FFCA5D",
             borderBottomWidth: 2,
-            width: "94%",
-            paddingTop: "3%",
+            width: "100%",
+            // paddingTop: "3%",
             marginBottom: "4%",
             alignSelf: "center",
           }}

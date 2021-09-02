@@ -216,7 +216,7 @@ const HomeScreen = ({ navigation, workerId }) => {
           </TouchableOpacity> */}
           <TouchableOpacity
             style={{ flex: 1 }}
-            onPress={() => InventoryReportHandler(navigation)}
+            onPress={() => InventoryReportHandler(navigation, workerId)}
           >
             <View style={styles.button}>
               <Image
@@ -325,8 +325,10 @@ const ScheduleHandler = (navigation, workerId) => {
   });
 };
 
-const InventoryReportHandler = (navigation) => {
-  navigation.navigate("ClientList");
+const InventoryReportHandler = (navigation, workerId) => {
+  navigation.navigate("ClientList", {
+    workerId
+  });
 };
 
 const RequestCalloutHandler = (navigation, worker_id) => {

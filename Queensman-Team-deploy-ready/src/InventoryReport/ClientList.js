@@ -89,17 +89,17 @@ class ClientListClass extends React.Component {
       dataAvaible: true,
       cusID: "",
       selected: "Owned",
-      workerID: 1,
+      workerID: this.props.navigation.getParam("workerId", {}),
       TotalClient: 0,
       clientList: [],
       totalData: [],
       StaticData: [],
     };
   }
-
   passItem = (item) => {
     this.props.navigation.navigate("PropertiesList", {
       it: item,
+      workerId: this.state.workerID
     });
   };
 
@@ -130,7 +130,6 @@ class ClientListClass extends React.Component {
     });
     this.setState({ query: text, clientList: data });
   };
-
   render() {
     return (
       <View style={styles.container}>

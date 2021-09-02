@@ -11,12 +11,13 @@ import {
   Image,
   ScrollView,
   TextInput,
+  Alert,
 } from "react-native";
 
 import { Button as MyButton, HStack, Icon } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 import _ from "lodash";
-
+import moment from "moment";
 import Modal from "react-native-modal";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
@@ -25,6 +26,7 @@ import { storage } from "../utils/nhost";
 
 import * as Permissions from "expo-permissions";
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
+import { fontSize } from "styled-system";
 
 const fetchInventoryArticlesViaInventoryReportID = gql`
   query InventoryArticles($_eq: Int = 10) {
@@ -44,18 +46,15 @@ const fetchInventoryArticlesViaInventoryReportID = gql`
 `;
 
 const fetchInvetoryPictures = gql`
-  query MyQuery($inventory_room_id: Int = 10) {
-    inventory_picture(
-      where: { inventory_room_id: { _eq: $inventory_room_id } }
-    ) {
-      inventory_room {
-        room
-        room_id: id
-      }
-      picture_id: id
-      picture_location
-    }
+query MyQuery($inventory_room_id: Int = 10) {
+  inventory_picture(
+    where: { inventory_room_id: { _eq: $inventory_room_id } }
+  ) {
+    picture_id: id
+    picture_location
+    upload_time
   }
+}
 `;
 
 const insertInventoryRoomQuery = gql`
@@ -70,6 +69,14 @@ const insertInventoryRoomQuery = gql`
     }
   }
 `;
+
+const deleteInventoryRoomQuery = gql`
+mutation MyMutation($id: Int!) {
+  delete_inventory_room_by_pk(id: $id) {
+    id
+  }
+}
+`
 
 const insertInventoryPicturesQuery = gql`
   mutation InventoryPicture(
@@ -94,6 +101,9 @@ export default function InventoryReportRoom(props) {
 
   const [insertInventoryRoom, { loading: IRoomLoading, error: IRoomError }] =
     useMutation(insertInventoryRoomQuery);
+
+  const [deleteInventoryRoom, { loading: deleteRoomLoading, error: deleteRoomError }] =
+  useMutation(deleteInventoryRoomQuery);
 
   const [insertInventoryPictures, { loading: IPLoading, error: IPError }] =
     useMutation(insertInventoryPicturesQuery);
@@ -133,14 +143,12 @@ export default function InventoryReportRoom(props) {
   useEffect(() => {
     if (data || pictures) {
       setisloading(false);
-
-      const inventory_picture = pictures?.inventory_picture.filter(
-        (val) => val.inventory_room.room_id === room_id
-      );
-
-      const images = inventory_picture?.map((val) => {
+      const images = pictures?.inventory_picture?.map((val, i) => {
         return {
+          index: (i + 1),
           imageSel: val.picture_location,
+          fromDB: true,
+          upload_time: val.upload_time
         };
       });
 
@@ -152,14 +160,6 @@ export default function InventoryReportRoom(props) {
     return null;
   }
 
-  const result = data?.inventory_room.filter((val) => val?.room_id === room_id);
-
-  const inventory_picture = pictures?.inventory_picture.filter(
-    (val) => val.inventory_room.room_id === room_id
-  );
-
-  console.log("length ", inventory_picture?.length);
-
   return (
     <InventoryReportRoomClass
       loading={loading}
@@ -167,10 +167,10 @@ export default function InventoryReportRoom(props) {
       ImagesList={ImagesList}
       setImagesList={setImagesList}
       insertInventoryRoom={insertInventoryRoom}
+      deleteInventoryRoom={deleteInventoryRoom}
       IPLoading={IPLoading}
       insertInventoryPictures={insertInventoryPictures}
-      inventory_picture={inventory_picture}
-      data={result[0]?.inventory_articles}
+      data={ data?.inventory_room?.[0]?.inventory_articles}
       {...props}
     ></InventoryReportRoomClass>
   );
@@ -180,17 +180,6 @@ class InventoryReportRoomClass extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      assignedCallouts: [
-        { key: "Devin" },
-        { key: "Jackson" },
-        { key: "James" },
-        { key: "Joel" },
-        { key: "John" },
-        { key: "Jillian" },
-        { key: "Jimmy" },
-        { key: "Julie" },
-      ], //Ismain hayn saaray client ke ongoing callouts.
-      query: "",
       loading: false,
       Id: "",
       dataAvaible: true,
@@ -234,7 +223,7 @@ class InventoryReportRoomClass extends React.Component {
     //   };
     // });
 
-    this.setState({
+    this.setState({...this.state,
       clientList: clientsArray,
       totalData: clientsArray,
       StaticData: clientsArray,
@@ -244,7 +233,7 @@ class InventoryReportRoomClass extends React.Component {
   }
 
   changeselected = (value) => {
-    this.setState({ MenuSelected: value });
+    this.setState({...this.state, MenuSelected: value });
   };
 
   contains = ({ full_name, phone, id }, query) => {
@@ -262,12 +251,14 @@ class InventoryReportRoomClass extends React.Component {
     const data = _.filter(this.state.totalData, (StaticData) => {
       return this.contains(StaticData, text);
     });
-    this.setState({ query: text, clientList: data });
+    this.setState({...this.state, query: text, clientList: data });
   };
-  toggleGalleryEventModal = (vale) => {
-    this.setState({
+  toggleGalleryEventModal = (vale, upload_time, fromDB) => {
+    this.setState({...this.state,
       isPicvisible: !this.state.isPicvisible,
+      fromDB,
       selectedPic: vale,
+      upload_time
     });
   };
 
@@ -283,31 +274,32 @@ class InventoryReportRoomClass extends React.Component {
       alert("Sorry, we need camera roll permissions to make this work!");
     }
     let result = await ImagePicker.launchCameraAsync({
-      allowsEditing: false,
+      allowsEditing: true,
       exif: true,
       quality: 0.2,
     });
     if (!result.cancelled) {
       var picList = [...this.props.ImagesList];
-      var img = { imageSel: result.uri };
+      let picArrayLength = picList.length + 1
+      var img = { index: picArrayLength, imageSel: result.uri, fromDB: false, upload_time: new Date() };
       picList.push(img);
       //        console.log(picList)
       this.props.setImagesList(picList);
-      this.setState({ ImagesList: picList });
+      this.setState({...this.state, ImagesList: picList });
     }
   };
 
   RemoveImages = () => {
     var picList = [];
 
-    this.props.ImagesList.map((data) => {
+    picList = this.props.ImagesList.filter((data) => {
       if (data.imageSel != this.state.selectedPic) {
-        picList.push(data.imageSel);
+        return data
       }
     });
 
     this.props.setImagesList(picList);
-    this.setState({
+    this.setState({...this.state,
       ImagesList: picList,
       isPicvisible: !this.state.isPicvisible,
     });
@@ -339,6 +331,40 @@ class InventoryReportRoomClass extends React.Component {
       });
   };
 
+  DeleteRoomAlert = () => {
+    Alert.alert(
+      "Delete Room",
+      "Are you sure you want to delete the room?",
+      [
+        {
+          text: "No",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "Yes", onPress: () => this.deleteRoom() },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  deleteRoom = () => {
+    this.props.deleteInventoryRoom({
+        variables: {
+          id: this.props.room_id,
+        },
+      })
+      .then((result) => {
+        console.log(result.data);
+        alert("Room Deleted");
+        setTimeout(() => {
+          this.props.navigation.goBack();
+        }, 1000);
+      }).catch((e) => {
+        console.log(e)
+        alert("Error deleting room");
+      });
+  };
+
   uploadPics = async () => {
     const imagesToUplaod = this.props.ImagesList.filter(
       (value) =>
@@ -351,9 +377,9 @@ class InventoryReportRoomClass extends React.Component {
           const file = expoFileToFormFile(value.imageSel);
           console.log({ file });
           return storage
-            .put(`/callout_pics/${file.name}`, file)
+            .put(`/inventory_pictures/${file.name}`, file)
             .then((res) => {
-              return `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`;
+              return `https://backend-8106d23e.nhost.app/storage/o/inventory_pictures/${file.name}`;
             })
             .catch(console.error);
         })
@@ -374,50 +400,20 @@ class InventoryReportRoomClass extends React.Component {
     }
   };
 
-  // urlToUPLOAD = async (url, link) => {
-  //   let localUri = url;
-  //   let filename = localUri.split("/").pop();
-  //   //    console.log(this.state.CallOutID)
-  //   const blink =
-  //     "https://www.queensman.com/phase_2/queens_worker_Apis/uploadInventoryPicture_b.php?inventory_room_id=" +
-  //     this.state.room_id +
-  //     "&picture_location=" +
-  //     filename;
-  //   console.log(blink);
-  //   axios.get(blink).then((result) => {
-  //     console.log("upload invetnroy pic result with params", result.data);
-  //   });
-  //   console.log({ filename });
-  //   this.setState({
-  //     picturename: filename,
-  //   });
-  //   let match = /\.(\w+)$/.exec(filename);
-  //   let type = match ? `image/${match[1]}` : `image`;
-
-  //   let formData = new FormData();
-  //   formData.append("photo", { uri: localUri, name: filename, type });
-  //   console.log({ formData });
-  //   console.log({ link });
-  //   return await fetch(link, {
-  //     method: "POST",
-  //     body: formData,
-  //     header: {
-  //       "content-type": "multipart/form-data",
-  //     },
-  //   }).then((result) => {
-  //     console.log("last wali api form data wali ka respionse => ", result.data);
-  //   });
-  // };
-
   UploadImages = () => {
-    this.uploadPics();
-    // const link =
-    //   "https://www.queensman.com/phase_2/queens_worker_Apis/uploadInventoryPicture_a.php";
-    // this.state.ImagesList.map((data) => {
-    //   console.log("state map", data.imageSel);
-    //   console.log(link);
-    //   this.urlToUPLOAD(data.imageSel, link);
-    // });
+    Alert.alert(
+      "Upload Images",
+      "Are you sure you want to upload images? You cannot remove it later!",
+      [
+        {
+          text: "No",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "Yes", onPress: () => this.uploadPics() },
+      ],
+      { cancelable: true }
+    );
   };
 
   render() {
@@ -468,7 +464,7 @@ class InventoryReportRoomClass extends React.Component {
             placeholderTextColor="#000E1E"
             underlineColorAndroid="transparent"
             onChangeText={(room) => {
-              this.setState({ room });
+              this.setState({...this.state, room });
             }}
           />
         </View>
@@ -549,6 +545,7 @@ class InventoryReportRoomClass extends React.Component {
                       fontSize: 14,
                       color: "#aaa",
                       paddingTop: "3%",
+                      paddingBottom: "5%",
                       alignSelf: "center",
                     },
                   ]}
@@ -642,7 +639,7 @@ class InventoryReportRoomClass extends React.Component {
                   color="#FFCA5D"
                 />
               </View>
-
+                <Text style={{textAlign: "center", marginBottom: "2%", fontSize: 10, color: "red"}}>Images cannot be removed once uploaded</Text>
               <FlatList
                 data={this.props.ImagesList}
                 contentContainerStyle={{ paddingBottom: 100 }}
@@ -650,7 +647,7 @@ class InventoryReportRoomClass extends React.Component {
                   <View style={{ paddingHorizontal: "6%" }}>
                     <TouchableOpacity
                       onPress={() =>
-                        this.toggleGalleryEventModal(item.imageSel)
+                        this.toggleGalleryEventModal(item.imageSel, item.upload_time, item?.fromDB)
                       }
                     >
                       <View
@@ -676,7 +673,7 @@ class InventoryReportRoomClass extends React.Component {
                             color: "#000E1E",
                           }}
                         >
-                          Picture{" "}
+                          Picture {item.index}
                         </Text>
                       </View>
                     </TouchableOpacity>
@@ -687,29 +684,39 @@ class InventoryReportRoomClass extends React.Component {
             </View>
           )
         ) : null}
+        {this.props.room_id && 
+        <Button
+              style={{marginBottom: "25%"}}
+              onPress={() => this.DeleteRoomAlert()}
+              title="Delete Room"
+              color="#FFCA5D"
+            />}
         <Modal
           isVisible={this.state.isPicvisible}
-          onSwipeComplete={() => this.setState({ isPicvisible: false })}
+          onSwipeComplete={() => this.setState({...this.state, isPicvisible: false })}
           swipeDirection={["left", "right", "down"]}
-          onBackdropPress={() => this.setState({ isPicvisible: false })}
+          onBackdropPress={() => this.setState({...this.state, isPicvisible: false })}
         >
           <View style={[styles.GalleryEventModel, { backgroundColor: "#fff" }]}>
+          <Text style={{marginBottom: "15%", textAlign: "center"}}>{moment(this.state.upload_time).format('MMMM Do YYYY, h:mm:ss a')}</Text>
             <Image
-              style={{ width: "80%", height: "80%", alignSelf: "center" }}
+              style={{ width: "80%", height: "80%", alignSelf: "center"}}
               source={{ uri: this.state.selectedPic }}
               resizeMode={"contain"}
             />
-            <Text> </Text>
+            <View style={{marginBottom: "25%"}}></View>
+            {!this.state.fromDB && 
             <Button
+              style={{marginBottom: "25%"}}
               onPress={() => this.RemoveImages()}
               disabled={this.state.IsImageuploaded}
               title="REMOVE IMAGE"
               color="#FFCA5D"
-            />
+            />}
             <Text> </Text>
             <Text> </Text>
-            <Button
-              onPress={() => this.setState({ isPicvisible: false })}
+            <Button            
+              onPress={() => this.setState({...this.state, isPicvisible: false })}
               title="CLOSE"
               color="#FFCA5D"
             />

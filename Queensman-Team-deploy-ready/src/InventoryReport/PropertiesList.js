@@ -50,7 +50,6 @@ const FETCH_CLIENT_OWNED_PROPERTIES = gql`
 
 export default function PropertiesList(props) {
   const client_id = props.navigation.getParam("it", "Something").id;
-
   const {
     loading,
     data: owned_properties,
@@ -119,7 +118,7 @@ class ClientList extends React.Component {
       dataAvaible: true,
       cusID: "",
       selected: "Owned",
-      workerID: 1,
+      workerID: this.props.navigation.getParam("workerId", {}),
       TotalClient: 0,
       clientList: [],
       totalData: [],
@@ -134,6 +133,7 @@ class ClientList extends React.Component {
   passItem = (item) => {
     this.props.navigation.navigate("InventoryReportList", {
       it: item,
+      workerId: this.state.workerID
     });
   };
 

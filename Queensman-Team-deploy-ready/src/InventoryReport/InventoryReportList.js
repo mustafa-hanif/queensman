@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   Image,
   Button,
+  RefreshControl,
+  ScrollView
 } from "react-native";
 
 import axios from "axios";
@@ -31,14 +33,31 @@ const FetchInventoryReportsViID = gql`
   }
 `;
 
-export default function InventoryReportList(props) {
+export default InventoryReportList = (props) => {
+  const [refreshing, setRefreshing] = useState(false);
   const propertyId = props.navigation.getParam("it", {}).property_id;
 
-  const { loading, data, error } = useQuery(FetchInventoryReportsViID, {
+  const { loading, data, error, refetch: refetchInventory, } = useQuery(FetchInventoryReportsViID, {
     variables: {
       _eq: propertyId,
     },
+    onCompleted: (data2) => {
+      console.log(data2, "COMPLETED")
+      setRefreshing(false);
+    },
+    onError: (err) => {
+      setRefreshing(false)
+      console.log("error", err);
+    },
   });
+
+  
+  const onRefresh = React.useCallback(() => {
+    console.log("meow")
+    setRefreshing(true);
+    refetchInventory();
+    console.log("done")
+  }, []);
 
   if (loading) {
     return (
@@ -52,63 +71,54 @@ export default function InventoryReportList(props) {
     <InventoryReportListClass
       loading={loading}
       data={data.inventory_report}
+      refetchInventory={refetchInventory}
+      onRefresh={onRefresh}
+      refreshing={refreshing}
       {...props}
     ></InventoryReportListClass>
   );
 }
 
-class InventoryReportListClass extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      assignedCallouts: [
-        { key: "Devin" },
-        { key: "Jackson" },
-        { key: "James" },
-        { key: "Joel" },
-        { key: "John" },
-        { key: "Jillian" },
-        { key: "Jimmy" },
-        { key: "Julie" },
-      ], //Ismain hayn saaray client ke ongoing callouts.
+const InventoryReportListClass = (props) => {
+    const [state, setState] = useState({
       query: "",
       loading: false,
       Id: "",
       dataAvaible: true,
       cusID: "",
       selected: "Owned",
-      workerID: 1,
+      workerID: props.navigation.getParam("workerId", {}),
       TotalClient: 0,
       clientList: [],
       totalData: [],
       StaticData: [],
-      PropertyID: this.props.navigation.getParam("it", "Something").property_id,
-    };
-  }
+      PropertyID: props.navigation.getParam("it", "Something").property_id,
+    });
 
-  passItem = (item) => {
-    this.props.navigation.navigate("InventoryReport", {
+  const passItem = (item) => {
+    props.navigation.navigate("InventoryReport", {
       it: item,
-      propertyid: this.state.PropertyID,
+      propertyid: state.PropertyID,
+      workerId: state.workerID
     });
   };
-  CreateInventoryReport = () => {
-    this.props.navigation.navigate("InventoryReport", {
-      propertyid: this.state.PropertyID,
+  const CreateInventoryReport = () => {
+    props.navigation.navigate("InventoryReport", {
+      propertyid: state.PropertyID,
+      workerId: state.workerID
     });
   };
 
-  async componentDidMount() {
-    var clientsArray = this.props.data;
-
-    this.setState({
+  useEffect(() => {
+    let clientsArray = props.data;
+    setState({...state, 
       clientList: clientsArray,
       totalData: clientsArray,
       StaticData: clientsArray,
     });
-  }
+  }, [])
 
-  contains = ({ full_name, phone, id }, query) => {
+  const contains = ({ full_name, phone, id }, query) => {
     if (
       full_name.includes(query) ||
       phone.includes(query) ||
@@ -119,20 +129,25 @@ class InventoryReportListClass extends React.Component {
     return false;
   };
 
-  searchData = (text) => {
-    const data = _.filter(this.state.totalData, (StaticData) => {
-      return this.contains(StaticData, text);
+  const searchData = (text) => {
+    const data = _.filter(state.totalData, (StaticData) => {
+      return contains(StaticData, text);
     });
-    this.setState({ query: text, clientList: data });
+    setState({ ...state, query: text, clientList: data });
   };
 
-  render() {
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container}  
+      refreshControl={
+        <RefreshControl
+          refreshing={props.refreshing}
+          onRefresh={props.onRefresh}
+        />
+      }>
         <View style={{ paddingHorizontal: "6%" }}>
           <Button
             style={{ width: "100%" }}
-            onPress={() => this.CreateInventoryReport()}
+            onPress={() => CreateInventoryReport()}
             title="Create New Report"
             color="#FFCA5D"
           />
@@ -155,8 +170,9 @@ class InventoryReportListClass extends React.Component {
                     margin: "2%",
                     color: '#000E1E',
                     fontWeight: '500'
-                }}>Total Clients: {this.state.TotalClient}</Text> */}
-        {this.state.clientList.length <= 0 ? (
+                }}>Total Clients: {state.TotalClient}</Text> */}
+        {state.clientList.length <= 0 ? (
+          <View>
           <Text
             style={[
               styles.TextFam,
@@ -170,14 +186,29 @@ class InventoryReportListClass extends React.Component {
           >
             No Inventory Reports Available{" "}
           </Text>
+          <Text
+              style={[
+              styles.TextFam,
+              {
+                fontSize: 14,
+                color: "#aaa",
+                paddingTop: "3%",
+                paddingBottom: "10%",
+                alignSelf: "center",
+              },
+            ]}
+            >
+            Pull down to refresh
+          </Text>
+          </View>
         ) : (
           <View>
             <FlatList
-              data={this.state.clientList}
-              contentContainerStyle={{ paddingBottom: 100 }}
+              data={state.clientList}
+              contentContainerStyle={{ paddingBottom: 10 }}
               renderItem={({ item }) => (
                 <View>
-                  <TouchableOpacity onPress={() => this.passItem(item)}>
+                  <TouchableOpacity onPress={() => passItem(item)}>
                     <View style={styles.Card}>
                       <Text
                         style={[
@@ -223,12 +254,25 @@ class InventoryReportListClass extends React.Component {
               )}
               keyExtractor={(item, index) => index.toString()}
             />
+             <Text
+              style={[
+              styles.TextFam,
+              {
+                fontSize: 14,
+                color: "#aaa",
+                paddingTop: "3%",
+                paddingBottom: "10%",
+                alignSelf: "center",
+              },
+            ]}
+            >
+            Pull down to refresh
+          </Text>
           </View>
         )}
-      </View>
+      </ScrollView>
     );
   }
-}
 
 const styles = StyleSheet.create({
   container: {
