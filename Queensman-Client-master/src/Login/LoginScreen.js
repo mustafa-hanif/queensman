@@ -131,7 +131,7 @@ const LoginScreen = ({ navigation }) => {
     try {
       await resetPassword({
         variables: {
-          email: "salmanhanif133@gmail.com",
+          email: state.email,
           password_hash: bcrypt.hashSync("0000", 8),
         },
       });

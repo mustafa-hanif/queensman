@@ -144,7 +144,7 @@ const GenerateReport = (props) => {
         isOpen={state.isReportModelVisible}
         onClose={() => setState({ ...state, isReportModelVisible: false })}
       >
-        <Modal.Content h={400}>{renderReportModalContent()}</Modal.Content>
+        <Modal.Content>{renderReportModalContent()}</Modal.Content>
       </Modal>
       {/* background gradinet   */}
       <LoadProperties setPropertyId={setPropertyId} props={props} />
@@ -521,23 +521,26 @@ const MyFlatList2 = ({ property_ID, value, Reporthandle }) => {
     return <Spinner size="sm" />;
   }
   if (invError) {
-    return <Text>{invError}</Text>;
+    console.log(invError)
+    return <Text>error</Text>;
   }
   if (ModelData?.length === 0) {
     return <Text>There are no inventory reports for this property</Text>;
   }
   return (
     <>
-      {/* <Text fontSize={18} paddingBottom={2}>Inventory Reports</Text> */}
+      <Text fontSize={18} paddingBottom={2}>Inventory Reports</Text>
       {ModelData?.length === 0 ? (
         <Text>There are no inventory reports for this property</Text>
       ) : (
         <FlatList
           data={ModelData}
           pr={6}
+          style={{height: 400}}
           renderItem={({ item }) => (
-            <View>
+            <View style={{marginBottom: 15}}>
               <Text>Property ID: {item?.property?.id}</Text>
+              <Text>Report ID: {item?.id}</Text>
               <Text paddingBottom={1}>
                 {item?.property?.country}, {item?.property?.city}, {item?.property?.community}
               </Text>
