@@ -8,7 +8,7 @@
 /* eslint-disable no-alert */
 import React, { useEffect, useState } from "react";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
-import bcrypt from 'react-native-bcrypt'
+import bcrypt from "react-native-bcrypt";
 import {
   StyleSheet,
   View,
@@ -19,7 +19,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Linking,
-  Modal as Modal2
+  Modal as Modal2,
 } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
@@ -28,21 +28,21 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { Button, Icon, Input, Modal, VStack, Text, Center } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
+import { gql, useMutation } from "@apollo/client";
 import { auth } from "../utils/nhost";
-import { gql, useMutation } from '@apollo/client'
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
 
-const resetPasswordGql = gql
-`mutation UpdatePassword($email: citext = "", $password_hash: String = "") {
-  update_auth_accounts(where: {email: {_eq: $email}}, _set: {password_hash: $password_hash}) {
-    returning {
-      email
+const resetPasswordGql = gql`
+  mutation UpdatePassword($email: citext = "", $password_hash: String = "") {
+    update_auth_accounts(where: { email: { _eq: $email } }, _set: { password_hash: $password_hash }) {
+      returning {
+        email
+      }
     }
   }
-}
-`
+`;
 
 const styles = StyleSheet.create({
   container: {
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
 
 const LoginScreen = ({ navigation }) => {
   // animation ref
-  const [resetPassword, { data, loading, error }] = useMutation(resetPasswordGql)
+  const [resetPassword, { data, loading, error }] = useMutation(resetPasswordGql);
   const [state, setState] = useState({
     email: "salmanhanif133@gmail.com",
     emailpage: true,
@@ -89,13 +89,13 @@ const LoginScreen = ({ navigation }) => {
     showPassword: true,
     retrievedID: "",
   });
-  const [loadingModalVisible, setLoadingModalVisible] = useState(false)
-  const [resetDoneVisible, setResetDoneVisible] = useState(false)
+  const [loadingModalVisible, setLoadingModalVisible] = useState(false);
+  const [resetDoneVisible, setResetDoneVisible] = useState(false);
   const { currentLogin } = useLoginCheck();
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    setState({...state, loading: false})
+    setState({ ...state, loading: false });
     if (currentLogin && state.changePasswordModal === false) {
       navigation.navigate("AppDrawer");
     } else if (state.changePasswordModal === false) {
@@ -125,42 +125,41 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const sendResetEmail = async () => {
-    setState({...state, resetPasswordModal: false})
-    setLoadingModalVisible(true)
+    setState({ ...state, resetPasswordModal: false });
+    setLoadingModalVisible(true);
     // await auth.login({ email: state.emai, password })
     try {
       await resetPassword({
         variables: {
           email: "salmanhanif133@gmail.com",
-          password_hash: bcrypt.hashSync("0000", 8)
-        }
-      })
-      console.log("password rested")
-      setResetDoneVisible(true)
-      const url = 'https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendResetPasswordEmail';
-      const data = {
-        clientEmail: state.email
-      }
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+          password_hash: bcrypt.hashSync("0000", 8),
         },
-        redirect: 'follow',
-        referrerPolicy: 'no-referrer',
-        body: JSON.stringify(data)
       });
-  
-      console.log("password reset!")
+      console.log("password rested");
+      setResetDoneVisible(true);
+      const url = "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendResetPasswordEmail";
+      const _data = {
+        clientEmail: state.email,
+      };
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        redirect: "follow",
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify(_data),
+      });
+
+      console.log("password reset!");
       setLoadingModalVisible(false);
       // setResetDoneVisible(true)
-      return response.json()
+      return response.json();
     } catch (e) {
-      console.log(e)
+      console.log(e);
       setLoadingModalVisible(false);
-    } 
-    
-  }
+    }
+  };
 
   const proceedFunctionEmail = async () => {
     const { email, password } = state;
@@ -219,7 +218,9 @@ const LoginScreen = ({ navigation }) => {
       <Modal isOpen={state.changePasswordModal}>
         <Modal.Content bgColor="white" px={8} py={8}>
           <VStack space={4}>
-            <Text fontSize={17} bold={true} color="black">Please provide a new password</Text>
+            <Text fontSize={17} bold color="black">
+              Please provide a new password
+            </Text>
             <Input
               color="black"
               value={state.password}
@@ -234,21 +235,23 @@ const LoginScreen = ({ navigation }) => {
           </VStack>
         </Modal.Content>
       </Modal>
-      <Modal isOpen={state.resetPasswordModal} onClose={() => setState({ ...state, resetPasswordModal: false})}>
+      <Modal isOpen={state.resetPasswordModal} onClose={() => setState({ ...state, resetPasswordModal: false })}>
         <Modal.Content bgColor="white" px={4} py={8}>
           <VStack space={6}>
-            <Text fontSize={17} bold={true} color="black">Enter your email</Text>
+            <Text fontSize={17} bold color="black">
+              Enter your email
+            </Text>
             <Input
               color="black"
               value={state.email}
               onChangeText={(email) => {
                 setState({ ...state, email });
               }}
-              />
+            />
             <Button w="100%" onPress={() => sendResetEmail()}>
               Reset
             </Button>
-            <Button w="100%" onPress={() => setState({ ...state, resetPasswordModal: false})}>
+            <Button w="100%" onPress={() => setState({ ...state, resetPasswordModal: false })}>
               Cancel
             </Button>
           </VStack>
@@ -256,15 +259,15 @@ const LoginScreen = ({ navigation }) => {
       </Modal>
       <Modal isOpen={loadingModalVisible} size="full" onClose={() => setLoadingModalVisible(false)}>
         <Modal.Header>
-        <ActivityIndicator size="large" color="white" />
+          <ActivityIndicator size="large" color="white" />
         </Modal.Header>
       </Modal>
       <Modal isOpen={resetDoneVisible} size="full" onClose={() => setResetDoneVisible(false)}>
         <Modal.Header bg="white" px={5} py={5}>
-        Password Reset successfully!
+          Password Reset successfully!
         </Modal.Header>
       </Modal>
-      
+
       {/* background gradinet   */}
       <LinearGradient colors={["#000E1E", "#001E2B", "#000E1E"]} style={styles.gradiantStyle} />
 
@@ -364,8 +367,11 @@ const LoginScreen = ({ navigation }) => {
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity style={{ alignSelf: "center", paddingTop: "5%" }} onPress={() => setState({ ...state, resetPasswordModal: true})}>
-            <Text style={{ fontSize: 15,  color: "#fff" }}>Reset Password</Text>
+          <TouchableOpacity
+            style={{ alignSelf: "center", paddingTop: "5%" }}
+            onPress={() => setState({ ...state, resetPasswordModal: true })}
+          >
+            <Text style={{ fontSize: 15, color: "#fff" }}>Reset Password</Text>
           </TouchableOpacity>
         </View>
 
