@@ -287,7 +287,7 @@ const DataTableAdvSearch = () => {
   const history = useHistory()
   const [queryLoading, setQueryLoading] = useState(false)
   const [loaderButton, setLoaderButton] = useState(false)
-  const { loading, data, error, refetch: refetchClient } = useQuery(GET_CLIENT, {fetchPolicy: 'network-only', nextFetchPolicy: 'network-only'})
+  const { loading, data, error, refetch: refetchClient } = useQuery(GET_CLIENT, { fetchPolicy: 'network-only', nextFetchPolicy: 'network-only' })
   const [updateClient, { loading: clientLoading }] = useMutation(
     UPDATE_CLIENT,
     { refetchQueries: [{ query: GET_CLIENT }] }
@@ -336,7 +336,7 @@ const DataTableAdvSearch = () => {
         <div className='toastify-body'>
           <ul className='list-unstyled mb-0'>
             <li>
-            <strong>Full name</strong>: {data.full_name}
+              <strong>Full name</strong>: {data.full_name}
             </li>
             <li>
               <strong>email</strong>: {data.email}
@@ -348,38 +348,38 @@ const DataTableAdvSearch = () => {
   }
 
   //Overlay component
-const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
-  return (
-<div style={{
-    position: "fixed",
-    display: "block",
-    width: "100%",
-    height: "100%",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    zIndex: 2
-}}>
-  <div style={{
-    position: "absolute",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%,-50%)"
-  }}>
-      <Spinner color='primary' />
-      {loaderButton && <div className="d-flex flex-column align-items-center mt-2">
-        <h6 className="text-primary">Hmmm it is taking longer than expected</h6>
-        <Button color='secondary' className="mt-2" onClick={ () => { setLoaderButton(false); setLoading(false) }}>Go back</Button>
-        </div>}
-    </div>
-  </div>
-  )
-}
+  const Overlay = ({ setLoaderButton, loaderButton, setLoading }) => {
+    return (
+      <div style={{
+        position: "fixed",
+        display: "block",
+        width: "100%",
+        height: "100%",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        zIndex: 2
+      }}>
+        <div style={{
+          position: "absolute",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%,-50%)"
+        }}>
+          <Spinner color='primary' />
+          {loaderButton && <div className="d-flex flex-column align-items-center mt-2">
+            <h6 className="text-primary">Hmmm it is taking longer than expected</h6>
+            <Button color='secondary' className="mt-2" onClick={() => { setLoaderButton(false); setLoading(false) }}>Go back</Button>
+          </div>}
+        </div>
+      </div>
+    )
+  }
 
   const openModalAlert = (id) => {
     setRowId(id)
@@ -414,7 +414,10 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
     let year = new Date().getFullYear()
     let month = new Date().getMonth() + 1
     let day = new Date().getDate()
-    console.log(day)
+    const propertyid = row.property_owneds[0]?.property?.id ? row.property_owneds[0]?.property?.id : row.leases[0]?.property?.id
+
+    console.log(row)
+    console.log(row.property_owneds[0]?.property?.id)
     const planArray = []
     setQueryLoading(true)
     setTimeout(() => {
@@ -429,9 +432,12 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
           month = 1
           year++
         }
-        const date_on_calendar = `${year}-${
-          month < 10 ? `0${month}` : month
-        }-${day}` //new Date().getMonth()+1
+        let date_on_calendar = `${year}-${month < 10 ? `0${month}` : month
+          }-${day}` //new Date().getMonth()+1
+        if (i === 0) {
+          date_on_calendar = `${year}-${month < 10 ? `0${month}` : month
+            }-${day + 7}` //new Date().getMonth()+1
+        }
         const time_on_calendar = "10:00:00" //10:00:00
         console.log({ date_on_calendar })
         console.log({ time_on_calendar })
@@ -448,7 +454,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
           .toISOString()
           .substr(0, 10)
         console.log({
-          property_id: row.property_owneds[0]?.property_id,
+          property_id: propertyid,
           callout_by: row.id,
           email: row.email,
           date_on_calendar,
@@ -459,29 +465,29 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         })
         planArray.push(
           {
-            property_id: row.property_owneds[0]?.property_id,
-          callout_by: row.id,
-          email: row.email,
-          date_on_calendar,
-          time_on_calendar,
-          end_time_on_calendar,
-          end_date_on_calendar,
-          blocked: true
-        }
+            property_id: propertyid,
+            callout_by: row.id,
+            email: row.email,
+            date_on_calendar,
+            time_on_calendar,
+            end_time_on_calendar,
+            end_date_on_calendar,
+            blocked: true
+          }
         )
-          await addPlan({
-            variables: {
-              property_id: row.property_owneds[0]?.property_id,
-              callout_by: row.id,
-              email: row.email,
-              date_on_calendar,
-              time_on_calendar,
-              end_time_on_calendar,
-              end_date_on_calendar,
-              blocked: true,
-              worker_id: 21
-            }
-          })
+        await addPlan({
+          variables: {
+            property_id: propertyid,
+            callout_by: row.id,
+            email: row.email,
+            date_on_calendar,
+            time_on_calendar,
+            end_time_on_calendar,
+            end_date_on_calendar,
+            blocked: true,
+            worker_id: 21
+          }
+        })
         month += 3
         day = "01"
       }
@@ -494,20 +500,20 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         }
       )
       if (!queryLoading || !addPlanLoading) {
-          await updateClientPlan({
-            variables: {
-              id: row.id,
-              hasPlan: true
-            }
-          })
-          const res = await axios.post(
-            "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendPlanEmail",
-            {
-              planArray
-            }
-          )
+        await updateClientPlan({
+          variables: {
+            id: row.id,
+            hasPlan: true
+          }
+        })
+        const res = await axios.post(
+          "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendPlanEmail",
+          {
+            planArray
+          }
+        )
       }
-  
+
       const currentDate = new Date().toLocaleDateString().split("/") // "7/11/2021"
       year = parseInt(currentDate[2])
       month = parseInt(currentDate[0])
@@ -534,17 +540,17 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
           Due_Date: `${dateString}`,
           email: `${row.email}`,
         });
-  
-          // const res = await axios.post(
-          //   "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/quarterlyTasks",
-          //   {
-          //     Subject: `Task Client ${date[1]}`,
-          //     Description: `Task Client ${date[1]}`,
-          //     Status: `Open`,
-          //     Due_Date: `${dateString}`,
-          //     email: `${row.email}`,
-          //   }
-          // );
+
+        // const res = await axios.post(
+        //   "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/quarterlyTasks",
+        //   {
+        //     Subject: `Task Client ${date[1]}`,
+        //     Description: `Task Client ${date[1]}`,
+        //     Status: `Open`,
+        //     Due_Date: `${dateString}`,
+        //     email: `${row.email}`,
+        //   }
+        // );
         month += 3;
       }
       refetchClient()
@@ -708,7 +714,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
       minWidth: "150px",
       cell: row => {
         return (
-          <Badge color={row?.active == 1 ? 'light-success' :  'light-danger'} pill>
+          <Badge color={row?.active == 1 ? 'light-success' : 'light-danger'} pill>
             {row?.active == 1 ? "Active" : "Inactive"}
           </Badge>
         )
@@ -862,7 +868,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
 
   const addClientRecord = () => {
     setToAddNewRecord(true);
-    setRow({active: 1});
+    setRow({ active: 1 });
     setTimeout(() => {
       setModal(!modal);
     }, 200);
@@ -870,25 +876,27 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
 
   const updateActive = async (active, row) => {
     try {
-      await updateClientActive({variables:{
-      email: row?.email,
-      active
-    }})
-  } catch (e) {
-    console.log(e)
-    toast.error(
-      <ToastComponent
-        title="No admin rights"
-        color="danger"
-        icon={<XCircle />}
-      />,
-      {
-        autoClose: 2000,
-        hideProgressBar: true,
-        closeButton: false,
-      }
-    );
-  }
+      await updateClientActive({
+        variables: {
+          email: row?.email,
+          active
+        }
+      })
+    } catch (e) {
+      console.log(e)
+      toast.error(
+        <ToastComponent
+          title="No admin rights"
+          color="danger"
+          icon={<XCircle />}
+        />,
+        {
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeButton: false,
+        }
+      );
+    }
   }
   const handleAddRecord = async (newRow, redirect = false) => {
     console.log(redirect)
@@ -908,20 +916,20 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         },
       })
       console.log("client added")
-        await auth.register({
-          email: newRow.email,
-          password: "0000", // newRow.password,
-          options: { userData: { display_name: newRow.full_name }},
-        });
-        console.log("client registerd")
-        toast.success(<SuccessToast data={newRow} />, { hideProgressBar: true })
-      
+      await auth.register({
+        email: newRow.email,
+        password: "0000", // newRow.password,
+        options: { userData: { display_name: newRow.full_name } },
+      });
+      console.log("client registerd")
+      toast.success(<SuccessToast data={newRow} />, { hideProgressBar: true })
+
       const url = 'https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendWelcomeEmail';
       const data = new URLSearchParams()
       data.set('clientName', newRow.full_name)
       data.set('clientEmail', newRow.email)
       data.set('clientPassword', '0000')
-  
+
       await fetch(url, {
         method: 'POST',
         headers: {
@@ -935,11 +943,11 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
       setRow(null)
       if (redirect) {
         console.log("pushing")
-        history.push({pathname: '/property', state: {active: "4"}})
+        history.push({ pathname: '/property', state: { active: "4" } })
       }
     } catch (e) {
       console.log(e.message)
-      if (e.message.substr(0,20) === "Uniqueness violation") {
+      if (e.message.substr(0, 20) === "Uniqueness violation") {
         return toast.error(
           <ToastComponent title="Client already exists with same email" color="danger" icon={<XCircle />} />,
           {
@@ -1241,7 +1249,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         <CardHeader className="border-bottom">
           <CardTitle tag="h4">Advance Search</CardTitle>
           <div className="d-flex mt-md-0 mt-1">
-          { (searchName || searchEmail || searchOrganization || searchOccupation || searchPhone || searchGender) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
+            {(searchName || searchEmail || searchOrganization || searchOccupation || searchPhone || searchGender) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
               <XCircle size={15} />
               <span className='align-middle ml-50'>Clear filter</span>
             </Button>}
@@ -1337,7 +1345,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
             onRowClicked={(row) => openDetailsModal(row)}
             highlightOnHover={true}
             pointerOnHover={true}
-            // selectableRowsComponent={BootstrapCheckbox}
+          // selectableRowsComponent={BootstrapCheckbox}
           />
         ) : (
           <h4 className="d-flex text-center align-items-center justify-content-center mb-5">
@@ -1386,7 +1394,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
           toggle={() => setDetailsModal(!detailsModal)}
           className="modal-dialog-centered modal-xl modal-primary"
         >
-          <ModalHeader className="d-flex justify-content-center"  toggle={() => setDetailsModal(!detailsModal)}>
+          <ModalHeader className="d-flex justify-content-center" toggle={() => setDetailsModal(!detailsModal)}>
             Client Details
           </ModalHeader>
           <ModalBody>
