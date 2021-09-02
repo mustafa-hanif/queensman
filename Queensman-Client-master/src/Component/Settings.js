@@ -67,7 +67,7 @@ class Settings extends React.Component {
   signOut = async () => {
     try {
       await AsyncStorage.removeItem("QueensUser");
-      await AsyncStorage.removeItem("QueensPropertyID");
+      await AsyncStorage.removeItem("QueensPropertyDetails");
       await AsyncStorage.removeItem("QueensPropertyType");
       await AsyncStorage.removeItem("QueensPropertyCountry");
       auth.logout().then((data) => {
