@@ -52,7 +52,7 @@
     "prismjs": "1.19.0",
     "prop-types": "15.7.2",
     "react": "17.0.1",
-    "react-apexcharts": "1.3.6",
+    "react-apexcharts": "^1.3.9",
     "react-appbar": "^2.0.0",
     "react-bootstrap": "^1.6.0",
     "react-bootstrap-table2-paginator": "^2.1.2",
