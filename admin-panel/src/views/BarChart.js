@@ -8,7 +8,7 @@ import { gql, useQuery } from '@apollo/client'
 
 const GET_CALLOUT_COUNT_TODAY = gql`
 query CalloutsToday($endDate: timestamptz!, $startDate: timestamptz!) {
-  callout(where: {request_time: {_lte: $endDate, _gte: $startDate}}) {
+  callout(where: {request_time: {_lte: $endDate, _gte: $startDate}, status: {_neq: "Closed"}}) {
     id
     request_time
   }

@@ -25,7 +25,7 @@ const Home = () => {
       </Row>
       <Row className='match-height'>
         <Col lg='12' sm='6'>
-          {/* <BarChart direction={isRtl ? 'rtl' : 'ltr'} info={colors.info.main} /> */}
+          <BarChart direction={isRtl ? 'rtl' : 'ltr'} info={colors.info.main} />
         </Col>
         {/* <Col lg='3' sm='6'>
           <OrdersReceived kFormatter={kFormatter} warning={colors.warning.main} />

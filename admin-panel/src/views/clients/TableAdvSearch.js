@@ -253,7 +253,6 @@ const UPLOAD_PLAN = gql`
         end_date_on_calendar: $end_date_on_calendar
         notes: "Scheduled Services"
         blocked: $blocked
-        worker_id: $worker_id
       }
     ) {
       date_on_calendar
@@ -410,7 +409,6 @@ const DataTableAdvSearch = () => {
   }
 
   const handleAddPlan = async (row) => {
-    console.log("meow")
     let year = new Date().getFullYear()
     let month = new Date().getMonth() + 1
     let day = new Date().getDate()

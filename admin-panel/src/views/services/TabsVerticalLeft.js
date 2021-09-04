@@ -62,6 +62,7 @@ const TabsVerticalLeft = ({item}) => {
   const pre_images = item?.pre_pics
   const post_images = item?.postpics
   const job_history = item?.job_history
+  const job = item?.callout_job
   const job_worker = item?.job_worker
   const schedule = item?.schedulers[0]
   // const {id, notes, name, callout_id, description, type, worker_email, status, request_time } = item
@@ -184,7 +185,7 @@ const TabsVerticalLeft = ({item}) => {
       </Nav>
       <TabContent activeTab={active}>
       <TabPane tabId='1'>
-        <h1>Callout Details</h1>
+        <h1>Callout Details <span className="font-medium-2">({callout.status})</span></h1>
             <ListGroup flush>
             {callout && Object.keys(callout).map(itemKey => {
               if (!(["callout_job", "client_callout_email", "job_history", "job_worker", "property", "postpics", "pre_pics", "__typename", "schedulers"].includes(itemKey))) {
@@ -206,6 +207,25 @@ const TabsVerticalLeft = ({item}) => {
                   )
               }
               })}
+               <div>
+          <p style={{fontWeight: "bold", fontSize: 18, margin: 0, marginTop: 20}}>Feedback for all the tickets in this job</p>  
+              
+        {job.length > 0 ? job?.map(_job => {
+          if (_job?.feedback) {
+            return <div>
+            <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Solution: </p>
+            {_job?.solution}
+
+            <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Feedback: </p>
+            {_job?.feedback}
+
+            <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Rating (X/5): </p>
+            {_job?.rating} / 5
+            </div>
+          }
+          return null
+        }) : <div>No feedback</div>}
+        </div>
             </ListGroup>
         </TabPane>
         <TabPane tabId='2'>
