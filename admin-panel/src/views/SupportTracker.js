@@ -11,19 +11,43 @@ import {
   DropdownItem,
   DropdownToggle,
   Row,
-  Col
+  Col,
+  Spinner
 } from 'reactstrap'
 import Chart from 'react-apexcharts'
+import moment from "moment"
+import { gql, useLazyQuery, useQuery } from '@apollo/client'
 
+const GET_TICKETS = gql`
+query GetTickets($endDate: timestamptz!, $startDate: timestamptz!) {
+  job_tickets(where: {created_at: {_lte: $endDate, _gte: $startDate}}) {
+    id
+    type
+    status
+  }
+}
+`
 const SupportTracker = props => {
-  const [data, setData] = useState({
-      title: 'Support Tracker',
-      last_days: ['Last 28 Days', 'Last Month', 'Last Year'],
-      totalTicket: 163,
-      newTicket: 29,
-      openTicket: 63,
-      responseTime: 1
-    })
+  const dropDownLabels = [
+    {label: 'Last 7 Days', value: 7},  
+    {label: 'Last Month', value: 30}, 
+    {label: 'Last Year', value: 365}
+  ]
+
+  const [selectedValue, setSelectedValue] = useState(dropDownLabels[0])
+  console.log(selectedValue.value)
+  const [startEndDate, setStartEndDate] = useState([moment().subtract(selectedValue.value, 'days').toDate(), moment().toDate()]) //last 7 days defualt
+  const { loading, data, error } = useQuery(GET_TICKETS, {variables: {startDate: startEndDate[0], endDate: startEndDate[1] }})
+  console.log(startEndDate)
+  const job_tickets = data?.job_tickets
+  const totalTicket = job_tickets?.length
+  const closedTicket = job_tickets?.filter(element => element.status === "Closed").length
+  const openTicket = job_tickets?.filter(element => element.status === "Open").length
+  const deferredTicket = job_tickets?.filter(element => element.type === "Deferred").length
+  const additionalRequest = job_tickets?.filter(element => element.type === "Additional Request").length
+  const materialRequestTicket = job_tickets?.filter(element => element.type === "Material Request").length
+  const requestForQuotaionTicket = job_tickets?.filter(element => element.type === "Request for Quotation").length
+  const title = 'Support Tracker'
   const options = {
       plotOptions: {
         radialBar: {
@@ -71,51 +95,64 @@ const SupportTracker = props => {
       },
       labels: ['Completed Tickets']
     },
-    series = [83]
+    series = [Math.ceil((closedTicket / totalTicket) * 100)]
 
-  return data !== null ? (
+  return (
     <Card>
       <CardHeader className='pb-0'>
-        <CardTitle tag='h4'>{data.title}</CardTitle>
-        <UncontrolledDropdown className='chart-dropdown'>
-          <DropdownToggle color='' className='bg-transparent btn-sm border-0 p-50'>
-            Last 7 days
-          </DropdownToggle>
-          <DropdownMenu right>
-            {data.last_days.map(item => (
-              <DropdownItem className='w-100' key={item}>
-                {item}
-              </DropdownItem>
-            ))}
-          </DropdownMenu>
-        </UncontrolledDropdown>
+        <CardTitle tag='h4'>{title}</CardTitle>
       </CardHeader>
       <CardBody>
         <Row>
           <Col sm='2' className='d-flex flex-column flex-wrap text-center'>
-            <h1 className='font-large-2 font-weight-bolder mt-2 mb-0'>{data.totalTicket}</h1>
+            <h1 className='font-large-2 font-weight-bolder mt-2 mb-0'>{totalTicket}</h1>
             <CardText>Tickets</CardText>
           </Col>
-          <Col sm='10' className='d-flex justify-content-center'>
-            <Chart options={options} series={series} type='radialBar' height={270} id='support-tracker-card' />
+          <Col sm='8' className='d-flex justify-content-center'>
+            {loading ? <div style={{height: 270, display: "flex", flexDirection: "column", alignItems:"center", alignContent: "center", justifyContent: "center"}}>
+      <div className="mb-2"><Spinner color='primary' /></div>
+      <div><h6>Loading</h6></div>
+      </div> : <Chart options={options} series={series} type='radialBar' height={270} id='support-tracker-card' />}
+          </Col>
+          <Col sm="2" className='d-flex justify-content-center'>
+          <UncontrolledDropdown className='chart-dropdown'>
+          <DropdownToggle color='' className='bg-transparent btn-sm border-0 p-50'>
+            {selectedValue.label}
+          </DropdownToggle>
+          <DropdownMenu right>
+            {dropDownLabels.map(item => (
+              <DropdownItem className='w-100' key={item.value} active={item.value === selectedValue.value} onClick={(e) => { setSelectedValue({label: item.label, value: item.value}); setStartEndDate([moment().subtract(item.value, 'days').toDate(), moment().toDate()]) }}>
+                {item.label}
+              </DropdownItem>
+            ))}
+          </DropdownMenu>
+        </UncontrolledDropdown>
           </Col>
         </Row>
         <div className='d-flex justify-content-between mt-1'>
           <div className='text-center'>
-            <CardText className='mb-50'>New Tickets</CardText>
-            <span className='font-large-1 font-weight-bold'>{data.newTicket}</span>
+            <CardText className='mb-50'>Deferred Tickets</CardText>
+            <span className='font-large-1 font-weight-bold'>{deferredTicket}</span>
           </div>
           <div className='text-center'>
             <CardText className='mb-50'>Open Tickets</CardText>
-            <span className='font-large-1 font-weight-bold'>{data.openTicket}</span>
+            <span className='font-large-1 font-weight-bold'>{openTicket}</span>
           </div>
           <div className='text-center'>
-            <CardText className='mb-50'>Response Time</CardText>
-            <span className='font-large-1 font-weight-bold'>{data.responseTime}d</span>
+            <CardText className='mb-50'>Material Request Ticket</CardText>
+            <span className='font-large-1 font-weight-bold'>{materialRequestTicket}</span>
+          </div>
+          <div className='text-center'>
+            <CardText className='mb-50'>Additional Request Ticket</CardText>
+            <span className='font-large-1 font-weight-bold'>{additionalRequest}</span>
+          </div>
+          <div className='text-center'>
+            <CardText className='mb-50'>Request for Quotation Ticket</CardText>
+            <span className='font-large-1 font-weight-bold'>{requestForQuotaionTicket}</span>
           </div>
         </div>
       </CardBody>
     </Card>
-  ) : null
+  ) 
 }
 export default SupportTracker

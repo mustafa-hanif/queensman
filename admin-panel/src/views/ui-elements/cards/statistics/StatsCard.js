@@ -30,7 +30,7 @@ const STATS = gql`query MyQuery {
 `
 const StatsCard = ({ cols }) => {
   const { loading, data: apiData, error } = useQuery(STATS)
-  if (loading || error) {
+  if (error) {
     console.log(error)
   }
   
