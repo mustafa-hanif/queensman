@@ -22,6 +22,10 @@ const TabsVerticalLeft = ({item}) => {
       <h5 className='mb-1'>Updated By: </h5>
       <h6 className='mb-1 ml-1'>{jobHistory?.updated_by}</h6>
     </div>
+    {jobHistory?.location && <div className='meetup-header d-flex align-items-center'>
+      <h5 className='mb-1'>Location: </h5>
+      <h6 className='mb-1 ml-1'><a target="_blank" href={`https://www.google.com/maps/search/?api=1&query=${JSON.parse(jobHistory?.location).coords?.latitude}%2C${JSON.parse(jobHistory?.location).coords?.longitude}`}>Click here to view location</a></h6>
+    </div>}
     <div className='meetup-header d-flex align-items-center'>
       <h5 className='mb-1'>Updated At: </h5>
       <h6 className='mb-1 ml-1'>{moment(jobHistory?.time).format('MMMM Do YYYY, h:mm:ss a')}</h6>

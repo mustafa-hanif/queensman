@@ -431,8 +431,6 @@ export default function HomeFunction(props) {
     notificationListener.current = Notifications.addNotificationReceivedListener(
       (notification) => {
         // setNotification(notification);
-        console.log({ notification });
-
         const { content } = notification.request;
         if (content.data.type === "alert") {
           showNotificationAlert(content);

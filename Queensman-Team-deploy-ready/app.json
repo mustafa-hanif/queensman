@@ -30,7 +30,7 @@
     "android": {
       "package": "com.techinoviq.queensmanworker",
       "googleServicesFile": "./google-services.json",
-      "permissions": ["ACCESS_BACKGROUND_LOCATION", "CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"]
+      "permissions": ["ACCESS_BACKGROUND_LOCATION", "LOCATION", "LOCATION_FOREGROUND", "CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"]
     },
     "description": ""
   }

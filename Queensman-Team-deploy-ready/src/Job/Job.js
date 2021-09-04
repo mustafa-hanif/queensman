@@ -19,10 +19,10 @@ import { Icon } from "native-base";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import Modal from "react-native-modal";
-
+import * as Location from 'expo-location';
+import * as Permissions from 'expo-permissions'
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { auth } from "../utils/nhost";
-import * as Location from "expo-location";
 import { createNativeWrapper } from "react-native-gesture-handler";
 
 const GET_JOB_WORKERS = gql`
@@ -234,20 +234,27 @@ const Job = (props) => {
   });
 
   const getLocation = async () => {
+    console.log("Getting location")
     try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      console.log( await Location.enableNetworkProviderAsync(), "mkln")
+      let { status } = await Location.requestForegroundPermissionsAsync()
+      console.log(status, "status")
       if (status !== "granted") {
         console.log("Permission to access location was denied");
-        return null;
+      } else {
+        console.log("location")
       }
 
       let location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
+        accuracy: Location.Accuracy.Highest,
       });
-
+      console.log(location)
       return JSON.stringify(location);
     } catch (e) {
-      return null;
+      console.log(e)
+      let location = await Location.getLastKnownPositionAsync();
+      console.log(location, "AST KNOOOOOOOOOOOOOOOOOON")
+      return JSON.stringify(location);
     }
   };
 
@@ -312,6 +319,7 @@ const Job = (props) => {
 
   const StartJobHandler = async () => {
     const location = await getLocation();
+    console.log(location)
     await startJob({
       variables: {
         ticket_id: ticket.id,

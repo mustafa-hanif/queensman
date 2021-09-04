@@ -27,8 +27,6 @@ export default class AuthLogin extends React.Component {
       // const user = await AsyncStorage.getItem("QueensUser");
       const email = auth?.currentSession?.session?.user.email;
       // const email = user && JSON.parse(user).email;
-      console.log({ email });
-      console.log("In AuthLogin", { email });
       if (email) {
         this.props.navigation.navigate("AppDrawer");
       } else {

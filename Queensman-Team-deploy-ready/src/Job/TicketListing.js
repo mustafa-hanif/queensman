@@ -111,7 +111,6 @@ export default function TicketListing(props) {
       return focusListener;
     };
   }, []);
-  console.log('allTickets', allTickets?.job_tickets.length)
   const TicketDetails = () => {
     return (
       <View style={{ borderWidth: 1 }}>

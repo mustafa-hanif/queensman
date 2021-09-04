@@ -61,7 +61,6 @@ const App = (props) => {
   }, [data])
 
   const renderItem = (item, index) => {
-    console.log(item)
       let color_code = 'grey'
       return item.data.map(item => (
         <TouchableOpacity
@@ -106,7 +105,6 @@ const App = (props) => {
           let result = backup.filter(val => { return val.date_on_calendar === strTime })
           const dot = []
           result.map(res => dot.push({color: "blue", selectedDotColor: 'white'}))
-          console.log(strTime,result)
           state.markedDates[strTime] = {dots:dot,selected: false, marked: true};
             state.items[strTime].push({
               data: result,
