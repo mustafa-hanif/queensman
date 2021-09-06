@@ -20,6 +20,7 @@ import {
   ActivityIndicator,
   Linking,
   Modal as Modal2,
+  KeyboardAvoidingView
 } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
@@ -49,7 +50,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    // justifyContent: "center",
+    justifyContent: "center",
     paddingHorizontal: "12%",
   },
   gradiantStyle: {
@@ -61,7 +62,7 @@ const styles = StyleSheet.create({
   LogoStyle: {
     height: 230,
     width: 230,
-    marginBottom: "10%",
+    // marginBottom: "10%",
   },
 });
 
@@ -187,7 +188,9 @@ const LoginScreen = ({ navigation }) => {
   // };
 
   const ContectUsFuntion = () => {
-    navigation.navigate("SignUpContectUs");
+    // navigation.navigate("SignUpContectUs");
+      const url = "tel://+" + state.phoneno;
+      Linking.openURL(url);
   };
 
   const onProceedButtonPress = () => {
@@ -214,7 +217,7 @@ const LoginScreen = ({ navigation }) => {
     </View>;
   }
   return (
-    <View style={styles.container} behavior="padding" enabled>
+    <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
       <Modal isOpen={state.changePasswordModal}>
         <Modal.Content bgColor="white" px={8} py={8}>
           <VStack space={4}>
@@ -432,7 +435,7 @@ const LoginScreen = ({ navigation }) => {
           </View>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

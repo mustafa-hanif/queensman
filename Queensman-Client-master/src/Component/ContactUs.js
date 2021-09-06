@@ -19,19 +19,25 @@ export default class ContactUs extends React.Component {
       // eslint-disable-next-line react/no-unused-state
       code: "",
       WhatsAppMessage: "",
-      phoneno: "",
-      Whatsapp: "",
+      phoneno: "97148721301",
+      Whatsapp: "97148721301",
     };
   }
 
   async componentDidMount() {
-    const propertyCountry = await AsyncStorage.getItem("QueensPropertyCountry"); // assign customer id here
+    const propertyDetails = await AsyncStorage.getItem("QueensPropertyDetails"); // assign customer id here
+    const propertyCountry = JSON.parse(propertyDetails).country 
     if (propertyCountry == "UK" || propertyCountry == "United Kingdom") {
       this.setState({
         phoneno: "447402308203",
         Whatsapp: "+447402308203",
       });
     } else if (propertyCountry == "UAE" || propertyCountry == "United Arab Emirates") {
+      this.setState({
+        phoneno: "971555996024",
+        Whatsapp: "+971555996024",
+      });
+    } else {
       this.setState({
         phoneno: "971555996024",
         Whatsapp: "+971555996024",
@@ -87,6 +93,7 @@ export default class ContactUs extends React.Component {
             numberOfLines={4}
             underlineColorAndroid="transparent"
             onChangeText={(WhatsAppMessage) => {
+              console.log(WhatsAppMessage)
               this.setState({ WhatsAppMessage });
             }} // email set
           />

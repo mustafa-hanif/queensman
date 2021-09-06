@@ -858,7 +858,7 @@ const RequestCallOut = (props) => {
                 mode="dialog"
                 onValueChange={onJobCategoryValueChange}
                 selectedValue={jobCategorySelect.value}
-                backgroundColor="#FFCA5D"
+                // backgroundColor="#FFCA5D"
                 color="black"
                 placeholder="Select Job Category"
               >
@@ -886,17 +886,11 @@ const RequestCallOut = (props) => {
                 mode="dialog"
                 onValueChange={onJobCategoryValueChange}
                 selectedValue={jobCategorySelect.value}
-                backgroundColor="#FFCA5D"
+                // bg="#FFCA5D"
                 color="black"
                 placeholder="Select Request Type"
               >
                 <Select.Item label="Request for quotation" value="Request for quotation" />
-                {/* <Select.Item label="AC" value="AC" />
-                <Select.Item label="Plumbing" value="Plumbing" />
-                <Select.Item label="Electric" value="Electric" />
-                <Select.Item label="Woodworks" value="Woodworks" />
-                <Select.Item label="Paintworks" value="Paintworks" />
-                <Select.Item label="Masonry" value="Masonry" /> */}
                 <Select.Item label="Other" value="other" />
               </Select>
             )}
@@ -912,8 +906,8 @@ const RequestCallOut = (props) => {
                 mode="dialog"
                 onValueChange={onJobTypeValueChange}
                 selectedValue={jobTypeSelect?.value}
-                backgroundColor="#FFCA5D"
-                color="black"
+                // bg="#FFCA5D"
+                // color="black"
                 placeholder="Select Job Type"
               >
                 {jobType ? (
@@ -952,6 +946,7 @@ const RequestCallOut = (props) => {
           {!additionalServices && (
             <Box>
               <Radio.Group
+              colorScheme="emerald"
                 name="Urgency"
                 accessibilityLabel="Urgency"
                 value={state.Urgency}
@@ -960,7 +955,7 @@ const RequestCallOut = (props) => {
                 }}
               >
                 <HStack space={20}>
-                  <Radio value="High" mr={2}>
+                  <Radio value="High" mr={2} >
                     <HStack ml={1} space={0.5} alignItems="center">
                       <Text color="black">High</Text>
                       <Icon size={5} name="flag" as={<Ionicons name="flag-sharp" />} style={{ color: "red" }} />
