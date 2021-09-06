@@ -51,8 +51,12 @@ const deviceHeight = Dimensions.get("window").height;
 const GET_CALLOUT = gql`
   query GetCallout($callout_by_email: String!, $today: date = "") {
     callout(
-      where: { callout_by_email: { _eq: $callout_by_email }, schedule: { date_on_calendar: { _gte: $today } } }
-      order_by: { schedule: { date_on_calendar: asc } }
+      where: { 
+        callout_by_email: { _eq: $callout_by_email }, 
+        schedule: { date_on_calendar: { _gte: $today } } 
+        status: { _neq: "Closed" }
+      }
+        order_by: { schedule: { date_on_calendar: asc } }
       limit: 1
     ) {
       job_type
@@ -230,6 +234,7 @@ const AlertLogout = (navigation) => {
 
 const logout = async () => {
   try {
+    console.log(await AsyncStorage.clear())
     auth.logout();
   } catch (error) {
     // Error saving data
@@ -455,26 +460,31 @@ const HomeScreen = ({ navigation }) => {
         <Box pt={4}>
           <VStack space={4}>
             <Item
+              clientLoading={clientLoading}
               onPress={() => requestCallOutPress(navigation, { additionalServices: false })}
               text="Request Callout"
               image={require("../../assets/Home/calloutHome.png")}
             />
             <Item
+              clientLoading={clientLoading}
               onPress={() => onGoingCallOutPress(navigation)}
               text="Scheduled Services"
               image={require("../../assets/Home/pendingHome.png")}
             />
             <Item
+              clientLoading={clientLoading}
               onPress={() => CallOutHistoryPress(navigation)}
               text="Services History"
               image={require("../../assets/Home/historyHome.png")}
             />
             <Item
+              clientLoading={clientLoading}
               onPress={() => CallOutReportPress(navigation)}
               text="Report and Documents"
               image={require("../../assets/Home/reportHome.png")}
             />
             <Item
+              clientLoading={clientLoading}
               onPress={() => requestCallOutPress(navigation, { additionalServices: true })}
               text="Request of Additional Services"
               image={require("../../assets/Home/pendingHome.png")}
@@ -504,8 +514,10 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-const Item = ({ text, image, onPress }) => (
-  <Pressable onPress={onPress}>
+const Item = ({ text, image, onPress, clientLoading }) => {
+  const [bgStyle, setbgStyle] = useState("white")
+  return (
+<Pressable disabled={clientLoading} onPress={onPress} onPressIn={() => setbgStyle("gray.400")} onPressOut={() => setbgStyle("white")}>
     <HStack
       space={2}
       alignContent="center"
@@ -515,15 +527,16 @@ const Item = ({ text, image, onPress }) => (
       py={2}
       px={4}
       borderRadius={48}
-      bg="white"
+      bg={bgStyle}
     >
       <Image alt="pic" source={image} style={{ height: 32, width: 32, alignSelf: "center" }} />
       <Text color="amber.900" alignSelf="center">
         {text}
       </Text>
     </HStack>
-  </Pressable>
-);
+  </Pressable>    
+  )
+}
 export default HomeScreen;
 
 const colors = {

@@ -238,11 +238,13 @@ const JobsList = (props) => {
   }
 
   return (
-    <Box px={4}>
+    
+    <Box style={{flex: 1}}>
       <Select
         color="black"
         bg="white"
         mt={4}
+        mx={3}
         mb={4}
         selectedValue={state.selected}
         placeholder="Filter Options"
@@ -307,7 +309,7 @@ const Item = ({ item, passItem }) => {
     ? colors[item?.status]
     : "lightBlue.600";
   return (
-    <Box bg="white" shadow={1} rounded="lg" mb={4}>
+    <Box bg="white" shadow={1} rounded="lg" mx={3} mb={4}>
       <Stack space={2.5} p={4}>
         <HStack alignItems="center">
           <CircleIcon size={4} mr={0.5} color={color} />

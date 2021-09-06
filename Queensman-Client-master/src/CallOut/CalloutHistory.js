@@ -170,7 +170,7 @@ const CalloutHistoryClass = (props) => {
         Viewing services for currently selected property
       </Text>
 
-      <View>
+      <View  style={{flex: 1}}>
         {CalloutData.length === 0 ?  <Text
         style={[
           styles.TextFam,
@@ -202,7 +202,6 @@ const CalloutHistoryClass = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     // alignItems: 'center',
     // justifyContent: 'center'
   },
@@ -249,7 +248,7 @@ const CalloutItem = ({ item, toggleGalleryEventModal }) => {
   const color = item?.urgency_level === "High" ? "rose.600" : "amber.600";
   const statusColor = colors[item?.status] ? colors[item?.status] : "lightBlue.600";
   return (
-    <Box bg="white" mx={8} rounded="lg">
+    <Box bg="white" mx={4} rounded="lg" mb={4} shadow={1}>
       <Stack space={2.5} p={4}>
         <HStack alignItems="center">
           <CircleIcon size={4} mr={0.5} color={color} />

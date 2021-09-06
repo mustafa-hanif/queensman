@@ -1,21 +1,23 @@
 /* eslint-disable no-console */
 /* eslint-disable react/jsx-no-bind */
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { gql, useQuery } from "@apollo/client";
 
 // import Toast from "react-native-whc-toast";
 import axios from "axios";
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Linking } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { ListItem, Icon, Select } from "native-base";
+import { ListItem, Icon, Select, ScrollView, CheckIcon } from "native-base";
+import { Ionicons } from "@expo/vector-icons";
+
 import { auth } from "../utils/nhost";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    // backgroundColor: "#fff",
     // alignItems: 'center',
     // justifyContent: 'center'
   },
@@ -24,10 +26,11 @@ const styles = StyleSheet.create({
     marginLeft: "3%",
   },
   HeadingStyle: {
-    fontSize: 23,
-    paddingTop: "6%",
-    paddingLeft: "4%",
+    fontSize: 24,
+    paddingTop: "3%",
+    textAlign: "center",
     color: "#FFCA5D",
+    fontWeight: "bold"
   },
   Card: {
     shadowColor: "rgba(0,0,0, .4)", // IOS
@@ -76,11 +79,13 @@ query MyQuery($email: String) {
 `;
 
 const PropertyDetails = (props) => {
+  const [refreshing, setRefreshing] = useState(false);
   const [state, setState] = useState({
     leasedPropertyData: [],
     OwnedPropertyData: [], // Ismain store horahi hayn client ki property details yahan se daaldio usmain.
     // loading: false,
     taped: "",
+    phoneno: "97148721301",
     selected: "Owned",
     PropertyData: [],
     LeasedDataAvaible: true,
@@ -89,25 +94,49 @@ const PropertyDetails = (props) => {
   });
 
   const email = auth?.currentSession?.session?.user?.email;
-  console.log("email", email);
-  const { loading, data, error } = useQuery(GET_PROPERTIES, {
+  console.log("id", state.taped);
+  const { loading, data, error, refetch: refetchProperties } = useQuery(GET_PROPERTIES, {
     variables: { email },
+    onCompleted: () => {
+      setRefreshing(false)
+    },
+    onError: (err) => {
+      console.log("error", err);
+    }
   });
-  const { leasedData } = useQuery(GET_LEASED_PROPERTIES, {
+  const { loading: leasedLoading, data: leasedData, error: leasedError, refetch: refetchLeased } = useQuery(GET_LEASED_PROPERTIES, {
     variables: { email },
+    onCompleted: () => {
+      setRefreshing(false)
+    },
+    onError: (err) => {
+      console.log("error", err);
+    }
   });
   // const customToast = useRef();
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    refetchProperties();
+    refetchLeased();
+  }, []);
+
+  useEffect(() => {
+    const load = async () => {
+      const propertyDetails = await AsyncStorage.getItem("QueensPropertyDetails");
+      if (propertyDetails) {
+        setState({...state, taped: JSON.parse(propertyDetails).id})
+      }
+    }
+    load()
+  }, [])
 
   const _storeData = async (item) => {
     try {
       await AsyncStorage.setItem("QueensPropertyDetails", JSON.stringify(item));
-      // await AsyncStorage.setItem("QueensPropertyType", JSON.stringify(type));
-      // await AsyncStorage.setItem("QueensPropertyCountry", JSON.stringify(country));
-      console.log("Item saved in asyncstorage");
-      setTimeout(() => {
-        props.navigation.navigate("HomeNaviagtor");
-        
-      }, 800);
+      setState({...state, taped: item.id})
+      // setTimeout(() => {
+      //   props.navigation.navigate("HomeNaviagtor");
+      // }, 800);
       // eslint-disable-next-line no-shadow
     } catch (error) {
       // Error saving data
@@ -125,12 +154,16 @@ const PropertyDetails = (props) => {
     _storeData(item);
   };
 
-  const Ontaps2 = (item) => {
-    _storeData(item);
+  const ContactUsFuntion = () => {
+    // navigation.navigate("SignUpContectUs");
+      const url = "tel://+" + state.phoneno;
+      Linking.openURL(url);
   };
-
   return (
-    <View style={styles.container}>
+    <ScrollView
+    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+    style={styles.container}
+  >
       <Text style={{ paddingTop: "5%" }}> </Text>
 
       {/* <Toast
@@ -148,24 +181,27 @@ const PropertyDetails = (props) => {
         style={[
           {
             fontSize: 14,
-            color: "#aaa",
-            paddingTop: "2%",
-            paddingLeft: "4%",
+            color: "black",
+            textAlign: "center",
+            paddingBottom: "2%"
           },
         ]}
       >
         Tap to select the property
       </Text>
-      <Text> </Text>
 
-      <View style={{ paddingHorizontal: "5%", flexDirection: "column" }}>
-        <Text style={[{ fontSize: 10, color: "#FFCA5D" }]}>Select Property Type:</Text>
+      <View style={{ paddingHorizontal: "5%", flexDirection: "column", marginBottom: "5%", marginTop: "5%" }}>
+        {/* <Text style={{ marginBottom: 5, marginTop: 10, color: "black" }}>Select Property Type:</Text> */}
         <Select
-          note
           mode="dialog"
-          style={{ paddingTop: "2%", color: "black" }}
+          style={{ paddingTop: "2%", color: "black"}}
+          bg="#FFCA5D"
           selectedValue={state.selected}
           onValueChange={onValueChange}
+          _selectedItem={{
+            bg: "#FFCA5D",
+            endIcon: <CheckIcon size={4} />,
+          }}
         >
           <Select.Item label="Owned Properties" value="Owned" />
           <Select.Item label="Leased Properties" value="Leased" />
@@ -223,7 +259,7 @@ const PropertyDetails = (props) => {
                                 },
                               ]}
                             >
-                              {property.community},{property.city}
+                              {property.community}, {property.city}
                             </Text>
 
                             <View>
@@ -232,12 +268,14 @@ const PropertyDetails = (props) => {
                                   flexDirection: "column",
                                   justifyContent: "space-between",
                                   flex: 1,
+                                  paddingLeft: "5%",
+                                  paddingBottom: "3%"
                                 }}
                               >
-                                <Text style={styles.TextFam}>{property.country}</Text>
-                                <Text style={styles.TextFam}>Property ID: {property.id}</Text>
+                                <Text>{property.country}</Text>
+                                <Text>Property ID: {property.id}</Text>
 
-                                <Text style={styles.TextFam}>
+                                <Text>
                                   Property Category: {property.category ? property.category : "Not Listed"}
                                 </Text>
                               </View>
@@ -254,6 +292,7 @@ const PropertyDetails = (props) => {
                             }}
                           >
                             <Icon
+                            as={Ionicons}
                               name="checkmark-circle"
                               style={{
                                 height: 50,
@@ -291,57 +330,61 @@ const PropertyDetails = (props) => {
               ) : (
                 <FlatList
                   data={leasedData?.lease}
-                  renderItem={({ item: { property } }) => (
+                  renderItem={({ item: { property } }) => {
+                    console.log(property)
+                    return (
                     <View>
-                      <TouchableOpacity onPress={() => Ontaps2(item)}>
-                        <View style={styles.Card}>
-                          <Text
-                            style={[
-                              styles.TextFam,
-                              {
-                                fontSize: 15,
-                                fontWeight: "bold",
-                                paddingLeft: "5%",
-                                paddingTop: "3%",
-                              },
-                            ]}
-                          >
-                            {property.address}{" "}
-                          </Text>
-                          <Text
-                            style={[
-                              styles.TextFam,
-                              {
-                                fontSize: 10,
-                                color: "#aaa",
-                                paddingLeft: "5%",
-                                paddingTop: "1%",
-                              },
-                            ]}
-                          >
-                            {property.community},{property.city}
-                          </Text>
-
-                          <ListItem>
-                            <View
-                              style={{
-                                flexDirection: "column",
-                                justifyContent: "space-between",
-                                flex: 1,
-                              }}
+                      <TouchableOpacity onPress={() => Ontaps(property)}>
+                      <View style={styles.Card}>
+                            <Text
+                              style={[
+                                styles.TextFam,
+                                {
+                                  fontSize: 15,
+                                  fontWeight: "bold",
+                                  paddingLeft: "5%",
+                                  paddingTop: "3%",
+                                },
+                              ]}
                             >
-                              <Text style={styles.TextFam}>{property.country}</Text>
-                              <Text style={styles.TextFam}>Property ID: {property.property_id}</Text>
-                              <Text style={styles.TextFam}>
-                                Property Category:{" "}
-                                {property.category ? property.category : "Not Listed"}
-                              </Text>
+                              {property.address}
+                            </Text>
+                            <Text
+                              style={[
+                                styles.TextFam,
+                                {
+                                  fontSize: 10,
+                                  color: "#aaa",
+                                  paddingLeft: "5%",
+                                  paddingTop: "1%",
+                                },
+                              ]}
+                            >
+                              {property.community}, {property.city}
+                            </Text>
+
+                            <View>
+                              <View
+                                style={{
+                                  flexDirection: "column",
+                                  justifyContent: "space-between",
+                                  flex: 1,
+                                  paddingLeft: "5%",
+                                  paddingBottom: "3%"
+                                }}
+                              >
+                                <Text>{property.country}</Text>
+                                <Text>Property ID: {property.id}</Text>
+
+                                <Text>
+                                  Property Category: {property.category ? property.category : "Not Listed"}
+                                </Text>
+                              </View>
                             </View>
-                          </ListItem>
-                        </View>
+                          </View>
                       </TouchableOpacity>
                       <Text> </Text>
-                      {state.taped === property.property_id ? (
+                      {state.taped === property?.id ? (
                         <View
                           style={{
                             position: "absolute",
@@ -350,6 +393,7 @@ const PropertyDetails = (props) => {
                           }}
                         >
                           <Icon
+                          as={Ionicons}
                             name="checkmark-circle"
                             style={{
                               height: 50,
@@ -362,15 +406,31 @@ const PropertyDetails = (props) => {
                         <View />
                       )}
                     </View>
-                  )}
+                    )}}
                   keyExtractor={(item, index) => index.toString()}
                 />
               )}
             </View>
           )}
+          <TouchableOpacity onPress={ContactUsFuntion}>
+          <View style={{ flexDirection: "column", paddingTop: "5%", alignSelf: "center" }}>
+            <Text style={{ fontSize: 11, color: "black", textAlign: "center" }}>Cannot find your property?</Text>
+
+            <Text
+              style={{
+                fontSize: 20,
+                color: "#FFCA5D",
+                textDecorationLine: "underline",
+                textAlign: "center"
+              }}
+            >
+              CONTACT US
+            </Text>
+          </View>
+        </TouchableOpacity>
         </View>
       )}
-    </View>
+    </ScrollView>
   );
 };
 

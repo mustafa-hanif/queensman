@@ -19,8 +19,6 @@ export default class SignupContectUs extends React.Component {
             Email: '',
             PhoneNo: '',
             Name: '',
-           
-            OldPass:this.props.route.params.UserPassword,
         })
 
     }

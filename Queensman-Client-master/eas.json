@@ -1,9 +1,14 @@
 {
   "build": {
     "release": {
+      "env": {
+        "ENVIRONMENT": "production"
+      },
       "android": {
-        "buildType": "apk"
+        "buildType": ":app:assembleRelease",
+        "distribution":"store"
       }
+
     },
     "development": {
       "android": {

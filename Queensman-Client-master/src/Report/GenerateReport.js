@@ -7,7 +7,7 @@
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable camelcase */
 /* eslint-disable no-use-before-define */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { StyleSheet, View, Dimensions, Linking } from "react-native";
 import {
@@ -31,6 +31,7 @@ import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import * as Print from "expo-print";
 import { storage, auth } from "../utils/nhost";
 import { calloutTemplate } from "./pdf_template";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const expoFileToFormFile = (url) => {
   const localUri = url;
@@ -119,12 +120,15 @@ const GenerateReport = (props) => {
       )}
       <Text mb={4}>Tap to view or download a report.</Text>
       {state.value === 3 ? (
+        <>
         <MyFlatList2
-          property_ID={state.propertyID}
+          propertyId={state.propertyID}
           setPropertyId={setPropertyId}
           value={state.value}
           reporthandle={reporthandle}
         />
+        <Text my={2} fontSize={12} textAlign="center">You can select property from property details section to view other reports</Text>
+        </>
       ) : (
         <MyFlatList
           property_ID={state.propertyID}
@@ -312,13 +316,26 @@ const LoadProperties = ({ setPropertyId, props }) => {
   const user = auth?.currentSession?.session?.user;
   const email = user?.email;
 
-  const {
+  useEffect(() => {
+    const load = async () => {
+      const propertyDetails = await AsyncStorage.getItem("QueensPropertyDetails");
+      if (propertyDetails) {
+        setPropertyId(JSON.parse(propertyDetails).id)
+      } else {
+        getProperty()
+      }
+    }
+    load()
+  }, [])
+
+  const [getProperty, {
     loading,
     data: allProperties,
     error,
-  } = useQuery(GET_PROPERTIES, {
+  }] = useLazyQuery(GET_PROPERTIES, {
     variables: { email },
     onCompleted: ({ client }) => {
+      console.log(client)
       setPropertyId(client?.[0]?.property_owneds?.[0]?.property?.id);
     },
   });
@@ -402,8 +419,8 @@ const MANAG_REPORT = gql`
 `;
 
 const INVENTORY_REPORT = gql`
-  query MyQuery($_eq: String!) {
-    inventory_report(where: { property: { property_owneds: { client: { email: { _eq: $_eq } } } } }) {
+  query MyQuery($_eq: String!, $propId: Int!) {
+    inventory_report(where: {property: {property_owneds: {client: {email: {_eq: $_eq}}}, id: {_eq: $propId}}}) {
       id
       approved
       inventory_report_pdfs {
@@ -434,7 +451,8 @@ const MARKET_REPORT = gql`
   }
 `;
 
-const MyFlatList2 = ({ property_ID, value, Reporthandle }) => {
+const MyFlatList2 = ({ propertyId, value, Reporthandle }) => {
+  console.log(propertyId)
   const openInventory = (report_location) => {
     // const document_id = data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
     Linking.openURL(report_location);
@@ -513,7 +531,7 @@ const MyFlatList2 = ({ property_ID, value, Reporthandle }) => {
     data: inventoryReport,
     error: invError,
   } = useQuery(INVENTORY_REPORT, {
-    variables: { _eq: email },
+    variables: { _eq: email, propId: propertyId },
     skip: !email,
   });
   ModelData = inventoryReport?.inventory_report;
