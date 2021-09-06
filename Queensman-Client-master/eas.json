@@ -5,7 +5,7 @@
         "ENVIRONMENT": "production"
       },
       "android": {
-        "buildType": ":app:assembleRelease",
+        "buildType": "apk",
         "distribution":"store"
       }
 
