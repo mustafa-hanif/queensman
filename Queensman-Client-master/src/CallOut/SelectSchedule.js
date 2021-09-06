@@ -30,6 +30,9 @@ const GET_SCHEDULE = gql`
       worker {
         full_name
       }
+      callout {
+        callout_by_email
+      }
       callout_id
     }
   }
@@ -323,7 +326,7 @@ export default function SelectSchedule(props) {
     const timeOnCalender = parseISO(`${element.start}T${element.startTime}`);
     slots = slots.map((slot) => {
       const timeOnSlot = parseISO(`${selectedDate}T${slot.time}`);
-      if (element.blocked) {
+      if (element.blocked || element.callout.client_by_email === auth.user().email) {
         const diff = differenceInHours(timeOnSlot, timeOnCalender);
         if (diff === 0 || diff === 1) {
           return { ...slot, disabled: true };
