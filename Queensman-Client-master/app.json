@@ -27,7 +27,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.techinoviq.QueensmenClient",
-      "buildNumber": "3",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "buildNumber": "3.1",
       "infoPlist": {
         "NSCameraUsageDescription": "The app uses camera so that it can allow users to take pictures of the maintenance spot (for example a broken AC) in order to justify their call for maintenance service.",
         "NSPhotoLibraryUsageDescription": "The app uses photos so that it can allow users to upload pictures of the maintenance spot (for example a broken AC) in order to justify their call for a maintenance service."
