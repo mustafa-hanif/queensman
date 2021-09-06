@@ -4,7 +4,7 @@
 /* eslint-disable no-console */
 /* eslint-disable import/order */
 /* eslint-disable no-use-before-define */
-const version = "v0.7.6";
+const version = "v0.7.7";
 import React, { PureComponent } from "react";
 import { Text, View, SafeAreaView, Image, TouchableOpacity, Linking } from "react-native";
 import { Icon, Box, NativeBaseProvider, extendTheme } from "native-base";

@@ -322,7 +322,7 @@ async function getRelevantWoker({ callout, date, time }) {
     // Get all workers that fit the category
     let offset = 0;
     let workerId = null;
-    while (offset < 4) {
+    while (offset < 3) { //means after 4 callouts it will get blockwed
       const { errors: errorsTeams, data: teams } = await fetchGraphQL(
         `query GetTeams($_contains: jsonb!, $offset: Int = 0) {
         teams(where: {team_expertise: {_contains: $_contains}}, offset: $offset) {
@@ -364,8 +364,11 @@ async function getRelevantWoker({ callout, date, time }) {
       } else {
         ++offset;
       }
+      console.log(offset)
     }
-    if (offset === 4) {
+    if (offset === 3) { //means after 4 callouts, it will get blocked
+      console.log("HEEEEEEEEEEEERE")
+      const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
       const { errors: errors2, data: lastWorkers } = await fetchGraphQL(
         `mutation UpdateToBlock($workerId: Int!, $today: date!, $_gte: time!, $_lte: time!) {
           update_scheduler(where: {worker_id: {_eq: $workerId}, date_on_calendar: {_eq: $today}, time_on_calendar: {_gte: $_gte, _lte: $_lte}}, _set: {blocked: true}) {
@@ -381,10 +384,6 @@ async function getRelevantWoker({ callout, date, time }) {
           _lte: dateFns.format(dateFns.addHours(selectedTime, 2), 'HH:mm:ss'),
         }
       );
-      console.log({workerId: workerId,
-        today: new Date(date).toISOString().substring(0, 10),
-        _gte: dateFns.format(dateFns.subHours(selectedTime, 2), 'HH:mm:ss'),
-        _lte: dateFns.format(dateFns.addHours(selectedTime, 2), 'HH:mm:ss')})
     }
     return { id: workerId, time: null };
   }

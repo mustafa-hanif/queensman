@@ -10,7 +10,7 @@ const updateScheduleWithEmergencyWoker = require('../lib/graphql').updateSchedul
 
 const scheduleCallout = async (event) => {
   const { event: { data: { new: query } } } = JSON.parse(event.body);
-  console.log(event)
+  // console.log(query)
   const schedulerId = query.id;
   const calloutId = query.callout_id;
   const workerId = query.worker_id;
