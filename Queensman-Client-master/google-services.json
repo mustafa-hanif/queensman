@@ -29,6 +29,13 @@
             {
               "client_id": "455672297185-hoibouk6qtvb68nk8gtvl21upcjem1q6.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "455672297185-q9cum0r6tle4cm3c7ungq2o3c0gom0jp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.techinoviq.QueensmenClient"
+              }
             }
           ]
         }
