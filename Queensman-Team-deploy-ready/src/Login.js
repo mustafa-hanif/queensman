@@ -258,10 +258,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: "12%",
   },
   gradiantStyle: {
-    width: deviceWidth,
-    height: deviceHeight,
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
     position: "absolute",
-    alignSelf: "center",
   },
   LogoStyle: {
     height: 230,

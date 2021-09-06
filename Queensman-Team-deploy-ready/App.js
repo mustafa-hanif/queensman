@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-const version = "v0.4.2";
+const version = "v0.4.4";
 import React, { PureComponent } from "react";
 // import * as SplashScreen from "expo-splash-screen";
 import {
@@ -172,7 +172,7 @@ const RequestCalloutStackNavigator = createStackNavigator(
     ClientListFromRequestCallout: {
       screen: ClientListFromRequestCallout,
       navigationOptions: ({ navigation }) => ({
-        title: "Clients",
+        title: "Clients (Request Callout)",
         headerStyle: {
           backgroundColor: "#000E1E",
         },
@@ -253,7 +253,7 @@ const InventoryReportStackNavigator = createStackNavigator(
     ClientList: {
       screen: ClientList,
       navigationOptions: ({ navigation }) => ({
-        title: "Clients",
+        title: "Clients (Inventory)",
         headerStyle: {
           backgroundColor: "#000E1E",
         },
@@ -630,20 +630,20 @@ const AppDrawerNavigator = createDrawerNavigator(
       },
     },
 
-    Settings: {
-      screen: SettingStackNavigator,
-      navigationOptions: {
-        drawerLabel: "Settings",
-        //  labelStyle: { fontFamily: 'serif', },
-        drawerIcon: ({ tintColor }) => (
-          <Icon
-          as={Ionicons}
-            name="settings"
-            style={{ fontSize: 24, color: tintColor }}
-          />
-        ),
-      },
-    },
+    // Settings: {
+    //   screen: SettingStackNavigator,
+    //   navigationOptions: {
+    //     drawerLabel: "Settings",
+    //     //  labelStyle: { fontFamily: 'serif', },
+    //     drawerIcon: ({ tintColor }) => (
+    //       <Icon
+    //       as={Ionicons}
+    //         name="settings"
+    //         style={{ fontSize: 24, color: tintColor }}
+    //       />
+    //     ),
+    //   },
+    // },
   },
   {
     contentComponent: CustomDrawerComponent,
