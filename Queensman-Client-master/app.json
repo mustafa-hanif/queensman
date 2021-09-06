@@ -36,7 +36,7 @@
     "android": {
       "googleServicesFile": "./google-services.json",
       "package": "com.techinoviq.QueensmenClient",
-      "versionCode": 4
+      "versionCode": 4.1
     },
     "description": ""
   }
