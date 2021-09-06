@@ -907,7 +907,7 @@ const RequestCallOut = (props) => {
                 onValueChange={onJobTypeValueChange}
                 selectedValue={jobTypeSelect?.value}
                 // bg="#FFCA5D"
-                // color="black"
+                color="black"
                 placeholder="Select Job Type"
               >
                 {jobType ? (

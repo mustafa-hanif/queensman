@@ -9,7 +9,7 @@ import React, { useState, useEffect } from "react";
 import { format, parseISO, parse, differenceInHours } from "date-fns";
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { Calendar, CalendarList, Agenda } from "react-native-calendars";
-import { Box, Modal, Button } from "native-base";
+import { Box, Modal, Button, Spinner } from "native-base";
 import moment from "moment";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
@@ -20,8 +20,8 @@ import { auth, storage } from "../utils/nhost";
 import colors from "../../native-base-theme/variables/commonColor";
 
 const GET_SCHEDULE = gql`
-  query MyQuery($_gte: date!, $_lte: date!) {
-    scheduler(where: { date_on_calendar: { _gte: $_gte, _lte: $_lte } }) {
+  query MyQuery($date_on_calendar: date) {
+    scheduler(where: {date_on_calendar: {_eq: $date_on_calendar}, callout: {status: {_neq: "Closed"}}}) {
       id
       start: date_on_calendar
       startTime: time_on_calendar
@@ -169,12 +169,7 @@ export default function SelectSchedule(props) {
     return formatDate(new Date(new Date().setHours(new Date().getHours() + 24)));
   };
 
-  const { loading, data, error } = useQuery(GET_SCHEDULE, {
-    variables: {
-      _gte: GetCurrentDate(),
-      _lte: GetOneDayFromNow(),
-    },
-  });
+  const [getSchedule, { loading, data, error }] = useLazyQuery(GET_SCHEDULE);
 
   // console.log({
   //   loading,
@@ -323,10 +318,11 @@ export default function SelectSchedule(props) {
     });
   }
   (data?.scheduler ?? []).forEach((element) => {
+    console.log(element.blocked)
     const timeOnCalender = parseISO(`${element.start}T${element.startTime}`);
     slots = slots.map((slot) => {
       const timeOnSlot = parseISO(`${selectedDate}T${slot.time}`);
-      if (element.blocked || element.callout.client_by_email === auth.user().email) {
+      if (element.blocked || element.callout.callout_by_email === auth.user().email) {
         const diff = differenceInHours(timeOnSlot, timeOnCalender);
         if (diff === 0 || diff === 1) {
           return { ...slot, disabled: true };
@@ -344,6 +340,10 @@ export default function SelectSchedule(props) {
   };
 
   const onDayPress = (day) => {
+    // console.log(day)
+    getSchedule({variables: {
+      date_on_calendar: day.dateString
+    }})
     setselectedDate(day.dateString);
     setmarkedDate({ date: day.dateString });
     setShow(true);
@@ -411,9 +411,10 @@ export default function SelectSchedule(props) {
         <Confirmmodal />
 
         <Modal isOpen={markedDate} onClose={() => setmarkedDate(false)}>
-          <Modal.Content>
+        <Modal.Content>
             <Box pt={4} pr={6}>
-              {slots.map((slot) => (
+              {loading ? <Spinner mb={8} color="lightText" size="sm" /> : 
+              slots.map((slot) => (
                 <Button
                   key={slot.time}
                   mb={8}
@@ -424,7 +425,8 @@ export default function SelectSchedule(props) {
                 >
                   {slot.text}
                 </Button>
-              ))}
+              ))
+              }
             </Box>
           </Modal.Content>
         </Modal>

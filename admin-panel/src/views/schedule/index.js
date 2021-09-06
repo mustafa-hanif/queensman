@@ -193,12 +193,16 @@ const UPDATE_CALLOUT_DRAG = gql`
     $scheduler_id: Int
     $date_on_calendar: date
     $time_on_calendar: time
+    $end_date_on_calendar: date
+    $end_time_on_calendar: time
   ) {
     update_scheduler(
       where: { id: { _eq: $scheduler_id } }
       _set: {
         date_on_calendar: $date_on_calendar
         time_on_calendar: $time_on_calendar
+        end_date_on_calendar: $end_date_on_calendar
+        end_time_on_calendar: $end_time_on_calendar
       }
     ) {
       affected_rows
@@ -356,6 +360,8 @@ const CalendarComponent = () => {
       variables: {
         date_on_calendar: eventToUpdate.startStr.split("T")[0],
         time_on_calendar: eventToUpdate.startStr.split("T")[1].substr(0, 8),
+        end_date_on_calendar: eventToUpdate.endStr.split("T")[0],
+        end_time_on_calendar : eventToUpdate.endStr.split("T")[1].substr(0, 8),
         scheduler_id: eventToUpdate.id
       }
     })

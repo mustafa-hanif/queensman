@@ -236,6 +236,8 @@ const logout = async () => {
   try {
     console.log(await AsyncStorage.clear())
     auth.logout();
+    navigation.navigate("Login");
+    setIsOpen(false)
   } catch (error) {
     // Error saving data
   }

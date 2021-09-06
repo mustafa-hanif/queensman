@@ -364,25 +364,28 @@ async function getRelevantWoker({ callout, date, time }) {
       } else {
         ++offset;
       }
-      if (offset === 4) {
-        const { errors: errors2, data: lastWorkers } = await fetchGraphQL(
-          `mutation UpdateToBlock($workerId: Int!, $today: date!, $_gte: time!, $_lte: time!) {
-            update_scheduler(where: {worker_id: {_eq: $workerId}, date_on_calendar: {_eq: $today}, time_on_calendar: {_gte: $_gte, _lte: $_lte}}, _set: {blocked: true}) {
-              affected_rows
-            }
-          }          
-        `,
-          'UpdateToBlock',
-          {
-            workerId: workerId,
-            today: new Date(date).toISOString().substring(0, 10),
-            _gte: dateFns.format(dateFns.subHours(selectedTime, 2), 'HH:mm:ss'),
-            _lte: dateFns.format(dateFns.addHours(selectedTime, 2), 'HH:mm:ss'),
-          }
-        );
-      }
     }
-
+    if (offset === 4) {
+      const { errors: errors2, data: lastWorkers } = await fetchGraphQL(
+        `mutation UpdateToBlock($workerId: Int!, $today: date!, $_gte: time!, $_lte: time!) {
+          update_scheduler(where: {worker_id: {_eq: $workerId}, date_on_calendar: {_eq: $today}, time_on_calendar: {_gte: $_gte, _lte: $_lte}}, _set: {blocked: true}) {
+            affected_rows
+          }
+        }          
+      `,
+        'UpdateToBlock',
+        {
+          workerId: workerId,
+          today: new Date(date).toISOString().substring(0, 10),
+          _gte: dateFns.format(dateFns.subHours(selectedTime, 2), 'HH:mm:ss'),
+          _lte: dateFns.format(dateFns.addHours(selectedTime, 2), 'HH:mm:ss'),
+        }
+      );
+      console.log({workerId: workerId,
+        today: new Date(date).toISOString().substring(0, 10),
+        _gte: dateFns.format(dateFns.subHours(selectedTime, 2), 'HH:mm:ss'),
+        _lte: dateFns.format(dateFns.addHours(selectedTime, 2), 'HH:mm:ss')})
+    }
     return { id: workerId, time: null };
   }
 }
