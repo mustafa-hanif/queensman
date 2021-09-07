@@ -164,18 +164,12 @@ const PropertyDetails = (props) => {
     refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     style={styles.container}
   >
+     
       <Text style={{ paddingTop: "5%" }}> </Text>
-
-      {/* <Toast
-        ref={customToast}
-        textStyle={{
-          color: "#fff",
-        }}
-        style={{
-          backgroundColor: "#FFCA5D",
-        }}
-      /> */}
-
+      <TouchableOpacity onPress={() => props.navigation.toggleDrawer()} style={{zIndex: 10}}>
+          <Icon as={Ionicons} name="arrow-back" style={{ fontSize: 24, color: "black", marginLeft: "5%", marginTop: "3%" }} />
+        </TouchableOpacity>
+        <View style={{marginTop: "-13%"}}>
       <Text style={styles.HeadingStyle}>Property Details</Text>
       <Text
         style={[
@@ -189,7 +183,7 @@ const PropertyDetails = (props) => {
       >
         Tap to select the property
       </Text>
-
+      </View>
       <View style={{ paddingHorizontal: "5%", flexDirection: "column", marginBottom: "5%", marginTop: "5%" }}>
         {/* <Text style={{ marginBottom: 5, marginTop: 10, color: "black" }}>Select Property Type:</Text> */}
         <Select
