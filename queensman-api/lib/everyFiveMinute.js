@@ -189,7 +189,7 @@ async function respondToEmergencies() {
         return;
       }
       // Add notification for call to client
-      await addNotification(clientEmail, 'Our team have not been able to respond to you, please call our team directly', 'client', { phone: emergencyPhone, type: 'call' });
+      await addNotification(clientEmail, 'Our team have not been able to respond to you, please call our team directly', 'client', { phone: "00971528167137", type: 'call' });
       await fetchGraphQL(`mutation WaitForClient($callout_id: Int!) {
         insert_job_history_one(object: {callout_id: $callout_id, status_update: "Waiting for Client"}) {
           status_update

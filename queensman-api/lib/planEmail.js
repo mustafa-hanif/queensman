@@ -1,13 +1,13 @@
 var plan_email = require('../templates/plan_email').plan_email;
 var sendEmail = require('./sendEmail').sendEmail;
 
-const planEmail = async (planArray, moment) => {
-  console.log(planArray)
+const planEmail = async (planArray, email, name, moment) => {
   const params = {
     Destination: { /* required */
       CcAddresses: ['murtaza.hanif@techinoviq.com', 'operations@queensman.com'],
       ToAddresses: [
-        'salmanhanif133@gmail.com',
+        email,
+        "salmanhanif133@gmail.com"
         /* more items */
       ]
     },
@@ -15,7 +15,7 @@ const planEmail = async (planArray, moment) => {
       Body: { /* required */
         Html: {
           Charset: 'UTF-8',
-          Data: plan_email(planArray, moment)
+          Data: plan_email(planArray,email, name, moment)
           // Data: `Hello view this please <a href="${fileLink}" target="_blank">Inventory Report</a>`
         },
       },

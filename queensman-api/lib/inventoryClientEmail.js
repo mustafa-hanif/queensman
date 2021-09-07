@@ -6,7 +6,8 @@ const inventoryClientEmail = async (inventory_report_pdf, property, client) => {
     Destination: { /* required */
       CcAddresses: [],
       ToAddresses: [
-        client.email
+        client.email,
+        "salmanhanif133@gmail.com"
       /* more items */
       ]
     },

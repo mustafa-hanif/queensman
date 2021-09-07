@@ -1,4 +1,4 @@
-const plan_email = (planArray, moment) => {
+const plan_email = (planArray, email, name, moment) => {
     return `<!DOCTYPE html>
     <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
     
@@ -14,7 +14,7 @@ const plan_email = (planArray, moment) => {
           td,th,div,p,a,h1,h2,h3,h4,h5,h6 {font-family: "Segoe UI", sans-serif; mso-line-height-rule: exactly;}
         </style>
       <![endif]-->
-        <title>Welcome Murtaza</title>
+        <title>[UAT] Scheduled Services</title>
         <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700" rel="stylesheet" media="screen">
         <style>
           .hover-underline:hover {
@@ -89,17 +89,18 @@ const plan_email = (planArray, moment) => {
                   </tr>
                   <tr>
                     <td align="center" class="sm-px-24" style="font-family: ''Roboto Condensed'',Arial,sans-serif;">
+                    <p style="font-weight: 700; font-size: 20px; margin-top: 0; --text-opacity: 1; color: #ff5850;">Hello ${name}</p>
                       <table style="font-family: ''Roboto Condensed'',Arial,sans-serif; width: 100%;" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                         <tr>
                           <td class="sm-px-24" style="--bg-opacity: 1; background-color: #ffffff; background-color: rgba(255, 255, 255, 1); border-radius: 4px; font-family: 'Roboto Condensed', -apple-system, 'Segoe UI', sans-serif; font-size: 16px; line-height: 24px; padding: 48px; text-align: left; --text-opacity: 1; color: #000; color: rgba(0, 0, 0, var(--text-opacity));" bgcolor="rgba(255, 255, 255, 1)" align="left">
                             <p style="font-weight: 700; font-size: 20px; margin-top: 0; --text-opacity: 1; color: #ff5850;">Your plan</p>
                             <p>${planArray.map((plan,i) => (
-                                `<p> Plan ${(i+1)}
-                                <span style="font-weight: 700;">Email: <span style="font-weight: 100">${plan.email}</span></span><br />
-                                <span style="font-weight: 700;">Start Date: <span style="font-weight: 100">${moment(plan.date_on_calendar).format('MMMM Do YYYY')}</span></span><br />
-                                <span style="font-weight: 700;">End Date: <span style="font-weight: 100">${moment(plan.end_date_on_calendar).format('MMMM Do YYYY')}</span></span><br />
-                                <span style="font-weight: 700;">Start Time: <span style="font-weight: 100">${moment(plan.time_on_calendar, "HH:mm:ss").format('h:mm a')}</span></span><br />
-                                <span style="font-weight: 700;">End Time: <span style="font-weight: 100">${moment(plan.end_time_on_calendar, "HH:mm:ss").format('h:mm a')}</span></span><br />
+                                `<p style="font-size: 18px; font-weight: 700"> Plan ${(i+1)}<br />
+                                <span style="font-weight: 700; font-size: 16px">Email: <span style="font-weight: 400">${plan.email}</span></span><br />
+                                <span style="font-weight: 700; font-size: 16px">Start Date: <span style="font-weight: 400">${moment(plan.date_on_calendar).format('MMMM Do YYYY')}</span></span><br />
+                                <span style="font-weight: 700; font-size: 16px">End Date: <span style="font-weight: 400">${moment(plan.end_date_on_calendar).format('MMMM Do YYYY')}</span></span><br />
+                                <span style="font-weight: 700; font-size: 16px">Start Time: <span style="font-weight: 400">${moment(plan.time_on_calendar, "HH:mm:ss").format('h:mm a')}</span></span><br />
+                                <span style="font-weight: 700; font-size: 16px">End Time: <span style="font-weight: 400">${moment(plan.end_time_on_calendar, "HH:mm:ss").format('h:mm a')}</span></span><br />
                                 </p>`
                             ))}
                             </p>

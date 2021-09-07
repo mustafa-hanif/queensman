@@ -5,9 +5,8 @@ const calloutEmail = async ({ callout, worker, time }) => {
   const params = {
     Destination: { /* required */
       CcAddresses: [
-        'gnyahuma@queensman.com', 'aalvi@queensman.com',
         'ffakhri@queensman.com', 'bvictor@queensman.com',
-        'murtaza.hanif@techinoviq.com', 'icemelt7@gmail.com', 'operations@queensman.com'
+        'murtaza.hanif@techinoviq.com', 'operations@queensman.com', "salmanhanif133@gmail.com"
         /* more items */
       ],
       ToAddresses: [

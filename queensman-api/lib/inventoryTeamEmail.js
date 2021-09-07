@@ -6,10 +6,8 @@ const inventoryTeamEmail = async (inventory_report_pdf, property) => {
     Destination: { /* required */
       CcAddresses: [],
       ToAddresses: [
-        // 'gnyahuma@queensman.com', 'aalvi@queensman.com',
-        // 'ffakhri@queensman.com', 'bvictor@queensman.com',
-        // 'murtaza.hanif@techinoviq.com', 'icemelt7@gmail.com'
-        'salmanhanif133@gmail.com', 'murtaza.hanif@techinoviq.com', 'operations@queensman.com'
+        'ffakhri@queensman.com', 'bvictor@queensman.com',
+        'murtaza.hanif@techinoviq.com', 'operations@queensman.com', "salmanhanif133@gmail.com"
         /* more items */
       ]
     },

@@ -10,11 +10,10 @@ const sendResetPasswordEmail = async (event) => {
     const params = {
       Destination: { /* required */
         CcAddresses: [
-          'murtaza.hanif@techinoviq.com',
+          // 'murtaza.hanif@techinoviq.com',
           /* more items */
         ],
         ToAddresses: [
-          'icemelt7@gmail.com',
           clientEmail
           /* more items */
         ]

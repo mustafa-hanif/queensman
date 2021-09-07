@@ -7,10 +7,12 @@ const moment = require('moment');
 const sendPlanEmail = async (event) => {
   const query = JSON.parse(event.body)
   const planArray = query.planArray;
+  const email = query.email
+  const name = query.name
   console.log(event)
   // const fileLink = "abc.html"
   // Send Email
-  await planEmail(planArray, moment);
+  await planEmail(planArray, email, name, moment);
   // console.log(data);
   try {
     return {
