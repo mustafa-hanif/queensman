@@ -320,20 +320,30 @@ async function getRelevantWoker({ callout, date, time }) {
   else {
     // Get category of callout
     // Get all workers that fit the category
+    // Get Emergency Teams
+    const { errors, data: emergencyWokers } = await fetchGraphQL(
+      `query GetEmergency {
+        worker(where: {isEmergency: {_eq: true}}) {
+          email
+          id
+        }
+      }`,
+      'GetEmergency'
+    );
     let offset = 0;
     let workerId = null;
-    while (offset < 3) { //means after 4 callouts it will get blockwed
+    while (offset < 1) { //means after 2 callouts it will get blockwed
       const { errors: errorsTeams, data: teams } = await fetchGraphQL(
-        `query GetTeams($_contains: jsonb!, $offset: Int = 0) {
-        teams(where: {team_expertise: {_contains: $_contains}}, offset: $offset) {
-          worker {
-            id
+        `query GetTeams($_contains: jsonb!, $offset: Int = 0, $_nin: [Int!]) {
+          teams(where: {team_expertise: {_contains: $_contains}, team_leader: {_nin: $_nin}}, offset: $offset) {
+            worker {
+              id
+            }
           }
         }
-      }
       `,
         'GetTeams',
-        { _contains: job_type, offset }
+        { _contains: job_type, offset, _nin: emergencyWokers.worker[0] }
       );
       workerId = teams.teams?.[0]?.worker?.id;
 
@@ -366,7 +376,7 @@ async function getRelevantWoker({ callout, date, time }) {
       }
       console.log(offset)
     }
-    if (offset === 3) { //means after 4 callouts, it will get blocked
+    if (offset === 1) { //means after 2 callouts, it will get blocked
       console.log("HEEEEEEEEEEEERE")
       const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
       const { errors: errors2, data: lastWorkers } = await fetchGraphQL(
