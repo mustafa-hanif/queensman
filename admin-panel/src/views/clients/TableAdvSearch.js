@@ -280,6 +280,7 @@ mutation MyMutation($active: Boolean!, $email: citext!) {
 const DataTableAdvSearch = () => {
   // ** States
   const history = useHistory()
+  const [noEmailError, setNoEmailError] = useState(false)
   const [queryLoading, setQueryLoading] = useState(false)
   const [loaderButton, setLoaderButton] = useState(false)
   const { loading, data, error, refetch: refetchClient } = useQuery(GET_CLIENT, { fetchPolicy: 'network-only', nextFetchPolicy: 'network-only' })
@@ -549,9 +550,10 @@ const DataTableAdvSearch = () => {
             email: `${row.email}`,
           }
         );
-        console.log(res)
-        const resJson = await res.json()
-        console.log(resJson)
+        if (res.data.message === "No email found") {
+          setNoEmailError(true)
+          break;
+        }
         month += 3;
       }
       refetchClient()
@@ -562,17 +564,20 @@ const DataTableAdvSearch = () => {
       console.log(e)
       setQueryLoading(false)
       setLoaderButton(false)
-      // toast.error(
-      //   <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
-      //   {
-      //     autoClose: 2000,
-      //     hideProgressBar: true,
-      //     closeButton: false
-      //   }
-      // )
     }
   };
-
+  if (noEmailError) {
+    toast.error(
+      <ToastComponent title="Error! Client email does not exist on ZOHO. Consider adding client email to zoho api" color="danger" icon={<XCircle />} />,
+      {
+        autoClose: 50000,
+        hideProgressBar: true,
+        closeButton: true
+      }
+    )
+    setNoEmailError(false)
+  }
+     
   const handleDeletePlan = async (row) => {
     setQueryLoading(true)
     setTimeout(() => {

@@ -221,13 +221,13 @@ export default function SelectSchedule(props) {
         },
       })
         .then((res) => {
+          settime(null)
           props.navigation.navigate("HomeNaviagtor");
         })
         .catch((err) => console.log({ err }));
     } else {
       let category = "Uncategorized";
       setmodalVisible(false);
-
       if (
         state.property_type?.indexOf("AMC") >= 0 ||
         state.property_type?.indexOf("Annual Maintenance Contract") >= 0
@@ -267,6 +267,7 @@ export default function SelectSchedule(props) {
         .then((res) => {
           props.navigation.navigate("HomeNaviagtor");
           setTimeout(() => {
+            settime(null)
             SubmittedCalloutAlert();
           }, 500);
         })
