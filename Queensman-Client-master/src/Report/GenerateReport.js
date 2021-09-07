@@ -372,20 +372,39 @@ const GET_CONTRACT_COPY = gql`
 `;
 
 const GetContractCopy = () => {
+  const [isOpen, setisOpen] = useState(false)
   const user = auth?.currentSession?.session?.user;
   const email = user?.email;
   const { loading, data, error } = useQuery(GET_CONTRACT_COPY, {
     variables: { email },
   });
   const openContractCopy = () => {
-    const document_id =
+    if (data?.client?.[0]?.documents.length === 0) {
+      setisOpen(true)
+    } else {
+      const document_id =
       data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
     Linking.openURL(`https://api-8106d23e.nhost.app/?document_id=${document_id}`);
+    }
+    
   };
 
   return (
     <Button mb={10} onPress={openContractCopy}>
-      Contract Copy
+      {loading ? <Spinner size="sm" color="white" /> : "Contract Copy"}
+      <Center>
+        <AlertDialog isOpen={isOpen} motionPreset="fade">
+          <AlertDialog.Content>
+            <AlertDialog.Header fontSize="lg" fontWeight="bold">
+              No Contract Copy found
+            </AlertDialog.Header>
+            <AlertDialog.Body>You currently don't have any contract.</AlertDialog.Body>
+            <AlertDialog.Footer>
+              <Button onPress={() => setisOpen(false)}>Ok</Button>
+            </AlertDialog.Footer>
+          </AlertDialog.Content>
+        </AlertDialog>
+      </Center>
     </Button>
   );
 };
