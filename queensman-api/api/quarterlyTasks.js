@@ -10,29 +10,13 @@ const FormData = require('form-data');
 // const getRelevantWoker = require('../lib/graphql').getRelevantWoker;
 
 const quarterlyTasks = async (event) => {
+  console.log(event)
   const query = JSON.parse(event.body)
   const Subject = query.Subject
   const Description = query.Description
   const Status = query.Status
   const Due_Date = query.Due_Date
   const email = query.email
-  // const { event: { data: { new: query } } } = JSON.parse(event.body);
-  // const description = query.description;
-  // const type = query.type;
-  // console.log(query)
-  //   const calloutId = query.callout_id;
-  //   const workerId = query.worker_id;
-  //   const callout = await getCallout({ callout_id: calloutId });
-  //   const { id: releventWorker, time } = await getRelevantWoker({ callout });
-  //   const nextWorker = workerId ?? releventWorker;
-  //   const worker = await getWorker({ worker_id: nextWorker });
-
-  //   const data = await updateScheduleWithWoker({
-  //     id: schedulerId,
-  //     worker_id: nextWorker,
-  //     callout_id: calloutId,
-  //     worker_email: worker.email
-  //   });
   const form = new FormData()
   form.append('arguments', JSON.stringify({
     Subject: Subject,
@@ -55,39 +39,57 @@ const quarterlyTasks = async (event) => {
     );
     const resultJson = await result.json()
     if (resultJson?.details.output === 'No email found') {
+      console.log("Email nahi mili baabu bhaiya")
       return {
-        statusCode: 500,
-        message: resultJson?.details.output,
-        headers: {
+        statusCode: 200,
+        headers : {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Credentials': true,
+          "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+          "Access-Control-Allow-Headers" : "Content-Type"
         },
-        body: 'hi',
+        body: JSON.stringify(
+          {
+            message: 'nice!',
+            // input: event,
+          },
+          null,
+          2
+        ),
       }
     } else {
       return {
         statusCode: 200,
-        headers: {
+        headers : {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Credentials': true,
+          "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+          "Access-Control-Allow-Headers" : "Content-Type"
         },
-        message: resultJson?.details.output,
-        body: 'hi',
+        body: JSON.stringify(
+          {
+            message: 'Go Serverless v1.0! Your function executed successfully!',
+            // input: event,
+          },
+          null,
+          2
+        ),
       }
     }
   } catch (e) {
-    console.log(e)
+    console.log(e, "babu f")
+    return {
+      statusCode: 500,
+      body: JSON.stringify(
+        {
+          error: e,
+          // input: event,
+        },
+        null,
+        2
+      ),
+    };
   }
-
-  return {
-    statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
-    },
-    body: 'bye',
-    // isBase64Encoded: true
-  };
 };
 
 module.exports = { quarterlyTasks }

@@ -17,6 +17,12 @@ const sendPlanEmail = async (event) => {
   try {
     return {
       statusCode: 200,
+      headers : {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+        "Access-Control-Allow-Headers" : "Content-Type"
+      },
       body: JSON.stringify(
         {
           message: 'Go Serverless v1.0! Your function executed successfully!',

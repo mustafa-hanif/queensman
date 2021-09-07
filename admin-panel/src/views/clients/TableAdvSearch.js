@@ -239,12 +239,7 @@ const UPLOAD_PLAN = gql`
             job_type: "Scheduled Services"
             status: "Planned"
             urgency_level: "Scheduled"
-            active: 1,
-            job_worker: {
-              data: {
-                worker_id: $worker_id
-              }
-            }
+            active: 1
           }
         }
         date_on_calendar: $date_on_calendar
@@ -253,6 +248,7 @@ const UPLOAD_PLAN = gql`
         end_date_on_calendar: $end_date_on_calendar
         notes: "Scheduled Services"
         blocked: $blocked
+        worker_id: $worker_id
       }
     ) {
       date_on_calendar
@@ -459,7 +455,8 @@ const DataTableAdvSearch = () => {
           time_on_calendar,
           end_time_on_calendar,
           end_date_on_calendar,
-          blocked: true
+          blocked: true,
+          worker_id: 21
         })
         planArray.push(
           {
@@ -507,9 +504,12 @@ const DataTableAdvSearch = () => {
         const res = await axios.post(
           "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendPlanEmail",
           {
-            planArray
+            planArray,
+            email: row.email,
+            name: row.full_name
           }
         )
+        console.log(res.data.message)
       }
 
       const currentDate = new Date().toLocaleDateString().split("/") // "7/11/2021"
@@ -539,16 +539,19 @@ const DataTableAdvSearch = () => {
           email: `${row.email}`,
         });
 
-        // const res = await axios.post(
-        //   "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/quarterlyTasks",
-        //   {
-        //     Subject: `Task Client ${date[1]}`,
-        //     Description: `Task Client ${date[1]}`,
-        //     Status: `Open`,
-        //     Due_Date: `${dateString}`,
-        //     email: `${row.email}`,
-        //   }
-        // );
+        const res = await axios.post(
+          "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/quarterlyTasks",
+          {
+            Subject: `Task Client ${date[1]}`,
+            Description: `Task Client ${date[1]}`,
+            Status: `Open`,
+            Due_Date: `${dateString}`,
+            email: `${row.email}`,
+          }
+        );
+        console.log(res)
+        const resJson = await res.json()
+        console.log(resJson)
         month += 3;
       }
       refetchClient()

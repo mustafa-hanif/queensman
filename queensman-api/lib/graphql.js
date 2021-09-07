@@ -343,8 +343,9 @@ async function getRelevantWoker({ callout, date, time }) {
         }
       `,
         'GetTeams',
-        { _contains: job_type, offset, _nin: emergencyWokers.worker[0] }
+        { _contains: job_type, offset, _nin: emergencyWokers.worker[0].id }
       );
+      console.log(teams)
       workerId = teams.teams?.[0]?.worker?.id;
 
       //  - Get all schedule by this worker sorted by date

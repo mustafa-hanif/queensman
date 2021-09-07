@@ -1,149 +1,149 @@
 {
-    "resource":"/sendPlanEmail",
-    "path":"/sendPlanEmail",
-    "httpMethod":"POST",
-    "headers":{
-       "Accept":"application/json, text/plain, */*",
-       "Accept-Encoding":"gzip, deflate, br",
-       "Accept-Language":"en-US,en;q=0.9",
-       "CloudFront-Forwarded-Proto":"https",
-       "CloudFront-Is-Desktop-Viewer":"true",
-       "CloudFront-Is-Mobile-Viewer":"false",
-       "CloudFront-Is-SmartTV-Viewer":"false",
-       "CloudFront-Is-Tablet-Viewer":"false",
-       "CloudFront-Viewer-Country":"PK",
-       "content-type":"application/json;charset=UTF-8",
-       "Host":"y8sr1kom3g.execute-api.us-east-1.amazonaws.com",
-       "origin":"http://localhost:3006",
-       "Referer":"http://localhost:3006/",
-       "sec-ch-ua":"\"Chromium\";v=\"94\", \"Microsoft Edge\";v=\"94\", \";Not A Brand\";v=\"99\"",
-       "sec-ch-ua-mobile":"?0",
-       "sec-ch-ua-platform":"\"Windows\"",
-       "sec-fetch-dest":"empty",
-       "sec-fetch-mode":"cors",
-       "sec-fetch-site":"cross-site",
-       "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4592.0 Safari/537.36 Edg/94.0.975.1",
-       "Via":"2.0 4349a992977a09129baaddd00c798a5d.cloudfront.net (CloudFront)",
-       "X-Amz-Cf-Id":"XIJTTzt0mQE5dsdmXZoZWDStlLjWQSRmgu2rgKlS4AR69YDn-FOU_A==",
-       "X-Amzn-Trace-Id":"Root=1-61166df8-7acc2d6e09c1961522c62b54",
-       "X-Forwarded-For":"175.107.200.16, 70.132.2.142",
-       "X-Forwarded-Port":"443",
-       "X-Forwarded-Proto":"https"
-    },
-    "multiValueHeaders":{
-       "Accept":[
-          "application/json, text/plain, */*"
-       ],
-       "Accept-Encoding":[
-          "gzip, deflate, br"
-       ],
-       "Accept-Language":[
-          "en-US,en;q=0.9"
-       ],
-       "CloudFront-Forwarded-Proto":[
-          "https"
-       ],
-       "CloudFront-Is-Desktop-Viewer":[
-          "true"
-       ],
-       "CloudFront-Is-Mobile-Viewer":[
-          "false"
-       ],
-       "CloudFront-Is-SmartTV-Viewer":[
-          "false"
-       ],
-       "CloudFront-Is-Tablet-Viewer":[
-          "false"
-       ],
-       "CloudFront-Viewer-Country":[
-          "PK"
-       ],
-       "content-type":[
-          "application/json;charset=UTF-8"
-       ],
-       "Host":[
-          "y8sr1kom3g.execute-api.us-east-1.amazonaws.com"
-       ],
-       "origin":[
-          "http://localhost:3006"
-       ],
-       "Referer":[
-          "http://localhost:3006/"
-       ],
-       "sec-ch-ua":[
-          "\"Chromium\";v=\"94\", \"Microsoft Edge\";v=\"94\", \";Not A Brand\";v=\"99\""
-       ],
-       "sec-ch-ua-mobile":[
-          "?0"
-       ],
-       "sec-ch-ua-platform":[
-          "\"Windows\""
-       ],
-       "sec-fetch-dest":[
-          "empty"
-       ],
-       "sec-fetch-mode":[
-          "cors"
-       ],
-       "sec-fetch-site":[
-          "cross-site"
-       ],
-       "User-Agent":[
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4592.0 Safari/537.36 Edg/94.0.975.1"
-       ],
-       "Via":[
-          "2.0 4349a992977a09129baaddd00c798a5d.cloudfront.net (CloudFront)"
-       ],
-       "X-Amz-Cf-Id":[
-          "XIJTTzt0mQE5dsdmXZoZWDStlLjWQSRmgu2rgKlS4AR69YDn-FOU_A=="
-       ],
-       "X-Amzn-Trace-Id":[
-          "Root=1-61166df8-7acc2d6e09c1961522c62b54"
-       ],
-       "X-Forwarded-For":[
-          "175.107.200.16, 70.132.2.142"
-       ],
-       "X-Forwarded-Port":[
-          "443"
-       ],
-       "X-Forwarded-Proto":[
-          "https"
-       ]
-    },
-    "queryStringParameters":null,
-    "multiValueQueryStringParameters":null,
-    "pathParameters":null,
-    "stageVariables":null,
-    "requestContext":{
-       "resourceId":"j40pn6",
-       "resourcePath":"/sendPlanEmail",
-       "httpMethod":"POST",
-       "extendedRequestId":"EAYe0FC9IAMF1mw=",
-       "requestTime":"13/Aug/2021:13:04:56 +0000",
-       "path":"/dev/sendPlanEmail",
-       "accountId":"366559116147",
-       "protocol":"HTTP/1.1",
-       "stage":"dev",
-       "domainPrefix":"y8sr1kom3g",
-       "requestTimeEpoch":1628859896213,
-       "requestId":"297547e2-57af-4445-a0b3-5b0beff84293",
-       "identity":{
-          "cognitoIdentityPoolId":null,
-          "accountId":null,
-          "cognitoIdentityId":null,
-          "caller":null,
-          "sourceIp":"175.107.200.16",
-          "principalOrgId":null,
-          "accessKey":null,
-          "cognitoAuthenticationType":null,
-          "cognitoAuthenticationProvider":null,
-          "userArn":null,
-          "userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4592.0 Safari/537.36 Edg/94.0.975.1",
-          "user":null
-       },
-       "domainName":"y8sr1kom3g.execute-api.us-east-1.amazonaws.com",
-       "apiId":"y8sr1kom3g"
-    },
-    "body":"{ \"planArray\": [ { \"callout_by\": 236, \"email\": \"salmanhanif133@gmail.com\", \"date_on_calendar\": \"2021-08-13\", \"time_on_calendar\": \"10:00:00\", \"end_time_on_calendar\": \"14:00:00\", \"end_date_on_calendar\": \"2021-08-13\", \"blocked\": true }, { \"callout_by\": 236, \"email\": \"salmanhanif133@gmail.com\", \"date_on_calendar\": \"2021-11-01\", \"time_on_calendar\": \"10:00:00\", \"end_time_on_calendar\": \"14:00:00\", \"end_date_on_calendar\": \"2021-11-01\", \"blocked\": true }, { \"callout_by\": 236, \"email\": \"salmanhanif133@gmail.com\", \"date_on_calendar\": \"2022-01-01\", \"time_on_calendar\": \"10:00:00\", \"end_time_on_calendar\": \"14:00:00\", \"end_date_on_calendar\": \"2022-01-01\", \"blocked\": true }, { \"callout_by\": 236, \"email\": \"salmanhanif133@gmail.com\", \"date_on_calendar\": \"2022-04-01\", \"time_on_calendar\": \"10:00:00\", \"end_time_on_calendar\": \"14:00:00\", \"end_date_on_calendar\": \"2022-04-01\", \"blocked\": true } ] }",
-    "isBase64Encoded":false
- }
+   "resource":"/sendPlanEmail",
+   "path":"/sendPlanEmail",
+   "httpMethod":"POST",
+   "headers":{
+      "Accept":"application/json, text/plain, */*",
+      "Accept-Encoding":"gzip, deflate, br",
+      "Accept-Language":"en-US,en;q=0.9",
+      "CloudFront-Forwarded-Proto":"https",
+      "CloudFront-Is-Desktop-Viewer":"true",
+      "CloudFront-Is-Mobile-Viewer":"false",
+      "CloudFront-Is-SmartTV-Viewer":"false",
+      "CloudFront-Is-Tablet-Viewer":"false",
+      "CloudFront-Viewer-Country":"PK",
+      "content-type":"application/json;charset=UTF-8",
+      "Host":"y8sr1kom3g.execute-api.us-east-1.amazonaws.com",
+      "origin":"http://localhost:3006",
+      "Referer":"http://localhost:3006/",
+      "sec-ch-ua":"\"Microsoft Edge\";v=\"95\", \"Chromium\";v=\"95\", \";Not A Brand\";v=\"99\"",
+      "sec-ch-ua-mobile":"?0",
+      "sec-ch-ua-platform":"\"Windows\"",
+      "sec-fetch-dest":"empty",
+      "sec-fetch-mode":"cors",
+      "sec-fetch-site":"cross-site",
+      "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4613.0 Safari/537.36 Edg/95.0.997.1",
+      "Via":"2.0 33ccc45b55961a5a150d23d44de2958b.cloudfront.net (CloudFront)",
+      "X-Amz-Cf-Id":"d_17S9xzjuptkHurU83PMhUB5ZnegPSzy4rU4AWEEycS6T7yI6LgYw==",
+      "X-Amzn-Trace-Id":"Root=1-61375561-6f1c75ee6a7dc9980e4f69ee",
+      "X-Forwarded-For":"180.92.136.203, 70.132.3.133",
+      "X-Forwarded-Port":"443",
+      "X-Forwarded-Proto":"https"
+   },
+   "multiValueHeaders":{
+      "Accept":[
+         "application/json, text/plain, */*"
+      ],
+      "Accept-Encoding":[
+         "gzip, deflate, br"
+      ],
+      "Accept-Language":[
+         "en-US,en;q=0.9"
+      ],
+      "CloudFront-Forwarded-Proto":[
+         "https"
+      ],
+      "CloudFront-Is-Desktop-Viewer":[
+         "true"
+      ],
+      "CloudFront-Is-Mobile-Viewer":[
+         "false"
+      ],
+      "CloudFront-Is-SmartTV-Viewer":[
+         "false"
+      ],
+      "CloudFront-Is-Tablet-Viewer":[
+         "false"
+      ],
+      "CloudFront-Viewer-Country":[
+         "PK"
+      ],
+      "content-type":[
+         "application/json;charset=UTF-8"
+      ],
+      "Host":[
+         "y8sr1kom3g.execute-api.us-east-1.amazonaws.com"
+      ],
+      "origin":[
+         "http://localhost:3006"
+      ],
+      "Referer":[
+         "http://localhost:3006/"
+      ],
+      "sec-ch-ua":[
+         "\"Microsoft Edge\";v=\"95\", \"Chromium\";v=\"95\", \";Not A Brand\";v=\"99\""
+      ],
+      "sec-ch-ua-mobile":[
+         "?0"
+      ],
+      "sec-ch-ua-platform":[
+         "\"Windows\""
+      ],
+      "sec-fetch-dest":[
+         "empty"
+      ],
+      "sec-fetch-mode":[
+         "cors"
+      ],
+      "sec-fetch-site":[
+         "cross-site"
+      ],
+      "User-Agent":[
+         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4613.0 Safari/537.36 Edg/95.0.997.1"
+      ],
+      "Via":[
+         "2.0 33ccc45b55961a5a150d23d44de2958b.cloudfront.net (CloudFront)"
+      ],
+      "X-Amz-Cf-Id":[
+         "d_17S9xzjuptkHurU83PMhUB5ZnegPSzy4rU4AWEEycS6T7yI6LgYw=="
+      ],
+      "X-Amzn-Trace-Id":[
+         "Root=1-61375561-6f1c75ee6a7dc9980e4f69ee"
+      ],
+      "X-Forwarded-For":[
+         "180.92.136.203, 70.132.3.133"
+      ],
+      "X-Forwarded-Port":[
+         "443"
+      ],
+      "X-Forwarded-Proto":[
+         "https"
+      ]
+   },
+   "queryStringParameters":null,
+   "multiValueQueryStringParameters":null,
+   "pathParameters":null,
+   "stageVariables":null,
+   "requestContext":{
+      "resourceId":"j40pn6",
+      "resourcePath":"/sendPlanEmail",
+      "httpMethod":"POST",
+      "extendedRequestId":"FSpHRGiEoAMFicg=",
+      "requestTime":"07/Sep/2021:12:04:49 +0000",
+      "path":"/dev/sendPlanEmail",
+      "accountId":"366559116147",
+      "protocol":"HTTP/1.1",
+      "stage":"dev",
+      "domainPrefix":"y8sr1kom3g",
+      "requestTimeEpoch":1631016289587,
+      "requestId":"7f3ebfc8-adfc-44b5-869b-187da589806c",
+      "identity":{
+         "cognitoIdentityPoolId":null,
+         "accountId":null,
+         "cognitoIdentityId":null,
+         "caller":null,
+         "sourceIp":"180.92.136.203",
+         "principalOrgId":null,
+         "accessKey":null,
+         "cognitoAuthenticationType":null,
+         "cognitoAuthenticationProvider":null,
+         "userArn":null,
+         "userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4613.0 Safari/537.36 Edg/95.0.997.1",
+         "user":null
+      },
+      "domainName":"y8sr1kom3g.execute-api.us-east-1.amazonaws.com",
+      "apiId":"y8sr1kom3g"
+   },
+   "body":"{ \"planArray\": [ { \"property_id\": 159, \"callout_by\": 344, \"email\": \"salmanhanif133@gmail.com\", \"date_on_calendar\": \"2021-09-14\", \"time_on_calendar\": \"10:00:00\", \"end_time_on_calendar\": \"14:00:00\", \"end_date_on_calendar\": \"2021-09-14\", \"blocked\": true }, { \"property_id\": 159, \"callout_by\": 344, \"email\": \"salmanhanif133@gmail.com\", \"date_on_calendar\": \"2021-12-01\", \"time_on_calendar\": \"10:00:00\", \"end_time_on_calendar\": \"14:00:00\", \"end_date_on_calendar\": \"2021-12-01\", \"blocked\": true }, { \"property_id\": 159, \"callout_by\": 344, \"email\": \"salmanhanif133@gmail.com\", \"date_on_calendar\": \"2022-01-01\", \"time_on_calendar\": \"10:00:00\", \"end_time_on_calendar\": \"14:00:00\", \"end_date_on_calendar\": \"2022-01-01\", \"blocked\": true }, { \"property_id\": 159, \"callout_by\": 344, \"email\": \"salmanhanif133@gmail.com\", \"date_on_calendar\": \"2022-04-01\", \"time_on_calendar\": \"10:00:00\", \"end_time_on_calendar\": \"14:00:00\", \"end_date_on_calendar\": \"2022-04-01\", \"blocked\": true } ], \"email\": \"salmanhanif133@gmail.com\", \"name\": \"Salman Hanif\" }",
+   "isBase64Encoded":false
+}
