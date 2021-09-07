@@ -85,7 +85,7 @@ const PropertyDetails = (props) => {
     OwnedPropertyData: [], // Ismain store horahi hayn client ki property details yahan se daaldio usmain.
     // loading: false,
     taped: "",
-    phoneno: "97148721301",
+    phoneno: "+97148721301",
     selected: "Owned",
     PropertyData: [],
     LeasedDataAvaible: true,

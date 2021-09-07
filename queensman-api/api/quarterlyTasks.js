@@ -50,7 +50,7 @@ const quarterlyTasks = async (event) => {
         },
         body: JSON.stringify(
           {
-            message: 'nice!',
+            message: resultJson?.details?.output || "No email found",
             // input: event,
           },
           null,
