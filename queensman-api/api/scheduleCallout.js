@@ -21,7 +21,8 @@ const scheduleCallout = async (event) => {
     const { id, time: _time } = await getRelevantWoker({
       callout,
       date: query.date_on_calendar,
-      time: query.time_on_calendar
+      time: query.time_on_calendar,
+      schedulerId
     });
     time = _time;
     releventWorker = id;

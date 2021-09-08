@@ -264,9 +264,9 @@ async function getCallout({ callout_id }) {
   return data.callout_by_pk;
 }
 
-async function getRelevantWoker({ callout, date, time }) {
+async function getRelevantWoker({ callout, date, time, schedulerId }) {
   // get callout type - Emergency or schedule
-  const { urgency_level, job_type } = callout;
+  const { urgency_level, job_type, id } = callout;
   // if emergency - get the emergency team worker
   if (urgency_level === 'High') {
     const { errors, data: emergencyWokers } = await fetchGraphQL(
@@ -370,7 +370,7 @@ async function getRelevantWoker({ callout, date, time }) {
         }
       );
       if (lastWorkers.scheduler.length === 0) {
-        offset = 0;
+        // offset = 0;
         break;
       } else {
         ++offset;
@@ -381,15 +381,15 @@ async function getRelevantWoker({ callout, date, time }) {
       console.log("HEEEEEEEEEEEERE")
       const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
       const { errors: errors2, data: lastWorkers } = await fetchGraphQL(
-        `mutation UpdateToBlock($workerId: Int!, $today: date!, $_gte: time!, $_lte: time!) {
-          update_scheduler(where: {worker_id: {_eq: $workerId}, date_on_calendar: {_eq: $today}, time_on_calendar: {_gte: $_gte, _lte: $_lte}}, _set: {blocked: true}) {
+        `mutation UpdateToBlock($id: Int!, $today: date!, $_gte: time!, $_lte: time!) {
+          update_scheduler(where: {id: {_eq: $id}, date_on_calendar: {_eq: $today}, time_on_calendar: {_gte: $_gte, _lte: $_lte}}, _set: {blocked: true}) {
             affected_rows
           }
         }          
       `,
         'UpdateToBlock',
         {
-          workerId: workerId,
+          id: schedulerId,
           today: new Date(date).toISOString().substring(0, 10),
           _gte: dateFns.format(dateFns.subHours(selectedTime, 2), 'HH:mm:ss'),
           _lte: dateFns.format(dateFns.addHours(selectedTime, 2), 'HH:mm:ss'),
