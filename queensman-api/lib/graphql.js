@@ -384,6 +384,7 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount })
       console.log(offset)
     }
     //means after 2 callouts, it will get blocked
+    if (offset === teamCount - 1) {
       console.log("HEEEEEEEEEEEERE")
       const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
       const { errors: errors2, data: lastWorkers } = await fetchGraphQL(
@@ -401,6 +402,7 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount })
           _lte: dateFns.format(dateFns.addHours(selectedTime, 2), 'HH:mm:ss'),
         }
       );
+    }
     return { id: workerId, time: null };
   }
 }
