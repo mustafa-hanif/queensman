@@ -337,8 +337,9 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount })
     );
     let offset = 0;
     let workerId = null;
-    console.log(teamCount)
-    while (offset < teamCount) { //means after 2 callouts it will get blockwed
+    //Means after 2 callouts disable button
+    // while (offset < 2) {
+    while (offset < teamCount) { //disable this to stop team exahust
       const { errors: errorsTeams, data: teams } = await fetchGraphQL(
         `query GetTeams($_contains: jsonb!, $offset: Int = 0, $_nin: [Int!]) {
           teams(where: {team_expertise: {_contains: $_contains}, team_leader: {_nin: $_nin}}, offset: $offset) {
@@ -384,7 +385,8 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount })
       console.log(offset)
     }
     //means after 2 callouts, it will get blocked
-    if (offset === teamCount - 1) {
+    // if (offset === 1) { 
+    if (offset === teamCount - 1) { //disable this to disbale exhausting of all teams
       console.log("HEEEEEEEEEEEERE")
       const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
       const { errors: errors2, data: lastWorkers } = await fetchGraphQL(

@@ -41,6 +41,12 @@ const sendWelcomeEmail = async (event) => {
     await sendEmail(params);
     return {
       statusCode: 200,
+      headers : {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+        "Access-Control-Allow-Headers" : "Content-Type"
+      },
       body: JSON.stringify({
         message: 'Email sent succesfuly'
       }),
@@ -49,6 +55,12 @@ const sendWelcomeEmail = async (event) => {
     console.log(e);
     return {
       statusCode: 500,
+      headers : {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+        "Access-Control-Allow-Headers" : "Content-Type"
+      },
       body: JSON.stringify(e)
     }
   };
