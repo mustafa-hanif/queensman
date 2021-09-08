@@ -266,7 +266,7 @@ async function getCallout({ callout_id }) {
 
 async function getRelevantWoker({ callout, date, time, schedulerId }) {
   // get callout type - Emergency or schedule
-  const { urgency_level, job_type, id } = callout;
+  const { urgency_level, job_type } = callout;
   // if emergency - get the emergency team worker
   if (urgency_level === 'High') {
     const { errors, data: emergencyWokers } = await fetchGraphQL(
@@ -377,7 +377,7 @@ async function getRelevantWoker({ callout, date, time, schedulerId }) {
       }
       console.log(offset)
     }
-    if (offset === 2) { //means after 2 callouts, it will get blocked
+    if (offset === 1) { //means after 2 callouts, it will get blocked
       console.log("HEEEEEEEEEEEERE")
       const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
       const { errors: errors2, data: lastWorkers } = await fetchGraphQL(
