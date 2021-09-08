@@ -26,6 +26,8 @@ const GET_SCHEDULE = gql`
       id
       start: date_on_calendar
       startTime: time_on_calendar
+      end: end_date_on_calendar
+      endTime: end_time_on_calendar
       title: notes
       blocked
       worker {
@@ -333,25 +335,24 @@ export default function SelectSchedule(props) {
   let slots = [];
   for (let i = 0; i < 4; i += 1) {
     slots.push({
-      time: `${`${i * 2 + 9}`.padStart(2, 0)}:00:00`,
-      text: `${`${(i * 2 + 9) % 12}`.padStart(2, 0)}:00 to ${((i + 1) * 2 + 9) % 12}:00`,
+      startTime: `${`${i * 2 + 9}`.padStart(2, 0)}:00:00`,
+      endTime:  `${((i + 1) * 2 + 8) % 24}:59`,
+      text: `${`${(i * 2 + 9) % 24}`.padStart(2, 0)}:00 to ${((i + 1) * 2 + 9) % 24}:00`,
     });
   }
   (data?.scheduler ?? []).forEach((element) => {
-    console.log(element.blocked)
-    const timeOnCalender = parseISO(`${element.start}T${element.startTime}`);
+    const startTimeOnCalender = parseISO(`${element.start}T${element.startTime}`);
+    const endTimeOnCalender = parseISO(`${element.end}T${element.endTime}`);
     slots = slots.map((slot) => {
-      const timeOnSlot = parseISO(`${selectedDate}T${slot.time}`);
+      const startTimeOnSlot = parseISO(`${selectedDate}T${slot.startTime}`);
+      const endTimeOnSlot = parseISO(`${selectedDate}T${slot.endTime}`);
       if (element.blocked || element.callout.callout_by_email === auth.user().email) {
-        const diff = differenceInHours(timeOnSlot, timeOnCalender);
-        if (diff === 0 || diff === 1) {
+        if ( (startTimeOnCalender <= endTimeOnSlot) && (endTimeOnCalender >= endTimeOnSlot || endTimeOnCalender > startTimeOnSlot))
           if(element.callout.callout_by_email === auth.user().email) {
             return { ...slot, disabled: true, blockedBy: "Already booked by you" };
           } else {
             return { ...slot, disabled: true };
           }
-          
-        }
       }
       return slot;
     });
