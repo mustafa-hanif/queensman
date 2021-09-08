@@ -377,7 +377,7 @@ async function getRelevantWoker({ callout, date, time }) {
       }
       console.log(offset)
     }
-    if (offset === 1) { //means after 2 callouts, it will get blocked
+    if (offset === 2) { //means after 2 callouts, it will get blocked
       console.log("HEEEEEEEEEEEERE")
       const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
       const { errors: errors2, data: lastWorkers } = await fetchGraphQL(
