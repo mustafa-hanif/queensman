@@ -332,7 +332,7 @@ async function getRelevantWoker({ callout, date, time }) {
     );
     let offset = 0;
     let workerId = null;
-    while (offset < 1) { //means after 2 callouts it will get blockwed
+    while (offset < 2) { //means after 2 callouts it will get blockwed
       const { errors: errorsTeams, data: teams } = await fetchGraphQL(
         `query GetTeams($_contains: jsonb!, $offset: Int = 0, $_nin: [Int!]) {
           teams(where: {team_expertise: {_contains: $_contains}, team_leader: {_nin: $_nin}}, offset: $offset) {
