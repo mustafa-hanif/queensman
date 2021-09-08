@@ -247,6 +247,11 @@ async function getCallout({ callout_id }) {
       }
       request_time
     }
+    teams_aggregate(where: {worker: {isEmergency: {_eq: false}}}) {
+      aggregate {
+        count
+      }
+    }
   }
     
   `,
@@ -261,10 +266,10 @@ async function getCallout({ callout_id }) {
 
   // do something great with this precious data
   // console.log(data.worker_by_pk);
-  return data.callout_by_pk;
+  return { callout: data.callout_by_pk, teamCount: data?.teams_aggregate?.aggregate?.count };
 }
 
-async function getRelevantWoker({ callout, date, time, schedulerId }) {
+async function getRelevantWoker({ callout, date, time, schedulerId, teamCount }) {
   // get callout type - Emergency or schedule
   const { urgency_level, job_type } = callout;
   // if emergency - get the emergency team worker
@@ -332,7 +337,8 @@ async function getRelevantWoker({ callout, date, time, schedulerId }) {
     );
     let offset = 0;
     let workerId = null;
-    while (offset < 2) { //means after 2 callouts it will get blockwed
+    console.log(teamCount)
+    while (offset < teamCount) { //means after 2 callouts it will get blockwed
       const { errors: errorsTeams, data: teams } = await fetchGraphQL(
         `query GetTeams($_contains: jsonb!, $offset: Int = 0, $_nin: [Int!]) {
           teams(where: {team_expertise: {_contains: $_contains}, team_leader: {_nin: $_nin}}, offset: $offset) {
@@ -377,7 +383,7 @@ async function getRelevantWoker({ callout, date, time, schedulerId }) {
       }
       console.log(offset)
     }
-    if (offset === 1) { //means after 2 callouts, it will get blocked
+    //means after 2 callouts, it will get blocked
       console.log("HEEEEEEEEEEEERE")
       const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
       const { errors: errors2, data: lastWorkers } = await fetchGraphQL(
@@ -395,7 +401,6 @@ async function getRelevantWoker({ callout, date, time, schedulerId }) {
           _lte: dateFns.format(dateFns.addHours(selectedTime, 2), 'HH:mm:ss'),
         }
       );
-    }
     return { id: workerId, time: null };
   }
 }

@@ -14,12 +14,13 @@ const scheduleCallout = async (event) => {
   const schedulerId = query.id;
   const calloutId = query.callout_id;
   const workerId = query.worker_id;
-  const callout = await getCallout({ callout_id: calloutId });
+  const { callout, teamCount } = await getCallout({ callout_id: calloutId });
   let releventWorker = null;
   let time = null;
   if (!workerId) {
     const { id, time: _time } = await getRelevantWoker({
       callout,
+      teamCount,
       date: query.date_on_calendar,
       time: query.time_on_calendar,
       schedulerId
