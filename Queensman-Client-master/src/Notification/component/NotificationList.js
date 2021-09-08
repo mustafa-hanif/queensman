@@ -176,21 +176,21 @@ export default function NotificationList({
                   View Callout
                 </Text>
               </Button>
-              <Text color="black" fontSize="xs">{`${formatDistance(new Date(), new Date(item.created_at), {
-                includeSeconds: true,
-              })} ago`}</Text>
             </VStack>
           )}
           {item?.data?.type === "call" && (
             <Icon
               name="call"
               as={Ionicons}
-              style={{ fontSize: 25, color: "black", paddingRight: "4%" }}
+              style={{ fontSize: 25, color: "black" }}
               onPress={() => {
                 call({ number: item.data.phone, prompt: true });
               }}
             />
           )}
+           <Text color="black" fontSize="xs">{`${formatDistance(new Date(), new Date(item.created_at), {
+                includeSeconds: true,
+              })} ago`}</Text>
           <Button rounded="sm" onPress={() => markAsRead(item.id)} size="xs" width={100} ml="auto" bg="lightBlue.50">
             <Text color="lightBlue.600" fontSize="xxs">
               Mark as read

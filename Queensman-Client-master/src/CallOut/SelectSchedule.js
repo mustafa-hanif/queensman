@@ -9,7 +9,7 @@ import React, { useState, useEffect } from "react";
 import { format, parseISO, parse, differenceInHours } from "date-fns";
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { Calendar, CalendarList, Agenda } from "react-native-calendars";
-import { Box, Modal, Button, Spinner } from "native-base";
+import { Box, Modal, Button, Spinner, Center } from "native-base";
 import moment from "moment";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
@@ -18,6 +18,7 @@ import { gql, useQuery, useMutation, useLazyQuery, setLogVerbosity } from "@apol
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { auth, storage } from "../utils/nhost";
 import colors from "../../native-base-theme/variables/commonColor";
+import { marginBottom } from "styled-system";
 
 const GET_SCHEDULE = gql`
   query MyQuery($date_on_calendar: date) {
@@ -121,6 +122,8 @@ export default function SelectSchedule(props) {
   const [selectedDate, setselectedDate] = useState(null);
   const [modalVisible, setmodalVisible] = useState(false);
   const [markedDate, setmarkedDate] = useState(false);
+  const [loadingRequestModal, setLoading] = useState(false)
+  const [contentLoading, setContentLoading] = useState(false)
 
   const [date, setDate] = useState(() => {
     const now = new Date();
@@ -185,7 +188,16 @@ export default function SelectSchedule(props) {
   //   // console.log({ mark });
   //   setmarkedDate(mark);
   // };
-
+  const LoadingModal = () => (
+    <Modal isOpen={loadingRequestModal}>
+    <Modal.Content justifyContent="center" py={4} pr={4}>
+      <Text style={{ ...styles.heading }}>Finding relevant worker for you</Text>
+      <Text style={{ ...styles.heading, marginBottom: 5}}>Please wait</Text>
+      <Text style={{ ...styles.heading,  color: "#C7A602" }}>{contentLoading ? <ActivityIndicator color="white" size="large" /> : "Worker Found!"}</Text>
+    </Modal.Content>
+  </Modal>
+  )
+  
   const onChange = (event, selectedDate) => {
     if (selectedDate === undefined) {
       setShow(false);
@@ -212,6 +224,9 @@ export default function SelectSchedule(props) {
   };
 
   const onConfirmButtonPress = async () => {
+    settime(null)
+    setLoading(true)
+    setContentLoading(true)
     if (commingFrom === "Notification") {
       updateCalloutApi({
         variables: {
@@ -221,7 +236,8 @@ export default function SelectSchedule(props) {
         },
       })
         .then((res) => {
-          settime(null)
+          setLoading(false)
+          setContentLoading(false)
           props.navigation.navigate("HomeNaviagtor");
         })
         .catch((err) => console.log({ err }));
@@ -265,11 +281,14 @@ export default function SelectSchedule(props) {
         },
       })
         .then((res) => {
-          props.navigation.navigate("HomeNaviagtor");
           setTimeout(() => {
-            settime(null)
-            SubmittedCalloutAlert();
-          }, 500);
+            setContentLoading(false)
+            setTimeout(() => {
+              setLoading(false)
+              SubmittedCalloutAlert();
+              props.navigation.navigate("HomeNaviagtor");
+            }, 2000);
+          }, 7000);
         })
         .catch((err) => alert(JSON.stringify({ err })));
     }
@@ -326,7 +345,12 @@ export default function SelectSchedule(props) {
       if (element.blocked || element.callout.callout_by_email === auth.user().email) {
         const diff = differenceInHours(timeOnSlot, timeOnCalender);
         if (diff === 0 || diff === 1) {
-          return { ...slot, disabled: true };
+          if(element.callout.callout_by_email === auth.user().email) {
+            return { ...slot, disabled: true, blockedBy: "Already booked by you" };
+          } else {
+            return { ...slot, disabled: true };
+          }
+          
         }
       }
       return slot;
@@ -410,10 +434,11 @@ export default function SelectSchedule(props) {
       </Box>
       <Box>
         <Confirmmodal />
+        <LoadingModal />
 
         <Modal isOpen={markedDate} onClose={() => setmarkedDate(false)}>
         <Modal.Content>
-            <Box pt={4} pr={6}>
+            <Box pt={4} pr={6} justifyContent="center">
               {loading ? <Spinner mb={8} color="lightText" size="sm" /> : 
               slots.map((slot) => (
                 <Button
@@ -424,10 +449,12 @@ export default function SelectSchedule(props) {
                   isDisabled={slot.disabled}
                   onPress={() => selectSlot(slot.time)}
                 >
-                  {slot.text}
+                  <Text style={{textAlign: "center", justifyContent: "center", fontSize: 16}}>{slot.text}</Text>
+                  {slot?.blockedBy && <Text style={{textAlign: "center", justifyContent: "center", fontSize: 14, color:"white"}}>{slot?.blockedBy}</Text>}
                 </Button>
               ))
               }
+              <Text style={{textAlign: "center", color: "white", marginBottom: 16}}>Disabled slots indicates no Teams are free.</Text>
             </Box>
           </Modal.Content>
         </Modal>

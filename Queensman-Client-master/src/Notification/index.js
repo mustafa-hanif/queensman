@@ -89,7 +89,7 @@ export default function Index(props) {
             </Text>
           ) : (
             <Text style={{ textAlign: "center", marginTop: 20, fontSize: 14 }}>
-              no new Notification. Pull down to refresh
+              No new Notification. Pull down to refresh
             </Text>
           )}
           <View>

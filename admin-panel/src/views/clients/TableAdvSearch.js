@@ -906,6 +906,13 @@ const DataTableAdvSearch = () => {
   }
   const handleAddRecord = async (newRow, redirect = false) => {
     console.log(redirect)
+    setQueryLoading(true)
+    setTimeout(() => {
+      setLoaderButton(true)
+      if (!queryLoading) {
+        setLoaderButton(false)
+      }
+    }, 10000)
     try {
       await addClient({
         variables: {
@@ -951,6 +958,8 @@ const DataTableAdvSearch = () => {
         console.log("pushing")
         history.push({ pathname: '/property', state: { active: "4" } })
       }
+      setQueryLoading(false)
+      setLoaderButton(false)
     } catch (e) {
       console.log(e.message)
       if (e.message.substr(0, 20) === "Uniqueness violation") {
@@ -963,6 +972,8 @@ const DataTableAdvSearch = () => {
           }
         )
       }
+      setQueryLoading(false)
+      setLoaderButton(false)
     }
     dataToRender();
     if (!addClientLoading) {
