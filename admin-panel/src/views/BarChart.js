@@ -82,8 +82,7 @@ query CalloutsToday($endDate: timestamptz!, $startDate: timestamptz!) {
 
 const ApexBarChart = ({ info, direction }) => {
   const history = useHistory()
-  const time = "09:00:00"
-  console.log(moment(new Date(`2021-01-01 ${time}`)).add(2, "hours").format("hh:mm:ss"))
+  console.log(moment("18:05:00").format("HH:mm:ss a"))
   const [calloutModal, setCalloutModal] = useState(false)
   const [calloutModal2, setCalloutModal2] = useState(false)
   const [modalDetails, setModalDetails] = useState(null)
@@ -115,6 +114,10 @@ const ApexBarChart = ({ info, direction }) => {
       <div className='meetup-header d-flex align-items-center'>
       <Button color='info' className="mx-2" onClick={() => { openCalloutModal(callout) }} size="sm">
   <span className='align-middle mr-50'>View Details</span>
+    <Info size={15} />
+  </Button>
+  <Button color='primary' className="mx-2" onClick={() => { history.push({ pathname: '/schedule', state: { changeToDayView: true, date: callout?.schedulers?.[0]?.date_on_calendar } }) }} size="sm">
+  <span className='align-middle mr-50'>View on Calendar</span>
     <Info size={15} />
   </Button>
       </div>
@@ -170,7 +173,7 @@ const ApexBarChart = ({ info, direction }) => {
           openModal()
           // openDetailsModal(data.callout.filter((data) => moment(data.request_time).format("YYYY-MM-DD") === date))
           
-          // history.push({ pathname: '/schedule', state: { changeToDayView: true, date } })
+          
         }
       }
     },

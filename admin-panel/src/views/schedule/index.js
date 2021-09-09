@@ -475,6 +475,8 @@ const CalendarComponent = ({location}) => {
               loading={loading || requestCalloutLoading}
               isRtl={isRtl}
               changeToDayView={changeToDayView}
+              setChangeToDayView={setChangeToDayView}
+              setDate={setDate}
               // store={store}
               date={date}
               events={data?.scheduler ?? []}

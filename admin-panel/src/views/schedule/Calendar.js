@@ -38,6 +38,8 @@ const Calendar = props => {
     loading,
     // store,
     changeToDayView,
+    setChangeToDayView,
+    setDate,
     date,
     datesSet,
     selectedEvent,
@@ -217,12 +219,13 @@ console.log(changeToDayView)
     },
 
     viewDidMount() {
-      
       setTimeout(() => {
         if (changeToDayView) {
           if (calendarRef) {
             calendarRef.current.getApi().changeView("timeGridDay", date)
           }
+          setChangeToDayView(false)
+          setDate(false)
         }
       }, 100)
     
