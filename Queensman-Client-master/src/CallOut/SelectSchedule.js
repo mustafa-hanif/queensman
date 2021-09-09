@@ -42,10 +42,10 @@ const GET_SCHEDULE = gql`
 `;
 
 const UPDATE_CALLOUT = gql`
-  mutation UpdateSchedule($callout_id: Int!, $date_on_calendar: date = "", $time_on_calendar: time = "") {
+  mutation UpdateSchedule($callout_id: Int!, $date_on_calendar: date = "", $time_on_calendar: time = "", $end_date_on_calendar: date!, $end_time_on_calendar: time) {
     update_scheduler(
       where: { callout_id: { _eq: $callout_id } }
-      _set: { date_on_calendar: $date_on_calendar, time_on_calendar: $time_on_calendar }
+      _set: { date_on_calendar: $date_on_calendar, time_on_calendar: $time_on_calendar, end_time_on_calendar: $end_time_on_calendar, end_date_on_calendar: $end_date_on_calendar }
     ) {
       returning {
         date_on_calendar
@@ -58,8 +58,10 @@ const REQUEST_CALLOUT = gql`
   mutation AddCallout(
     $property_id: Int
     $date_on_calendar: date
-    $notes: String
+    $end_date_on_calendar: date
     $time_on_calendar: time
+    $end_time_on_calendar: time
+    $notes: String
     $email: String
     $category: String
     $job_type: String
@@ -92,6 +94,8 @@ const REQUEST_CALLOUT = gql`
         }
         date_on_calendar: $date_on_calendar
         time_on_calendar: $time_on_calendar
+        end_date_on_calendar: $end_date_on_calendar
+        end_time_on_calendar: $end_time_on_calendar
         notes: $notes
       }
     ) {
@@ -235,6 +239,8 @@ export default function SelectSchedule(props) {
           time_on_calendar: time,
           date_on_calendar: selectedDate,
           callout_id: callout_id_fromNotification,
+          end_time_on_calendar: moment(time).add(2, 'hours').toDate(),
+          end_date_on_calendar : selectedDate
         },
       })
         .then((res) => {
@@ -267,12 +273,15 @@ export default function SelectSchedule(props) {
           })
           .filter(Boolean)
       );
+
       requestCalloutApiCall({
         variables: {
           property_id: state.PropertyID,
           email: auth.user().email,
           notes: state.Description,
           time_on_calendar: time,
+          end_time_on_calendar: moment(parse(time, "HH:mm:ss", new Date())).add(2, "hours").format("hh:mm:ss"),
+          end_date_on_calendar : selectedDate, 
           date_on_calendar: selectedDate,
           category,
           job_type: state.JobType,
