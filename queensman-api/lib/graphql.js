@@ -370,7 +370,7 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
           workerId: workerId,
           today: new Date(date).toISOString().substring(0, 10),
           _gte: time,
-          _lt: endTime,
+          _lte: endTime,
         }
       );
       if (lastWorkers.scheduler.length === 0) {
@@ -398,7 +398,7 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
           id: schedulerId,
           today: new Date(date).toISOString().substring(0, 10),
           _gte: time,
-          _lt: endTime,
+          _lte: endTime,
         }
       );
     }

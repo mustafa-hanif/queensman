@@ -64,7 +64,7 @@ async function notifyTeamisComing() {
     console.log('diffWithNow ', diffWithNow);
 
     if (diffWithNow >= 55 && diffWithNow <= 60) {
-      await addNotification(clientEmail, `The team is on the way for scheduled service with id# ${item.callout.id} on ${moment(item.date_on_calendar).format("MMMM Do YYYY")} at ${moment(item.time_on_calendar).format("h:mm:ss a")} `, 'client', {});
+      await addNotification(clientEmail, `The team is on the way for scheduled service with id# ${item.callout.id} on ${moment(item.date_on_calendar).format("MMMM Do YYYY")} at ${item.time_on_calendar} `, 'client', {});
       console.log(`scheduled service with id# ${item.id}`);
     }
     // If team is running late
