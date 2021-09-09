@@ -70,11 +70,11 @@ const LoginScreen = ({ navigation }) => {
   // animation ref
   const [resetPassword, { data, loading, error }] = useMutation(resetPasswordGql);
   const [state, setState] = useState({
-    email: "",
+    email: "salmanhanif133@gmail.com",
     emailpage: true,
     changePasswordModal: false,
     resetPasswordModal: false,
-    password: "",
+    password: "123456789",
     phoneno: "97148721301",
     passwordcheck: "",
     newpassword: "check",

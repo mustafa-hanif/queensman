@@ -340,7 +340,7 @@ export default function SelectSchedule(props) {
       text: `${`${(i * 2 + 9) % 24}`.padStart(2, 0)}:00 to ${((i + 1) * 2 + 9) % 24}:00`,
     });
   }
-  (data?.scheduler ?? []).forEach((element) => {
+  (data?.scheduler ?? []).forEach((element, i) => {
     const startTimeOnCalender = parseISO(`${element.start}T${element.startTime}`);
     const endTimeOnCalender = parseISO(`${element.end}T${element.endTime}`);
     slots = slots.map((slot) => {
@@ -349,9 +349,9 @@ export default function SelectSchedule(props) {
       if (element.blocked || element.callout.callout_by_email === auth.user().email) {
         if ( (startTimeOnCalender <= endTimeOnSlot) && (endTimeOnCalender >= endTimeOnSlot || endTimeOnCalender > startTimeOnSlot))
           if(element.callout.callout_by_email === auth.user().email) {
-            return { ...slot, disabled: true, blockedBy: "Already booked by you" };
+            return { ...slot, disabled: true, blockedBy: "Already booked by you", i };
           } else {
-            return { ...slot, disabled: true };
+            return { ...slot, disabled: true, i };
           }
       }
       return slot;
@@ -443,12 +443,12 @@ export default function SelectSchedule(props) {
               {loading ? <Spinner mb={8} color="lightText" size="sm" /> : 
               slots.map((slot) => (
                 <Button
-                  key={slot.time}
+                  key={slot.i}
                   mb={8}
                   mx="auto"
                   width={240}
                   isDisabled={slot.disabled}
-                  onPress={() => selectSlot(slot.time)}
+                  onPress={() => selectSlot(slot.startTime)}
                 >
                   <Text style={{textAlign: "center", justifyContent: "center", fontSize: 16}}>{slot.text}</Text>
                   {slot?.blockedBy && <Text style={{textAlign: "center", justifyContent: "center", fontSize: 14, color:"white"}}>{slot?.blockedBy}</Text>}
