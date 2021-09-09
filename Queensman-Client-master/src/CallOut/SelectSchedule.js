@@ -273,14 +273,14 @@ export default function SelectSchedule(props) {
           })
           .filter(Boolean)
       );
-
+      console.log(moment(parse(time, "HH:mm:ss", new Date())).add(2, "hours").format("HH:mm:ss"))
       requestCalloutApiCall({
         variables: {
           property_id: state.PropertyID,
           email: auth.user().email,
           notes: state.Description,
           time_on_calendar: time,
-          end_time_on_calendar: moment(parse(time, "HH:mm:ss", new Date())).add(2, "hours").format("hh:mm:ss"),
+          end_time_on_calendar: moment(parse(time, "HH:mm:ss", new Date())).add(2, "hours").format("HH:mm:ss"),
           end_date_on_calendar : selectedDate, 
           date_on_calendar: selectedDate,
           category,
@@ -297,7 +297,7 @@ export default function SelectSchedule(props) {
             setTimeout(() => {
               setLoading(false)
               SubmittedCalloutAlert();
-              props.navigation.navigate("HomeNaviagtor");
+              // props.navigation.navigate("HomeNaviagtor");
             }, 2000);
           }, 7000);
         })
