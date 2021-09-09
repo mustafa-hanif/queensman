@@ -23,6 +23,7 @@ const scheduleCallout = async (event) => {
       teamCount,
       date: query.date_on_calendar,
       time: query.time_on_calendar,
+      endTime: query.end_time_on_calendar,
       schedulerId
     });
     time = _time;

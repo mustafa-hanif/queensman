@@ -266,7 +266,7 @@ async function getCallout({ callout_id }) {
   return { callout: data.callout_by_pk, teamCount: data?.teams_aggregate?.aggregate?.count };
 }
 
-async function getRelevantWoker({ callout, date, time, schedulerId, teamCount }) {
+async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, endTime }) {
   // get callout type - Emergency or schedule
   const { urgency_level, job_type } = callout;
   // if emergency - get the emergency team worker
@@ -353,7 +353,7 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount })
       workerId = teams.teams?.[0]?.worker?.id;
 
       //  - Get all schedule by this worker sorted by date
-      const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
+      // const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
       const { errors: errors2, data: lastWorkers } = await fetchGraphQL(
         `query LastTimeofWorker($workerId: Int!, $today: date!, $_gte: time!, $_lte: time!) {
         scheduler(where: {
@@ -369,8 +369,8 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount })
         {
           workerId: workerId,
           today: new Date(date).toISOString().substring(0, 10),
-          _gte: dateFns.format(dateFns.subHours(selectedTime, 2), 'HH:mm:ss'),
-          _lte: dateFns.format(dateFns.addHours(selectedTime, 2), 'HH:mm:ss'),
+          _gte: time,
+          _lt: endTime,
         }
       );
       if (lastWorkers.scheduler.length === 0) {
@@ -385,7 +385,7 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount })
     if (offset === 1) { 
     // if (offset === teamCount - 1) { //enable this to exhaust the team
       console.log("HEEEEEEEEEEEERE")
-      const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
+      // const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
       const { errors: errors2, data: lastWorkers } = await fetchGraphQL(
         `mutation UpdateToBlock($id: Int!, $today: date!, $_gte: time!, $_lte: time!) {
           update_scheduler(where: {id: {_eq: $id}, date_on_calendar: {_eq: $today}, time_on_calendar: {_gte: $_gte, _lte: $_lte}}, _set: {blocked: true}) {
@@ -397,8 +397,8 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount })
         {
           id: schedulerId,
           today: new Date(date).toISOString().substring(0, 10),
-          _gte: dateFns.format(dateFns.subHours(selectedTime, 2), 'HH:mm:ss'),
-          _lte: dateFns.format(dateFns.addHours(selectedTime, 2), 'HH:mm:ss'),
+          _gte: time,
+          _lt: endTime,
         }
       );
     }
