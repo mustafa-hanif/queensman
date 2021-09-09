@@ -8,6 +8,7 @@ const subMonths = require('date-fns/subMonths');
 const format = require('date-fns/format');
 const addHours = require('date-fns/addHours');
 const addWeeks = require('date-fns/addWeeks');
+const moment = require('moment');
 const parseJSON = require('date-fns/parseJSON');
 const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
 
@@ -63,7 +64,7 @@ async function notifyTeamisComing() {
     console.log('diffWithNow ', diffWithNow);
 
     if (diffWithNow >= 55 && diffWithNow <= 60) {
-      await addNotification(clientEmail, `The team is on the way for scheduled service with id# ${item.callout.id} at ${item.time_on_calendar} on ${item.date_on_calendar} `, 'client', {});
+      await addNotification(clientEmail, `The team is on the way for scheduled service with id# ${item.callout.id} on ${moment(item.date_on_calendar).format("MMMM Do YYYY")} at ${moment(item.time_on_calendar).format("h:mm:ss a")} `, 'client', {});
       console.log(`scheduled service with id# ${item.id}`);
     }
     // If team is running late

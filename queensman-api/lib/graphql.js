@@ -158,9 +158,6 @@ async function updateScheduleWithWoker({
         id
       }
     }
-    insert_job_worker_one(object: {callout_id: $callout_id, worker_id: $worker_id}) {
-      worker_id
-    }
     insert_notifications_one(object: {worker_email: $worker_email, text: "A new scheduled job has been assigned to you", type: "worker"}) {
       text
     }
