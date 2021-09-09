@@ -297,7 +297,7 @@ export default function SelectSchedule(props) {
             setTimeout(() => {
               setLoading(false)
               SubmittedCalloutAlert();
-              // props.navigation.navigate("HomeNaviagtor");
+              props.navigation.navigate("HomeNaviagtor");
             }, 2000);
           }, 7000);
         })
