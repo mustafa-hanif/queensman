@@ -37,6 +37,8 @@ const Calendar = props => {
     isRtl,
     loading,
     // store,
+    changeToDayView,
+    date,
     datesSet,
     selectedEvent,
     calendarsColor,
@@ -49,7 +51,7 @@ const Calendar = props => {
     updateEvent,
     updateEventDrag
   } = props
-
+console.log(changeToDayView)
   // ** UseEffect checks for CalendarAPI Update
   useEffect(() => {
     if (calendarApi === null) {
@@ -63,32 +65,15 @@ const Calendar = props => {
 
   // ** calendarOptions(Props)
   const calendarOptions = {
+    ref: calendarRef,
     events,
     // initialDate: '2020-08-01',
     datesSet,
     // selectedEvent,
     eventDataTransform: (eventData => {
-      console.log(eventData)
+      // console.log(eventData)
       const { id, worker, callout_id, start, startTime, blocked, callout, job_tickets, end, endTime } = eventData
       const length = job_tickets?.length
-      // console.log({
-      //   allDay: false,
-      //   // end: `${start}T${'00:00:00.000Z'}`,
-      //   id,
-      //   title: worker?.full_name ? `${title} by ${worker?.full_name}` : 'No Title',
-      //   start: `${start}T${startTime}`,
-      //   // end: endTime ? `${start}T${endTime.}`
-      //   end: endTime ? `${end}T${endTime}` : addHours(`${start} ${startTime}`, 2),
-      //   workerName: worker?.full_name || 'No Worker name',
-      //   clientName: callout.client_callout_email?.full_name || 'No Client name',
-      //   category: callout?.category || "Uncategorized",
-      //   propertyName: callout.property?.address || 'No Porperty',
-      //   propertyId: callout.property?.id || 0,
-      //   videoUrl: callout.video,
-      //   job_tickets,
-
-      //   callout_id
-      // })
       const clientName = callout?.client_callout_email?.full_name
       const jobType = callout?.job_type
       const wokerName = worker?.full_name
@@ -97,7 +82,6 @@ const Calendar = props => {
       const color = worker?.teams?.[0]?.team_color ?? worker?.teams_member?.team_color
       return {
         allDay: false,
-        // end: `${start}T${'00:00:00.000Z'}`,
         id,
         title: `${title}${length > 0 ? `; ${length} job ticket ${length > 1 ? 's' : ''}` : ''}`,
         start: `${start}T${startTime}`,
@@ -113,8 +97,6 @@ const Calendar = props => {
         propertyName: callout.property?.address || 'No Property',
         propertyId: callout.property?.id || 0,
         videoUrl: callout.video,
-        // start: new Date(`${start} ${startTime}`).toISOString(),
-        // start,
         job_tickets,
         blocked,
         hasJobs: job_tickets.length,
@@ -234,7 +216,17 @@ const Calendar = props => {
       })
     },
 
-    ref: calendarRef,
+    viewDidMount() {
+      
+      setTimeout(() => {
+        if (changeToDayView) {
+          if (calendarRef) {
+            calendarRef.current.getApi().changeView("timeGridDay", date)
+          }
+        }
+      }, 100)
+    
+    },
 
     // Get direction from app state (store)
     direction: isRtl ? 'rtl' : 'ltr'
