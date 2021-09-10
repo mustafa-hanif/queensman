@@ -42,10 +42,10 @@ const GET_SCHEDULE = gql`
 `;
 
 const UPDATE_CALLOUT = gql`
-  mutation UpdateSchedule($callout_id: Int!, $date_on_calendar: date = "", $time_on_calendar: time = "") {
+  mutation UpdateSchedule($callout_id: Int!, $date_on_calendar: date = "", $time_on_calendar: time = "", $end_date_on_calendar: date!, $end_time_on_calendar: time) {
     update_scheduler(
       where: { callout_id: { _eq: $callout_id } }
-      _set: { date_on_calendar: $date_on_calendar, time_on_calendar: $time_on_calendar }
+      _set: { date_on_calendar: $date_on_calendar, time_on_calendar: $time_on_calendar, end_time_on_calendar: $end_time_on_calendar, end_date_on_calendar: $end_date_on_calendar }
     ) {
       returning {
         date_on_calendar
@@ -58,8 +58,10 @@ const REQUEST_CALLOUT = gql`
   mutation AddCallout(
     $property_id: Int
     $date_on_calendar: date
-    $notes: String
+    $end_date_on_calendar: date
     $time_on_calendar: time
+    $end_time_on_calendar: time
+    $notes: String
     $email: String
     $category: String
     $job_type: String
@@ -92,6 +94,8 @@ const REQUEST_CALLOUT = gql`
         }
         date_on_calendar: $date_on_calendar
         time_on_calendar: $time_on_calendar
+        end_date_on_calendar: $end_date_on_calendar
+        end_time_on_calendar: $end_time_on_calendar
         notes: $notes
       }
     ) {
@@ -235,6 +239,8 @@ export default function SelectSchedule(props) {
           time_on_calendar: time,
           date_on_calendar: selectedDate,
           callout_id: callout_id_fromNotification,
+          end_time_on_calendar: moment(time).add(2, 'hours').toDate(),
+          end_date_on_calendar : selectedDate
         },
       })
         .then((res) => {
@@ -267,12 +273,15 @@ export default function SelectSchedule(props) {
           })
           .filter(Boolean)
       );
+      console.log(moment(parse(time, "HH:mm:ss", new Date())).add(2, "hours").format("HH:mm:ss"))
       requestCalloutApiCall({
         variables: {
           property_id: state.PropertyID,
           email: auth.user().email,
           notes: state.Description,
           time_on_calendar: time,
+          end_time_on_calendar: moment(parse(time, "HH:mm:ss", new Date())).add(2, "hours").format("HH:mm:ss"),
+          end_date_on_calendar : selectedDate, 
           date_on_calendar: selectedDate,
           category,
           job_type: state.JobType,
@@ -340,7 +349,7 @@ export default function SelectSchedule(props) {
       text: `${`${(i * 2 + 9) % 24}`.padStart(2, 0)}:00 to ${((i + 1) * 2 + 9) % 24}:00`,
     });
   }
-  (data?.scheduler ?? []).forEach((element) => {
+  (data?.scheduler ?? []).forEach((element, i) => {
     const startTimeOnCalender = parseISO(`${element.start}T${element.startTime}`);
     const endTimeOnCalender = parseISO(`${element.end}T${element.endTime}`);
     slots = slots.map((slot) => {
@@ -349,9 +358,9 @@ export default function SelectSchedule(props) {
       if (element.blocked || element.callout.callout_by_email === auth.user().email) {
         if ( (startTimeOnCalender <= endTimeOnSlot) && (endTimeOnCalender >= endTimeOnSlot || endTimeOnCalender > startTimeOnSlot))
           if(element.callout.callout_by_email === auth.user().email) {
-            return { ...slot, disabled: true, blockedBy: "Already booked by you" };
+            return { ...slot, disabled: true, blockedBy: "Already booked by you", i };
           } else {
-            return { ...slot, disabled: true };
+            return { ...slot, disabled: true, i };
           }
       }
       return slot;
@@ -443,12 +452,12 @@ export default function SelectSchedule(props) {
               {loading ? <Spinner mb={8} color="lightText" size="sm" /> : 
               slots.map((slot) => (
                 <Button
-                  key={slot.time}
+                  key={slot.i}
                   mb={8}
                   mx="auto"
                   width={240}
                   isDisabled={slot.disabled}
-                  onPress={() => selectSlot(slot.time)}
+                  onPress={() => selectSlot(slot.startTime)}
                 >
                   <Text style={{textAlign: "center", justifyContent: "center", fontSize: 16}}>{slot.text}</Text>
                   {slot?.blockedBy && <Text style={{textAlign: "center", justifyContent: "center", fontSize: 14, color:"white"}}>{slot?.blockedBy}</Text>}

@@ -276,12 +276,15 @@ const REQUEST_CALLOUT = gql`
   }
 `
 
-const CalendarComponent = () => {
+const CalendarComponent = ({location}) => {
   // ** Variables
   // const dispatch = useDispatch()
   // const store = useSelector(state => {
   //   return state.calendar
   // })
+
+  const [changeToDayView, setChangeToDayView] = useState(location?.state?.changeToDayView || false)
+  const [date, setDate] = useState(location?.state?.date || false)
 
   const [updateCallOut] = useMutation(UPDATE_CALLOUT, {
     refetchQueries: [
@@ -471,7 +474,11 @@ const CalendarComponent = () => {
             <Calendar
               loading={loading || requestCalloutLoading}
               isRtl={isRtl}
+              changeToDayView={changeToDayView}
+              setChangeToDayView={setChangeToDayView}
+              setDate={setDate}
               // store={store}
+              date={date}
               events={data?.scheduler ?? []}
               // dispatch={dispatch}
               datesSet={datesSet}
