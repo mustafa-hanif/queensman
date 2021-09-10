@@ -9,6 +9,7 @@ import moment from 'moment'
 import { toast } from "react-toastify"
 import axios from "axios"
 import Avatar from "@components/avatar"
+import { DOMAIN } from '../../_config'
 
 // Toast Component
 const ToastComponent = ({ title, icon, color }) => (
@@ -127,7 +128,7 @@ const TabsVerticalLeft = ({item, allProperty, GET_INVENTORY}) => {
 
       try {
         const res = await axios.post(
-          "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendInventoryClientEmail",
+          `${DOMAIN}/sendInventoryClientEmail`,
           {
             inventory_report_pdf,
             property,
@@ -142,7 +143,7 @@ const TabsVerticalLeft = ({item, allProperty, GET_INVENTORY}) => {
 
       try {
         const res = await axios.post(
-          "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendInventoryTeamEmail",
+          `${DOMAIN}/sendInventoryTeamEmail`,
           {
             inventory_report_pdf,
             property,

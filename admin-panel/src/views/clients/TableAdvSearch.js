@@ -1,6 +1,7 @@
 // ** React Imports
 import { useState, Fragment, forwardRef } from "react"
 import { Link, useHistory } from 'react-router-dom'
+import { DOMAIN } from '../../_config'
 
 import { auth } from "../../utility/nhost"
 const fetch = require("node-fetch")
@@ -503,7 +504,7 @@ const DataTableAdvSearch = () => {
           }
         })
         const res = await axios.post(
-          "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendPlanEmail",
+          `${DOMAIN}/sendPlanEmail`,
           {
             planArray,
             email: row.email,
@@ -541,7 +542,7 @@ const DataTableAdvSearch = () => {
         });
 
         const res = await axios.post(
-          "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/quarterlyTasks",
+          `${DOMAIN}/quarterlyTasks`,
           {
             Subject: `Task Client ${date[1]}`,
             Description: `Task Client ${date[1]}`,
@@ -937,7 +938,7 @@ const DataTableAdvSearch = () => {
       console.log("client registerd")
       toast.success(<SuccessToast data={newRow} />, { hideProgressBar: true })
 
-      const url = 'https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendWelcomeEmail';
+      const url = `${DOMAIN}/sendWelcomeEmail`;
       const data = new URLSearchParams()
       data.set('clientName', newRow.full_name)
       data.set('clientEmail', newRow.email)
