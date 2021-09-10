@@ -7,7 +7,7 @@ const inventoryTeamEmail = async (inventory_report_pdf, property) => {
       CcAddresses: [],
       ToAddresses: [
         'ffakhri@queensman.com', 'bvictor@queensman.com',
-        'murtaza.hanif@techinoviq.com', 'operations@queensman.com', "salmanhanif133@gmail.com"
+        'murtaza.hanif@techinoviq.com', 'operations@queensman.com'
         /* more items */
       ]
     },
@@ -20,7 +20,7 @@ const inventoryTeamEmail = async (inventory_report_pdf, property) => {
       },
       Subject: {
         Charset: 'UTF-8',
-        Data: " [UAT] Queensman Inventory Report"
+        Data: "Queensman Inventory Report"
       }
     },
     Source: 'services@queensman.com', /* required */

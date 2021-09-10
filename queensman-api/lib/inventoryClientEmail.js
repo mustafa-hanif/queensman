@@ -6,8 +6,7 @@ const inventoryClientEmail = async (inventory_report_pdf, property, client) => {
     Destination: { /* required */
       CcAddresses: [],
       ToAddresses: [
-        client.email,
-        "salmanhanif133@gmail.com"
+        client.email
       /* more items */
       ]
     },
@@ -20,8 +19,7 @@ const inventoryClientEmail = async (inventory_report_pdf, property, client) => {
       },
       Subject: {
         Charset: 'UTF-8',
-        // Data: `[UAT] New Callout ${callout.id} Created by ${callout.client_callout_email.full_name}`
-        Data: "[UAT] Queensman Inventory Report Client"
+        Data: "Queensman Inventory Report Client"
       }
     },
     Source: 'services@queensman.com', /* required */

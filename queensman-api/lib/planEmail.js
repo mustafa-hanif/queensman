@@ -6,8 +6,7 @@ const planEmail = async (planArray, email, name, moment) => {
     Destination: { /* required */
       CcAddresses: ['murtaza.hanif@techinoviq.com', 'operations@queensman.com'],
       ToAddresses: [
-        email,
-        "salmanhanif133@gmail.com"
+        email
         /* more items */
       ]
     },
@@ -16,13 +15,11 @@ const planEmail = async (planArray, email, name, moment) => {
         Html: {
           Charset: 'UTF-8',
           Data: plan_email(planArray,email, name, moment)
-          // Data: `Hello view this please <a href="${fileLink}" target="_blank">Inventory Report</a>`
         },
       },
       Subject: {
         Charset: 'UTF-8',
-        // Data: `[UAT] New Callout ${callout.id} Created by ${callout.client_callout_email.full_name}`
-        Data: "[UAT] Scheduled Services"
+        Data: "Scheduled Services"
       }
     },
     Source: 'services@queensman.com', /* required */

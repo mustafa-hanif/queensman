@@ -6,7 +6,7 @@ const additionalRequestEmail = async ({ callout, worker }) => {
     Destination: { /* required */
       CcAddresses: [
         'ffakhri@queensman.com', 'bvictor@queensman.com',
-        'murtaza.hanif@techinoviq.com', 'operations@queensman.com', "salmanhanif133@gmail.com"
+        'murtaza.hanif@techinoviq.com', 'operations@queensman.com'
         /* more items */
       ],
       ToAddresses: [
@@ -23,7 +23,7 @@ const additionalRequestEmail = async ({ callout, worker }) => {
       },
       Subject: {
         Charset: 'UTF-8',
-        Data: `[UAT] New Additional Request ${callout.id} Created by ${callout.client_callout_email.full_name}`
+        Data: `New Additional Request ${callout.id} Created by ${callout.client_callout_email.full_name}`
       }
     },
     Source: 'services@queensman.com', /* required */

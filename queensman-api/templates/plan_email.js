@@ -14,7 +14,7 @@ const plan_email = (planArray, email, name, moment) => {
           td,th,div,p,a,h1,h2,h3,h4,h5,h6 {font-family: "Segoe UI", sans-serif; mso-line-height-rule: exactly;}
         </style>
       <![endif]-->
-        <title>[UAT] Scheduled Services</title>
+        <title>Scheduled Services</title>
         <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700" rel="stylesheet" media="screen">
         <style>
           .hover-underline:hover {
@@ -107,7 +107,8 @@ const plan_email = (planArray, email, name, moment) => {
                             
                             <p style="margin: 0 0 24px;">
                               Please download the Queensman Spades App from apple store or play store, and sign in with your email address provided on the signed contract.</p>
-                            <a href=""><img src="https://backend-8106d23e.nhost.app/storage/o/public/google-play-badge.png" width="180"/></a>
+                            <a target="_blank" href="https://play.google.com/store/apps/details?id=com.techinoviq.QueensmenClient" style="margin-right: 10px; margin-bottom: 10px;"><img src="https://i.ibb.co/tc1w5XN/google-play-badge.png" width="180"/></a>
+                            <a target="_blank" href="https://apps.apple.com/pk/app/queensman-spades-client/id1583842639"><img src="https://i.ibb.co/0XjKt8K/apple-appstore.png" width="180"/></a>
                             
                             <table style="font-family: ''Roboto Condensed'',Arial,sans-serif; width: 100%;" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                               <tr>

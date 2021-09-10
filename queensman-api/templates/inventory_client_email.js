@@ -105,7 +105,8 @@ const inventory_client_email = (inventory_report_pdf, property, client) => {
                           <p style="font-weight: 700">Homepage -> Reports and Documents -> Property Management </p>
                           <p style="margin: 0 0 24px;">
                             Please download the Queensman Spades App from apple store or play store, and sign in with your email address provided on the signed contract.</p><p>Thank you for being part of Queensman Spades family.</p>
-                          <a href=""><img src="https://backend-8106d23e.nhost.app/storage/o/public/google-play-badge.png" width="180"/></a>
+                          <a target="_blank" href="https://play.google.com/store/apps/details?id=com.techinoviq.QueensmenClient" style="margin-right: 10px; margin-bottom: 10px;"><img src="https://i.ibb.co/tc1w5XN/google-play-badge.png" width="180"/></a>
+                            <a target="_blank" href="https://apps.apple.com/pk/app/queensman-spades-client/id1583842639"><img src="https://i.ibb.co/0XjKt8K/apple-appstore.png" width="180"/></a>
                           
                           <table style="font-family: ''Roboto Condensed'',Arial,sans-serif; width: 100%;" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                             <tr>
