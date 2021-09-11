@@ -35,10 +35,8 @@ const SupportTracker = props => {
   ]
 
   const [selectedValue, setSelectedValue] = useState(dropDownLabels[0])
-  console.log(selectedValue.value)
   const [startEndDate, setStartEndDate] = useState([moment().subtract(selectedValue.value, 'days').toDate(), moment().toDate()]) //last 7 days defualt
   const { loading, data, error } = useQuery(GET_TICKETS, {variables: {startDate: startEndDate[0], endDate: startEndDate[1] }})
-  console.log(startEndDate)
   const job_tickets = data?.job_tickets
   const totalTicket = job_tickets?.length
   const closedTicket = job_tickets?.filter(element => element.status === "Closed").length
@@ -95,7 +93,7 @@ const SupportTracker = props => {
       },
       labels: ['Completed Tickets']
     },
-    series = [Math.ceil((closedTicket / totalTicket) * 100)]
+    series = totalTicket === 0 ? [0] : [Math.ceil((closedTicket / totalTicket) * 100)]
 
   return (
     <Card>
