@@ -189,7 +189,7 @@ const Document = ({ row }) => {
   if (loading) {
     return <Spinner />
   }
-  return <Button.Ripple target="_blank" href={`https://api-8106d23e.nhost.app/?document_id=${documentId}`} color='primary' style={{ width: 300 }}>Download Contract</Button.Ripple>
+  return <Button.Ripple target="_blank" href={`https://api-cf57bf4d.nhost.app/?document_id=${documentId}`} color='primary' style={{ width: 300 }}>Download Contract</Button.Ripple>
 }
 
 function b64toBlob(b64Data, contentType, sliceSize) {

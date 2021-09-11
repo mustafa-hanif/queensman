@@ -368,7 +368,7 @@ class InventoryReportRoomClass extends React.Component {
   uploadPics = async () => {
     const imagesToUplaod = this.props.ImagesList.filter(
       (value) =>
-        !value.imageSel.startsWith("https://backend-8106d23e.nhost.app")
+        !value.imageSel.startsWith("https://backend-cf57bf4d.nhost.app")
     );
 
     if (imagesToUplaod.length > 0) {
@@ -379,7 +379,7 @@ class InventoryReportRoomClass extends React.Component {
           return storage
             .put(`/inventory_pictures/${file.name}`, file)
             .then((res) => {
-              return `https://backend-8106d23e.nhost.app/storage/o/inventory_pictures/${file.name}`;
+              return `https://backend-cf57bf4d.nhost.app/storage/o/inventory_pictures/${file.name}`;
             })
             .catch(console.error);
         })

@@ -8,23 +8,22 @@ Add these to your `package.json`:
 */
 
 // Node doesn't implement fetch so we have to import it
-var fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
-var createClient = require("nhost-js-sdk").createClient;
+const createClient = require('nhost-js-sdk').createClient;
 
 const config = {
-  baseURL: "https://backend-8106d23e.nhost.app",
-  ssr: true, 
+  baseURL: 'https://backend-cf57bf4d.nhost.app',
+  ssr: true,
 };
 
 const { auth } = createClient(config);
 
-
 async function fetchGraphQL(operationsDoc, operationName, variables) {
   const result = await fetch(
-    "https://hasura-8106d23e.nhost.app/v1/graphql",
+    'https://hasura-cf57bf4d.nhost.app/v1/graphql',
     {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({
         query: operationsDoc,
         variables: variables,
@@ -37,7 +36,8 @@ async function fetchGraphQL(operationsDoc, operationName, variables) {
 
 const operationsDoc = `
   query FetchWorkers {
-    worker {
+    client(order_by: {id: desc}) {
+      id
       email
       password
     }
@@ -47,7 +47,7 @@ const operationsDoc = `
 function fetchFetchWorkers() {
   return fetchGraphQL(
     operationsDoc,
-    "FetchWorkers",
+    'FetchWorkers',
     {}
   );
 }
@@ -57,14 +57,18 @@ async function startFetchFetchWorkers() {
 
   if (errors) {
     // handle those errors like a pro
-    console.error(errors);
+    // console.error(errors.data);
   }
 
   // do something great with this precious data
-  console.log(data);
-  data.worker.slice(2, data.worker.length - 1).forEach(worker => {
-    const { email, password } = worker;
-    auth.register({ email: `${email}@queensman.com`, password });
+  // console.log(data);
+  data.client.forEach(worker => {
+    const { id, email, password } = worker;
+    const password_ = password ?? '0000';
+    console.log(id, email, password_);
+    auth.register({ email, password: password_ }).catch(e => {
+      console.log(`[x] ${e.response.data.message} - for ${email}`);
+    });
   })
 }
 

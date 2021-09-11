@@ -51,7 +51,7 @@ const createAndSavePDF = async (html, data2, propertyID, clientName, state, setS
     fileName = `${clientName}-${propertyID}-Monthly-Report.pdf`;
     console.log(fileName);
     await storage.put(`/monthly_report/${fileName}`, file);
-    Linking.openURL(`https://backend-8106d23e.nhost.app/storage/o/monthly_report/${fileName}`);
+    Linking.openURL(`https://backend-cf57bf4d.nhost.app/storage/o/monthly_report/${fileName}`);
     setState({ ...state, reportLoading: false });
   } catch (error) {
     console.error(error);
@@ -384,7 +384,7 @@ const GetContractCopy = () => {
     } else {
       const document_id =
       data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
-    Linking.openURL(`https://api-8106d23e.nhost.app/?document_id=${document_id}`);
+    Linking.openURL(`https://api-cf57bf4d.nhost.app/?document_id=${document_id}`);
     }
     
   };

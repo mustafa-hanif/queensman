@@ -5,7 +5,7 @@ import { NhostAuthProvider } from "@nhost/react-auth"
 import { auth } from "./utility/nhost"
 
 const App = props => <NhostAuthProvider auth={auth}>
-  <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">
+  <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-cf57bf4d.nhost.app/v1/graphql">
     <Router />
   </NhostApolloProvider>
 </NhostAuthProvider>

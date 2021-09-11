@@ -488,7 +488,7 @@ const RequestCallOut = (props) => {
               .catch(console.error);
             return [
               `picture${i}`,
-              `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`,
+              `https://backend-cf57bf4d.nhost.app/storage/o/callout_pics/${file.name}`,
             ];
           }
           return null;
@@ -604,7 +604,7 @@ const RequestCallOut = (props) => {
       .catch(console.error);
     setState({
       ...state,
-      videoUrl: `https://backend-8106d23e.nhost.app/storage/o/callout_videos/${file.name}`,
+      videoUrl: `https://backend-cf57bf4d.nhost.app/storage/o/callout_videos/${file.name}`,
     });
   };
 

@@ -625,7 +625,7 @@ const RequestCallOut = (props) => {
           if (_statePic) {
             const file = expoFileToFormFile(_statePic);
             storage.put(`/callout_pics/${file.name}`, file).then().catch(console.error);
-            return [`picture${i}`, `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`];
+            return [`picture${i}`, `https://backend-cf57bf4d.nhost.app/storage/o/callout_pics/${file.name}`];
           }
           return null;
         })
@@ -741,7 +741,7 @@ const RequestCallOut = (props) => {
       .catch(console.error);
     setState({
       ...state,
-      videoUrl: `https://backend-8106d23e.nhost.app/storage/o/callout_videos/${file.name}`,
+      videoUrl: `https://backend-cf57bf4d.nhost.app/storage/o/callout_videos/${file.name}`,
     });
   };
 
@@ -759,7 +759,7 @@ const RequestCallOut = (props) => {
           if (_statePic) {
             const file = expoFileToFormFile(_statePic);
             storage.put(`/callout_pics/${file.name}`, file).then(console.log).catch(console.error);
-            return [`picture${i}`, `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`];
+            return [`picture${i}`, `https://backend-cf57bf4d.nhost.app/storage/o/callout_pics/${file.name}`];
           }
           return null;
         })

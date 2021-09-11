@@ -300,7 +300,7 @@ const PreJob = (props) => {
               .catch(console.error);
             return [
               `Pic${i}`,
-              `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`,
+              `https://backend-cf57bf4d.nhost.app/storage/o/callout_pics/${file.name}`,
             ];
           }
           return null;

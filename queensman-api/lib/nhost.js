@@ -1,7 +1,7 @@
 const createClient = require('nhost-js-sdk').createClient;
 
 const nhostClient = createClient({
-  baseURL: 'https://backend-8106d23e.nhost.app',
+  baseURL: 'https://backend-cf57bf4d.nhost.app',
 })
 
 const auth = nhostClient.auth;

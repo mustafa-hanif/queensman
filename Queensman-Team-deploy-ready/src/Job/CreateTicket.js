@@ -139,7 +139,7 @@ export default function CreateTicket(props) {
         return storage
           .put(`/callout_pics/${file.name}`, file)
           .then((res) => {
-            return `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`;
+            return `https://backend-cf57bf4d.nhost.app/storage/o/callout_pics/${file.name}`;
           })
           .catch(console.error);
       })
