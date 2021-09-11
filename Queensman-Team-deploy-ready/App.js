@@ -116,7 +116,7 @@ export default class App extends PureComponent {
     // SplashScreen.hideAsync();
     return (
       <NhostAuthProvider auth={auth}>
-        <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">
+        <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-cf57bf4d.nhost.app/v1/graphql">
           <NativeBaseProvider theme={theme}>
             <AppContainer />
             <Box ml="auto" mr={12}>

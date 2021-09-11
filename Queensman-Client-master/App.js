@@ -82,7 +82,7 @@ export default class App extends PureComponent {
     });
     return (
       <NhostAuthProvider auth={auth}>
-        <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">
+        <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-cf57bf4d.nhost.app/v1/graphql">
           <NativeBaseProvider theme={theme}>
             <AppContainer />
             <Box ml="auto" mr={12}>
@@ -222,7 +222,7 @@ const HomeScreenStackNavigator = () => {
 //         headerTransparent: true,
 //         headerTintColor: "#FFCA5D",
 //         headerTitleStyle: {
-//           
+//
 //         },
 //       }),
 //     },
@@ -332,63 +332,6 @@ const CustomDrawerComponent = (props) => (
     <DrawerItemList {...props} />
   </DrawerContentScrollView>
 );
-
-/** Drawer Navigator */
-// const AppDrawerNavigator = createDrawerNavigator(
-//   {
-//     Home: {
-//       screen: HomeScreenStackNavigator /** TO HomeScreen Stack navigator */,
-//       navigationOptions: {
-//         drawerLabel: "Home",
-//         labelStyle: { fontFamily: "Helvetica" },
-//         drawerIcon: ({ tintColor }) => <Icon name="md-home" style={{ fontSize: 24, color: tintColor }} />,
-//       },
-//     },
-//     PropertyDetails: {
-//       screen: PropertyDetails /** TO Property Stack navigator */,
-//       navigationOptions: (navigation) => ({
-//         drawerLabel: "Property Details",
-//         labelStyle: { fontFamily: "Helvetica" },
-//         headerLeft: (
-//           <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-//             <View style={{ flexDirection: "row" }}>
-//               <Text> </Text>
-//               <Icon name="arrow-back" style={{ fontSize: 24, color: "#000" }} />
-//             </View>
-//           </TouchableOpacity>
-//         ),
-//         drawerIcon: ({ tintColor }) => <Icon name="business" style={{ fontSize: 24, color: tintColor }} />,
-//       }),
-//     },
-//     ContactUs: {
-//       screen: ContactUs,
-//       navigationOptions: {
-//         drawerLabel: "Contact Us Now",
-//         labelStyle: { fontFamily: "Helvetica" },
-//         drawerIcon: ({ tintColor }) => <Icon name="call" style={{ fontSize: 24, color: tintColor }} />,
-//         headerTransparent: true,
-//       },
-//     },
-//     Settings: {
-//       screen: SettingStackNavigator,
-//       navigationOptions: {
-//         drawerLabel: "Settings",
-//         labelStyle: { fontFamily: "Helvetica" },
-//         drawerIcon: ({ tintColor }) => <Icon name="settings" style={{ fontSize: 24, color: tintColor }} />,
-//       },
-//     },
-//   },
-//   {
-//     contentComponent: CustomDrawerComponent,
-//     contentOptions: {
-//       activeTintColor: "#FFCA5D",
-//       labelStyle: {
-//         
-//         fontWeight: "300",
-//       },
-//     },
-//   }
-// );
 
 // createAppContainer(AppDrawerNavigator);
 
