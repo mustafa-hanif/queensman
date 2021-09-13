@@ -67,6 +67,7 @@ import AddNewModal from "./AddNewModal"
 import ButtonGroup from "reactstrap/lib/ButtonGroup"
 import moment from "moment"
 import TabsVerticalLeft from "./TabsVerticalLeft"
+import { DOMAIN } from "../../_config"
 
 const conditionalRowStyles = [
   {
@@ -521,7 +522,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
         })
         toast.success(<SuccessToast data={newRow} />, { hideProgressBar: true })
       
-      const url = 'https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendWelcomeEmail'
+      const url = `${DOMAIN}/sendWelcomeEmail`
       const data = new URLSearchParams()
       data.set('clientName', newRow.full_name)
       data.set('clientEmail', newRow.email)

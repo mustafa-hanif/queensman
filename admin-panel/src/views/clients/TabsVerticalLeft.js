@@ -14,6 +14,7 @@ import {
   Spinner,
   Card
 } from "reactstrap"
+import { DOMAIN } from "../../_config"
 
 const TabsVerticalLeft = ({ item }) => {
   const [active, setActive] = useState("1")
@@ -170,7 +171,7 @@ const Document = ({ row }) => {
     //   redirect: 'follow'
     // }
 
-    fetch("https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/downloadDocument", requestOptions)
+    fetch(`${DOMAIN}/downloadDocument`, requestOptions)
       .then(response => response.text())
       .then(result => {
         // console.log(result)

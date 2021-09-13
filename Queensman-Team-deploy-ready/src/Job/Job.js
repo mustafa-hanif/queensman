@@ -234,27 +234,25 @@ const Job = (props) => {
   });
 
   const getLocation = async () => {
-    console.log("Getting location")
     try {
-      console.log( await Location.enableNetworkProviderAsync(), "mkln")
+      await Location.enableNetworkProviderAsync()
       let { status } = await Location.requestForegroundPermissionsAsync()
-      console.log(status, "status")
       if (status !== "granted") {
-        console.log("Permission to access location was denied");
       } else {
-        console.log("location")
       }
 
       let location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Highest,
       });
-      console.log(location)
       return JSON.stringify(location);
     } catch (e) {
       console.log(e)
       let location = await Location.getLastKnownPositionAsync();
-      console.log(location, "AST KNOOOOOOOOOOOOOOOOOON")
-      return JSON.stringify(location);
+      if (location) {
+        return JSON.stringify(location);
+      } else {
+        return null
+      }
     }
   };
 
@@ -318,15 +316,15 @@ const Job = (props) => {
   };
 
   const StartJobHandler = async () => {
-    const location = await getLocation();
-    console.log(location)
+    // const location = await getLocation();
+    // console.log(location)
     await startJob({
       variables: {
         ticket_id: ticket.id,
         callout_id: state.JobData.id,
         updater_id: state.workerID,
         time: new Date().toJSON(),
-        location: location,
+        location: null,
       },
     });
     console.log("navigating");

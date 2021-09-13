@@ -82,18 +82,15 @@ query CalloutsToday($endDate: timestamptz!, $startDate: timestamptz!) {
 
 const ApexBarChart = ({ info, direction }) => {
   const history = useHistory()
-  console.log(moment("18:05:00").format("HH:mm:ss a"))
   const [calloutModal, setCalloutModal] = useState(false)
   const [calloutModal2, setCalloutModal2] = useState(false)
   const [modalDetails, setModalDetails] = useState(null)
   const [calloutModifiedData, setCalloutModifiedData] = useState(null)
     //** Function to open details modal */
     const openModal = () => {
-      console.log()
       setCalloutModal(true)
     }
     const openCalloutModal = (item) => {
-      console.log()
       setCalloutModal2(true)
       setModalDetails(item) //set row value 
     }
@@ -138,7 +135,6 @@ const ApexBarChart = ({ info, direction }) => {
   }
   const [picker, setPicker] = useState([moment().subtract(7, 'days').toDate(), moment().toDate()]) //last 7 days defualt
   const [dateArray, setDateArray] = useState(getDaysArray(picker))
-  console.log(picker[1], picker[0])
   const { loading, data, error } = useQuery(GET_CALLOUT_COUNT_TODAY, {variables: {endDate: picker[1], startDate: picker[0]}})
   let countArray  = []
   if (!loading) {
@@ -155,8 +151,8 @@ const ApexBarChart = ({ info, direction }) => {
       },
       events: {
         dataPointSelection: (event, chartContext, config) => {
+          console.log(data) //this returns undefined fro some reason
           const date = moment(dateArray.arr2[config.dataPointIndex]).format("YYYY-MM-DD")
-          // console.log(data.callout.filter((data) => console.log(data)))
           const newData = data.callout.filter((data) => moment(data.request_time).format("YYYY-MM-DD") === date)
           const callout_count = newData?.length
           setCalloutModifiedData(

@@ -31,6 +31,7 @@ import { Button, Icon, Input, Modal, VStack, Text, Center } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 import { gql, useMutation } from "@apollo/client";
 import { auth } from "../utils/nhost";
+import { DOMAIN } from "../_config";
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
@@ -138,7 +139,7 @@ const LoginScreen = ({ navigation }) => {
       });
       console.log("password rested");
       setResetDoneVisible(true);
-      const url = "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/sendResetPasswordEmail";
+      const url = `${DOMAIN}/sendResetPasswordEmail`;
       const _data = {
         clientEmail: state.email,
       };
