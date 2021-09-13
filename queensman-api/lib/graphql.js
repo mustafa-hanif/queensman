@@ -80,7 +80,6 @@ async function updateScheduleWithEmergencyWoker({
       $worker_email: String!, 
       $time: time!,
       $client_name: String!,
-      $timestamp: timestamp!,
       $date: date!, 
       $data: json!
     ) {
@@ -109,8 +108,7 @@ async function updateScheduleWithEmergencyWoker({
     insert_job_history_one(object: {
       callout_id: $callout_id, 
       status_update: "Waiting", 
-      updater_id: $worker_id, 
-      time: $timestamp
+      updater_id: $worker_id
     }) {
       status_update
     }

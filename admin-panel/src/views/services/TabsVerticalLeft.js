@@ -54,9 +54,18 @@ const TabsVerticalLeft = ({item}) => {
     <AppCollapse data={data} type="border" />
   )
 
+  const PrePostImage = ({picture}) => {
+    return <div style={{width: "250px", margin:4}}>
+     <a href={picture.picture_location} target="_blank"><img src={picture.picture_location} style={{width: "100%", height: "250px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, marginBottom: 2}}/></a>
+     <p className="font-weight-bolder mb-0" style={{fontSize: 15, textAlign: "left", lineHeight: 1.5}}>Upload time: </p>
+     <p className="" style={{fontSize: 15, textAlign: "left", lineHeight: 1.5}}>{moment(picture?.upload_time).format('MMMM Do YYYY, h:mm:ss a')}</p>
+     </div>
+  }
+
   const CalloutPicture = ({picture}) => {
     return <div style={{width: "250px", margin:4}}>
      {picture ? <a href={picture} target="_blank"><img src={picture} style={{width: "100%", height: "250px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/></a> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
+     
      </div>
   }
 
@@ -275,13 +284,13 @@ const TabsVerticalLeft = ({item}) => {
         <TabPane tabId='6'>
         <h1>Pre Images</h1>
             {pre_images.length > 0 ? pre_images.map((preImage, i) => (
-              <CalloutPicture key={i} picture={preImage.picture_location} />
+              <PrePostImage key={i} picture={preImage} />
             )) : <div>No images</div>}
         </TabPane>
         <TabPane tabId='7'>
         <h1>Post Images</h1>
         {post_images.length > 0 ? post_images.map((postImages, i) => (
-              <CalloutPicture key={i} picture={postImages.picture_location} />
+              <PrePostImage key={i} picture={postImages} />
             )) : <div>No images</div>}
         </TabPane>
         <TabPane tabId='8'>

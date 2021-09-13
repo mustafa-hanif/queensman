@@ -21,7 +21,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 const FINISH_JOB = gql`
   mutation FinishFinalJob(
     $id: Int!
-    $updater_id: Int!
+    $updater_id: Int
     $callout_id: Int!
     $feedback: String!
     $rating: Int!

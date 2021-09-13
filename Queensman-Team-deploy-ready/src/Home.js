@@ -12,7 +12,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
-  Platform,
+  Platform
 } from "react-native";
 import Constants from "expo-constants";
 import NetInfo from "@react-native-community/netinfo";
@@ -20,7 +20,7 @@ import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
 import * as Notifications from "expo-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Content, Icon } from "native-base";
+import { Content, Icon, Spinner } from "native-base";
 import { LinearGradient } from "expo-linear-gradient";
 import { Audio } from "expo-av";
 import { Colors } from "react-native/Libraries/NewAppScreen";
@@ -29,7 +29,7 @@ import { auth } from './utils/nhost';
 let deviceWidth = Dimensions.get("window").width;
 let deviceHeight = Dimensions.get("window").height;
 
-const HomeScreen = ({ navigation, workerId }) => {
+const HomeScreen = ({ navigation, workerId, workerLoading }) => {
   return (
     <View style={styles.container}>
       <View style={styles.Name}>
@@ -94,6 +94,9 @@ const HomeScreen = ({ navigation, workerId }) => {
         </View>
       </View>
       <View style={{ height: "10%" }}></View>
+      <View>
+         {workerLoading && <Spinner color="black" size="sm" />}
+         </View>
       <View
         style={[
           {
@@ -117,6 +120,7 @@ const HomeScreen = ({ navigation, workerId }) => {
           <TouchableOpacity
             style={{ flex: 1, paddingRight: "2%" }}
             onPress={() => AssignCalloutHandler(navigation, workerId)}
+            disabled={workerLoading}
           >
             <View style={[styles.button]}>
               <Image
@@ -149,6 +153,7 @@ const HomeScreen = ({ navigation, workerId }) => {
           <TouchableOpacity
             style={{ flex: 1 }}
             onPress={() => ScheduleHandler(navigation, workerId)}
+            disabled={workerLoading}
           >
             <View style={[styles.button]}>
               <Image
@@ -217,6 +222,7 @@ const HomeScreen = ({ navigation, workerId }) => {
           <TouchableOpacity
             style={{ flex: 1 }}
             onPress={() => InventoryReportHandler(navigation, workerId)}
+            disabled={workerLoading}
           >
             <View style={styles.button}>
               <Image
@@ -251,6 +257,7 @@ const HomeScreen = ({ navigation, workerId }) => {
         <TouchableOpacity
           style={{ width: deviceWidth - deviceWidth / 8, flex: 1 }}
           onPress={() => RequestCalloutHandler(navigation, workerId)}
+          disabled={workerLoading}
         >
           <View style={styles.button}>
             <Image
@@ -403,7 +410,6 @@ export default function HomeFunction(props) {
     useMutation(UPDATE_TOKEN);
 
   const user = auth?.currentSession?.session?.user;
-
   function sendTokenToServer(variables) {
     console.log({ mutationLoading, mutationError });
     updateToken(variables)
@@ -464,7 +470,7 @@ export default function HomeFunction(props) {
   }, []);
 
   return (
-    <HomeScreen sendTokenToServer={sendTokenToServer} workerId={workerData?.worker[0].id} {...props}></HomeScreen>
+    <HomeScreen sendTokenToServer={sendTokenToServer} workerLoading={workerLoading} workerId={workerData?.worker[0].id} {...props}></HomeScreen>
   );
 }
 

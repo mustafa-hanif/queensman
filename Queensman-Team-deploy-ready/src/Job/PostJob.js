@@ -74,6 +74,7 @@ const PostJob = (props) => {
 
   const toggleGalleryEventModal = (vale, no) => {
     setState({
+      ...state,
       isPicvisible: !state.isPicvisible,
       selectedPic: vale,
       selectedNo: no,
@@ -143,43 +144,7 @@ const PostJob = (props) => {
       _uploadImage(result.uri);
     }
   };
-  //   UploadImage = () => {
-  //     if (this.state.Pic1 != "link") {
-  //       if (this.state.Pic1 != "link") {
-  //         this.urlToUPLOAD(this.state.Pic1, link);
-  //       }
-  //       if (this.state.Pic2 != "link") {
-  //         this.urlToUPLOAD(this.state.Pic2, link);
-  //       }
-  //       if (this.state.Pic3 != "link") {
-  //         this.urlToUPLOAD(this.state.Pic3, link);
-  //       }
-  //       if (this.state.Pic4 != "link") {
-  //         this.urlToUPLOAD(this.state.Pic4, link);
-  //       }
-  //       if (this.state.Pic5 != "link") {
-  //         this.urlToUPLOAD(this.state.Pic5, link);
-  //       }
-  //       if (this.state.Pic6 != "link") {
-  //         this.urlToUPLOAD(this.state.Pic6, link);
-  //       }
-  //       if (this.state.Pic7 != "link") {
-  //         this.urlToUPLOAD(this.state.Pic7, link);
-  //       }
-  //       if (this.state.Pic8 != "link") {
-  //         this.urlToUPLOAD(this.state.Pic8, link);
-  //       }
-  //       if (this.state.Pic9 != "link") {
-  //         this.urlToUPLOAD(this.state.Pic9, link);
-  //       }
-  //       if (this.state.Pic10 != "link") {
-  //         this.urlToUPLOAD(this.state.Pic10, link);
-  //       }
-  //       this.setState({ IsImageuploaded: true });
-  //     } else {
-  //       alert("Please select atleast 1 image!");
-  //     }
-  //   };
+
 
   const _uploadImage = (uri) => {
     for (let i = 0; i < 10; i++) {
@@ -190,133 +155,32 @@ const PostJob = (props) => {
     }
   };
 
-  //   _uploadImage = (uri) => {
-  //     if (this.state.Pic1 == "link") {
-  //       this.setState({
-  //         Pic1: uri,
-  //       });
-  //       //console.log(this.state.picture1)
-  //     } else if (this.state.Pic2 == "link") {
-  //       this.setState({
-  //         Pic2: uri,
-  //       });
-  //       //  console.log(this.state.picture2)
-  //     } else if (this.state.Pic3 == "link") {
-  //       this.setState({
-  //         Pic3: uri,
-  //       });
-  //     } else if (this.state.Pic4 == "link") {
-  //       this.setState({
-  //         Pic4: uri,
-  //       });
-  //     } else if (this.state.Pic5 == "link") {
-  //       this.setState({
-  //         Pic5: uri,
-  //       });
-  //     } else if (this.state.Pic6 == "link") {
-  //       this.setState({
-  //         Pic6: uri,
-  //       });
-  //     } else if (this.state.Pic7 == "link") {
-  //       this.setState({
-  //         Pic7: uri,
-  //       });
-  //     } else if (this.state.Pic8 == "link") {
-  //       this.setState({
-  //         Pic8: uri,
-  //       });
-  //     } else if (this.state.Pic9 == "link") {
-  //       this.setState({
-  //         Pic9: uri,
-  //       });
-  //     } else if (this.state.Pic10 == "link") {
-  //       this.setState({
-  //         Pic10: uri,
-  //       });
-  //     } else {
-  //       alert("Pictures Limit Reached, i.e 10");
-  //     }
-  //   };
-
-  const urlToUPLOAD = async (url, link) => {
-    let localUri = url;
-    let filename = localUri.split("/").pop();
-    console.log(state.CallOutID);
-    blink =
-      "https://www.queensman.com/phase_2/queens_worker_Apis/uploadPostPicture_b.php?target_file=" +
-      filename +
-      "&ID=" +
-      state.CallOutID;
-    console.log(blink);
-    axios.get(blink).then((result) => {
-      console.log(result.data);
-    });
-    console.log(filename);
-    setState({
-      picturename: filename,
-    });
-    let match = /\.(\w+)$/.exec(filename);
-    let type = match ? `image/${match[1]}` : `image`;
-
-    let formData = new FormData();
-    formData.append("photo", { uri: localUri, name: filename, type });
-    console.log(formData);
-    console.log(link);
-    return await fetch(link, {
-      method: "POST",
-      body: formData,
-      header: {
-        "content-type": "multipart/form-data",
-      },
-    }).then((result) => {
-      console.log(result.data);
-    });
-  };
-
   const removeImages = () => {
-    if (state.selectedNo == 1) {
-      setState({
-        Pic1: "link",
-      });
+    if (state.selectedNo == 0) {
+      setState({ ...state, Pic0: "link", isPicvisible: false});
+    } else if (state.selectedNo == 1) {
+      setState({ ...state, Pic1: "link", isPicvisible: false});
     } else if (state.selectedNo == 2) {
-      setState({
-        Pic2: "link",
-      });
+      setState({ ...state, Pic2: "link", isPicvisible: false });
     } else if (state.selectedNo == 3) {
-      setState({
-        Pic3: "link",
-      });
+      setState({ ...state, Pic3: "link", isPicvisible: false });
     } else if (state.selectedNo == 4) {
-      setState({
-        Pic4: "link",
-      });
+      setState({ ...state, Pic4: "link", isPicvisible: false });
     } else if (state.selectedNo == 5) {
-      setState({
-        Pic5: "link",
-      });
+      setState({ ...state, Pic5: "link", isPicvisible: false });
     } else if (state.selectedNo == 6) {
-      setState({
-        Pic6: "link",
-      });
+      setState({ ...state, Pic6: "link", isPicvisible: false });
     } else if (state.selectedNo == 7) {
-      setState({
-        Pic7: "link",
-      });
+      setState({ ...state, Pic7: "link", isPicvisible: false });
     } else if (state.selectedNo == 8) {
-      setState({
-        Pic8: "link",
-      });
+      setState({ ...state, Pic8: "link", isPicvisible: false });
     } else if (state.selectedNo == 9) {
-      setState({
-        Pic9: "link",
-      });
+      setState({ ...state, Pic9: "link", isPicvisible: false });
     } else if (state.selectedNo == 10) {
-      setState({
-        Pic10: "link",
-      });
+      setState({ ...state, Pic10: "link", isPicvisible: false });
     }
-    setState({ isPicvisible: false });
   };
+
   const cameraSnap = async () => {
     if (Constants.platform.ios) {
       const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);

@@ -411,28 +411,29 @@ const PreJob = (props) => {
   };
 
   const RemoveImages = () => {
-    if (state.selectedNo == 1) {
-      setState({ ...state, Pic1: "link" });
+    if (state.selectedNo == 0) {
+      setState({ ...state, Pic0: "link", isPicvisible: false});
+    } else if (state.selectedNo == 1) {
+      setState({ ...state, Pic1: "link", isPicvisible: false});
     } else if (state.selectedNo == 2) {
-      setState({ ...state, Pic2: "link" });
+      setState({ ...state, Pic2: "link", isPicvisible: false });
     } else if (state.selectedNo == 3) {
-      setState({ ...state, Pic3: "link" });
+      setState({ ...state, Pic3: "link", isPicvisible: false });
     } else if (state.selectedNo == 4) {
-      setState({ ...state, Pic4: "link" });
+      setState({ ...state, Pic4: "link", isPicvisible: false });
     } else if (state.selectedNo == 5) {
-      setState({ ...state, Pic5: "link" });
+      setState({ ...state, Pic5: "link", isPicvisible: false });
     } else if (state.selectedNo == 6) {
-      setState({ ...state, Pic6: "link" });
+      setState({ ...state, Pic6: "link", isPicvisible: false });
     } else if (state.selectedNo == 7) {
-      setState({ ...state, Pic7: "link" });
+      setState({ ...state, Pic7: "link", isPicvisible: false });
     } else if (state.selectedNo == 8) {
-      setState({ ...state, Pic8: "link" });
+      setState({ ...state, Pic8: "link", isPicvisible: false });
     } else if (state.selectedNo == 9) {
-      setState({ ...state, Pic9: "link" });
+      setState({ ...state, Pic9: "link", isPicvisible: false });
     } else if (state.selectedNo == 10) {
-      setState({ ...state, Pic10: "link" });
+      setState({ ...state, Pic10: "link", isPicvisible: false });
     }
-    setState({ ...state, isPicvisible: false });
   };
 
   const cameraSnap = async () => {
