@@ -53,6 +53,7 @@ query GetWorker {
       isEmergency
       team_id
       role
+      password
       phone
       teams {
         team_color
@@ -97,9 +98,9 @@ const DELETE_WORKER = gql
 const DataTableAdvSearch = () => {
 
         // ** States
-  const { loading, data, error } = useQuery(GET_WORKER)
-  const [clearEmergency, {loading: emergencyworkerLoading}] = useMutation(CLEAR_EMERGENCY_WORKER)
-  const [updateWorker, {loading: workerLoading}] = useMutation(UPDATE_WORKER, {refetchQueries:[{query: GET_WORKER}]})
+  const { loading, data, error, refetch: refectchWorker } = useQuery(GET_WORKER, {fetchPolicy: 'network-only', nextFetchPolicy: 'network-only'})
+  const [clearEmergency, {loading: emergencyworkerLoading}] = useMutation(CLEAR_EMERGENCY_WORKER, {refetchQueries:[{query: GET_WORKER}]})
+  const [updateWorker, {loading: workerLoading}] = useMutation(UPDATE_WORKER)
   const [addWorker, {loading: addWorkerLoading}] = useMutation(ADD_WORKER, {refetchQueries:[{query: GET_WORKER}]})
   const [deleteWorker, {loading: deleteWorkerLoading}] = useMutation(DELETE_WORKER, {refetchQueries:[{query: GET_WORKER}]})
   const [modal, setModal] = useState(false)
@@ -131,9 +132,9 @@ const DataTableAdvSearch = () => {
   // ** Function to handle Modal toggle
   const handleModal = (row) => { 
       setRow(row)
-      setTimeout(() => {
+      // setTimeout(() => {
         setModal(!modal) 
-      }, 200)
+      // }, 200)
       setToAddNewRecord(false)
     }
 
@@ -212,9 +213,9 @@ const advSearchColumns = [
         return (
           <div className="d-flex w-100 align-items-center">
             <ButtonGroup size="sm" >
-            <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
+            {/* <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
             <Trash size={15} />
-            </Button>
+            </Button> */}
             <Button color='primary' className="btn-icon" size="sm">
             <Edit size={15} onClick={() => handleModal(row)} />
             </Button>
@@ -240,27 +241,39 @@ const advSearchColumns = [
     }
   }
 
-  const handleUpdate = (updatedRow) => {
+  const handleUpdate = async (updatedRow) => {
     if (updatedRow.isEmergency) {
       const emergencyId = data?.worker.filter(value => value.isEmergency === true)?.[0]?.id
       if (emergencyId) {
-        clearEmergency({ variables: emergencyId })
+        await clearEmergency({ variables: emergencyId })
       }
     }
-    
-    updateWorker({variables: {
-      active: updatedRow.active,
-      description: updatedRow.description,
-      email: updatedRow.email,
-      full_name: updatedRow.full_name,
-      id: updatedRow.id,
-      isEmergency: updatedRow.isEmergency,
-      team_id: updatedRow.team_id,
-      role: updatedRow.role,
-      phone: updatedRow.phone,
-      password: updatedRow.password
-    }})
-    dataToRender()
+    try {
+      await updateWorker({variables: {
+        active: updatedRow.active,
+        description: updatedRow.description,
+        email: updatedRow.email,
+        full_name: updatedRow.full_name,
+        id: updatedRow.id,
+        isEmergency: updatedRow.isEmergency,
+        team_id: updatedRow.team_id,
+        role: updatedRow.role,
+        phone: updatedRow.phone,
+        password: updatedRow.password
+      }})
+      toast.success(
+        <ToastComponent title="Worker updated" color="success" icon={<Check />} />,
+        {
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeButton: false
+        }
+      )
+      refectchWorker()
+      // dataToRender()
+    } catch (e) {
+      console.log(e)
+    }
     if (!workerLoading) {
         
       setModal(!modal)
@@ -278,7 +291,7 @@ const advSearchColumns = [
         team_id: null,
         role: null,
         phone: "",
-        password: ""
+        password: null
     })
     setTimeout(() => {
       setModal(!modal) 
