@@ -68,11 +68,13 @@ query GetCallout {
       }
       pre_pics {
         picture_location
+        upload_time
         id
       }
       postpics {
         id
         picture_location
+        upload_time
       }
       job_history {
         id
