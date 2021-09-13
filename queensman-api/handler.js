@@ -1,4 +1,5 @@
 'use strict';
+// List of functions
 const sendNotification = require('./api/sendNotification').sendNotificationAPI;
 const sendInventoryClientEmail = require('./api/sendInventoryClientEmail').sendInventoryClientEmail;
 const sendInventoryTeamEmail = require('./api/sendInventoryTeamEmail').sendInventoryTeamEmail;
