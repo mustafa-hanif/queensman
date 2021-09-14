@@ -44,7 +44,6 @@ const START_JOB = gql`
   mutation StartJob(
     $callout_id: Int!
     $ticket_id: Int!
-    $time: timestamp!
     $location: String = ""
     $updater_id: Int!
   ) {
@@ -67,10 +66,9 @@ const START_JOB = gql`
         updated_by: "Ops Team"
         updater_id: $updater_id
         location: $location
-        time: $time
       }
     ) {
-      time
+      id
     }
   }
 `;
@@ -318,12 +316,12 @@ const Job = (props) => {
   const StartJobHandler = async () => {
     // const location = await getLocation();
     // console.log(location)
+    try {
     await startJob({
       variables: {
         ticket_id: ticket.id,
         callout_id: state.JobData.id,
         updater_id: state.workerID,
-        time: new Date().toJSON(),
         location: null,
       },
     });
@@ -336,7 +334,10 @@ const Job = (props) => {
       workerId,
     });
     console.log("navigated");
-  };
+  } catch (e) {
+    console.log(e)
+  }
+}
 
   const toggleGalleryEventModal = (value) => {
     setState({
