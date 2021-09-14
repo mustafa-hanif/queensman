@@ -70,7 +70,6 @@ async function updateScheduleWithEmergencyWoker({
   callout_email,
   client_name,
   time,
-  timestamp,
   date,
 }) {
   const { errors, data } = await fetchGraphQL(
@@ -131,7 +130,6 @@ async function updateScheduleWithEmergencyWoker({
       worker_email,
       callout_email,
       time,
-      timestamp,
       client_name: `An emergency has just been posted, please call the client with name ${client_name}`,
       date,
       data: { callout_id },
