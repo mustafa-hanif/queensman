@@ -9,8 +9,8 @@ import Avatar from '@components/avatar'
 import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
 import { toast } from 'react-toastify'
-import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check } from 'react-feather'
-import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check, XCircle } from 'react-feather'
+import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter, Spinner } from 'reactstrap'
 
 // ** Toast Component
 const ToastComponent = ({ title, icon, color }) => (
@@ -23,16 +23,6 @@ const ToastComponent = ({ title, icon, color }) => (
     </div>
   </Fragment>
 )
-
-// ** Bootstrap Checkbox Component
-// const BootstrapCheckbox = forwardRef(({ onClick, ...rest }, ref) => {
-//     return (
-// <div className='custom-control custom-checkbox'>
-//     <input type='checkbox' className='custom-control-input' ref={ref} {...rest} />
-//     <label className='custom-control-label' onClick={onClick} />
-//   </div>
-//     )
-// })
 
 // ** Styles
 import '@styles/react/libs/flatpickr/flatpickr.scss'
@@ -56,6 +46,8 @@ query GetWorker {
       password
       phone
       teams {
+        id
+        team_leader
         team_color
       }
       teams_member {
@@ -92,15 +84,31 @@ const DELETE_WORKER = gql
   delete_worker_by_pk(id: $id) {
     id
   }
+}`
+
+const REMOVE_FROM_TEAM_COLOR = gql`
+mutation RemoveFromTeamColor($_eq: String = "") {
+  update_teams(where: {team_color: {_eq: $_eq}}, _set: {team_color: null}) {
+    affected_rows
+  }
 }
 `
 
+const UPDATE_TEAM_COLOR = gql`
+mutation UpdateTeamColor($team_leader: Int!, $team_color: String!) {
+  update_teams(where: {team_leader: {_eq: $team_leader}}, _set: {team_color: $team_color}) {
+    affected_rows
+  }
+}
+`
 const DataTableAdvSearch = () => {
 
         // ** States
   const { loading, data, error, refetch: refectchWorker } = useQuery(GET_WORKER, {fetchPolicy: 'network-only', nextFetchPolicy: 'network-only'})
   const [clearEmergency, {loading: emergencyworkerLoading}] = useMutation(CLEAR_EMERGENCY_WORKER, {refetchQueries:[{query: GET_WORKER}]})
   const [updateWorker, {loading: workerLoading}] = useMutation(UPDATE_WORKER)
+  const [removeFromTeamColor, {loading: removeTeamColorLoading}] = useMutation(REMOVE_FROM_TEAM_COLOR)
+  const [updateTeamColor, {loading: updateTeamColorLoading}] = useMutation(UPDATE_TEAM_COLOR, {refetchQueries:[{query: GET_WORKER}]})
   const [addWorker, {loading: addWorkerLoading}] = useMutation(ADD_WORKER, {refetchQueries:[{query: GET_WORKER}]})
   const [deleteWorker, {loading: deleteWorkerLoading}] = useMutation(DELETE_WORKER, {refetchQueries:[{query: GET_WORKER}]})
   const [modal, setModal] = useState(false)
@@ -113,15 +121,18 @@ const DataTableAdvSearch = () => {
   const [toAddNewRecord, setToAddNewRecord] = useState(false)
   const [row, setRow] = useState(null)
   const [rowId, setRowId] = useState(null)
+  const [changeColor, setChangedColor] = useState(false)
 
   const [modalAlert, setModalAlert] = useState(null)
+  const [modalAlertDetails, setModalAlertDetails] = useState(null)
 
-  const toggleModal = () => {
-      setModalAlert(!modalAlert)
+  const closeAlertModal = () => {
+      setModalAlertDetails(null)
+      setChangedColor(null)
+      setModalAlert(false)
   }
 
-  const openModalAlert = (id) => {
-    setRowId(id)
+  const openModalAlert = () => {
     setModalAlert(true)
   }
   
@@ -199,7 +210,6 @@ const advSearchColumns = [
         minWidth: '50px',
         cell: row => {
           const color = row?.teams?.[0]?.team_color ?? row?.teams_member?.team_color
-          console.log('color', row)
           return (
             color && <Badge pill style={{backgroundColor: color}}>{' '}</Badge>
           )
@@ -236,12 +246,23 @@ const advSearchColumns = [
     ) {
       return filteredData
     } else {
-      console.log(data.worker)
       return data?.worker
     }
   }
-
+  
   const handleUpdate = async (updatedRow) => {
+    if (changeColor) { //If color is provided
+      const worker = data?.worker.filter(value => value.teams?.[0]?.team_color === changeColor) //Get worker who already has the color
+      if (worker?.[0]) { //If such worker exsists
+        setModalAlertDetails([worker[0], changeColor, updatedRow.id]) // [existing worker, colorToChange, current worker id]
+        openModalAlert()
+      } else if (updatedRow?.teams?.[0].team_leader) {
+        const res2 = await updateTeamColor({variables: {
+          team_color: changeColor, //new color
+          team_leader: updatedRow?.teams?.[0].team_leader //new worker id
+        }})
+      }
+    }
     if (updatedRow.isEmergency) {
       const emergencyId = data?.worker.filter(value => value.isEmergency === true)?.[0]?.id
       if (emergencyId) {
@@ -317,16 +338,40 @@ const advSearchColumns = [
       }
   }
 
-  const handleDeleteRecord = (id) => {
-    deleteWorker({variables: {
-        id
+  const handleChangeTeamColor = async (id, team_color, team_leader) => {
+    try {
+      console.log({_eq: team_color}, "meow1")
+      console.log({ team_color, team_leader}, ",epw2")
+      const res = await removeFromTeamColor({variables: {
+        _eq: team_color //set team color to run of existing worker
       }})
-      dataToRender()
-      if (!deleteWorkerLoading) {
-        toggleModal()
-      }
+      const res2 = await updateTeamColor({variables: {
+        team_color, //new color
+        team_leader //new worker id
+      }})
+      setModalAlertDetails(null)
+      setChangedColor(null)
+      setModalAlert(null)
+      toast.success(
+        <ToastComponent title="Team changed" color="success" icon={<Check />} />,
+        {
+          autoClose: 5000,
+          hideProgressBar: true,
+          closeButton: false
+        }
+      )
+    } catch (e) {
+      console.log(e)
+      toast.error(
+        <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
+        {
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeButton: false
+        }
+      )
+    }
   }
-
 
   // ** Custom Pagination
   const CustomPagination = () => (
@@ -545,26 +590,33 @@ const advSearchColumns = [
       handleAddRecord={handleAddRecord} 
       toAddNewRecord={toAddNewRecord} 
       closeModal={closeModal} 
+      changeColor={changeColor}
+      setChangedColor={setChangedColor}
       row={row} 
       setRow={setRow} 
       handleUpdate={handleUpdate}
       />
-      <div className='theme-modal-danger'>
+      <div className='theme-modal-warning'>
         <Modal
           isOpen={modalAlert}
-          toggle={toggleModal}
           className='modal-dialog-centered'
-          modalClassName="modal-danger"
+          modalClassName="modal-warning"
         >
-          <ModalHeader toggle={toggleModal}>Delete Record</ModalHeader>
+          <ModalHeader>Change team color</ModalHeader>
           <ModalBody>
-            Are you sure you want to delete?
+          {removeTeamColorLoading || updateTeamColorLoading ? <Spinner color="primary" /> : <p>
+            This Team color already belongs to a team: <br />
+            Team Leader: {modalAlertDetails?.[0].full_name}<br />
+            Email: {modalAlertDetails?.[0].email}<br />
+            Color: {modalAlertDetails?.[0].teams?.[0]?.team_color }
+            </p>
+         }
           </ModalBody>
           <ModalFooter>
-            <Button color="danger" onClick={() => { handleDeleteRecord(rowId) }} >
-              Delete
+            <Button color="warning" onClick={() => { handleChangeTeamColor(modalAlertDetails?.[0].teams?.[0]?.id, modalAlertDetails?.[1], modalAlertDetails?.[2]) }} >
+              Change
             </Button>
-            <Button color='secondary' onClick={toggleModal} outline>
+            <Button color='secondary' onClick={closeAlertModal} outline>
               Cancel
             </Button>
           </ModalFooter>

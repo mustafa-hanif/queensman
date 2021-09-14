@@ -2,6 +2,7 @@ import { useState } from 'react'
 import AppCollapse from '@components/app-collapse'
 import moment from "moment"
 import { TabContent, TabPane, Nav, NavItem, NavLink, ListGroup, ListGroupItem, Card  } from 'reactstrap'
+import { Star } from 'react-feather'
 
 const TabsVerticalLeft = ({item}) => {
   const [active, setActive] = useState('1')
@@ -232,8 +233,14 @@ const TabsVerticalLeft = ({item}) => {
             <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Feedback: </p>
             {_job?.feedback}
 
-            <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Rating (X/5): </p>
-            {_job?.rating} / 5
+            <p style={{fontWeight: "bold", fontSize: 14, margin: 0, marginTop: 10}}>Rating: </p>
+            {/* {_job?.rating} / 5 */}
+            {[...Array(_job?.rating)].map(_ => (
+            <Star fill="#6e6b7b" />
+            ))}
+            {[...Array((5 - _job?.rating))].map(_ => (
+            <Star />
+            ))}
             </div>
           }
           return null

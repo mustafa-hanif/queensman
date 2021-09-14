@@ -22,8 +22,9 @@ import {
 
 // ** Styles
 import '@styles/react/libs/flatpickr/flatpickr.scss'
+import CustomInput from 'reactstrap/lib/CustomInput'
 
-const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord}) => {
+const AddNewModal = ({ open, changeColor, setChangedColor, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord}) => {
 
     // ** Custom close btn
     // const { colors } = useContext(ThemeColors)
@@ -40,12 +41,11 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
   ]
 
   const colorOptions = [
-    {value: '1', label: 'Green'},
-    // {value: 'Purple', label: 'Purple'},
-    // {value: 'Yellow', label: 'Yellow'},
-    {value: '2', label: 'Blue'},
-    {value: '3', label: 'Red'},
-    {value: '4', label: 'Orange'}
+    {value: 'Green', label: 'Green'},
+    {value: 'Blue', label: 'Blue'},
+    {value: 'Red', label: 'Red'},
+    {value: 'Yellow', label: 'Yellow'},
+    {value: 'Orange', label: 'Orange'}
   ]
 
   const handleChange = (e) => {
@@ -56,7 +56,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
 
   const handleSelectedChange = (e, name) => {
     const rowValue = {...row}
-    rowValue[name] = e.value
+    rowValue[name] = e.value.toLowercase()
     setRow(rowValue)
 }
 
@@ -133,7 +133,7 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
                 theme={selectThemeColors}
                 className='react-select'
                 classNamePrefix='select'
-                defaultValue={{value: row?.active, label: row?.active === 1 ? "Active" : "Not Active"}}
+                // defaultValue={{value: row?.active, label: row?.active === 1 ? "Active" : "Not Active"}}
                 options={activeOptions}
                 isClearable={false}
             />
@@ -150,18 +150,18 @@ const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate,
                 isClearable={false}
             />
       </FormGroup>
-      <FormGroup>
+      {<FormGroup>
         <Label>Team</Label>
             <Select
-                onChange={ (e) => handleSelectedChange(e, 'team_id')}
+                onChange={ (e) => setChangedColor(e.value.toLowerCase()) }
                 theme={selectThemeColors}
                 className='react-select'
                 classNamePrefix='select'
-                defaultValue={{value: color, label: color}}
+                defaultValue={color ? {value: color?.charAt(0).toUpperCase() + color?.slice(1), label: color?.charAt(0).toUpperCase() + color?.slice(1)} : null}
                 options={colorOptions}
                 isClearable={false}
             />
-      </FormGroup>
+      </FormGroup> }
       <FormGroup>
         <Label for='password'>Password</Label>
         <InputGroup>
