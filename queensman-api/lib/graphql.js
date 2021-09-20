@@ -11,6 +11,7 @@ Add these to your `package.json`:
 // serverless invoke local --function sendNotification --data '{"type":"client", "email":"azamkhan"}'
 // Node doesn't implement fetch so we have to import it
 const fetch = require('node-fetch');
+const moment = require('moment')
 const dateFns = require('date-fns');
 
 async function fetchGraphQL(operationsDoc, operationName, variables) {
@@ -334,6 +335,89 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
     );
     let offset = 0;
     let workerId = null;
+    let nin = [emergencyWokers?.worker?.[0]?.id] // array for exclude workers
+    let workerIdArray = []
+
+    
+    
+    const { errors: schedulerError, data: schedulerData } = await fetchGraphQL( //get workers
+      `query LastTimeofWorker($today: date!) {
+        scheduler(where: {
+          date_on_calendar: {_eq: $today},
+          worker_id : {_is_null: false}
+        }, order_by: {time_on_calendar: desc}) {
+          time_on_calendar
+          end_time_on_calendar
+          worker_id
+        }
+      }`,
+      'GetWorkers',
+      {
+        today: new Date(date).toISOString().substring(0, 10)
+      }
+    )
+
+    (schedulerData?.scheduler ?? []).forEach((element, i) => {
+      const startTimeOnCalender = element.time_on_calendar
+      const endTimeOnCalender = element.end_time_on_calendar
+      const endTimeOnSlot = moment(dateFns.parse(endTime, "HH:mm:ss", new Date())).subtract(1, "minute").format("HH:mm:ss")
+      const startTimeOnSlot = moment(dateFns.parse(time, "HH:mm:ss", new Date()))
+      if ( (startTimeOnCalender <= endTimeOnSlot) && (endTimeOnCalender >= endTimeOnSlot || endTimeOnCalender > startTimeOnSlot))
+        console.log(element.worker_id)
+        nin.push(element.workerId)
+        workerIdArray.push(element.workerId)
+      // console.log(element.start, element.startTime, element.blocked);
+    });
+
+    if(workerIdArray.length === 2) {
+      console.log("HEEEEEEEEEEEERE")
+      const { errors: errorsTeams, data: teams } = await fetchGraphQL(
+        `query GetTeams($_contains: jsonb!, $_nin: [Int!]) {
+          teams(where: {team_expertise: {_contains: $_contains}, team_leader: {_nin: $_nin}}) {
+            worker {
+              id
+            }
+          }
+        }
+      `,
+        'GetTeams',
+        { _contains: job_type, _nin: nin }
+      );
+      workerId = teams.teams?.[0]?.worker?.id;
+      // const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
+      const { errors: errors2, data: lastWorkers } = await fetchGraphQL(
+        `mutation UpdateToBlock($id: Int!, $today: date!, $_gte: time!, $_lte: time!) {
+          update_scheduler(where: {id: {_eq: $id}, date_on_calendar: {_eq: $today}, time_on_calendar: {_gte: $_gte, _lte: $_lte}}, _set: {blocked: true}) {
+            affected_rows
+          }
+        }          
+      `,
+        'UpdateToBlock',
+        {
+          id: schedulerId,
+          today: new Date(date).toISOString().substring(0, 10),
+          _gte: time,
+          _lte: endTime,
+        }
+      );
+      return { id: workerId, time: null }
+    } else {
+      const { errors: errorsTeams, data: teams } = await fetchGraphQL(
+        `query GetTeams($_contains: jsonb!, $_nin: [Int!]) {
+          teams(where: {team_expertise: {_contains: $_contains}, team_leader: {_nin: $_nin}}) {
+            worker {
+              id
+            }
+          }
+        }
+      `,
+        'GetTeams',
+        { _contains: job_type, _nin: nin }
+      );
+      workerId = teams.teams?.[0]?.worker?.id;
+      return { id: workerId, time: null }
+    }
+
     //Means after 2 callouts disable button
     while (offset < 2) {
     // while (offset < teamCount) { //enable this to exhaust the team
