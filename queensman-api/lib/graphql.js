@@ -351,24 +351,25 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
           worker_id
         }
       }`,
-      'GetWorkers',
+      'LastTimeofWorker',
       {
         today: new Date(date).toISOString().substring(0, 10)
       }
     );
       
-    (schedulerData?.scheduler ?? []).forEach((element, i) => {
-      const startTimeOnCalender = element.time_on_calendar
-      const endTimeOnCalender = element.end_time_on_calendar
-      const endTimeOnSlot = moment(dateFns.parse(endTime, "HH:mm:ss", new Date())).subtract(1, "minute").format("HH:mm:ss")
-      const startTimeOnSlot = moment(dateFns.parse(time, "HH:mm:ss", new Date()))
-      if ( (startTimeOnCalender <= endTimeOnSlot) && (endTimeOnCalender >= endTimeOnSlot || endTimeOnCalender > startTimeOnSlot))
-        console.log(element.worker_id)
-        nin.push(element.workerId)
-        workerIdArray.push(element.workerId)
+    schedulerData?.scheduler.forEach((element, i) => {
+      const startTimeOnCalender = element.time_on_calendar;
+      const endTimeOnCalender = element.end_time_on_calendar;
+      const endTimeOnSlot = moment(dateFns.parse(endTime, "HH:mm:ss", new Date())).subtract(1, "minute").format("HH:mm:ss");
+      const startTimeOnSlot = moment(dateFns.parse(time, "HH:mm:ss", new Date())).format("HH:mm:ss")
+      if ((startTimeOnCalender <= endTimeOnSlot) && (endTimeOnCalender >= endTimeOnSlot || endTimeOnCalender > startTimeOnSlot)) {
+        console.log(element.worker_id);
+        nin.push(element.worker_id);
+        workerIdArray.push(element.worker_id);
+      }
       // console.log(element.start, element.startTime, element.blocked);
     });
-
+    console.log(workerIdArray.length, "length");
     if(workerIdArray.length === 1) {
       console.log("HEEEEEEEEEEEERE")
       const { errors: errorsTeams, data: teams } = await fetchGraphQL(
