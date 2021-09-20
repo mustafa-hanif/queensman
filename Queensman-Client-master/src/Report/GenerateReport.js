@@ -51,7 +51,7 @@ const createAndSavePDF = async (html, data2, propertyID, clientName, state, setS
     fileName = `${clientName}-${propertyID}-Monthly-Report.pdf`;
     console.log(fileName);
     await storage.put(`/monthly_report/${fileName}`, file);
-    Linking.openURL(`https://backend-8106d23e.nhost.app/storage/o/monthly_report/${fileName}`);
+    Linking.openURL(`https://https://backend-cf57bf4d.nhost.app/storage/o/monthly_report/${fileName}`);
     setState({ ...state, reportLoading: false });
   } catch (error) {
     console.error(error);

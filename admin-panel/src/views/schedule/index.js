@@ -53,9 +53,11 @@ const GET_SCHEDULE = gql`
         id
         email
         teams {
+          id
           team_color
         }
         teams_member {
+          id
           team_color
         }
       }

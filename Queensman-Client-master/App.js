@@ -4,7 +4,7 @@
 /* eslint-disable no-console */
 /* eslint-disable import/order */
 /* eslint-disable no-use-before-define */
-const version = "v1.1";
+const version = "v1.1 staging";
 import React, { PureComponent } from "react";
 import { Text, View, SafeAreaView, Image, TouchableOpacity, Linking } from "react-native";
 import { Icon, Box, NativeBaseProvider, extendTheme } from "native-base";
@@ -82,7 +82,7 @@ export default class App extends PureComponent {
     });
     return (
       <NhostAuthProvider auth={auth}>
-        <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">
+        <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-cf57bf4d.nhost.app/v1/graphql">
           <NativeBaseProvider theme={theme}>
             <AppContainer />
             <Box ml="auto" mr={12}>

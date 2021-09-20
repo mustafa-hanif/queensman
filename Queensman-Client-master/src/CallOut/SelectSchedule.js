@@ -126,20 +126,12 @@ const ADD_JOB_TICKET = gql`
 
 export default function SelectSchedule(props) {
   const [selectedDate, setselectedDate] = useState(null);
-  const [modalVisible, setmodalVisible] = useState(false);
   const [markedDate, setmarkedDate] = useState(false);
   const [loadingRequestModal, setLoading] = useState(false)
   const [contentLoading, setContentLoading] = useState(false)
 
-  const [date, setDate] = useState(() => {
-    const now = new Date();
-    now.setHours(9);
-    now.setMinutes(0);
-    now.setMilliseconds(0);
-    return now;
-  });
-  const [show, setShow] = useState(false);
   const [time, settime] = useState(null);
+  const [onlyFriday, setOnlyFriday] = useState(null)
 
   const [addJobTicket, { loading: addJobTicketLoading, data: addJobTicketData }] = useMutation(ADD_JOB_TICKET);
 
@@ -167,16 +159,6 @@ export default function SelectSchedule(props) {
     return moment(date).format("YYYY-MM-DD");
   };
 
-  const GetCurrentDate = () => {
-    if (markedDate) {
-      return formatDate(new Date(markedDate.date));
-    }
-    return formatDate(new Date());
-  };
-
-  const GetOneDayFromNow = () => {
-    return formatDate(new Date(new Date().setHours(new Date().getHours() + 24)));
-  };
 
   const [getSchedule, { loading, data, error }] = useLazyQuery(GET_SCHEDULE);
 
@@ -204,21 +186,6 @@ export default function SelectSchedule(props) {
   </Modal>
   )
   
-  const onChange = (event, selectedDate) => {
-    if (selectedDate === undefined) {
-      setShow(false);
-      return;
-    }
-    setDate(selectedDate);
-    const currentTime = moment(selectedDate).format("hh:mm a");
-    settime(currentTime);
-    onConfirmTime();
-  };
-
-  const onConfirmTime = () => {
-    setShow(false);
-    setmodalVisible(true);
-  };
 
   const expoFileToFormFile = (url) => {
     const localUri = url;
@@ -251,7 +218,6 @@ export default function SelectSchedule(props) {
         .catch((err) => console.log({ err }));
     } else {
       let category = "Uncategorized";
-      setmodalVisible(false);
       if (
         state.property_type?.indexOf("AMC") >= 0 ||
         state.property_type?.indexOf("Annual Maintenance Contract") >= 0
@@ -267,7 +233,7 @@ export default function SelectSchedule(props) {
             if (_statePic) {
               const file = expoFileToFormFile(_statePic);
               storage.put(`/callout_pics/${file.name}`, file).then().catch(console.error);
-              return [`picture${i}`, `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`];
+              return [`picture${i}`, `https://backend-cf57bf4d.nhost.app/storage/o/callout_pics/${file.name}`];
             }
             return null;
           })
@@ -375,13 +341,19 @@ export default function SelectSchedule(props) {
   };
 
   const onDayPress = (day) => {
-    // console.log(day)
-    getSchedule({variables: {
-      date_on_calendar: day.dateString
-    }})
-    setselectedDate(day.dateString);
-    setmarkedDate({ date: day.dateString });
-    setShow(true);
+    let isFriday = moment(day.dateString).format("dddd")
+    if (isFriday === "Friday") {
+      setOnlyFriday(true)
+      setselectedDate(day.dateString);
+      setmarkedDate({ date: day.dateString });
+    } else {
+      getSchedule({variables: {
+        date_on_calendar: day.dateString
+      }})
+      setselectedDate(day.dateString);
+      setmarkedDate({ date: day.dateString });
+    }
+    
   };
 
   // const dateComponent = React.useMemo(() => {
@@ -410,7 +382,8 @@ export default function SelectSchedule(props) {
     <Box style={{ flex: 1 }}>
       <Box>
         <CalendarList
-          minDate={Date.now()}
+          minDate={moment().format("YYYY-MM-DD")}
+          current={moment().format("YYYY-MM-DD")}
           pastScrollRange={0}
           // markedDates={getMarkedDates()}
           onDayPress={onDayPress}
@@ -418,7 +391,7 @@ export default function SelectSchedule(props) {
           hideExtraDays
           disableMonthChange
           firstDay={1}
-          hideDayNames
+          // hideDayNames
           showWeekNumbers={false}
           disableArrowLeft
           disableArrowRight
@@ -446,27 +419,37 @@ export default function SelectSchedule(props) {
         <Confirmmodal />
         <LoadingModal />
 
-        <Modal isOpen={markedDate} onClose={() => setmarkedDate(false)}>
-        <Modal.Content>
-            <Box pt={4} pr={6} justifyContent="center">
-              {loading ? <Spinner mb={8} color="lightText" size="sm" /> : 
-              slots.map((slot) => (
-                <Button
-                  key={slot.i}
-                  mb={8}
-                  mx="auto"
-                  width={240}
-                  isDisabled={slot.disabled}
-                  onPress={() => selectSlot(slot.startTime)}
-                >
-                  <Text style={{textAlign: "center", justifyContent: "center", fontSize: 16}}>{slot.text}</Text>
-                  {slot?.blockedBy && <Text style={{textAlign: "center", justifyContent: "center", fontSize: 14, color:"white"}}>{slot?.blockedBy}</Text>}
-                </Button>
-              ))
-              }
-              <Text style={{textAlign: "center", color: "white", marginBottom: 16}}>Disabled slots indicates no Teams are free.</Text>
+        <Modal isOpen={markedDate} onClose={() => { setmarkedDate(false); settime(false); setOnlyFriday(false) }}>
+          {onlyFriday ? 
+          <Modal.Content>
+            <Box>
+              <Text style={{textAlign: "center", justifyContent: "center", fontSize: 18, color:"white", marginBottom: 15}}>No teams available on friday</Text>
+              <Button mx="auto" width={240} mb={8} color="#fb5624" onPress={ () => { setmarkedDate(false); settime(false); setOnlyFriday(false)} }>
+                Close
+              </Button>
             </Box>
-          </Modal.Content>
+          </Modal.Content> : 
+          <Modal.Content>
+              <Box pt={4} pr={6} justifyContent="center">
+                {loading ? <Spinner mb={8} color="lightText" size="sm" /> : 
+                slots.map((slot) => (
+                  <Button
+                    key={slot.i}
+                    mb={8}
+                    mx="auto"
+                    width={240}
+                    isDisabled={slot.disabled}
+                    onPress={() => selectSlot(slot.startTime)}
+                  >
+                    <Text style={{textAlign: "center", justifyContent: "center", fontSize: 16}}>{slot.text}</Text>
+                    {slot?.blockedBy && <Text style={{textAlign: "center", justifyContent: "center", fontSize: 14, color:"white"}}>{slot?.blockedBy}</Text>}
+                  </Button>
+                ))
+                }
+                <Text style={{textAlign: "center", color: "white", marginBottom: 16}}>Disabled slots indicates no Teams are free.</Text>
+              </Box>
+            </Modal.Content>
+          }
         </Modal>
       </Box>
     </Box>

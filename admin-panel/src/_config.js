@@ -1,5 +1,18 @@
+// https://hasura-cf57bf4d.nhost.app/v1/graphql
+// https://backend-cf57bf4d.nhost.app
+
+// https://hasura-8106d23e.nhost.app/v1/graphql
+// https://backend-8106d23e.nhost.app
+// secret d71e216c844d298d91fbae2407698b22
+
+// https://meqmfvxx0d.execute-api.us-east-1.amazonaws.com/production
+
+// https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/
+
 module.exports = {
-    // DOMAIN: "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev"
-     DOMAIN: "https://meqmfvxx0d.execute-api.us-east-1.amazonaws.com/production"
+    DOMAIN: "https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev",
+    HASURA: "https://backend-cf57bf4d.nhost.app",
+    ENDPOINT: "https://hasura-cf57bf4d.nhost.app/v1/graphql"
+    //  DOMAIN: "https://meqmfvxx0d.execute-api.us-east-1.amazonaws.com/production"
     // Change domain to above url for produciton dev
 }

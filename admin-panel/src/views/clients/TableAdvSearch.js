@@ -277,6 +277,16 @@ mutation MyMutation($active: Boolean!, $email: citext!) {
   }
 }
 `
+const GET_WORKER = gql`
+query GetWorker($_eq: String!) {
+  worker(where: {email: {_eq: $_eq}}) {
+    full_name
+    id
+    email
+  }
+}
+`
+
 
 const DataTableAdvSearch = () => {
   // ** States
@@ -289,6 +299,9 @@ const DataTableAdvSearch = () => {
     UPDATE_CLIENT,
     { refetchQueries: [{ query: GET_CLIENT }] }
   )
+  const { workerLoading, data: allWorkers, workerError } = useQuery(GET_WORKER, {
+    variables: {_eq: "opscord@queensman.com"}
+  })
   const [addClient, { loading: addClientLoading }] = useMutation(ADD_CLIENT, {
     refetchQueries: [{ query: GET_CLIENT }]
   })
@@ -458,7 +471,7 @@ const DataTableAdvSearch = () => {
           end_time_on_calendar,
           end_date_on_calendar,
           blocked: true,
-          worker_id: 21
+          worker_id: allWorkers.worker[0].id
         })
         planArray.push(
           {
@@ -482,7 +495,7 @@ const DataTableAdvSearch = () => {
             end_time_on_calendar,
             end_date_on_calendar,
             blocked: true,
-            worker_id: 21
+            worker_id: allWorkers.worker[0].id
           }
         })
         month += 3

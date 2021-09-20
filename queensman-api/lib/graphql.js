@@ -357,20 +357,21 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
       }
     );
       
-    schedulerData?.scheduler.forEach((element, i) => {
+    schedulerData?.scheduler.forEach((element, i) => { //Map over all the workers on that date
       const startTimeOnCalender = element.time_on_calendar;
       const endTimeOnCalender = element.end_time_on_calendar;
       const endTimeOnSlot = moment(dateFns.parse(endTime, "HH:mm:ss", new Date())).subtract(1, "minute").format("HH:mm:ss");
       const startTimeOnSlot = moment(dateFns.parse(time, "HH:mm:ss", new Date())).format("HH:mm:ss")
-      if ((startTimeOnCalender <= endTimeOnSlot) && (endTimeOnCalender >= endTimeOnSlot || endTimeOnCalender > startTimeOnSlot)) {
+      if ((startTimeOnCalender <= endTimeOnSlot) && (endTimeOnCalender >= endTimeOnSlot || endTimeOnCalender > startTimeOnSlot)) { //Check range
         console.log(element.worker_id);
-        nin.push(element.worker_id);
-        workerIdArray.push(element.worker_id);
+        nin.push(element.worker_id); //push into exclude array
+        workerIdArray.push(element.worker_id); //push into  worker array
       }
-      // console.log(element.start, element.startTime, element.blocked);
     });
     console.log(workerIdArray.length, "length");
-    if(workerIdArray.length === 1) {
+    if(workerIdArray.length === 1) { //If there was a worker already in that slot, find another worker and assign and block
+      //change 1 to any number.
+      // 1 -> 2 workers can be assigned max
       console.log("HEEEEEEEEEEEERE")
       const { errors: errorsTeams, data: teams } = await fetchGraphQL(
         `query GetTeams($_contains: jsonb!, $_nin: [Int!]) {
@@ -418,76 +419,6 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
       workerId = teams.teams?.[0]?.worker?.id;
       return { id: workerId, time: null }
     }
-
-    //Means after 2 callouts disable button
-    while (offset < 2) {
-    // while (offset < teamCount) { //enable this to exhaust the team
-      const { errors: errorsTeams, data: teams } = await fetchGraphQL(
-        `query GetTeams($_contains: jsonb!, $offset: Int = 0, $_nin: [Int!]) {
-          teams(where: {team_expertise: {_contains: $_contains}, team_leader: {_nin: $_nin}}, offset: $offset) {
-            worker {
-              id
-            }
-          }
-        }
-      `,
-        'GetTeams',
-        { _contains: job_type, offset, _nin: emergencyWokers.worker[0].id }
-      );
-      console.log(teams)
-      workerId = teams.teams?.[0]?.worker?.id;
-
-      //  - Get all schedule by this worker sorted by date
-      // const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
-      const { errors: errors2, data: lastWorkers } = await fetchGraphQL(
-        `query LastTimeofWorker($workerId: Int!, $today: date!, $_gte: time!, $_lte: time!) {
-        scheduler(where: {
-          worker_id: {_eq: $workerId}, 
-          date_on_calendar: {_eq: $today},
-          time_on_calendar: { _gte: $_gte, _lte: $_lte }
-        }, order_by: {time_on_calendar: desc}, limit: 1) {
-          time_on_calendar
-        }
-      }
-      `,
-        'LastTimeofWorker',
-        {
-          workerId: workerId,
-          today: new Date(date).toISOString().substring(0, 10),
-          _gte: time,
-          _lte: endTime,
-        }
-      );
-      if (lastWorkers.scheduler.length === 0) {
-        // offset = 0;
-        break;
-      } else {
-        ++offset;
-      }
-      console.log(offset)
-    }
-    // means after 2 callouts, it will get blocked
-    if (offset === 1) { 
-    // if (offset === teamCount - 1) { //enable this to exhaust the team
-      console.log("HEEEEEEEEEEEERE")
-      // const selectedTime = dateFns.parse(time, 'HH:mm:ss', new Date());
-      const { errors: errors2, data: lastWorkers } = await fetchGraphQL(
-        `mutation UpdateToBlock($id: Int!, $today: date!, $_gte: time!, $_lte: time!) {
-          update_scheduler(where: {id: {_eq: $id}, date_on_calendar: {_eq: $today}, time_on_calendar: {_gte: $_gte, _lte: $_lte}}, _set: {blocked: true}) {
-            affected_rows
-          }
-        }          
-      `,
-        'UpdateToBlock',
-        {
-          id: schedulerId,
-          today: new Date(date).toISOString().substring(0, 10),
-          _gte: time,
-          _lte: endTime,
-        }
-      );
-    }
-    return { id: workerId, time: null };
   }
 }
 
