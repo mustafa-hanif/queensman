@@ -13,7 +13,7 @@ var fetch = require("node-fetch");
 var createClient = require("nhost-js-sdk").createClient;
 
 const config = {
-  baseURL: "https://backend-8106d23e.nhost.app",
+  baseURL: "https://backend-cf57bf4d.nhost.app",
   ssr: true, 
 };
 
@@ -22,7 +22,7 @@ const { auth } = createClient(config);
 
 async function fetchGraphQL(operationsDoc, operationName, variables) {
   const result = await fetch(
-    "https://hasura-8106d23e.nhost.app/v1/graphql",
+    "https://hasura-cf57bf4d.nhost.app/v1/graphql",
     {
       method: "POST",
       body: JSON.stringify({
