@@ -9,6 +9,7 @@ const calloutEmail = require('../lib/calloutEmail').calloutEmail;
 const updateScheduleWithEmergencyWoker = require('../lib/graphql').updateScheduleWithEmergencyWoker;
 
 const scheduleCallout = async (event) => {
+  console.log(event)
   const { event: { data: { new: query } } } = JSON.parse(event.body);
   // console.log(query)
   const schedulerId = query.id;
