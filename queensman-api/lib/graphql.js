@@ -337,7 +337,7 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
     let workerId = null;
     let nin = [emergencyWokers?.worker?.[0]?.id] // array for exclude workers
     let workerIdArray = []
-
+    console.log(emergencyWokers)
     
     
     const { errors: schedulerError, data: schedulerData } = await fetchGraphQL( //get workers
@@ -355,8 +355,8 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
       {
         today: new Date(date).toISOString().substring(0, 10)
       }
-    )
-
+    );
+      
     (schedulerData?.scheduler ?? []).forEach((element, i) => {
       const startTimeOnCalender = element.time_on_calendar
       const endTimeOnCalender = element.end_time_on_calendar
@@ -369,7 +369,7 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
       // console.log(element.start, element.startTime, element.blocked);
     });
 
-    if(workerIdArray.length === 2) {
+    if(workerIdArray.length === 1) {
       console.log("HEEEEEEEEEEEERE")
       const { errors: errorsTeams, data: teams } = await fetchGraphQL(
         `query GetTeams($_contains: jsonb!, $_nin: [Int!]) {
