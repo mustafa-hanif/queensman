@@ -25,7 +25,7 @@ async function fetchGraphQL(operationsDoc, operationName, variables) {
   const result = await fetch('https://hasura-cf57bf4d.nhost.app/v1/graphql', {
     method: 'POST',
     headers: {
-      'x-hasura-admin-secret': 'd71e216c844d298d91fbae2407698b22',
+      'x-hasura-admin-secret': '9f3c57cbf94b42e7295071d31df3e6e8',
     },
     body: JSON.stringify({
       query: operationsDoc,
