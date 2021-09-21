@@ -35,7 +35,7 @@ const GET_JOBS_LIST = gql`
     $urgency: [String!] = ["High", "Medium", "Scheduled"]
   ) {
     callout(
-      order_by: { request_time: desc }
+      order_by: { request_time: asc }
       where: {
         job_worker: { worker: { email: { _eq: $email } } }
         status: { _neq: "Closed" }
