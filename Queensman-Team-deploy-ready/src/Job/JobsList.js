@@ -382,6 +382,20 @@ const Item = ({ item, passItem }) => {
             </HStack>
           )}
         </VStack>
+        <Divider bg="gray.200" />
+        <VStack space={2}>
+          <Text color="black" fontSize="sm">
+            Service created at
+          </Text>
+          {item?.request_time && (
+            <HStack space={2} alignItems="center">
+              <AntDesign name="clockcircle" size={18} />
+              <Text color="black" fontSize="sm">
+                {moment(item?.request_time).format("Do MMMM, YYYY, hh:mm A")}
+              </Text>
+            </HStack>
+          )}
+        </VStack>
 
         <Button
           onPress={() => passItem(item)}

@@ -11,11 +11,13 @@ import {
   Button,
   Icon,
   Divider,
+  Modal,
 } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 import FlashMessage, { showMessage } from "react-native-flash-message";
 import { formatDistance } from "date-fns";
 import { AntDesign } from "@expo/vector-icons";
+import { ActivityIndicator, Pressable } from "react-native";
 
 const UPDATE_NOTIFICATIONS = gql`
   mutation UpdateNotifications($id: Int!) {
@@ -86,13 +88,20 @@ export default function NotificationList({
   setNotifications,
   notifications,
   index,
+  workerId
 }) {
+  const [modalLoaing, setModalLoading] = useState(false)
   const [getJobsFromEmail, { loading, data, error, refetch }] = useLazyQuery(GET_JOBS_LIST_ALL, {
     onCompleted: (item) => {
       console.log(item)
+      setModalLoading(false)
       navigation.navigate("TicketListing", {
         it: item.callout[0],
+        workerId
       });
+    }, onError: (error) => {
+      console.log(error)
+      setModalLoading(false)
     }
   });
   const [updateNotifications] = useMutation(UPDATE_NOTIFICATIONS, {
@@ -110,6 +119,16 @@ export default function NotificationList({
   };
   if (!item.isRead) {
     return (
+      <>
+      <Pressable
+        onLongPress={() => {
+          console.log("pre2ss")
+          setModalLoading(true)
+          console.log(item)
+          getJobsFromEmail({ variables: {
+            id: item?.callout_id
+          }})
+        }}>
       <VStack space={2} p={4} bg="white">
         <Text color="black">{item.text}</Text>
         <Text color="black" fontSize="xs">{`${formatDistance(
@@ -117,15 +136,19 @@ export default function NotificationList({
           new Date(item.created_at),
           { includeSeconds: true }
         )} ago`}</Text>
-        {item?.data?.callout_id && <Button onPress={() => getJobsFromEmail({ variables: {
-          id: item?.data?.callout_id
-        }})} size="xs" height={6} width={100} bg="amber.300">
+        {item?.data?.callout_id && <Button onPress={() => {
+          setModalLoading(true)
+          getJobsFromEmail({ variables: {
+            id: item?.data?.callout_id
+          }})
+        }} size="xs" height={6} width={100} bg="amber.300">
           <Text color="black" fontSize="xs">
             View Callout
           </Text>
         </Button>}
         <Button
           onPress={() => markAsRead(item.id)}
+          zIndex={100}
           size="xs"
           width={100}
           ml="auto"
@@ -136,6 +159,14 @@ export default function NotificationList({
           </Text>
         </Button>
       </VStack>
+      <Divider bg="gray.200" />
+      </Pressable>
+       <Modal isOpen={modalLoaing} size="full" onClose={() => setModalLoading(false)}>
+       <Modal.Header pr={3}>
+         <ActivityIndicator size="large" color="white" />
+       </Modal.Header>
+     </Modal>
+      </>
     );
   }
   return null;

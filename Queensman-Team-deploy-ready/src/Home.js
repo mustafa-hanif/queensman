@@ -30,6 +30,7 @@ let deviceWidth = Dimensions.get("window").width;
 let deviceHeight = Dimensions.get("window").height;
 
 const HomeScreen = ({ navigation, workerId, workerLoading }) => {
+  const email2 = auth?.user()?.email || ""
   return (
     <View style={styles.container}>
       <View style={styles.Name}>
@@ -46,6 +47,7 @@ const HomeScreen = ({ navigation, workerId, workerLoading }) => {
               style={{ height: 25, width: 25 }}
             ></Image>
           </TouchableOpacity>
+          <Text style={{ color: "black", fontWeight: "bold", fontSize: 12 }}>{email2}</Text>
           <View style={{ flexDirection: "row" }}>
             <TouchableOpacity onPress={() => AlertLogout(navigation)}>
               <Icon
@@ -56,7 +58,7 @@ const HomeScreen = ({ navigation, workerId, workerLoading }) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={{ marginLeft: 10 }}
-              onPress={() => onBellIconPress(navigation)}
+              onPress={() => onBellIconPress(navigation, workerId)}
             >
                 <Icon
               as={Ionicons}
@@ -345,8 +347,10 @@ const RequestCalloutHandler = (navigation, worker_id) => {
   });
 };
 
-const onBellIconPress = (navigation) => {
-  navigation.navigate("Notification");
+const onBellIconPress = (navigation, workerId) => {
+  navigation.navigate("Notification", {
+    workerId
+  });
 };
 
 const AlertLogout = (navigation) => {
