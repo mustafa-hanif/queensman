@@ -32,6 +32,7 @@ import * as Print from "expo-print";
 import { storage, auth } from "../utils/nhost";
 import { calloutTemplate } from "./pdf_template";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { HASURA } from "../_config";
 
 const expoFileToFormFile = (url) => {
   const localUri = url;
@@ -51,7 +52,7 @@ const createAndSavePDF = async (html, data2, propertyID, clientName, state, setS
     fileName = `${clientName}-${propertyID}-Monthly-Report.pdf`;
     console.log(fileName);
     await storage.put(`/monthly_report/${fileName}`, file);
-    Linking.openURL(`https://https://backend-cf57bf4d.nhost.app/storage/o/monthly_report/${fileName}`);
+    Linking.openURL(`${HASURA}/storage/o/monthly_report/${fileName}`);
     setState({ ...state, reportLoading: false });
   } catch (error) {
     console.error(error);

@@ -15,6 +15,7 @@ import { gql, useMutation } from "@apollo/client";
 import { auth } from "../utils/nhost";
 import { Icon } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
+import { SECRECT } from "../_config";
 // import { takeSnapshotAsync } from "expo";
 // import ExpoPixi from "expo-pixi";
 
@@ -189,7 +190,7 @@ const JobComplete = (props) => {
           {
             method: "POST",
             headers: {
-              "x-hasura-admin-secret": "d71e216c844d298d91fbae2407698b22",
+              "x-hasura-admin-secret": SECRECT,
             },
             body: form,
           }
@@ -255,7 +256,7 @@ const JobComplete = (props) => {
           {
             method: "POST",
             headers: {
-              "x-hasura-admin-secret": "d71e216c844d298d91fbae2407698b22",
+              "x-hasura-admin-secret": SECRECT,
             },
             body: form,
           }

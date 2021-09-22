@@ -13,6 +13,7 @@ Add these to your `package.json`:
 const fetch = require('node-fetch');
 const moment = require('moment')
 const dateFns = require('date-fns');
+const { ENDPOINT, SECRET } = require('../_config');
 
 async function fetchGraphQL(operationsDoc, operationName, variables) {
   console.log(
@@ -22,10 +23,10 @@ async function fetchGraphQL(operationsDoc, operationName, variables) {
       operationName: operationName,
     })
   );
-  const result = await fetch('https://hasura-cf57bf4d.nhost.app/v1/graphql', {
+  const result = await fetch(ENDPOINT, {
     method: 'POST',
     headers: {
-      'x-hasura-admin-secret': '9f3c57cbf94b42e7295071d31df3e6e8',
+      'x-hasura-admin-secret': SECRET,
     },
     body: JSON.stringify({
       query: operationsDoc,

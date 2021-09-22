@@ -42,6 +42,7 @@ import ForgotPassword from "./src/Login/ForgotPassword";
 import SelectSchedule from "./src/CallOut/SelectSchedule";
 import Notification from "./src/Notification";
 import VideoScreen from "./src/VideoScreen";
+import { ENDPOINT } from "./src/_config";
 
 /** App main loading */
 export default class App extends PureComponent {
@@ -82,7 +83,7 @@ export default class App extends PureComponent {
     });
     return (
       <NhostAuthProvider auth={auth}>
-        <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-cf57bf4d.nhost.app/v1/graphql">
+        <NhostApolloProvider auth={auth} gqlEndpoint={ENDPOINT}>
           <NativeBaseProvider theme={theme}>
             <AppContainer />
             <Box ml="auto" mr={12}>

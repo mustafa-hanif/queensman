@@ -4,6 +4,7 @@
 
 const fetch = require('node-fetch')
 const FormData = require('form-data');
+const { SECRET } = require('../_config');
 // const updateScheduleWithWoker = require('../lib/graphql').updateScheduleWithWoker;
 // const getWorker = require('../lib/graphql').getWorker;
 // const getCallout = require('../lib/graphql').getCallout;
@@ -32,7 +33,7 @@ const quarterlyTasks = async (event) => {
       {
         method: 'POST',
         headers: {
-          'x-hasura-admin-secret': 'd71e216c844d298d91fbae2407698b22'
+          'x-hasura-admin-secret': SECRET
         },
         body: form
       }

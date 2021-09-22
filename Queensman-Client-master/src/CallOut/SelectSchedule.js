@@ -19,6 +19,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { auth, storage } from "../utils/nhost";
 import colors from "../../native-base-theme/variables/commonColor";
 import { marginBottom } from "styled-system";
+import { HASURA } from "../_config"
 
 const GET_SCHEDULE = gql`
   query MyQuery($date_on_calendar: date) {
@@ -233,7 +234,7 @@ export default function SelectSchedule(props) {
             if (_statePic) {
               const file = expoFileToFormFile(_statePic);
               storage.put(`/callout_pics/${file.name}`, file).then().catch(console.error);
-              return [`picture${i}`, `https://backend-cf57bf4d.nhost.app/storage/o/callout_pics/${file.name}`];
+              return [`picture${i}`, `${HASURA}/storage/o/callout_pics/${file.name}`];
             }
             return null;
           })

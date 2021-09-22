@@ -1,7 +1,8 @@
 const createClient = require('nhost-js-sdk').createClient;
+const { HASURA } = require("../_config")
 
 const nhostClient = createClient({
-  baseURL: 'https://backend-cf57bf4d.nhost.app',
+  baseURL: HASURA,
 })
 
 const auth = nhostClient.auth;

@@ -27,6 +27,7 @@ import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
+import { HASURA } from "../_config";
 
 const POST_PIC = gql`
   mutation AddPostPictures($objects: [post_job_picture_insert_input!] = {}) {
@@ -216,7 +217,7 @@ const PostJob = (props) => {
               .catch(console.error);
             return [
               `Pic${i}`,
-              `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`,
+              `${HASURA}/storage/o/callout_pics/${file.name}`,
             ];
           }
           return null;

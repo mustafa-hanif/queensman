@@ -29,6 +29,7 @@ import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { Content, Icon } from "native-base";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { auth, storage } from "../utils/nhost";
+import { HASURA } from "../_config";
 
 const GET_NOTES = gql`
   query JobNotes($callout_id: Int!) {
@@ -300,7 +301,7 @@ const PreJob = (props) => {
               .catch(console.error);
             return [
               `Pic${i}`,
-              `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`,
+              `${HASURA}/storage/o/callout_pics/${file.name}`,
             ];
           }
           return null;
