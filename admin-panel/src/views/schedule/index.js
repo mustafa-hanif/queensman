@@ -197,6 +197,7 @@ const UPDATE_CALLOUT_DRAG = gql`
     $time_on_calendar: time
     $end_date_on_calendar: date
     $end_time_on_calendar: time
+    $blocked: Boolean
   ) {
     update_scheduler(
       where: { id: { _eq: $scheduler_id } }
@@ -204,6 +205,7 @@ const UPDATE_CALLOUT_DRAG = gql`
         date_on_calendar: $date_on_calendar
         time_on_calendar: $time_on_calendar
         end_date_on_calendar: $end_date_on_calendar
+        blocked: $blocked
         end_time_on_calendar: $end_time_on_calendar
       }
     ) {
@@ -241,6 +243,7 @@ const REQUEST_CALLOUT = gql`
     $picture4: String
     $urgency_level: String
     $worker_id: Int
+    $blocked: Boolean
   ) {
     insert_scheduler_one(
       object: {
@@ -271,6 +274,7 @@ const REQUEST_CALLOUT = gql`
         end_time_on_calendar: $end_time_on_calendar
         notes: $notes
         worker_id: $worker_id
+        blocked: $blocked
       }
     ) {
       date_on_calendar
@@ -367,6 +371,7 @@ const CalendarComponent = ({location}) => {
         time_on_calendar: eventToUpdate.startStr.split("T")[1].substr(0, 8),
         end_date_on_calendar: eventToUpdate.endStr.split("T")[0],
         end_time_on_calendar : eventToUpdate.endStr.split("T")[1].substr(0, 8),
+        blocked: eventToUpdate.extendedProps.blocked,
         scheduler_id: eventToUpdate.id
       }
     })

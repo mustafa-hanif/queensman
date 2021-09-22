@@ -2,7 +2,7 @@
   "build": {
     "release": {
       "env": {
-        "ENVIRONMENT": "staging"
+        "ENVIRONMENT": "production"
       },
       "android": {
         "buildType": "apk",
