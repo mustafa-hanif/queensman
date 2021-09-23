@@ -4,7 +4,7 @@
 /* eslint-disable no-console */
 /* eslint-disable import/order */
 /* eslint-disable no-use-before-define */
-const version = "v1.1";
+const version = "v1.2";
 import React, { PureComponent } from "react";
 import { Text, View, SafeAreaView, Image, TouchableOpacity, Linking } from "react-native";
 import { Icon, Box, NativeBaseProvider, extendTheme } from "native-base";
@@ -42,6 +42,7 @@ import ForgotPassword from "./src/Login/ForgotPassword";
 import SelectSchedule from "./src/CallOut/SelectSchedule";
 import Notification from "./src/Notification";
 import VideoScreen from "./src/VideoScreen";
+import { ENDPOINT } from "./src/_config";
 
 /** App main loading */
 export default class App extends PureComponent {
@@ -82,7 +83,7 @@ export default class App extends PureComponent {
     });
     return (
       <NhostAuthProvider auth={auth}>
-        <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">
+        <NhostApolloProvider auth={auth} gqlEndpoint={ENDPOINT}>
           <NativeBaseProvider theme={theme}>
             <AppContainer />
             <Box ml="auto" mr={12}>

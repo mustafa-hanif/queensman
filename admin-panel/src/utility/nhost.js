@@ -1,7 +1,7 @@
 import { createClient } from "nhost-js-sdk"
-
+import { HASURA } from "../_config"
 const nhostClient = createClient({
-  baseURL: "https://backend-8106d23e.nhost.app"
+  baseURL: HASURA
 })
 
 const auth = nhostClient.auth

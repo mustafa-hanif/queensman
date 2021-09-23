@@ -24,6 +24,7 @@ import * as Permissions from 'expo-permissions'
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { auth } from "../utils/nhost";
 import { createNativeWrapper } from "react-native-gesture-handler";
+import { SECRECT } from "../_config";
 
 const GET_JOB_WORKERS = gql`
   query FetchJobWorker($id: Int!) {
@@ -288,9 +289,10 @@ const Job = (props) => {
     );
   };
   const AlertStartJob = () => {
+    const jobStatus = ticket.status === "In Progress" ? false : true
     Alert.alert(
-      "Start the Job.",
-      "Are you sure you want to start the job?",
+      `${jobStatus ? 'Start the Job.' : 'Continue the Job'}`,
+      `${jobStatus ? "Are you sure you want to start the job?" : "Are you sure you want to continue the job?"}`,
       [
         {
           text: "No",
@@ -551,7 +553,7 @@ const Job = (props) => {
         {
           method: "POST",
           headers: {
-            "x-hasura-admin-secret": "d71e216c844d298d91fbae2407698b22",
+            "x-hasura-admin-secret": SECRECT,
           },
           body: form,
         }
@@ -918,7 +920,7 @@ const Job = (props) => {
           <Button
             style={{ width: "20%" }}
             onPress={AlertStartJob}
-            title="Start Job"
+            title={ticket.status === "In Progress" ? "Continue Job" : "Start Job"}
             color="#FFCA5D"
           />
 

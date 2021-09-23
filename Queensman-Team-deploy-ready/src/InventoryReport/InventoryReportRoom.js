@@ -27,6 +27,7 @@ import { storage } from "../utils/nhost";
 import * as Permissions from "expo-permissions";
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { fontSize } from "styled-system";
+import { HASURA } from "../_config";
 
 const fetchInventoryArticlesViaInventoryReportID = gql`
   query InventoryArticles($_eq: Int = 10) {
@@ -368,7 +369,7 @@ class InventoryReportRoomClass extends React.Component {
   uploadPics = async () => {
     const imagesToUplaod = this.props.ImagesList.filter(
       (value) =>
-        !value.imageSel.startsWith("https://backend-8106d23e.nhost.app")
+        !value.imageSel.startsWith(`${HASURA}`)
     );
 
     if (imagesToUplaod.length > 0) {
@@ -379,7 +380,7 @@ class InventoryReportRoomClass extends React.Component {
           return storage
             .put(`/inventory_pictures/${file.name}`, file)
             .then((res) => {
-              return `https://backend-8106d23e.nhost.app/storage/o/inventory_pictures/${file.name}`;
+              return `${HASURA}/storage/o/inventory_pictures/${file.name}`;
             })
             .catch(console.error);
         })

@@ -4,6 +4,7 @@
 
 const fetch = require('node-fetch')
 const FormData = require('form-data');
+const { SECRET } = require('../_config');
 
 const addJobTicketZoho = async (event) => {
   const { event: { data: { new: query } } } = JSON.parse(event.body);
@@ -25,7 +26,7 @@ const addJobTicketZoho = async (event) => {
       {
         method: 'POST',
         headers: {
-          'x-hasura-admin-secret': 'd71e216c844d298d91fbae2407698b22'
+          'x-hasura-admin-secret': SECRET
         },
         body: form
       }

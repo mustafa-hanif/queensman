@@ -210,6 +210,7 @@ console.log(changeToDayView)
       ? Docs: https://fullcalendar.io/docs/eventResize
     */
     eventResize({ event: resizedEvent }) {
+      console.log(resizedEvent)
       updateEventDrag(resizedEvent)
       toast.success(<ToastComponent title='Event Updated' color='success' icon={<Check />} />, {
         autoClose: 2000,

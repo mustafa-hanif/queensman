@@ -26,13 +26,14 @@ const GET_NOTIFICATIONS = gql`
       data
       id
       isRead
+      callout_id
     }
   }
 `;
 
 export default function index({ navigation }) {
   const email = auth?.currentSession?.session?.user.email.toLowerCase();
-
+  const workerId = navigation.getParam("workerId", {})
   const [refreshing, setRefreshing] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [getNotification, { loading, data, error }] = useLazyQuery(
@@ -61,6 +62,7 @@ export default function index({ navigation }) {
     };
   }, []);
   if (error) {
+    console.log(error)
     return (
       <View>
         <Text>Error</Text>
@@ -95,6 +97,8 @@ export default function index({ navigation }) {
       ) : (
         <View>
           {notifications.length >= 1 && !loading ? (
+
+            <View>
             <Text style={{ textAlign: "center", marginTop: 20, fontSize: 20 }}>
               You have{" "}
               <Text style={{ color: "red", fontWeight: "bold" }}>
@@ -102,11 +106,16 @@ export default function index({ navigation }) {
               </Text>{" "}
               notifications
             </Text>
+             <Text style={{ textAlign: "center", marginTop: 5, fontSize: 12 }}>
+             Long press notification to view the service
+           </Text>
+           </View>
           ) : (
             <Text style={{ textAlign: "center", marginTop: 20, fontSize: 20 }}>
               You have no new Notification. Pull down to refresh
             </Text>
           )}
+         
           <View style={{ marginTop: 12 }}>
             {notifications.map((item, i) => {
               return (
@@ -115,6 +124,7 @@ export default function index({ navigation }) {
                   item={item}
                   key={i}
                   index={i}
+                  workerId={workerId}
                   setNotifications={setNotifications}
                   updateNotifications={() =>
                     getNotification({ variables: { worker_email: email } })

@@ -30,6 +30,7 @@ import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import Modal from "react-native-modal";
 import { auth, storage } from "../utils/nhost";
+import { HASURA } from "../_config"
 
 import VideoScreen from "../VideoScreen";
 
@@ -625,7 +626,7 @@ const RequestCallOut = (props) => {
           if (_statePic) {
             const file = expoFileToFormFile(_statePic);
             storage.put(`/callout_pics/${file.name}`, file).then().catch(console.error);
-            return [`picture${i}`, `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`];
+            return [`picture${i}`, `${HASURA}/storage/o/callout_pics/${file.name}`];
           }
           return null;
         })
@@ -741,7 +742,7 @@ const RequestCallOut = (props) => {
       .catch(console.error);
     setState({
       ...state,
-      videoUrl: `https://backend-8106d23e.nhost.app/storage/o/callout_videos/${file.name}`,
+      videoUrl: `${HASURA}/storage/o/callout_videos/${file.name}`,
     });
   };
 
@@ -759,7 +760,7 @@ const RequestCallOut = (props) => {
           if (_statePic) {
             const file = expoFileToFormFile(_statePic);
             storage.put(`/callout_pics/${file.name}`, file).then(console.log).catch(console.error);
-            return [`picture${i}`, `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`];
+            return [`picture${i}`, `${HASURA}/storage/o/callout_pics/${file.name}`];
           }
           return null;
         })

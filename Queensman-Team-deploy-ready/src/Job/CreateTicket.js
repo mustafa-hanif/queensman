@@ -18,6 +18,7 @@ import commonColor from "../../native-base-theme/variables/commonColor";
 import { ImageBrowser } from "expo-image-picker-multiple";
 import { auth, storage } from "../utils/nhost";
 import { gql, useQuery, useMutation } from "@apollo/client";
+import { HASURA } from "../_config";
 
 const CREATE_TICKET = gql`
   mutation AddTicket(
@@ -139,7 +140,7 @@ export default function CreateTicket(props) {
         return storage
           .put(`/callout_pics/${file.name}`, file)
           .then((res) => {
-            return `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`;
+            return `${HASURA}/storage/o/callout_pics/${file.name}`;
           })
           .catch(console.error);
       })

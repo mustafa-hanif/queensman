@@ -1,8 +1,9 @@
 import { createClient } from "nhost-js-sdk";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { HASURA } from "../_config";
 
 const nhostClient = createClient({
-  baseURL: "https://backend-8106d23e.nhost.app",
+  baseURL: HASURA,
   clientStorage: AsyncStorage,
   clientStorageType: "react-native",
 });

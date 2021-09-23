@@ -33,6 +33,7 @@ import Modal from "react-native-modal";
 import { auth, storage } from "../utils/nhost";
 
 import VideoScreen from "../VideoScreen";
+import { HASURA } from "../_config";
 
 const styles = StyleSheet.create({
   container: {
@@ -488,7 +489,7 @@ const RequestCallOut = (props) => {
               .catch(console.error);
             return [
               `picture${i}`,
-              `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`,
+              `${HASURA}/storage/o/callout_pics/${file.name}`,
             ];
           }
           return null;
@@ -604,7 +605,7 @@ const RequestCallOut = (props) => {
       .catch(console.error);
     setState({
       ...state,
-      videoUrl: `https://backend-8106d23e.nhost.app/storage/o/callout_videos/${file.name}`,
+      videoUrl: `${HASURA}/storage/o/callout_videos/${file.name}`,
     });
   };
 

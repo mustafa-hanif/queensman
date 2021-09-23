@@ -10,6 +10,7 @@ import { gql, useMutation, useQuery, useLazyQuery } from "@apollo/client"
 import Avatar from "@components/avatar"
 import { Trash, Upload, XCircle, Check } from 'react-feather'
 import { DivOverlay } from 'leaflet'
+import { DOMAIN, HASURA } from '../../_config'
 
 const MANAGEMENT_REPORT = gql`
 mutation AddManagementReport($property_id: Int!, $report_location: String = "") {
@@ -167,7 +168,7 @@ const TabsVerticalLeft = ({data, propertyLoading, property_id}) => {
             await storage.put(`/management_report/${pdf.name}`, pdf)
             const res = await uploadManagementReport({variables: {
               property_id, 
-              report_location: `https://backend-8106d23e.nhost.app/storage/o/management_report/${pdf.name}`
+              report_location: `${HASURA}/storage/o/management_report/${pdf.name}`
             }})
             const result_id = res?.data?.insert_management_report_one?.id
             const result_property_id = res?.data?.insert_management_report_one?.property_id
@@ -189,7 +190,7 @@ const TabsVerticalLeft = ({data, propertyLoading, property_id}) => {
             await storage.put(`/market_report/${pdf.name}`, pdf)
             const res = await uploadMarketReport({variables: {
               property_id, 
-              report_location: `https://backend-8106d23e.nhost.app/storage/o/market_report/${pdf.name}`
+              report_location: `${HASURA}/storage/o/market_report/${pdf.name}`
             }})
             const result_id = res?.data?.insert_market_report_one?.id
             const result_property_id = res?.data?.insert_market_report_one?.property_id
@@ -211,7 +212,7 @@ const TabsVerticalLeft = ({data, propertyLoading, property_id}) => {
             await storage.put(`/monthly_status_report/${pdf.name}`, pdf)
             const res = await uploadMonthlyStatusReport({variables: {
               property_id, 
-              report_location: `https://backend-8106d23e.nhost.app/storage/o/monthly_status_report/${pdf.name}`
+              report_location: `${HASURA}/storage/o/monthly_status_report/${pdf.name}`
             }})
             const result_id = res?.data?.insert_monthly_services_report_one?.id
             const result_property_id = res?.data?.insert_monthly_services_report_one?.property_id
@@ -235,7 +236,7 @@ const TabsVerticalLeft = ({data, propertyLoading, property_id}) => {
             await storage.put(`/material_warranty_report/${pdf.name}`, pdf)
             const res = await uploadMaterialWarrantyReport({variables: {
               property_id, 
-              report_location: `https://backend-8106d23e.nhost.app/storage/o/material_warranty_report/${pdf.name}`
+              report_location: `${HASURA}/storage/o/material_warranty_report/${pdf.name}`
             }})
             const result_id = res?.data?.insert_material_warranty_report_one?.id
             const result_property_id = res?.data?.insert_material_warranty_report_one?.property_id

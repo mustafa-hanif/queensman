@@ -1,12 +1,12 @@
 // ** React Imports
 import { useState, Fragment, forwardRef, useContext } from 'react'
-import { auth } from "../../utility/nhost"
 
 
 // ** Custom Components
 import Avatar from '@components/avatar'
 
 // ** Third Party Components
+import { Offline, Online } from "react-detect-offline"
 import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
 import { toast } from 'react-toastify'
@@ -35,29 +35,29 @@ import Badge from 'reactstrap/lib/Badge'
 
 const GET_WORKER = gql`
 query GetWorker {
-    worker(order_by: {id: desc}) {
-      active
-      description
-      email
-      full_name
+  worker(order_by: {id: desc}, where: {team_id: {_is_null: false}}) {
+    active
+    description
+    email
+    full_name
+    id
+    isEmergency
+    team_id
+    role
+    password
+    phone
+    teams {
       id
-      isEmergency
-      team_id
-      role
-      password
-      phone
-      teams {
-        id
-        team_leader
-        team_color
-      }
-      teams_member {
-        id
-        team_leader
-        team_color
-      }
+      team_leader
+      team_color
+    }
+    teams_member {
+      id
+      team_leader
+      team_color
     }
   }
+}
 `
 
 const GET_TEAMS = gql`
@@ -69,56 +69,19 @@ query MyQuery {
   }
 }`
 
-const CLEAR_EMERGENCY_WORKER = gql`
-  mutation UpdateWorker($emergencyId: Int!) {
-    clear_emergency: update_worker_by_pk(pk_columns: {id: $emergencyId}, _set: {isEmergency: false}) {
-      email
-    }
-  }
-`
 
-const UPDATE_WORKER = gql`
-mutation UpdateWorker($id: Int!, $description: String, $full_name: String, $isEmergency: Boolean, $phone: String, $team_id: Int, $active: smallint) {
-   update_worker_by_pk(pk_columns: {id: $id}, _set: {description: $description, full_name: $full_name, phone: $phone, team_id: $team_id, isEmergency: $isEmergency, active: $active}) {
-     id
-   }
- }
-`
-const ADD_WORKER = gql`
-mutation AddWorker($description: String, $email: String, $full_name: String, $isEmergency: Boolean, $password: String, $phone: String, $role: String, $team_id: Int, $active: smallint) {
-    insert_worker_one(object: {description: $description, email: $email, full_name: $full_name, isEmergency: $isEmergency, password: $password, phone: $phone, role: $role, team_id: $team_id, active: $active}) {
-      id
-    }
-  }
-`
-
-const DELETE_WORKER = gql
-`mutation DeleteWorker($id: Int!) {
-  delete_worker_by_pk(id: $id) {
+const REMOVE_TEAM_MEMBER = gql`
+mutation RemoveTeamMember($id: Int!) {
+  update_worker_by_pk(pk_columns: {id: $id}, _set: {team_id: null}) {
     id
-  }
-}`
-
-const REMOVE_FROM_TEAM_COLOR = gql`
-mutation RemoveFromTeamColor($_eq: String = "") {
-  update_teams(where: {team_color: {_eq: $_eq}}, _set: {team_color: null}) {
-    affected_rows
   }
 }
 `
 
 const UPDATE_TEAM_COLOR = gql`
 mutation UpdateTeamColor($team_leader: Int!, $team_color: String!) {
-  update_teams(where: {team_leader: {_eq: $team_leader}}, _set: {team_color: $team_color}) {
+  update_teams(where: {team_color: {_eq: $team_color}}, _set: {team_leader: $team_leader}) {
     affected_rows
-  }
-}
-`
-
-const UPDATE_TEAM_ID_IN_WORKER = gql`
-mutation updateTeamIdinWorker($team_id: Int!, $id: Int!) {
-  update_worker_by_pk(pk_columns: {id: $id}, _set: {team_id: $team_id}) {
-    id
   }
 }
 `
@@ -127,11 +90,8 @@ const DataTableAdvSearch = () => {
         // ** States
   const { loading, data, error, refetch: refectchWorker } = useQuery(GET_WORKER, {fetchPolicy: 'network-only', nextFetchPolicy: 'network-only'})
   const { teamsLoading, data: teamsData, error: teamsError } = useQuery(GET_TEAMS)
-  const [clearEmergency, {loading: emergencyworkerLoading}] = useMutation(CLEAR_EMERGENCY_WORKER, {refetchQueries:[{query: GET_WORKER}]})
-  const [updateWorker, {loading: workerLoading}] = useMutation(UPDATE_WORKER)
   const [updateTeamColor, {loading: updateTeamColorLoading}] = useMutation(UPDATE_TEAM_COLOR, {refetchQueries:[{query: GET_WORKER}]})
-  const [addWorker, {loading: addWorkerLoading}] = useMutation(ADD_WORKER, {refetchQueries:[{query: GET_WORKER}]})
-  const [deleteWorker, {loading: deleteWorkerLoading}] = useMutation(DELETE_WORKER, {refetchQueries:[{query: GET_WORKER}]})
+  const [removeTeamMember, {loading: deleteTeamMemberLoading}] = useMutation(REMOVE_TEAM_MEMBER, {refetchQueries:[{query: GET_WORKER}]})
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState('')
   const [searchEmail, setSearchEmail] = useState('')
@@ -139,13 +99,10 @@ const DataTableAdvSearch = () => {
   const [description, setDescription] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
   const [filteredData, setFilteredData] = useState([])
-  const [toAddNewRecord, setToAddNewRecord] = useState(false)
   const [row, setRow] = useState(null)
-  const [rowId, setRowId] = useState(null)
-  const [changeColor, setChangedColor] = useState(false)
-
-  const [modalAlert, setModalAlert] = useState(null)
-  const [modalAlertDetails, setModalAlertDetails] = useState(null)
+  const [changeLeader, setChangeLeader] = useState(false)
+  const [deleteModal, setDeleteModal] = useState(null)
+  const [deleteModalDetails, setDeleteModalDetails] = useState(null)
 
   const closeAlertModal = () => {
       setModalAlertDetails(null)
@@ -161,13 +118,22 @@ const DataTableAdvSearch = () => {
         setModal(!modal)
     }
 
+  // ** Function to open Delete alert modal
+  const openDeleteModal = (row) => {
+    setDeleteModalDetails(row)
+    setDeleteModal(true)
+  }
+
+  const closeDeleteModal = () => {
+    setDeleteModal(false)
+}
+
   // ** Function to handle Modal toggle
   const handleModal = (row) => { 
       setRow(row)
       // setTimeout(() => {
         setModal(!modal) 
       // }, 200)
-      setToAddNewRecord(false)
     }
 
   // ** Function to handle Pagination
@@ -196,13 +162,6 @@ const advSearchColumns = [
       minWidth: '200px'
     },
     {
-      name: 'Phone',
-      selector: 'phone',
-      sortable: true,
-      wrap: true,
-      minWidth: '150px'
-    },
-    {
       name: 'Description',
       selector: 'description',
       sortable: true,
@@ -224,8 +183,8 @@ const advSearchColumns = [
         }
       },
       {
-        name: 'Team',
-        selector: 'teams',
+        name: 'Team Color',
+        selector: 'teams.team_color || teams_member.team_color',
         sortable: true,
         wrap: true,
         minWidth: '50px',
@@ -233,6 +192,19 @@ const advSearchColumns = [
           const color = row?.teams?.[0]?.team_color ?? row?.teams_member?.team_color
           return (
             color && <Badge pill style={{backgroundColor: color}}>{' '}</Badge>
+          )
+        }
+      },
+      {
+        name: 'Team Position',
+        selector: 'teams[0].team_leader',
+        sortable: true,
+        wrap: true,
+        minWidth: '150px',
+        cell: row => {
+          const leader = row?.teams?.[0]?.team_leader
+          return (
+            leader ? <Badge color={'light-success'} pill>Team Leader</Badge> : <Badge color={'light-warning'} pill>Team Member</Badge>
           )
         }
       },
@@ -244,12 +216,12 @@ const advSearchColumns = [
         return (
           <div className="d-flex w-100 align-items-center">
             <ButtonGroup size="sm" >
-            {/* <Button color='danger' className="btn-icon" size="sm" onClick={() => { openModalAlert(row.id) }}>
+            {row?.teams.length === 0 && <Button color='danger' className="btn-icon" size="sm" onClick={() => { openDeleteModal(row) }}>
             <Trash size={15} />
-            </Button> */}
-            <Button color='primary' className="btn-icon" size="sm">
+            </Button>}
+            {row?.teams.length === 0 && <Button color='primary' className="btn-icon" size="sm">
             <Edit size={15} onClick={() => handleModal(row)} />
-            </Button>
+            </Button>}
           </ButtonGroup>
           </div>
         )
@@ -272,65 +244,11 @@ const advSearchColumns = [
   }
   
   const handleUpdate = async (updatedRow) => {
-    console.log(updatedRow)
     try {
-    if (changeColor[0]) { //If color is provided
-      if ((!updatedRow.team_id) || (updatedRow.team_id && updatedRow.teams.length === 0)) { //If worker has no team id assigned OR worker has team assigned and is not a team leader
-        //Update team_id of current worker)
-        await updateWorker({variables: {
-          active: updatedRow.active,
-          description: updatedRow.description,
-          full_name: updatedRow.full_name,
-          id: updatedRow.id,
-          isEmergency: updatedRow.isEmergency,
-          team_id: changeColor[1],
-          phone: updatedRow.phone
-        }})
-      } else { //Worker is team_leader
-        const worker = data?.worker.filter(value => value.teams?.[0]?.team_color === changeColor[0]) //Get worker who already has the color
-        if (worker?.[0]) { //If such worker exsists
-          setModalAlertDetails([worker[0], changeColor[0], updatedRow]) // [existing worker, colorToChange, current worker details row]
-          openModalAlert()
-        }
-      }
-    }
-    if (updatedRow.isEmergency) {
-      console.log("hello")
-      const emergencyId = data?.worker.filter(value => value.isEmergency === true)?.[0]?.id
-      console.log(emergencyId)
-      if (emergencyId) {
-        console.log({emergencyId})
-        await clearEmergency({ variables: {emergencyId} })
-      }
-      console.log("HGi")
-      console.log({
-        active: updatedRow.active,
-        description: updatedRow.description,
-        full_name: updatedRow.full_name,
-        id: updatedRow.id,
-        team_id: updatedRow.team_id,
-        isEmergency: updatedRow.isEmergency,
-        phone: updatedRow.phone
-      })
-        await updateWorker({variables: {
-          active: updatedRow.active,
-          description: updatedRow.description,
-          full_name: updatedRow.full_name,
-          id: updatedRow.id,
-          team_id: updatedRow.team_id,
-          isEmergency: updatedRow.isEmergency,
-          phone: updatedRow.phone
-        }})
-    } else if (row.active || row.description || row.full_name || row.phone) {
-      console.log("ast")
-      await updateWorker({variables: {
-        active: updatedRow.active,
-        description: updatedRow.description,
-        full_name: updatedRow.full_name,
-        id: updatedRow.id,
-        team_id: updatedRow.team_id,
-        isEmergency: updatedRow.isEmergency,
-        phone: updatedRow.phone
+    if (changeLeader) { //If leader is to be changed
+      const res3 = await updateTeamColor({variables: {
+        team_color: updatedRow.teams_member.team_color, //existing color
+        team_leader: updatedRow.id //existing worker id
       }})
     }
     toast.success(
@@ -341,108 +259,16 @@ const advSearchColumns = [
         closeButton: false
       }
     )
+    setChangeLeader(false)
     refectchWorker()
     // dataToRender()
-    setRow(null)
   } catch (e) {
 console.log(e)
   }
   
-    if (!workerLoading) {
+    if (!loading) {
         
       setModal(!modal)
-    }
-  }
-
-  const addWorkerRecord = () => {
-    setToAddNewRecord(true)
-    setRow({ active: 1 })
-    setTimeout(() => {
-      setModal(!modal) 
-    }, 200)
-  }
-
-  const handleAddRecord = async (newRow) => {
-    try {
-      await addWorker({variables: {
-        active: newRow?.active,
-        description: newRow?.description,
-        email: newRow?.email.toLowerCase(),
-        full_name: newRow?.full_name,
-        isEmergency: false,
-        team_id: changeColor[1],
-        role: newRow?.role,
-        phone: newRow?.phone,
-        password: newRow.password
-      }})
-      console.log("Worker added")
-      await auth.register({
-        email: newRow.email.toLowerCase(),
-        password: "0000", // newRow.password,
-        options: { userData: { display_name: newRow.full_name } }
-      })
-      console.log("Worker registerd")
-      toast.success(
-        <ToastComponent title="Worker Registered" color="success" icon={<Check />} />,
-        {
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeButton: false
-        }
-      )
-      dataToRender()
-      if (!addWorkerLoading) {
-        setModal(!modal)
-      }
-    } catch (e) {
-      console.log(e.message)
-      return toast.error(
-        <ToastComponent title="Client already exists with same email" color="danger" icon={<XCircle />} />,
-        {
-          autoClose: 6000,
-          hideProgressBar: true,
-          closeButton: false
-        }
-      )
-    }
-  }
-
-  const handleChangeTeamColor = async (existingWorker, team_color, updatedRow) => {
-    try {
-      // const res = await removeFromTeamColor({variables: {
-      //   _eq: team_color //set team color to run of existing worker
-      // }})
-      console.log(updatedRow)
-      console.log(existingWorker)
-      const res3 = await updateTeamColor({variables: {
-        team_color: updatedRow.teams[0].team_color, //existing color
-        team_leader: existingWorker.id //existing worker id
-      }})
-      const res2 = await updateTeamColor({variables: {
-        team_color, //new color
-        team_leader: updatedRow.id //new worker id
-      }})
-      setModalAlertDetails(null)
-      setChangedColor(null)
-      setModalAlert(null)
-      toast.success(
-        <ToastComponent title="Team changed" color="success" icon={<Check />} />,
-        {
-          autoClose: 5000,
-          hideProgressBar: true,
-          closeButton: false
-        }
-      )
-    } catch (e) {
-      console.log(e)
-      toast.error(
-        <ToastComponent title="Error" color="danger" icon={<XCircle />} />,
-        {
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeButton: false
-        }
-      )
     }
   }
 
@@ -571,12 +397,6 @@ console.log(e)
       <Card>
         <CardHeader className='border-bottom'>
           <CardTitle tag='h4'>Advance Search</CardTitle>
-          <div className='d-flex mt-md-0 mt-1'>
-            <Button className='ml-2' color='primary' onClick={addWorkerRecord}>
-              <Plus size={15} />
-              <span className='align-middle ml-50'>Add Record</span>
-            </Button>
-          </div>
         </CardHeader>
         <CardBody>
           <Row form className='mt-1 mb-50'>
@@ -618,6 +438,7 @@ console.log(e)
             </Col>
           </Row>
         </CardBody>
+        <Online>
         {!loading ?  <DataTable
           noHeader
           pagination
@@ -631,42 +452,39 @@ console.log(e)
           onRowClicked={(row) => console.log(row)}
           // selectableRowsComponent={BootstrapCheckbox}
         /> : <h4 className="d-flex text-center align-items-center justify-content-center mb-5">Loading Worker information</h4>}
-       
+        </Online>
+       <Offline><h2 className="d-flex text-center align-items-center justify-content-center mb-5">WHY R U DISCONNECTED</h2></Offline>
       </Card>
       <AddNewModal 
       open={modal} 
       handleModal={handleModal} 
-      handleAddRecord={handleAddRecord} 
-      toAddNewRecord={toAddNewRecord} 
       closeModal={closeModal} 
-      changeColor={changeColor}
-      setChangedColor={setChangedColor}
       row={row} 
-      teamsData={teamsData}
+      changeLeader={changeLeader}
+      setChangeLeader={setChangeLeader}
       setRow={setRow} 
       handleUpdate={handleUpdate}
       />
-      <div className='theme-modal-warning'>
+      <div className='theme-modal-danger'>
         <Modal
-          isOpen={modalAlert}
+          isOpen={deleteModal}
           className='modal-dialog-centered'
-          modalClassName="modal-warning"
+          modalClassName="modal-danger"
         >
-          <ModalHeader>Change team color</ModalHeader>
+          <ModalHeader>Remove Team member from current team?</ModalHeader>
           <ModalBody>
-          {workerLoading || updateTeamColorLoading ? <Spinner color="primary" /> : <p>
-            This Team color already belongs to a team: <br />
-            Team Leader: {modalAlertDetails?.[0].full_name}<br />
-            Email: {modalAlertDetails?.[0].email}<br />
-            Color: {modalAlertDetails?.[0].teams?.[0]?.team_color }
+          {deleteTeamMemberLoading ? <Spinner color="primary" /> : <p>
+            This member already belongs team : <br />
+            Team Id: {deleteModalDetails?.teams_member?.team_leader}<br />
+            Color: {deleteModalDetails?.teams_member?.team_color }
             </p>
          }
           </ModalBody>
           <ModalFooter>
-            <Button color="warning" onClick={() => { handleChangeTeamColor(modalAlertDetails?.[0], modalAlertDetails?.[1], modalAlertDetails?.[2]) }} >
-              Change
+            <Button color="danger" onClick={ async () => { await removeTeamMember({variables: {id: deleteModalDetails.id }}); closeDeleteModal() }} >
+              Remove
             </Button>
-            <Button color='secondary' onClick={closeAlertModal} outline>
+            <Button color='secondary' onClick={closeDeleteModal} outline>
               Cancel
             </Button>
           </ModalFooter>

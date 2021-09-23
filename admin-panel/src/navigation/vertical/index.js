@@ -50,6 +50,12 @@ export default [
     navLink: '/workers'
   },
   {
+    id: 'teams',
+    title: 'Teams',
+    icon: <Clock size={20} />,
+    navLink: '/teams'
+  },
+  {
     id: 'services',
     title: 'Services',
     icon: <Clock size={20} />,

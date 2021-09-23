@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-const version = "v0.4.6";
+const version = "v0.4.9";
 import React, { PureComponent } from "react";
 // import * as SplashScreen from "expo-splash-screen";
 import {
@@ -65,6 +65,7 @@ import Notification from "./src/Notification";
 
 import getTheme from "./native-base-theme/components";
 import commonColor from "./native-base-theme/variables/commonColor";
+import { ENDPOINT } from "./src/_config";
 
 /** App main loading */
 // Prevent native splash screen from autohiding before App component declaration
@@ -116,7 +117,7 @@ export default class App extends PureComponent {
     // SplashScreen.hideAsync();
     return (
       <NhostAuthProvider auth={auth}>
-        <NhostApolloProvider auth={auth} gqlEndpoint="https://hasura-8106d23e.nhost.app/v1/graphql">
+        <NhostApolloProvider auth={auth} gqlEndpoint={ENDPOINT}>
           <NativeBaseProvider theme={theme}>
             <AppContainer />
             <Box ml="auto" mr={12}>

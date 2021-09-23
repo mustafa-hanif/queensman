@@ -240,14 +240,15 @@ const UPLOAD_PLAN = gql`
             job_type: "Scheduled Services"
             status: "Planned"
             urgency_level: "Scheduled"
-            active: 1
+            active: 1,
+            description: $notes
           }
         }
         date_on_calendar: $date_on_calendar
         time_on_calendar: $time_on_calendar
         end_time_on_calendar: $end_time_on_calendar
         end_date_on_calendar: $end_date_on_calendar
-        notes: "Scheduled Services"
+        notes: $notes
         blocked: $blocked
         worker_id: $worker_id
       }
@@ -277,6 +278,16 @@ mutation MyMutation($active: Boolean!, $email: citext!) {
   }
 }
 `
+const GET_WORKER = gql`
+query GetWorker($_eq: String!) {
+  worker(where: {email: {_eq: $_eq}}) {
+    full_name
+    id
+    email
+  }
+}
+`
+
 
 const DataTableAdvSearch = () => {
   // ** States
@@ -289,6 +300,9 @@ const DataTableAdvSearch = () => {
     UPDATE_CLIENT,
     { refetchQueries: [{ query: GET_CLIENT }] }
   )
+  const { workerLoading, data: allWorkers, workerError } = useQuery(GET_WORKER, {
+    variables: {_eq: "opscord@queensman.com"}
+  })
   const [addClient, { loading: addClientLoading }] = useMutation(ADD_CLIENT, {
     refetchQueries: [{ query: GET_CLIENT }]
   })
@@ -411,7 +425,12 @@ const DataTableAdvSearch = () => {
     let month = new Date().getMonth() + 1
     let day = new Date().getDate()
     const propertyid = row.property_owneds[0]?.property?.id ? row.property_owneds[0]?.property?.id : row.leases[0]?.property?.id
-
+    const notesArray =  [
+      "AC & Plumbing PPM",
+      "Electrical & Carpentry PPM",
+      "2nd AC & Plumbing PPM",
+      "2nd Elec, Carp & Water Tank"
+    ]
     console.log(row)
     console.log(row.property_owneds[0]?.property?.id)
     const planArray = []
@@ -458,7 +477,8 @@ const DataTableAdvSearch = () => {
           end_time_on_calendar,
           end_date_on_calendar,
           blocked: true,
-          worker_id: 21
+          notes: notesArray[i],
+          worker_id: allWorkers.worker[0].id
         })
         planArray.push(
           {
@@ -482,7 +502,8 @@ const DataTableAdvSearch = () => {
             end_time_on_calendar,
             end_date_on_calendar,
             blocked: true,
-            worker_id: 21
+            notes: notesArray[i],
+            worker_id: allWorkers.worker[0].id
           }
         })
         month += 3

@@ -23,6 +23,7 @@ import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { auth, storage } from "../utils/nhost";
 import colors from "../../native-base-theme/variables/commonColor";
+import { HASURA } from "../_config";
 
 const GET_SCHEDULE = gql`
   query MyQuery($_gte: date!, $_lte: date!) {
@@ -228,7 +229,7 @@ export default function SelectSchedule(props) {
                 .catch(console.error);
               return [
                 `picture${i}`,
-                `https://backend-8106d23e.nhost.app/storage/o/callout_pics/${file.name}`,
+                `${HASURA}/storage/o/callout_pics/${file.name}`,
               ];
             }
             return null;

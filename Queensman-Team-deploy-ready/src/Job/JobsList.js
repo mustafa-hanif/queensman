@@ -35,7 +35,7 @@ const GET_JOBS_LIST = gql`
     $urgency: [String!] = ["High", "Medium", "Scheduled"]
   ) {
     callout(
-      order_by: { request_time: desc }
+      order_by: { request_time: asc }
       where: {
         job_worker: { worker: { email: { _eq: $email } } }
         status: { _neq: "Closed" }
@@ -378,6 +378,20 @@ const Item = ({ item, passItem }) => {
               <AntDesign name="clockcircle" size={18} />
               <Text color="black" fontSize="sm">
                 {moment(`2013-02-08T${item?.schedulers?.[0].time_on_calendar}`).format("hh:mm A")}
+              </Text>
+            </HStack>
+          )}
+        </VStack>
+        <Divider bg="gray.200" />
+        <VStack space={2}>
+          <Text color="black" fontSize="sm">
+            Service created at
+          </Text>
+          {item?.request_time && (
+            <HStack space={2} alignItems="center">
+              <AntDesign name="clockcircle" size={18} />
+              <Text color="black" fontSize="sm">
+                {moment(item?.request_time).format("Do MMMM, YYYY, hh:mm A")}
               </Text>
             </HStack>
           )}

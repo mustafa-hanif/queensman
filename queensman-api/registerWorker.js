@@ -9,11 +9,12 @@ Add these to your `package.json`:
 
 // Node doesn't implement fetch so we have to import it
 var fetch = require("node-fetch");
+const { ENDPOINT, HASURA, SECRET, DOMAIN } = require("./_config")
 
 var createClient = require("nhost-js-sdk").createClient;
 
 const config = {
-  baseURL: "https://backend-8106d23e.nhost.app",
+  baseURL: HASURA,
   ssr: true, 
 };
 
@@ -22,7 +23,7 @@ const { auth } = createClient(config);
 
 async function fetchGraphQL(operationsDoc, operationName, variables) {
   const result = await fetch(
-    "https://hasura-8106d23e.nhost.app/v1/graphql",
+    ENDPOINT,
     {
       method: "POST",
       body: JSON.stringify({
