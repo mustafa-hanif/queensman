@@ -237,7 +237,7 @@ const UPLOAD_PLAN = gql`
             callout_by: $callout_by
             property_id: $property_id
             category: "Uncategorized"
-            job_type: "Scheduled Services"
+            job_type: $notes
             status: "Planned"
             urgency_level: "Scheduled"
             active: 1,
