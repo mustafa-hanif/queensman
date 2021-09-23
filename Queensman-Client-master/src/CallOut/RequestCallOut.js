@@ -13,7 +13,7 @@
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
-import { Button, Radio, Box, ScrollView, Select, Icon, AlertDialog, Center, Pressable, HStack } from "native-base";
+import { Button, Radio, Box, ScrollView, Select, Icon, AlertDialog, Center, Pressable, HStack, CheckIcon } from "native-base";
 import { Video } from "expo-av";
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image } from "react-native";
 
@@ -167,9 +167,20 @@ const GET_JOB_CATEGORY = gql`
   }
 `;
 
+// const GET_JOB_TYPE = gql`
+//   query GetJobType($skill_parent: Int!, $isHigh: Boolean!) {
+//     team_expertise(where: { skill_level: { _eq: 1 }, skill_parent: { _eq: $skill_parent }, isHigh : { _eq: $isHigh} }) {
+//       id
+//       skill_name
+//       isHigh
+//     }
+//   }
+// `;
+
 const GET_JOB_TYPE = gql`
   query GetJobType($skill_parent: Int!) {
     team_expertise(where: { skill_level: { _eq: 1 }, skill_parent: { _eq: $skill_parent } }) {
+      id
       skill_name
     }
   }
@@ -404,7 +415,12 @@ const RequestCallOut = (props) => {
 
   const selectJobCategoryPressed = (id) => {
     // setJobCategorySelect({value, label:value})
-    getJobType({ variables: { skill_parent: id } });
+    getJobType({
+      variables: { 
+        skill_parent: id
+        // isHigh: state.Urgency.toLowerCase() === "high" 
+      } 
+    });
   };
 
   const user = auth?.currentSession?.session?.user;
@@ -848,96 +864,7 @@ const RequestCallOut = (props) => {
       </View>
       <View style={styles.Card}>
         <View style={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
-            {!additionalServices ? "Job Category" : "Request Type"}
-            <Text style={{ color: "red" }}>*</Text>
-          </Text>
-
-          <View>
-            {!additionalServices ? ( // If it is request callout
-              <Select // Select Job category
-                mode="dialog"
-                onValueChange={onJobCategoryValueChange}
-                selectedValue={jobCategorySelect.value}
-                // backgroundColor="#FFCA5D"
-                color="black"
-                placeholder="Select Job Category"
-              >
-                {jobCategory ? (
-                  jobCategory?.team_expertise.map(
-                    (
-                      element,
-                      i // Map job category from db
-                    ) => (
-                      <Select.Item
-                        label={element.skill_name}
-                        value={element.id}
-                        key={i}
-                        // onTouchEnd={() => selectJobCategoryPressed(element.id)}
-                      />
-                    )
-                  )
-                ) : (
-                  <Select.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />
-                )}
-              </Select>
-            ) : (
-              <Select // else request for additional services
-                note
-                mode="dialog"
-                onValueChange={onJobCategoryValueChange}
-                selectedValue={jobCategorySelect.value}
-                // bg="#FFCA5D"
-                color="black"
-                placeholder="Select Request Type"
-              >
-                <Select.Item label="Request for quotation" value="Request for quotation" />
-                <Select.Item label="Other" value="other" />
-              </Select>
-            )}
-          </View>
-
-          {!additionalServices && (
-            <View style={{ paddingTop: "5%" }}>
-              <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
-                Job Type<Text style={{ color: "red" }}>*</Text>
-              </Text>
-              <Select
-                isDisabled={!(jobType?.team_expertise && !loadingJobType)}
-                mode="dialog"
-                onValueChange={onJobTypeValueChange}
-                selectedValue={jobTypeSelect?.value}
-                // bg="#FFCA5D"
-                color="black"
-                placeholder="Select Job Type"
-              >
-                {jobType ? (
-                  jobType?.team_expertise.map((element, i) => (
-                    <Select.Item label={element.skill_name} value={element.skill_name} key={i} />
-                  ))
-                ) : (
-                  <Select.Item label="Drains blockage- WCs" value="Drains blockage- WCs" />
-                )}
-              </Select>
-            </View>
-          )}
-
-          {state.JobType === "other" ? (
-            <View style={{ paddingTop: "3%" }}>
-              <View style={styles.OthertxtStyle}>
-                <TextInput
-                  style={{ fontSize: 14 }}
-                  placeholder="Type other here...."
-                  underlineColorAndroid="transparent"
-                  numberOfLines={1}
-                  onChangeText={(OtherJobType) => {
-                    setState({ ...state, OtherJobType });
-                  }}
-                />
-              </View>
-            </View>
-          ) : null}
-          {!additionalServices && <View style={{ height: "3%" }} />}
+        {!additionalServices && <View style={{ height: "3%" }} />}
           {!additionalServices && (
             <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
               Urgency<Text style={{ color: "red" }}>*</Text>
@@ -945,13 +872,16 @@ const RequestCallOut = (props) => {
           )}
           {!additionalServices && <View style={{ height: "2%" }} />}
           {!additionalServices && (
-            <Box>
+            <Box mb={8}>
               <Radio.Group
               colorScheme="emerald"
                 name="Urgency"
                 accessibilityLabel="Urgency"
                 value={state.Urgency}
                 onChange={(nextValue) => {
+                  console.log(nextValue)
+                  // setJobCategorySelect({value: null, label: null})
+                  // setJobTypeSelect({value: null, label: null})
                   setState({ ...state, Urgency: nextValue });
                 }}
               >
@@ -1001,6 +931,110 @@ const RequestCallOut = (props) => {
               </View> */}
             </Box>
           )}
+          <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
+            {!additionalServices ? "Job Category" : "Request Type"}
+            <Text style={{ color: "red" }}>*</Text>
+          </Text>
+
+          <View>
+            {!additionalServices ? ( // If it is request callout
+              <Select // Select Job category
+                mode="dialog"
+                isDisabled={state.Urgency === ""}
+                onValueChange={onJobCategoryValueChange}
+                selectedValue={jobCategorySelect?.value}
+                // backgroundColor="#FFCA5D"
+                color="black"
+                placeholder="Select Job Category"
+                _selectedItem={{
+                  bg: "#FFCA5D",
+                  endIcon: <CheckIcon size={4} />,
+                }}
+              >
+                {jobCategory ? (
+                  jobCategory?.team_expertise.map(
+                    (
+                      element,
+                      i // Map job category from db
+                    ) => (
+                      <Select.Item
+                        label={element.skill_name}
+                        value={element.id}
+                        key={i}
+                        // onTouchEnd={() => selectJobCategoryPressed(element.id)}
+                      />
+                    )
+                  )
+                ) : (
+                  <Select.Item label="Unable to load job types" value="Unable to load job types" />
+                )}
+              </Select>
+            ) : (
+              <Select // else request for additional services
+                note
+                mode="dialog"
+                isDisabled={state.Urgency === ""}
+                onValueChange={onJobCategoryValueChange}
+                selectedValue={jobCategorySelect?.value}
+                // bg="#FFCA5D"
+                color="black"
+                placeholder="Select Request Type"
+                _selectedItem={{
+                  bg: "#FFCA5D",
+                  endIcon: <CheckIcon size={4} />,
+                }}
+              >
+                <Select.Item label="Request for quotation" value="Request for quotation" />
+                <Select.Item label="Other" value="other" />
+              </Select>
+            )}
+          </View>
+
+          {!additionalServices && (
+            <View style={{ paddingTop: "3%" }}>
+              <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16, marginBottom: 8 }]}>
+                Job Type<Text style={{ color: "red" }}>*</Text>
+              </Text>
+              <Select
+                isDisabled={!(jobCategorySelect?.value && !loadingJobType)}
+                mode="dialog"
+                onValueChange={onJobTypeValueChange}
+                selectedValue={jobTypeSelect?.value}
+                // bg="#FFCA5D"
+                color="black"
+                placeholder="Select Job Type"
+                _selectedItem={{
+                  bg: "#FFCA5D",
+                  endIcon: <CheckIcon size={4} />,
+                }}
+              >
+                {jobType ? (
+                  jobType?.team_expertise.map((element, i) => (
+                    <Select.Item label={element.skill_name} value={element.skill_name} key={i} />
+                  ))
+                ) : (
+                  <Select.Item label="Unable to load job types" value="Unable to load job types" />
+                )}
+              </Select>
+            </View>
+          )}
+
+          {state.JobType === "other" ? (
+            <View style={{ paddingTop: "3%" }}>
+              <View style={styles.OthertxtStyle}>
+                <TextInput
+                  style={{ fontSize: 14 }}
+                  placeholder="Type other here...."
+                  underlineColorAndroid="transparent"
+                  numberOfLines={1}
+                  onChangeText={(OtherJobType) => {
+                    setState({ ...state, OtherJobType });
+                  }}
+                />
+              </View>
+            </View>
+          ) : null}
+          
           <View style={{ height: "3%" }} />
           <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
             Description<Text style={{ color: "red" }}>*</Text>
