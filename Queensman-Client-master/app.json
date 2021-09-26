@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Queensman Client",
+    "name": "Queensman Client dev",
     "slug": "QueensmenClient",
     "privacy": "public",
     "platforms": [
@@ -9,7 +9,7 @@
     ],
     "version": "1.2",
     "orientation": "portrait",
-    "icon": "./assets/icon5.png",
+    "icon": "./assets/iconclienttest.png",
     "splash": {
       "image": "./assets/splash5.png",
       "resizeMode": "contain",

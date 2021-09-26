@@ -167,21 +167,12 @@ const GET_JOB_CATEGORY = gql`
   }
 `;
 
-// const GET_JOB_TYPE = gql`
-//   query GetJobType($skill_parent: Int!, $isHigh: Boolean!) {
-//     team_expertise(where: { skill_level: { _eq: 1 }, skill_parent: { _eq: $skill_parent }, isHigh : { _eq: $isHigh} }) {
-//       id
-//       skill_name
-//       isHigh
-//     }
-//   }
-// `;
-
 const GET_JOB_TYPE = gql`
-  query GetJobType($skill_parent: Int!) {
-    team_expertise(where: { skill_level: { _eq: 1 }, skill_parent: { _eq: $skill_parent } }) {
+  query GetJobType($skill_parent: Int!, $isHigh: Boolean!) {
+    team_expertise(where: { skill_level: { _eq: 1 }, skill_parent: { _eq: $skill_parent }, isHigh : { _eq: $isHigh} }) {
       id
       skill_name
+      isHigh
     }
   }
 `;
@@ -417,8 +408,8 @@ const RequestCallOut = (props) => {
     // setJobCategorySelect({value, label:value})
     getJobType({
       variables: { 
-        skill_parent: id
-        // isHigh: state.Urgency.toLowerCase() === "high" 
+        skill_parent: id,
+        isHigh: state.Urgency.toLowerCase() === "high" 
       } 
     });
   };
@@ -880,8 +871,8 @@ const RequestCallOut = (props) => {
                 value={state.Urgency}
                 onChange={(nextValue) => {
                   console.log(nextValue)
-                  // setJobCategorySelect({value: null, label: null})
-                  // setJobTypeSelect({value: null, label: null})
+                  setJobCategorySelect({value: null, label: null})
+                  setJobTypeSelect({value: null, label: null})
                   setState({ ...state, Urgency: nextValue });
                 }}
               >
