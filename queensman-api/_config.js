@@ -12,9 +12,8 @@
 
 module.exports = {
     DOMAIN: "https://meqmfvxx0d.execute-api.us-east-1.amazonaws.com/production",
-    HASURA: "https://backend-8106d23e.nhost.app",
-    ENDPOINT: "https://hasura-8106d23e.nhost.app/v1/graphql",
-    SECRET: "d71e216c844d298d91fbae2407698b22"
+    HASURA: "https://backend-cf57bf4d.nhost.app",
+    ENDPOINT: "https://hasura-cf57bf4d.nhost.app/v1/graphql"
     //  DOMAIN: "https://meqmfvxx0d.execute-api.us-east-1.amazonaws.com/production"
     // Change domain to above url for produciton dev
 }
