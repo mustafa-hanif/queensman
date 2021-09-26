@@ -237,7 +237,7 @@ const Job = (props) => {
       await Location.enableNetworkProviderAsync()
       let { status } = await Location.requestForegroundPermissionsAsync()
       if (status !== "granted") {
-      } else {
+        return null;
       }
 
       let location = await Location.getCurrentPositionAsync({
@@ -316,15 +316,15 @@ const Job = (props) => {
   };
 
   const StartJobHandler = async () => {
-    // const location = await getLocation();
-    // console.log(location)
+    const location = await getLocation();
+    console.log(location)
     try {
     await startJob({
       variables: {
         ticket_id: ticket.id,
         callout_id: state.JobData.id,
         updater_id: state.workerID,
-        location: null,
+        location,
       },
     });
     console.log("navigating");
