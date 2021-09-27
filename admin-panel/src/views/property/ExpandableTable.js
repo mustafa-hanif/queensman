@@ -20,6 +20,7 @@ import { useState } from 'react'
 import ModalFooter from 'reactstrap/lib/ModalFooter'
 import TabsVerticalLeft from './TabsVerticalLeft'
 import Spinner from 'reactstrap/lib/Spinner'
+import { useNiceLazyQuery } from '../../utility/Utils'
 
 const GET_PROPERTIES = gql`
 query GetProperties($id: Int = 1) {
@@ -103,7 +104,7 @@ const Overlay = ({setLoaderButton, loaderButton, setLoading}) => {
 const CollapseDefault = ({data}) => <AppCollapse data={data} type='border' />
 
 const RowContent = ({data: prop, openModalAlert, count, setModalDetails, handleDetailsModal, loading, setLoading}) => {
-  const [getProps, { loading: propertyLoading, data: propertyData, error }] = useLazyQuery(GET_PROPERTIES)
+  const [getProps, { loading: propertyLoading, data: propertyData, error }] = useNiceLazyQuery(GET_PROPERTIES)
   const [open2, setopen2] = useState(false)
   const handlePropertyDetailsModal = () => {
     setopen2(!open2)

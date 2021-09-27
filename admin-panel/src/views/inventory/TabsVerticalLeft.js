@@ -10,6 +10,7 @@ import { toast } from "react-toastify"
 import axios from "axios"
 import Avatar from "@components/avatar"
 import { DOMAIN, HASURA } from '../../_config'
+import { useNiceMutation, useNiceQuery } from "../../utility/Utils"
 
 // Toast Component
 const ToastComponent = ({ title, icon, color }) => (
@@ -84,12 +85,12 @@ const TabsVerticalLeft = ({item, allProperty, GET_INVENTORY}) => {
   const [pdf, setPdf] = useState(null)
   const [pdfLocation, setPdfLocation] = useState(null)
   const [uploadButton, setUploadButton] = useState(false)
-  const [setToReviewStage, { loading: reviewStageLoading, data: reviewStage, reviewStageError }] = useMutation(UPDATE_TO_REVIEW, { refetchQueries: [{ query: GET_INVENTORY }] })
-  const [setToUnApproveStage, { loading: unApproveStageLoading, data: unApproveStage, unApproveStageError }] = useMutation(UPDATE_TO_UNAPPROVE, { refetchQueries: [{ query: GET_INVENTORY }] })
-  const [setToApprovalStage, { loading: approvalStageLoading, data: approvalStage, approvalStageError }] = useMutation(UPDATE_TO_APPROVAL, { refetchQueries: [{ query: GET_INVENTORY }] })
-  const [setToApproveStage, { loading: approveStageLoading, data: approveStage, approveStageError }] = useMutation(UPDATE_TO_APPROVE, { refetchQueries: [{ query: GET_INVENTORY }] })
-  const [uploadPDF, { loading: uploadPDFLoading, data: uploadPDFdata, uploadPDFError }] = useMutation(ADD_INVENTORY_PDF, { refetchQueries: [{ query: GET_INVENTORY }] })
-  const [uploadUpdatePDF, { loading: uploadUpdatePDFLoading, data: uploadUpdatePDFdata, uploadUpdatePDFError }] = useMutation(UPDATE_INVENTORY_PDF, { refetchQueries: [{ query: GET_INVENTORY }] })
+  const [setToReviewStage, { loading: reviewStageLoading, data: reviewStage, reviewStageError }] = useNiceMutation(UPDATE_TO_REVIEW, { refetchQueries: [{ query: GET_INVENTORY }] })
+  const [setToUnApproveStage, { loading: unApproveStageLoading, data: unApproveStage, unApproveStageError }] = useNiceMutation(UPDATE_TO_UNAPPROVE, { refetchQueries: [{ query: GET_INVENTORY }] })
+  const [setToApprovalStage, { loading: approvalStageLoading, data: approvalStage, approvalStageError }] = useNiceMutation(UPDATE_TO_APPROVAL, { refetchQueries: [{ query: GET_INVENTORY }] })
+  const [setToApproveStage, { loading: approveStageLoading, data: approveStage, approveStageError }] = useNiceMutation(UPDATE_TO_APPROVE, { refetchQueries: [{ query: GET_INVENTORY }] })
+  const [uploadPDF, { loading: uploadPDFLoading, data: uploadPDFdata, uploadPDFError }] = useNiceMutation(ADD_INVENTORY_PDF, { refetchQueries: [{ query: GET_INVENTORY }] })
+  const [uploadUpdatePDF, { loading: uploadUpdatePDFLoading, data: uploadUpdatePDFdata, uploadUpdatePDFError }] = useNiceMutation(UPDATE_INVENTORY_PDF, { refetchQueries: [{ query: GET_INVENTORY }] })
 
   if (allProperty?.client) {
     item = {...item, ...allProperty}

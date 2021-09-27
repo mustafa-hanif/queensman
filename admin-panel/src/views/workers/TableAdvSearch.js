@@ -32,6 +32,7 @@ import AddNewModal from './AddNewModal'
 import ButtonGroup from 'reactstrap/lib/ButtonGroup'
 import { months } from 'moment'
 import Badge from 'reactstrap/lib/Badge'
+import { useNiceMutation, useNiceQuery } from '../../utility/Utils'
 
 const GET_WORKER = gql`
 query GetWorker {
@@ -125,13 +126,13 @@ mutation updateTeamIdinWorker($team_id: Int!, $id: Int!) {
 const DataTableAdvSearch = () => {
 
         // ** States
-  const { loading, data, error, refetch: refectchWorker } = useQuery(GET_WORKER, {fetchPolicy: 'network-only', nextFetchPolicy: 'network-only'})
-  const { teamsLoading, data: teamsData, error: teamsError } = useQuery(GET_TEAMS)
-  const [clearEmergency, {loading: emergencyworkerLoading}] = useMutation(CLEAR_EMERGENCY_WORKER, {refetchQueries:[{query: GET_WORKER}]})
-  const [updateWorker, {loading: workerLoading}] = useMutation(UPDATE_WORKER)
-  const [updateTeamColor, {loading: updateTeamColorLoading}] = useMutation(UPDATE_TEAM_COLOR, {refetchQueries:[{query: GET_WORKER}]})
-  const [addWorker, {loading: addWorkerLoading}] = useMutation(ADD_WORKER, {refetchQueries:[{query: GET_WORKER}]})
-  const [deleteWorker, {loading: deleteWorkerLoading}] = useMutation(DELETE_WORKER, {refetchQueries:[{query: GET_WORKER}]})
+  const { loading, data, error, refetch: refectchWorker } = useNiceQuery(GET_WORKER, {fetchPolicy: 'network-only', nextFetchPolicy: 'network-only'})
+  const { teamsLoading, data: teamsData, error: teamsError } = useNiceQuery(GET_TEAMS)
+  const [clearEmergency, {loading: emergencyworkerLoading}] = useNiceMutation(CLEAR_EMERGENCY_WORKER, {refetchQueries:[{query: GET_WORKER}]})
+  const [updateWorker, {loading: workerLoading}] = useNiceMutation(UPDATE_WORKER)
+  const [updateTeamColor, {loading: updateTeamColorLoading}] = useNiceMutation(UPDATE_TEAM_COLOR, {refetchQueries:[{query: GET_WORKER}]})
+  const [addWorker, {loading: addWorkerLoading}] = useNiceMutation(ADD_WORKER, {refetchQueries:[{query: GET_WORKER}]})
+  const [deleteWorker, {loading: deleteWorkerLoading}] = useNiceMutation(DELETE_WORKER, {refetchQueries:[{query: GET_WORKER}]})
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState('')
   const [searchEmail, setSearchEmail] = useState('')

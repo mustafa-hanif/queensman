@@ -17,6 +17,7 @@ import {
 import Chart from 'react-apexcharts'
 import moment from "moment"
 import { gql, useLazyQuery, useQuery } from '@apollo/client'
+import { useNiceQuery } from '../utility/Utils'
 
 const GET_TICKETS = gql`
 query GetTickets($endDate: timestamptz!, $startDate: timestamptz!) {
@@ -36,7 +37,7 @@ const SupportTracker = props => {
 
   const [selectedValue, setSelectedValue] = useState(dropDownLabels[0])
   const [startEndDate, setStartEndDate] = useState([moment().subtract(selectedValue.value, 'days').toDate(), moment().toDate()]) //last 7 days defualt
-  const { loading, data, error } = useQuery(GET_TICKETS, {variables: {startDate: startEndDate[0], endDate: startEndDate[1] }})
+  const { loading, data, error } = useNiceQuery(GET_TICKETS, {variables: {startDate: startEndDate[0], endDate: startEndDate[1] }})
   const job_tickets = data?.job_tickets
   const totalTicket = job_tickets?.length
   const closedTicket = job_tickets?.filter(element => element.status === "Closed").length

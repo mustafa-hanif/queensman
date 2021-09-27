@@ -7,6 +7,7 @@ import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
 import { MoreVertical, Edit, ChevronDown, Plus, Trash } from 'react-feather'
 import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap'
+import { useNiceMutation, useNiceQuery } from "../../utility/Utils"
 
 // ** Bootstrap Checkbox Component
 const BootstrapCheckbox = forwardRef(({ onClick, ...rest }, ref) => {
@@ -47,8 +48,8 @@ mutation UpdateClient($id: Int!, $email: String, $full_name: String, $gender: St
 const DataTableAdvSearch = () => {
 
         // ** States
-  const { loading, data, error } = useQuery(GET_CLIENT)
-  const [updateClient, {loading: clientLoading}] = useMutation(UPDATE_CLIENT, {refetchQueries:[{query: GET_CLIENT}]})
+  const { loading, data, error } = useNiceQuery(GET_CLIENT)
+  const [updateClient, {loading: clientLoading}] = useNiceMutation(UPDATE_CLIENT, {refetchQueries:[{query: GET_CLIENT}]})
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState('')
   const [searchOccupation, setSearchOccupation] = useState('')
