@@ -78,6 +78,7 @@ import AddNewModal from "./AddNewModal"
 import moment from "moment"
 import axios from "axios"
 import TabsVerticalLeft from "./TabsVerticalLeft"
+import { useNiceLazyQuery, useNiceMutation, useNiceQuery } from "../../utility/Utils"
 
 const GET_INVENTORY = gql`
 query GetInventory {
@@ -147,19 +148,19 @@ query MyQuery($property_id: Int!) {
 
 const DataTableAdvSearch = () => {
   // ** States
-  const { loading, data, error } = useQuery(GET_INVENTORY)
+  const { loading, data, error } = useNiceQuery(GET_INVENTORY)
   const [property_id, setPropertyId] = useState(null)
-  const [getClient, { propertyLoading, data: allProperty, propertyError }] = useLazyQuery(GET_CLIENT, {
+  const [getClient, { propertyLoading, data: allProperty, propertyError }] = useNiceLazyQuery(GET_CLIENT, {
     variables: { property_id }
   })
-  // const [updateClient, { loading: clientLoading }] = useMutation(
+  // const [updateClient, { loading: clientLoading }] = useNiceMutation(
   //   UPDATE_CLIENT,
   //   { refetchQueries: [{ query: GET_INVENTORY }] }
   // )
-  // const [addClient, { loading: addClientLoading }] = useMutation(ADD_CLIENT, {
+  // const [addClient, { loading: addClientLoading }] = useNiceMutation(ADD_CLIENT, {
   //   refetchQueries: [{ query: GET_INVENTORY }]
   // })
-  // const [deleteClient, { loading: deleteClientLoading }] = useMutation(
+  // const [deleteClient, { loading: deleteClientLoading }] = useNiceMutation(
   //   DELETE_CLIENT,
   //   { refetchQueries: [{ query: GET_INVENTORY }] }
   // )

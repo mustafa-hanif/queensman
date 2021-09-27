@@ -1,5 +1,6 @@
 // ** React Imports
 import { useState, Fragment, forwardRef } from "react"
+import { useNiceMutation, useNiceQuery } from "../../utility/Utils"
 import { Link, useHistory } from 'react-router-dom'
 
 import { auth } from "../../utility/nhost"
@@ -214,15 +215,15 @@ const DataTableAdvSearch = () => {
   const history = useHistory()
   const [queryLoading, setQueryLoading] = useState(false)
   const [loaderButton, setLoaderButton] = useState(false)
-  const { loading, data, error, refetch: refetchClient } = useQuery(GET_CLIENT, {fetchPolicy: 'network-only', nextFetchPolicy: 'network-only'})
-  const [updateClient, { loading: clientLoading }] = useMutation(
+  const { loading, data, error, refetch: refetchClient } = useNiceQuery(GET_CLIENT, {fetchPolicy: 'network-only', nextFetchPolicy: 'network-only'})
+  const [updateClient, { loading: clientLoading }] = useNiceMutation(
     UPDATE_CLIENT,
     { refetchQueries: [{ query: GET_CLIENT }] }
   )
-  const [addClient, { loading: addClientLoading }] = useMutation(ADD_CLIENT, {
+  const [addClient, { loading: addClientLoading }] = useNiceMutation(ADD_CLIENT, {
     refetchQueries: [{ query: GET_CLIENT }]
   })
-  const [updateClientActive] = useMutation(UPDATE_ACTIVE)
+  const [updateClientActive] = useNiceMutation(UPDATE_ACTIVE)
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState("")
   const [searchOccupation, setSearchOccupation] = useState("")

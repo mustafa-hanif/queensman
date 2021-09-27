@@ -155,10 +155,10 @@ mutation deleteJobTicket($id: Int!) {
 const DataTableAdvSearch = () => {
 
   // ** States
-  const { loading, data, error } = useQuery(GET_JOB_TICKETS)
-  const [updateJobTicket, { loading: updateJobTicketLoading }] = useMutation(UPDATE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
-  const [addJobTicket, { loading: addJobTicketLoading }] = useMutation(ADD_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
-  const [deleteJobTicket, { loading: deleteJobLoading }] = useMutation(DELETE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
+  const { loading, data, error } = useNiceQuery(GET_JOB_TICKETS)
+  const [updateJobTicket, { loading: updateJobTicketLoading }] = useNiceMutation(UPDATE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
+  const [addJobTicket, { loading: addJobTicketLoading }] = useNiceMutation(ADD_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
+  const [deleteJobTicket, { loading: deleteJobLoading }] = useNiceMutation(DELETE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
   const [modal, setModal] = useState(false)
   const [detailsModal, setDetailsModal] = useState(false)
   const [modalDetails, setModalDetails] = useState(null)

@@ -11,6 +11,7 @@ import Avatar from "@components/avatar"
 import { Trash, Upload, XCircle, Check } from 'react-feather'
 import { DivOverlay } from 'leaflet'
 import { DOMAIN, HASURA } from '../../_config'
+import { useNiceMutation } from '../../utility/Utils'
 
 const MANAGEMENT_REPORT = gql`
 mutation AddManagementReport($property_id: Int!, $report_location: String = "") {
@@ -146,14 +147,14 @@ const TabsVerticalLeft = ({data, propertyLoading, property_id}) => {
   const market_report = data?.market_report
   const monthly_status_report = data?.monthly_services_report
   const material_warranty_report = data?.material_warranty_report
-  const [uploadManagementReport, { loading: managementReportLoading, error: managementReportError }] = useMutation(MANAGEMENT_REPORT)
-  const [uploadMarketReport, { loading: marketReportLoading, error: marketReportError }] = useMutation(MARKET_REPORT)
-  const [uploadMonthlyStatusReport, { loading: monthlyReportLoading, error: monthlyReportError }] = useMutation(MONTHLY_STATUS_REPORT)
-  const [uploadMaterialWarrantyReport, { loading: materialReportLoading, error:materialReportError }] = useMutation(MATERIAL_WARRANTY_REPORT)
-  const [deleteManagementReport, { loading: deleteManagementReportLoading, error: deleteManagementReportError }] = useMutation(DELETE_MANAGEMENT_REPORT)
-  const [deleteMarketReport, { loading: deleteMarketReportLoading, error: deleteMarketReportError }] = useMutation(DELETE_MARKET_REPORT)
-  const [deleteMonthlyStatusReport, { loading: deleteMonthlyReportLoading, error: deleteMonthlyReportError }] = useMutation(DELETE_MONTHLY_STATUS_REPORT)
-  const [deleteMaterialWarrantyReport, { loading: deleteMaterialReportLoading, error: deleteMaterialReportError }] = useMutation(DELETE_MATERIAL_WARRANTY_REPORT)
+  const [uploadManagementReport, { loading: managementReportLoading, error: managementReportError }] = useNiceMutation(MANAGEMENT_REPORT)
+  const [uploadMarketReport, { loading: marketReportLoading, error: marketReportError }] = useNiceMutation(MARKET_REPORT)
+  const [uploadMonthlyStatusReport, { loading: monthlyReportLoading, error: monthlyReportError }] = useNiceMutation(MONTHLY_STATUS_REPORT)
+  const [uploadMaterialWarrantyReport, { loading: materialReportLoading, error:materialReportError }] = useNiceMutation(MATERIAL_WARRANTY_REPORT)
+  const [deleteManagementReport, { loading: deleteManagementReportLoading, error: deleteManagementReportError }] = useNiceMutation(DELETE_MANAGEMENT_REPORT)
+  const [deleteMarketReport, { loading: deleteMarketReportLoading, error: deleteMarketReportError }] = useNiceMutation(DELETE_MARKET_REPORT)
+  const [deleteMonthlyStatusReport, { loading: deleteMonthlyReportLoading, error: deleteMonthlyReportError }] = useNiceMutation(DELETE_MONTHLY_STATUS_REPORT)
+  const [deleteMaterialWarrantyReport, { loading: deleteMaterialReportLoading, error: deleteMaterialReportError }] = useNiceMutation(DELETE_MATERIAL_WARRANTY_REPORT)
   
   const uploadPdf = async (reportNumber) => {
     setLoaderButton(false)

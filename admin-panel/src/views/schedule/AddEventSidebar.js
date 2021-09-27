@@ -24,6 +24,7 @@ import { selectThemeColors, isObjEmpty } from '@utils'
 // ** Styles Imports
 import '@styles/react/libs/react-select/_react-select.scss'
 import '@styles/react/libs/flatpickr/flatpickr.scss'
+import { useNiceLazyQuery, useNiceMutation, useNiceQuery } from '../../utility/Utils'
 
 // ** Toast Component
 const ToastComponent = ({ title, icon, color }) => (
@@ -167,22 +168,22 @@ const AddEventSidebar = props => {
   const [picture4, setPicture4] = useState(selectedEvent.extendedProps?.picture4)
 
   const [calloutJobType, setcalloutJobType] = useState({value: selectedEvent.extendedProps?.job_type || "Select...", label: selectedEvent.extendedProps?.job_type || "Select..."})
-  const { clientLoading, data: allClients, clientError } = useQuery(GET_CLIENT, {
+  const { clientLoading, data: allClients, clientError } = useNiceQuery(GET_CLIENT, {
     skip: !open
   })
-  const [getProperty, { propertyLoading, data: allProperty, propertyError }] = useLazyQuery(GET_PROPERTY, {
+  const [getProperty, { propertyLoading, data: allProperty, propertyError }] = useNiceLazyQuery(GET_PROPERTY, {
     variables: { ownerId:clientId }
   })
-  const { workerLoading, data: allWorkers, workerError } = useQuery(GET_WORKER, {
+  const { workerLoading, data: allWorkers, workerError } = useNiceQuery(GET_WORKER, {
     skip: !open
   })
 
-  const [addJobTicket] = useMutation(ADD_JOB_TICKET)
-  const [deleteJobTicket] = useMutation(DELETE_JOB_TICKET)
+  const [addJobTicket] = useNiceMutation(ADD_JOB_TICKET)
+  const [deleteJobTicket] = useNiceMutation(DELETE_JOB_TICKET)
 
-  const [updateJobTicket] = useMutation(UPDATE_JOB_TICKET)
+  const [updateJobTicket] = useNiceMutation(UPDATE_JOB_TICKET)
 
-  const { jobTypeLoading, data: calloutJobTypeOptions, error: jobTypeError } = useQuery(gql`query JobTypes {
+  const { jobTypeLoading, data: calloutJobTypeOptions, error: jobTypeError } = useNiceQuery(gql`query JobTypes {
     team_expertise {
       label: skill_name
       value: skill_name
@@ -509,7 +510,7 @@ const AddEventSidebar = props => {
       )
     }
   }
-  const { loading, data, error, refetch } = useQuery(GET_CALLOUT, {
+  const { loading, data, error, refetch } = useNiceQuery(GET_CALLOUT, {
     variables: {
       id: selectedEvent?.callout_id
     },
