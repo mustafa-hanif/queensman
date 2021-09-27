@@ -1,6 +1,7 @@
 // ** React Imports
 import { Fragment, useState, useEffect, useRef } from "react"
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client"
+import { useNiceLazyQuery, useNiceMutation } from "../../utility/Utils"
 
 // ** Third Party Components
 import classnames from "classnames"
@@ -292,7 +293,7 @@ const CalendarComponent = ({location}) => {
   const [changeToDayView, setChangeToDayView] = useState(location?.state?.changeToDayView || false)
   const [date, setDate] = useState(location?.state?.date || false)
 
-  const [updateCallOut] = useMutation(UPDATE_CALLOUT, {
+  const [updateCallOut] = useNiceMutation(UPDATE_CALLOUT, {
     refetchQueries: [
       {
         query: GET_SCHEDULE,
@@ -303,7 +304,7 @@ const CalendarComponent = ({location}) => {
       }
     ]
   })
-  const [updateCalloutAndJobTicket] = useMutation(UPDATE_CALLOUT_AND_JOB_TICKET, {
+  const [updateCalloutAndJobTicket] = useNiceMutation(UPDATE_CALLOUT_AND_JOB_TICKET, {
     refetchQueries: [
       {
         query: GET_SCHEDULE,
@@ -314,8 +315,8 @@ const CalendarComponent = ({location}) => {
       }
     ]
   })
-  const [updateCallOutDrag] = useMutation(UPDATE_CALLOUT_DRAG)
-  const [deleteCallout] = useMutation(DELETE_CALLOUT)
+  const [updateCallOutDrag] = useNiceMutation(UPDATE_CALLOUT_DRAG)
+  const [deleteCallout] = useNiceMutation(DELETE_CALLOUT)
 
   const selectedDates = useRef({
     _gte: new Date().toISOString().split("T")[0],
@@ -418,7 +419,7 @@ const CalendarComponent = ({location}) => {
   const _gte = selectedDates.current._gte
   const _lte = selectedDates.current._lte
 
-  const [getSchedule, { loading, data }] = useLazyQuery(GET_SCHEDULE, {
+  const [getSchedule, { loading, data }] = useNiceLazyQuery(GET_SCHEDULE, {
     variables: {
       _gte,
       _lte
@@ -428,7 +429,7 @@ const CalendarComponent = ({location}) => {
   const [
     requestCalloutApiCall,
     { loading: requestCalloutLoading, error: mutationError }
-  ] = useMutation(REQUEST_CALLOUT, {
+  ] = useNiceMutation(REQUEST_CALLOUT, {
     refetchQueries: [
       {
         query: GET_SCHEDULE,
