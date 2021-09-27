@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardBody, CardSubtitle, Label, Spinner, Mo
 import moment from "moment"
 import CalloutModal from "./CalloutModal" 
 import { gql, useQuery } from '@apollo/client'
+import { useNiceQuery } from '../utility/Utils'
 
 const GET_CALLOUT_COUNT_TODAY = gql`
 query CalloutsToday($endDate: timestamptz!, $startDate: timestamptz!) {
@@ -135,7 +136,7 @@ const ApexBarChart = ({ info, direction }) => {
   }
   const [picker, setPicker] = useState([moment().subtract(7, 'days').toDate(), moment().toDate()]) //last 7 days defualt
   const [dateArray, setDateArray] = useState(getDaysArray(picker))
-  const { loading, data, error } = useQuery(GET_CALLOUT_COUNT_TODAY, {variables: {endDate: picker[1], startDate: picker[0]}})
+  const { loading, data, error } = useNiceQuery(GET_CALLOUT_COUNT_TODAY, {variables: {endDate: picker[1], startDate: picker[0]}})
   let countArray  = []
   if (!loading) {
     const modifiedData = data?.callout
