@@ -11,7 +11,7 @@ import DataTable from 'react-data-table-component'
 import { toast } from 'react-toastify'
 import Exportqs from '../extensions/import-export/Exportqs'
 import moment from "moment"
-import { useNiceQuery } from '../../utility/Utils'
+import { useNiceQuery, useNiceMutation } from '../../utility/Utils'
 import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check, XCircle } from 'react-feather'
 import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import Select from 'react-select'
