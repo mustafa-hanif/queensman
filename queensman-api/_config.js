@@ -11,10 +11,10 @@
 // https://y8sr1kom3g.execute-api.us-east-1.amazonaws.com/dev/
 
 module.exports = {
-    DOMAIN: "https://meqmfvxx0d.execute-api.us-east-1.amazonaws.com/production",
-    HASURA: "https://backend-cf57bf4d.nhost.app",
-    ENDPOINT: "https://hasura-cf57bf4d.nhost.app/v1/graphql",
-    SECRET: "9f3c57cbf94b42e7295071d31df3e6e8"
-    //  DOMAIN: "https://meqmfvxx0d.execute-api.us-east-1.amazonaws.com/production"
-    // Change domain to above url for produciton dev
+  DOMAIN: 'https://meqmfvxx0d.execute-api.us-east-1.amazonaws.com/production',
+  HASURA: 'https://backend-cf57bf4d.nhost.app',
+  ENDPOINT: 'https://hasura-cf57bf4d.nhost.app/v1/graphql',
+  SECRET: '9f3c57cbf94b42e7295071d31df3e6e8'
+  //  DOMAIN: "https://meqmfvxx0d.execute-api.us-east-1.amazonaws.com/production"
+  // Change domain to above url for produciton dev
 }

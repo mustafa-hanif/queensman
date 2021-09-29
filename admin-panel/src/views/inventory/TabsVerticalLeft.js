@@ -254,9 +254,9 @@ const TabsVerticalLeft = ({item, allProperty, GET_INVENTORY}) => {
           setLoading(false)
           await uploadUpdatePDF({variables: { //update file
             id: inventory_report_pdf.id,
-            report_location: `${HAUSRA}/storage/o/inventory_report/${pdf.name}`
+            report_location: `${HASURA}/storage/o/inventory_report/${pdf.name}`
           }})
-          setPdfLocation(`${HAUSRA}/storage/o/inventory_report/${pdf.name}`)
+          setPdfLocation(`${HASURA}/storage/o/inventory_report/${pdf.name}`)
           toast.success(
             <ToastComponent title="File Uploaded" color="success" icon={<Check />} />,
             {
@@ -287,9 +287,9 @@ const TabsVerticalLeft = ({item, allProperty, GET_INVENTORY}) => {
           await uploadPDF({variables: { //Add in db
             inventory_report_id: item.id,
             property_id: property.id, 
-            report_location: `${HAUSRA}/storage/o/inventory_report/${pdf.name}`
+            report_location: `${HASURA}/storage/o/inventory_report/${pdf.name}`
           }})
-          setPdfLocation(`${HAUSRA}/storage/o/inventory_report/${pdf.name}`)
+          setPdfLocation(`${HASURA}/storage/o/inventory_report/${pdf.name}`)
           toast.success(
             <ToastComponent title="File Uploaded" color="success" icon={<Check />} />,
             {
