@@ -346,7 +346,7 @@ const CalendarComponent = ({location}) => {
       updateCallOut({
         variables: {
           notes: eventToUpdate.title,
-          callout_id: eventToUpdate.extendedProps.callout_id,
+          callout_id: eventToUpdate.callout_id,
           callout_by_email: eventToUpdate.extendedProps.clientEmail,
           category: eventToUpdate.extendedProps.category,
           job_type: eventToUpdate.extendedProps.job_type,
@@ -365,7 +365,7 @@ const CalendarComponent = ({location}) => {
       updateCalloutAndJobTicket({
         variables: {
           notes: eventToUpdate.title,
-          callout_id: eventToUpdate.extendedProps.callout_id,
+          callout_id: eventToUpdate.callout_id,
           callout_by_email: eventToUpdate.extendedProps.clientEmail,
           category: eventToUpdate.extendedProps.category,
           job_type: eventToUpdate.extendedProps.job_type,
