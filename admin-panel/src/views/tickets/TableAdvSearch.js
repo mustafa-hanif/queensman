@@ -637,6 +637,7 @@ const DataTableAdvSearch = () => {
     const objectsToExport = []
 
     for (const keys in DataTojson) {
+    
       objectsToExport.push({
         id: DataTojson[keys].id.toString(),
         calloutby: DataTojson[keys]?.worker_email,
@@ -647,8 +648,10 @@ const DataTableAdvSearch = () => {
         urgency_level: DataTojson[keys]?.callout?.urgency_level,
         worker_assigned: DataTojson[keys]?.worker_email_rel?.full_name,
         CreationDate: DataTojson[keys].created_at,
-        resolvedTime: DataTojson[keys]?.callout?.callout_job?.resolved_time,
-        Solution: DataTojson[keys]?.callout?.callout_job?.solution
+        resolvedTime: DataTojson[keys]?.callout?.job?.[0]?.resolved_time,
+        Solution: DataTojson[keys]?.callout?.job?.[0]?.solution,
+        Rating: DataTojson[keys]?.callout?.job?.[0]?.rating,
+        Feedback: DataTojson[keys]?.callout?.job?.[0]?.feedback
 
       })
 
