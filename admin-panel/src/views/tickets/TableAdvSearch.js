@@ -98,6 +98,7 @@ query getJobTickets {
         solution
         feedback
         rating
+        resolved_time
       }
       property {
         id
@@ -573,13 +574,13 @@ const DataTableAdvSearch = () => {
     const value = e?.value
     let updatedData = []
     const dataToFilter = () => {
-        if (searchEmail.length || searchName.length || description.length || searchCalloutId.length || searchStatus?.length) {
-         return filteredData
-       } else {
-      return data?.job_tickets
-        }
+      if (searchEmail.length || searchName.length || description.length || searchCalloutId.length || searchStatus?.length) {
+        return filteredData
+      } else {
+        return data?.job_tickets
+      }
     }
-    
+
     if (value?.length) {
       updatedData = dataToFilter().filter(item => {
         const startsWith = item.type?.toLowerCase().startsWith(value.toLowerCase())
@@ -605,11 +606,11 @@ const DataTableAdvSearch = () => {
     let updatedData = []
     const dataToFilter = () => {
       if (searchEmail.length || searchName.length || description.length || searchCalloutId.length || searchType?.length) {
-       return filteredData
-     } else {
-    return data?.job_tickets
+        return filteredData
+      } else {
+        return data?.job_tickets
       }
-  }
+    }
 
     if (value?.length) {
       updatedData = dataToFilter().filter(item => {
@@ -628,7 +629,7 @@ const DataTableAdvSearch = () => {
       // console.log(filteredData)
       setSearchStatus(value)
     }
-    
+
   }
   //for export data start
   //=================================
@@ -638,12 +639,16 @@ const DataTableAdvSearch = () => {
     for (const keys in DataTojson) {
       objectsToExport.push({
         id: DataTojson[keys].id.toString(),
-        type: DataTojson[keys].type,
+        calloutby: DataTojson[keys]?.worker_email,
+        propertyType: DataTojson[keys]?.callout?.property?.address,
+        type: DataTojson[keys]?.callout?.job_type,
         status: DataTojson[keys].status,
         description: DataTojson[keys].description,
         urgency_level: DataTojson[keys]?.callout?.urgency_level,
         worker_assigned: DataTojson[keys]?.worker_email_rel?.full_name,
-        CreationDate: DataTojson[keys].created_at
+        CreationDate: DataTojson[keys].created_at,
+        resolvedTime: DataTojson[keys]?.callout?.callout_job?.resolved_time,
+        Solution: DataTojson[keys]?.callout?.callout_job?.solution
 
       })
 
@@ -665,16 +670,16 @@ const DataTableAdvSearch = () => {
       return createExportObject(data?.job_tickets)
     }
   }
-  
+
   const clearRecord = () => {
-    setSearchEmail("") 
-    setSearchName("")  
-    setDescription("")  
-    setSearchType(null)  
+    setSearchEmail("")
+    setSearchName("")
+    setDescription("")
+    setSearchType(null)
     setSearchCalloutId("")
     setSearchStatus(null)
   }
-  
+
   return (
     <Fragment>
       <Card>
@@ -682,7 +687,7 @@ const DataTableAdvSearch = () => {
         <CardHeader className='border-bottom'>
           <CardTitle tag='h4'>Ticket Search</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
-          { (searchEmail || searchName || description || searchType || searchStatus || searchCalloutId) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
+            {(searchEmail || searchName || description || searchType || searchStatus || searchCalloutId) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
               <XCircle size={15} />
               <span className='align-middle ml-50'>Clear filter</span>
             </Button>}
