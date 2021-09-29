@@ -81,6 +81,7 @@ import ButtonGroup from "reactstrap/lib/ButtonGroup"
 import { months } from "moment"
 import axios from "axios"
 import TabsVerticalLeft from "./TabsVerticalLeft"
+import { useNiceMutation, useNiceQuery } from "../../utility/Utils"
 
 const GET_CLIENT = gql`
   query GetClient {
@@ -295,25 +296,25 @@ const DataTableAdvSearch = () => {
   const [noEmailError, setNoEmailError] = useState(false)
   const [queryLoading, setQueryLoading] = useState(false)
   const [loaderButton, setLoaderButton] = useState(false)
-  const { loading, data, error, refetch: refetchClient } = useQuery(GET_CLIENT, { fetchPolicy: 'network-only', nextFetchPolicy: 'network-only' })
-  const [updateClient, { loading: clientLoading }] = useMutation(
+  const { loading, data, error, refetch: refetchClient } = useNiceQuery(GET_CLIENT)
+  const [mupdateClient, { loading: clientLoading }] = useNiceMutation(
     UPDATE_CLIENT,
     { refetchQueries: [{ query: GET_CLIENT }] }
   )
-  const { workerLoading, data: allWorkers, workerError } = useQuery(GET_WORKER, {
+  const { workerLoading, data: allWorkers, workerError } = useNiceQuery(GET_WORKER, {
     variables: {_eq: "opscord@queensman.com"}
   })
-  const [addClient, { loading: addClientLoading }] = useMutation(ADD_CLIENT, {
+  const [addClient, { loading: addClientLoading }] = useNiceMutation(ADD_CLIENT, {
     refetchQueries: [{ query: GET_CLIENT }]
   })
-  const [deleteClient, { loading: deleteClientLoading }] = useMutation(
+  const [deleteClient, { loading: deleteClientLoading }] = useNiceMutation(
     DELETE_CLIENT,
     { refetchQueries: [{ query: GET_CLIENT }] }
   )
-  const [addPlan, { loading: addPlanLoading }] = useMutation(UPLOAD_PLAN)
-  const [updateClientActive] = useMutation(UPDATE_ACTIVE)
-  const [deletePlan, { loading: deletePlanLoading }] = useMutation(DELETE_PLAN)
-  const [updateClientPlan] = useMutation(UPDATE_CLIENT_HASPLAN, { refetchQueries: [{ query: GET_CLIENT }] })
+  const [addPlan, { loading: addPlanLoading }] = useNiceMutation(UPLOAD_PLAN)
+  const [updateClientActive] = useNiceMutation(UPDATE_ACTIVE)
+  const [deletePlan, { loading: deletePlanLoading }] = useNiceMutation(DELETE_PLAN)
+  const [updateClientPlan] = useNiceMutation(UPDATE_CLIENT_HASPLAN, { refetchQueries: [{ query: GET_CLIENT }] })
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState("")
   const [searchOccupation, setSearchOccupation] = useState("")

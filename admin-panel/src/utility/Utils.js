@@ -1,5 +1,5 @@
 import { auth } from "./nhost"
-
+import {useQuery, useMutation, useLazyQuery} from "@apollo/client"
 // ** Checks if an object is empty (returns boolean)
 export const isObjEmpty = obj => Object.keys(obj).length === 0
 
@@ -84,3 +84,64 @@ export const selectThemeColors = theme => ({
     neutral30: '#ededed' // for input hover border-color
   }
 })
+
+const logout = () => {
+  localStorage.clear()
+  setTimeout(() => {
+    location.reload()
+  }, 100)
+}
+
+export const useNiceQuery = (...props) => {
+  const { loading, data, error, refetch} = useQuery(...props)
+  // const localProps = props
+  console.log("running")
+  if (error) {
+    console.log("error")
+    // console.log(error)
+    if (error.toString().includes('not found')) {
+      // run logout function
+      alert("Session expired")
+      logout()
+      console.log("logout")
+    }
+  }
+  // console.log("runnin2")
+  return { loading, data, error, refetch}
+}
+
+export const useNiceMutation = (...props) => {
+  const [mutateFunction, { loading, data, error, refetch}] = useMutation(...props)
+  // const localProps = props
+  console.log("running")
+  if (error) {
+    console.log("error")
+    // console.log(error)
+    if (error.toString().includes('not found')) {
+      // run logout function
+      alert("Session expired")
+      logout()
+      console.log("logout")
+    }
+  }
+  // console.log("runnin2")
+  return [mutateFunction, { loading, data, error, refetch}]
+}
+
+export const useNiceLazyQuery = (...props) => {
+  const [mutateFunction, { loading, data, error, refetch}] = useLazyQuery(...props)
+  // const localProps = props
+  console.log("running")
+  if (error) {
+    console.log("error")
+    // console.log(error)
+    if (error.toString().includes('not found')) {
+      // run logout function
+      alert("Session expired")
+      logout()
+      console.log("logout")
+    }
+  }
+  // console.log("runnin2")
+  return [mutateFunction, { loading, data, error, refetch}]
+}

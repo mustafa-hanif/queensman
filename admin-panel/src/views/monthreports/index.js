@@ -16,6 +16,7 @@ import TableAdvSearch from './TableAdvSearch'
 // ** Styles
 import '@styles/react/libs/tables/react-dataTable-component.scss'
 import { gql, useLazyQuery, useQuery } from "@apollo/client"
+import { useNiceQuery } from '../../utility/Utils'
 
 const GET_CLIENT = gql`
 query GetClient {
@@ -38,7 +39,7 @@ function Clients() {
     setIsOpen(!isOpen)
   }
  
-  const { loading, error, data } = useQuery(GET_CLIENT)
+  const { loading, error, data } = useNiceQueryy(GET_CLIENT)
 
   if (loading) return 'Loading...'
   if (error) return `Error!-+ ${error.message}`

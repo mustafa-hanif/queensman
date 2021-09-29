@@ -3,6 +3,7 @@ import axios from 'axios'
 import { Users } from 'react-feather'
 import StatsWithAreaChart from '@components/widgets/stats/StatsWithAreaChart'
 import { gql, useQuery } from '@apollo/client'
+import { useNiceQuery } from '../utility/Utils'
 
 const GET_CALLOUT_COUNT_TODAY = gql`
 query CalloutsToday($date: timestamptz!) {
@@ -19,7 +20,7 @@ const SubscribersGained = ({ kFormatter }) => {
     return new Date(new Date(date).setHours(new Date(date).getHours() + hours)).toISOString()
   }
 
-  const { loading, data, error } = useQuery(GET_CALLOUT_COUNT_TODAY, {variables: {date: Date()}})
+  const { loading, data, error } = useNiceQuery(GET_CALLOUT_COUNT_TODAY, {variables: {date: Date()}})
   if (!loading) {
     const modifiedData = data?.callout_aggregate.aggregate.count
     console.log(modifiedData)

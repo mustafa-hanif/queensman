@@ -50,7 +50,7 @@ const BootstrapCheckbox = forwardRef(({ onClick, ...rest }, ref) => (
 
 const ClientTable = () => {
   // ** States
-  const { loading, data, error } = useQuery(GET_CLIENT)
+  const { loading, data, error } = useNiceQuery(GET_CLIENT)
   const [currentPage, setCurrentPage] = useState(0)
   const [filteredData, setFilteredData] = useState([])
   const [searchName, setSearchName] = useState('')
