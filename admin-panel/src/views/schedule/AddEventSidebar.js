@@ -230,7 +230,8 @@ const AddEventSidebar = props => {
         status: "Open",
         blocked,
         urgency_level: "Medium",
-        worker_id: workerId
+        worker_id: workerId,
+        inserted_by: JSON.parse(localStorage.getItem('userData')).user.display_name
         // ...pictures,
       }
     })
