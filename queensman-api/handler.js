@@ -4,6 +4,7 @@ const sendNotification = require('./api/sendNotification').sendNotificationAPI;
 const sendInventoryClientEmail = require('./api/sendInventoryClientEmail').sendInventoryClientEmail;
 const sendInventoryTeamEmail = require('./api/sendInventoryTeamEmail').sendInventoryTeamEmail;
 const scheduleCallout = require('./api/scheduleCallout').scheduleCallout;
+const jobTicketTimeSet = require('./api/jobTicketTimeSet').jobTicketTimeSet;
 const everyFiveMinute = require('./api/everyFiveMinute').everyFiveMinute;
 const addJobTicketZoho = require('./api/addJobTicketZoho').addJobTicketZoho;
 const quarterlyTasks = require('./api/quarterlyTasks').quarterlyTasks;
@@ -17,6 +18,7 @@ const expresstest = require('./api/expresstest').expresstest;
 
 module.exports.sendNotification = sendNotification;
 module.exports.scheduleCallout = scheduleCallout;
+module.exports.jobTicketTimeSet = jobTicketTimeSet;
 module.exports.sendInventoryClientEmail = sendInventoryClientEmail;
 module.exports.sendInventoryTeamEmail = sendInventoryTeamEmail;
 module.exports.sendPlanEmail = sendPlanEmail;
