@@ -77,6 +77,7 @@ const GET_JOBS_LIST = gql`
         city
       }
       schedulers {
+        id
         date_on_calendar
         time_on_calendar
       }
