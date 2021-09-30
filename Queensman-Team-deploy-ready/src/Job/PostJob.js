@@ -39,8 +39,26 @@ const POST_PIC = gql`
   }
 `;
 
+
+const FINISH_JOB_SINGLE = gql`
+  mutation UpdateJobAndJobTicket(
+    $id: Int!
+  ) {
+    update_job_tickets_by_pk(
+      pk_columns: { id: $id }
+      _set: { status: "Closed" }
+    ) {
+      id
+    }
+  }
+`;
+
 const PostJob = (props) => {
   const workerId = props.navigation.getParam("workerId", {});
+  const ticketId = props.navigation.getParam("ticketDetails", {}).id;
+  console.log(props.navigation.getParam("ticketCount", {}))
+  const [finishJobSingle] = useMutation(FINISH_JOB_SINGLE);
+
   const [state, setState] = useState({
     solution: "",
     Pic1: "link",
@@ -58,7 +76,7 @@ const PostJob = (props) => {
     selectedPic:
       "https://en.wikipedia.org/wiki/Art#/media/File:Art-portrait-collage_2.jpg",
     isPicvisible: false, //veiw image app kay lia
-    IsImageuploaded: false,
+    IsImageuploaded: true,
     selectedNo: 0,
     ViewOpacity: 1,
   });
@@ -81,6 +99,28 @@ const PostJob = (props) => {
       selectedNo: no,
     });
   };
+  
+  const endJobHandler = async () => {
+    if (state.solution == "") {
+      alert("Please type solution first!");
+    } else if (state.IsImageuploaded == false) {
+      alert("Please upload image first!");
+    } else {
+      try {
+        await finishJobSingle({
+          variables: {
+            id: ticketId
+        }})
+        alert("Job ticket has been successfully submitted");
+        setTimeout(() => {
+          props.navigation.navigate("Home");
+        }, 1000);
+      } catch (e) {
+        console.log(e);
+        alert("Could not submit Job!");
+      }
+    }
+  };
 
   const postJobHandler = () => {
     if (state.solution == "") {
@@ -98,6 +138,23 @@ const PostJob = (props) => {
       });
     }
   };
+  
+  const alertEndJobHandler = () => {
+    Alert.alert(
+      "Finish Ticket.",
+      "Are you sure you want to finish this ticket?",
+      [
+        {
+          text: "No",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "Yes", onPress: () => endJobHandler() },
+      ],
+      { cancelable: false }
+    );
+  };
+
   const alertPostJobHandler = () => {
     Alert.alert(
       "Proceed.",
@@ -700,7 +757,9 @@ const PostJob = (props) => {
         color="#FFCA5D"
       />
       <View style={{ height: "2%" }}></View>
+      {props.navigation.getParam("ticketCount", {}) === 1 ? 
       <Button onPress={alertPostJobHandler} title="PROCEED" color="#FFCA5D" />
+      : <Button onPress={alertEndJobHandler} title="FINISH TICKET" color="#FFCA5D" />}
       <View style={{ height: 80 }}></View>
       <Modal
         isVisible={state.isPicvisible}

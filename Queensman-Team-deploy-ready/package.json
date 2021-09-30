@@ -40,6 +40,7 @@
     "hoist-non-react-statics": "*",
     "install": "^0.13.0",
     "lodash": "^4.0.0",
+    "moment": "^2.29.1",
     "native-base": "^3.0.6",
     "nhost-js-sdk": "^3.1.0",
     "react": "16.13.1",

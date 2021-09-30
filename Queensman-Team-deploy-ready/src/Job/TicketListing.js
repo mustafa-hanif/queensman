@@ -3,6 +3,7 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from "react";
 import call from "react-native-phone-call";
+import moment from "moment"
 import { AntDesign } from "@expo/vector-icons";
 import {
   StyleSheet,
@@ -30,6 +31,8 @@ const GET_JOB_TICKETS = gql`
       status
       type
       isVerified
+      start_time
+      end_time
     }
   }
 `;
@@ -57,7 +60,8 @@ export default function TicketListing(props) {
     client, 
     property, 
     job_type, 
-    id
+    id,
+    schedulers
   } = props.navigation.getParam(
     "it",
     {}
@@ -178,15 +182,13 @@ export default function TicketListing(props) {
           }}
         >
           <View>
-            <Text style={{ fontWeight: "bold" }}>
-              {props.name}
-            </Text>
-            <Text style={{ fontSize: 12, fontWeight: "bold"}}>
-              {`ID: ${props.id}`}
-            </Text>
-            <Text style={{ fontSize: 13 }}>{props?.description}</Text>
-        <Text style={{ fontSize: 12 }}>Ticket type: {props?.type}</Text>
-        <Text style={{ fontSize: 12 }}>Status: <Text style={ props?.status == "Closed" && {color: 'red'}}>{props?.status}</Text></Text>
+            <Text style={{ fontSize: 14, marginBottom: 4, fontWeight: "bold" }}>Name: <Text style={{ fontWeight: "normal" }}>{props?.name}</Text></Text>
+            <Text style={{ fontSize: 13, marginBottom: 4, fontWeight: "bold" }}>ID: <Text style={{ fontSize: 12, fontWeight: "normal"}}>{props?.id}</Text></Text>
+            <Text style={{ fontSize: 13, marginBottom: 4, fontWeight: "bold" }}>Description: <Text style={{ fontSize: 12, fontWeight: "normal"}}>{props?.description}</Text></Text>
+            <Text style={{ fontSize: 13, marginBottom: 4, fontWeight: "bold" }}>Ticket Type: <Text style={{ fontSize: 12, fontWeight: "normal"}}>{props?.type}</Text></Text>
+            <Text style={{ fontSize: 13, marginBottom: 4, fontWeight: "bold" }}>Status: <Text style={ props?.status == "Closed" && {color: 'red'}}>{props?.status}</Text></Text>
+              {props?.status == "Closed" ? <Text style={{ fontSize: 13 }}><Text style={{fontWeight: "bold"}}>Completion Time: </Text>{moment(props?.end_time).diff(moment(props?.start_time), "minutes")} Minute(s)</Text>
+              : props?.status !== "Open" && <Text style={{ fontSize: 13 }}><Text style={{fontWeight: "bold"}}>Time since you started ticket: </Text>{props?.end_time ? moment(props?.end_time).diff(moment(props?.start_time), "minutes") : moment.utc().diff(moment(props?.start_time), 'minutes')} Minute(s)</Text>}
           </View>
           <View>
             {props.Checked ? (
@@ -199,11 +201,14 @@ export default function TicketListing(props) {
     );
   };
 
-  const CreateTicketCard = () => {
+  const CreateTicketCard = ({id, client, workerId}) => {
     return (
       <TouchableOpacity
         onPress={() => {
-          props.navigation.navigate("CreateTicket", { callout_id: Number(id) });
+          props.navigation.navigate("CreateTicket", {
+            callout_id: Number(id),
+            ticketDetails: {id, client, workerId, schedulers}
+          });
         }}
         style={{
           borderWidth: 2,
@@ -229,7 +234,7 @@ export default function TicketListing(props) {
   const _tickets = [...(data?.job_tickets ?? []), ...(data?.null_ticket ?? [])];
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={{ margin: "3%" }}>
-      <CreateTicketCard></CreateTicketCard>
+      <CreateTicketCard client={client} id={id} workerId={workerId}></CreateTicketCard>
       <TicketDetails></TicketDetails>
 
       <View style={{ marginTop: "2%" }}>

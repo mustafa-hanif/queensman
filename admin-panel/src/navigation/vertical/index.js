@@ -26,12 +26,6 @@ export default [
     navLink: '/schedule'
   },
   {
-    id: 'monthly reports',
-    title: 'Monthly Reports',
-    icon: <Clock size={20} />,
-    navLink: '/monthreports'
-  },
-  {
     id: 'inventory',
     title: 'Inventory',
     icon: <Clock size={20} />,
