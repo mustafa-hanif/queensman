@@ -38,7 +38,8 @@ const jobTicketTimeSet = async (event) => {
   const oldStatus = oldQuery.status;
   const id = newQuery.id
   if (oldStatus === "Open" && newStatus === "In Progress") {
-    const { errors: errors, data: lastWorkers } = await fetchGraphQL(
+    console.log("From Open to In Progress")
+    const { errors: errors, data: updateTicket } = await fetchGraphQL(
       `mutation updateJobTicket($id: Int!, $start_time: timestamp!) {
         update_job_tickets(where: {id: {_eq: $id}}, _set: {start_time: $start_time}) {
           affected_rows
@@ -54,9 +55,10 @@ const jobTicketTimeSet = async (event) => {
   }
 
   if (oldStatus === "In Progress" && newStatus === "Closed") {
-    const { errors: errors, data: lastWorkers } = await fetchGraphQL(
+    console.log("From In Progress to Closed")
+    const { errors: errors, data: updateTicket } = await fetchGraphQL(
       `mutation updateJobTicket($id: Int!, $end_time: timestamp!) {
-        update_job_tickets(where: {id: {_eq: $id}}, _set: {start_time: $start_time}) {
+        update_job_tickets(where: {id: {_eq: $id}}, _set: {end_time: $end_time}) {
           affected_rows
         }
       }               
