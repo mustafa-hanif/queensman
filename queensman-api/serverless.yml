@@ -80,6 +80,14 @@ functions:
           path: /scheduleCallout
           method: post
           cors: true
+
+  jobTicketTimeSet:
+    handler: handler.jobTicketTimeSet
+    events:
+      - http:
+          path: /jobTicketTimeSet
+          method: post
+          cors: true
         
   sendInventoryClientEmail:
     handler: handler.sendInventoryClientEmail
