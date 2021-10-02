@@ -18,15 +18,15 @@ const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
 // if contains ?? and 10 mins passed - add notification to client to call someone
 
 async function everyFiveMinute() {
-  // const minutes = await respondToEmergencies();
-  // await notifyScheduledTasks();
+  const minutes = await respondToEmergencies();
+  await notifyScheduledTasks();
 
   await notifyTeamisComing();
-  return 0;
+  return minutes;
 }
 
 async function notifyTeamisComing() {
-  const now = new Date('October 02, 2021 13:35:00');
+  const now = new Date();
   const timeZone = 'Asia/Dubai'
   const zonedDate = utcToZonedTime(now, timeZone)
   const { errors, data: { scheduler } } = await fetchGraphQL(`
@@ -87,6 +87,12 @@ async function notifyTeamisComing() {
       console.log('running late ', diff)
       if (diffWithNow >= 20 && diffWithNow <= 25) {
         await addNotification(clientEmail, 'Sorry the team is running late on the previous job. The coordinator will be in contact shortly', 'client', { callout_id });
+
+        // Add notification to Operations Coordinator
+        await addNotification('opsmanager@queensman.com', 'Sorry the team is running late on the previous job. The coordinator will be in contact shortly', 'worker', { callout_id });
+
+        // Add notification to Operations Coordinator
+        await addNotification('opscord@queensman.com', 'Sorry the team is running late on the previous job. The coordinator will be in contact shortly', 'worker', { callout_id });
       }
     }
 
@@ -97,9 +103,20 @@ async function notifyTeamisComing() {
       console.log(diff);
       if (diff >= 30 && diff < 35) {
         await addNotification(clientEmail, 'Hi. We’re running to plan – our team will be with you as scheduled', 'client', { callout_id });
+        // Add notification to Operations Coordinator
+        await addNotification('opsmanager@queensman.com', 'Hi. We’re running to plan – our team will be with you as scheduled', 'worker', { callout_id });
+
+        // Add notification to Operations Coordinator
+        await addNotification('opscord@queensman.com', 'Hi. We’re running to plan – our team will be with you as scheduled', 'worker', { callout_id });
       }
       if (diff >= 35 && diff <= 40) {
         await addNotification(clientEmail, 'Our team is a little ahead of time, expect them within an hour.', 'client', { callout_id });
+
+        // Add notification to Operations Coordinator
+        await addNotification('opsmanager@queensman.com', 'Our team is a little ahead of time, expect them within an hour.', 'worker', { callout_id });
+
+        // Add notification to Operations Coordinator
+        await addNotification('opscord@queensman.com', 'Our team is a little ahead of time, expect them within an hour.', 'worker', { callout_id });
       }
     }
   }
