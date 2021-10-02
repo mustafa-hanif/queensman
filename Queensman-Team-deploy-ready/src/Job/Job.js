@@ -161,7 +161,7 @@ const Job = (props) => {
     isPicvisible: false, //veiw image app kay lia
     JobData: props.navigation.getParam("it", null),
     workerList: [],
-    workerID: 1,
+    workerID: props.navigation.getParam("workerId", {}),
     imageLoading: false,
     W1ID: "none",
     W1Name: "none",
@@ -323,7 +323,7 @@ const Job = (props) => {
       variables: {
         ticket_id: ticket.id,
         callout_id: state.JobData.id,
-        updater_id: state.workerID,
+        updater_id: workerId,
         location,
       },
     });
