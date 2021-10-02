@@ -306,20 +306,12 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
         new Date()
       )
       : null;
-    //  - find the last slot today filled by him
-    //  - if plus 3 hours from now is inside working hour
-    if (!lastWorker || dateFns.getHours(dateFns.addHours(workerTime, 3)) > 18) {
-      //  - else first slot tomorow morning
-      // return { '09:00', id}
-      return { id, time: '09:00:00' };
-    } else {
-      //  - return last slot + 1 hour
-      // return { lastWorker.time_on_calendar + 1, id }
-      return {
-        id,
-        time: dateFns.format(dateFns.addHours(workerTime, 3), 'HH:mm:ss'),
-      };
-    }
+    //  - return last slot + 1 hour
+    // return { lastWorker.time_on_calendar + 1, id }
+    return {
+      id,
+      time: dateFns.format(dateFns.addHours(workerTime, 3), 'HH:mm:ss'),
+    };
   } // If schedule
   else {
     // Get category of callout

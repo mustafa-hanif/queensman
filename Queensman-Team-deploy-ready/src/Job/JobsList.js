@@ -231,8 +231,7 @@ const JobsList = (props) => {
             marginRight: "4%",
           }}
         >
-          An Error Occured. Please restart the app.
-          Error #182
+          {error}
         </Text>
       </View>
     );
