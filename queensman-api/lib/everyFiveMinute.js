@@ -26,7 +26,7 @@ async function everyFiveMinute() {
 }
 
 async function notifyTeamisComing() {
-  const now = new Date();
+  const now = new Date('October 2, 2021 10:24');
   const timeZone = 'Asia/Dubai'
   const zonedDate = utcToZonedTime(now, timeZone)
   const { errors, data: { scheduler } } = await fetchGraphQL(`
@@ -100,8 +100,22 @@ async function notifyTeamisComing() {
       const lastJobWorkerTime = parseJSON(`${data?.job_history[0]?.time}`);
       const lastJobWorkerTimezonedDate = utcToZonedTime(lastJobWorkerTime, timeZone)
       const diff = differenceInMinutes(jobTime, lastJobWorkerTimezonedDate);
-      console.log(diff);
+      console.log(`Next job is near, and I closed ${diff} minutes before the next job`);
       if (diff >= 30 && diff < 35) {
+        const countData = await fetchGraphQL(`query AlreadyNotify($data1: jsonb!) {
+          notifications_aggregate(where: {data: {_contains: $data1}, text: {_eq: "Hi. We’re running to plan – our team will be with you as scheduled"}}) {
+            aggregate {
+              count
+            }
+          }
+        }
+        `, 'AlreadyNotify', {
+          data1: { callout_id }
+        });
+        console.log('similar notification sent: ', countData?.data?.notifications_aggregate?.aggregate?.count);
+        if (countData?.data?.notifications_aggregate?.aggregate?.count > 0) {
+          return;
+        }
         await addNotification(clientEmail, 'Hi. We’re running to plan – our team will be with you as scheduled', 'client', { callout_id });
         // Add notification to Operations Coordinator
         await addNotification('opsmanager@queensman.com', 'Hi. We’re running to plan – our team will be with you as scheduled', 'worker', { callout_id });
@@ -110,6 +124,20 @@ async function notifyTeamisComing() {
         await addNotification('opscord@queensman.com', 'Hi. We’re running to plan – our team will be with you as scheduled', 'worker', { callout_id });
       }
       if (diff >= 35 && diff <= 40) {
+        const countData = await fetchGraphQL(`query AlreadyNotify($data1: jsonb!) {
+          notifications_aggregate(where: {data: {_contains: $data1}, text: {_eq: "Our team is a little ahead of time, expect them within an hour."}}) {
+            aggregate {
+              count
+            }
+          }
+        }
+        `, 'AlreadyNotify', {
+          data1: { callout_id }
+        });
+        console.log('similar notification sent: ', countData?.data?.notifications_aggregate?.aggregate?.count);
+        if (countData?.data?.notifications_aggregate?.aggregate?.count > 0) {
+          return;
+        }
         await addNotification(clientEmail, 'Our team is a little ahead of time, expect them within an hour.', 'client', { callout_id });
 
         // Add notification to Operations Coordinator
@@ -240,7 +268,7 @@ async function respondToEmergencies() {
 
 async function addNotification(email, text, type, data) {
   const { errors, data: queryData } = await fetchGraphQL(
-    `mutation SendNotification($email: String!, $text: String!, $type: String!, $data: json = {}) {
+    `mutation SendNotification($email: String!, $text: String!, $type: String!, $data: jsonb = {}) {
       insert_notifications_one(object: {
         worker_email: $email,
         client_email: $email,
