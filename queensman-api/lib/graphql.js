@@ -304,6 +304,9 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
       }
     );
     const lastWorker = lastWorkers.scheduler?.[0];
+    const now = new Date();
+    const timeZone = 'Asia/Dubai'
+    const zonedDate = utcToZonedTime(now, timeZone)
     const workerTime = lastWorker
       ? dateFns.parse(
         lastWorker.time_on_calendar,
