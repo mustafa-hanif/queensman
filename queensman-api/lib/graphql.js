@@ -14,7 +14,7 @@ const fetch = require('node-fetch');
 const moment = require('moment')
 const dateFns = require('date-fns');
 const { ENDPOINT, SECRET } = require('../_config');
-
+const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
 async function fetchGraphQL(operationsDoc, operationName, variables) {
   console.log(
     JSON.stringify({
@@ -299,13 +299,16 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
       }
     );
     const lastWorker = lastWorkers.scheduler?.[0];
+    const now = new Date();
+    const timeZone = 'Asia/Dubai'
+    const zonedDate = utcToZonedTime(now, timeZone)
     const workerTime = lastWorker
       ? dateFns.parse(
         lastWorker.time_on_calendar,
         'HH:mm:ss',
         new Date()
       )
-      : new Date();
+      : zonedDate;
     //  - return last slot + 1 hour
     // return { lastWorker.time_on_calendar + 1, id }
     return {
