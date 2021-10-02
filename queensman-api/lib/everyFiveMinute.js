@@ -18,11 +18,11 @@ const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
 // if contains ?? and 10 mins passed - add notification to client to call someone
 
 async function everyFiveMinute() {
-  const minutes = await respondToEmergencies();
-  await notifyScheduledTasks();
+  // const minutes = await respondToEmergencies();
+  // await notifyScheduledTasks();
 
   await notifyTeamisComing();
-  return minutes;
+  return 0;
 }
 
 async function notifyTeamisComing() {
