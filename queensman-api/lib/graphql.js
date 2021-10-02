@@ -12,6 +12,7 @@ Add these to your `package.json`:
 // Node doesn't implement fetch so we have to import it
 const fetch = require('node-fetch');
 const moment = require('moment')
+const format = require('date-fns/format');
 const dateFns = require('date-fns');
 const { ENDPOINT, SECRET } = require('../_config');
 const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
@@ -269,6 +270,10 @@ async function getCallout({ callout_id }) {
 }
 
 async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, endTime }) {
+  const now = new Date();
+  const timeZone = 'Asia/Dubai'
+  const zonedDate = utcToZonedTime(now, timeZone)
+
   // get callout type - Emergency or schedule
   const { urgency_level, job_type } = callout;
   // if emergency - get the emergency team worker
@@ -295,13 +300,10 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
       'LastTimeofWorker',
       {
         workerId: id,
-        today: new Date().toISOString().substring(0, 10),
+        today: format(zonedDate, 'yyyy-MM-dd'),
       }
     );
     const lastWorker = lastWorkers.scheduler?.[0];
-    const now = new Date();
-    const timeZone = 'Asia/Dubai'
-    const zonedDate = utcToZonedTime(now, timeZone)
     const workerTime = lastWorker
       ? dateFns.parse(
         lastWorker.time_on_calendar,
