@@ -26,7 +26,7 @@ async function everyFiveMinute() {
 }
 
 async function notifyTeamisComing() {
-  const now = new Date('October 02, 2021 21:25:00');
+  const now = new Date('October 02, 2021 13:35:00');
   const timeZone = 'Asia/Dubai'
   const zonedDate = utcToZonedTime(now, timeZone)
   const { errors, data: { scheduler } } = await fetchGraphQL(`
@@ -47,6 +47,7 @@ async function notifyTeamisComing() {
     }`, 'GetJobDue', {
     today: format(zonedDate, 'yyyy-MM-dd'),
   });
+  console.log('zonedDate', zonedDate);
   if (errors) {
     console.log(errors);
     return;
@@ -57,7 +58,7 @@ async function notifyTeamisComing() {
     const clientEmail = item?.callout?.client_callout_email?.email;
     // `${job_history.time}+04:30`
     const jobTime = new Date(`${item.date_on_calendar}T${item.time_on_calendar}Z`);
-
+    const callout_id = item.callout.id;
     const diffWithNow = differenceInMinutes(jobTime, zonedDate);
     console.log('time  ', now);
     console.log('zonedDate ', zonedDate);
@@ -84,18 +85,21 @@ async function notifyTeamisComing() {
       console.log('jobTime', jobTime);
       console.log('lastJobWorkerTime', lastJobWorkerTimezonedDate);
       console.log('running late ', diff)
-      if (diff >= 40 && diff <= 45) {
-        await addNotification(clientEmail, 'Sorry the team is running late on the previous job. The coordinator will be in contact shortly', 'client', {});
+      if (diffWithNow >= 20 && diffWithNow <= 25) {
+        await addNotification(clientEmail, 'Sorry the team is running late on the previous job. The coordinator will be in contact shortly', 'client', { callout_id });
       }
     }
 
     if (data?.job_history[0]?.status_update === 'Closed') {
       const lastJobWorkerTime = parseJSON(`${data?.job_history[0]?.time}`);
-      const diff = differenceInMinutes(jobTime, lastJobWorkerTime);
-      if (diff >= 65 && diff <= 70) {
-        await addNotification(clientEmail, 'Hi. We’re running to plan – our team will be with you as scheduled', 'client', {});
-      } else if (diff >= 80 && diff <= 70) {
-        await addNotification(clientEmail, 'Our team is a little ahead of time, expect them within an hour.', 'client', {});
+      const lastJobWorkerTimezonedDate = utcToZonedTime(lastJobWorkerTime, timeZone)
+      const diff = differenceInMinutes(jobTime, lastJobWorkerTimezonedDate);
+      console.log(diff);
+      if (diff >= 30 && diff < 35) {
+        await addNotification(clientEmail, 'Hi. We’re running to plan – our team will be with you as scheduled', 'client', { callout_id });
+      }
+      if (diff >= 35 && diff <= 40) {
+        await addNotification(clientEmail, 'Our team is a little ahead of time, expect them within an hour.', 'client', { callout_id });
       }
     }
   }
