@@ -305,7 +305,7 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
         'HH:mm:ss',
         new Date()
       )
-      : null;
+      : new Date();
     //  - return last slot + 1 hour
     // return { lastWorker.time_on_calendar + 1, id }
     return {
