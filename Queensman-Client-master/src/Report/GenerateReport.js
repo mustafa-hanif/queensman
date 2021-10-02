@@ -18,7 +18,6 @@ import {
   ScrollView,
   Modal,
   Button,
-  Divider,
   VStack,
   HStack,
   Icon,
@@ -27,11 +26,11 @@ import {
 } from "native-base";
 
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import * as Print from "expo-print";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { storage, auth } from "../utils/nhost";
 import { calloutTemplate } from "./pdf_template";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { HASURA } from "../_config";
 
 const expoFileToFormFile = (url) => {
@@ -43,7 +42,7 @@ const expoFileToFormFile = (url) => {
   return { uri: localUri, name: filename, type };
 };
 
-const createAndSavePDF = async (html, data2, propertyID, clientName, state, setState, reportLoading, setNoReport) => {
+const createAndSavePDF = async (html, data2, propertyID, clientName, state, setState) => {
   try {
     setState({ ...state, reportLoading: true });
     const { uri } = await Print.printToFileAsync({ html });
@@ -73,7 +72,7 @@ const GenerateReport = (props) => {
     loading: false,
     propertyID: "",
     reportLoading: false,
-    noReport: false
+    noReport: false,
   });
 
   const setPropertyId = (id) => {
@@ -122,13 +121,15 @@ const GenerateReport = (props) => {
       <Text mb={4}>Tap to view or download a report.</Text>
       {state.value === 3 ? (
         <>
-        <MyFlatList2
-          propertyId={state.propertyID}
-          setPropertyId={setPropertyId}
-          value={state.value}
-          reporthandle={reporthandle}
-        />
-        <Text my={2} fontSize={12} textAlign="center">You can select property from property details section to view other reports</Text>
+          <MyFlatList2
+            propertyId={state.propertyID}
+            setPropertyId={setPropertyId}
+            value={state.value}
+            reporthandle={reporthandle}
+          />
+          <Text my={2} fontSize={12} textAlign="center">
+            You can select property from property details section to view other reports
+          </Text>
         </>
       ) : (
         <MyFlatList
@@ -161,7 +162,7 @@ const GenerateReport = (props) => {
             </AlertDialog.Header>
             <AlertDialog.Body>You currently don't have any callouts.</AlertDialog.Body>
             <AlertDialog.Footer>
-              <Button onPress={() => setState({...state, noReport: false})}>Ok</Button>
+              <Button onPress={() => setState({ ...state, noReport: false })}>Ok</Button>
             </AlertDialog.Footer>
           </AlertDialog.Content>
         </AlertDialog>
@@ -242,10 +243,9 @@ const GET_CALLOUTS = gql`
 `;
 
 const MonthlyReportPDF = ({ propertyID, state, setState, reportLoading }) => {
-  const user = auth?.currentSession?.session?.user;
-  const displayName = user?.display_name.replace(/ /g, "-");
-  const email = user?.email;
-  const [loadCallouts, { loading, data, error }] = useLazyQuery(GET_CALLOUTS, {
+  const displayName = auth.user().display_name(/ /g, "-");
+  const { email } = auth.user();
+  const [loadCallouts] = useLazyQuery(GET_CALLOUTS, {
     onCompleted: (data2) => {
       const years = {};
       let months = {};
@@ -289,9 +289,9 @@ const MonthlyReportPDF = ({ propertyID, state, setState, reportLoading }) => {
         months = {};
       });
       if (data2?.callout.length === 0) {
-        setState({...state, noReport: true})
+        setState({ ...state, noReport: true });
       } else {
-        createAndSavePDF(calloutTemplate(years), data2, propertyID, displayName, state, setState, reportLoading);  
+        createAndSavePDF(calloutTemplate(years), data2, propertyID, displayName, state, setState, reportLoading);
       }
     },
   });
@@ -314,29 +314,24 @@ const MonthlyReportPDF = ({ propertyID, state, setState, reportLoading }) => {
   );
 };
 const LoadProperties = ({ setPropertyId, props }) => {
-  const user = auth?.currentSession?.session?.user;
-  const email = user?.email;
+  const { email } = auth.user();
 
   useEffect(() => {
     const load = async () => {
       const propertyDetails = await AsyncStorage.getItem("QueensPropertyDetails");
       if (propertyDetails) {
-        setPropertyId(JSON.parse(propertyDetails).id)
+        setPropertyId(JSON.parse(propertyDetails).id);
       } else {
-        getProperty()
+        getProperty();
       }
-    }
-    load()
-  }, [])
+    };
+    load();
+  }, []);
 
-  const [getProperty, {
-    loading,
-    data: allProperties,
-    error,
-  }] = useLazyQuery(GET_PROPERTIES, {
+  const [getProperty, { data: allProperties }] = useLazyQuery(GET_PROPERTIES, {
     variables: { email },
     onCompleted: ({ client }) => {
-      console.log(client)
+      console.log(client);
       setPropertyId(client?.[0]?.property_owneds?.[0]?.property?.id);
     },
   });
@@ -373,21 +368,19 @@ const GET_CONTRACT_COPY = gql`
 `;
 
 const GetContractCopy = () => {
-  const [isOpen, setisOpen] = useState(false)
-  const user = auth?.currentSession?.session?.user;
-  const email = user?.email;
-  const { loading, data, error } = useQuery(GET_CONTRACT_COPY, {
+  const [isOpen, setisOpen] = useState(false);
+  const { email } = auth.user();
+  const { loading, data } = useQuery(GET_CONTRACT_COPY, {
     variables: { email },
   });
   const openContractCopy = () => {
     if (data?.client?.[0]?.documents.length === 0) {
-      setisOpen(true)
+      setisOpen(true);
     } else {
       const document_id =
-      data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
-    Linking.openURL(`https://api-8106d23e.nhost.app/?document_id=${document_id}`);
+        data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
+      Linking.openURL(`https://api-8106d23e.nhost.app/?document_id=${document_id}`);
     }
-    
   };
 
   return (
@@ -440,7 +433,9 @@ const MANAG_REPORT = gql`
 
 const INVENTORY_REPORT = gql`
   query MyQuery($_eq: String!, $propId: Int!) {
-    inventory_report(where: {property: {property_owneds: {client: {email: {_eq: $_eq}}}, id: {_eq: $propId}}}) {
+    inventory_report(
+      where: { property: { property_owneds: { client: { email: { _eq: $_eq } } }, id: { _eq: $propId } } }
+    ) {
       id
       approved
       inventory_report_pdfs {
@@ -471,8 +466,8 @@ const MARKET_REPORT = gql`
   }
 `;
 
-const MyFlatList2 = ({ propertyId, value, Reporthandle }) => {
-  console.log(propertyId)
+const MyFlatList2 = ({ propertyId }) => {
+  console.log(propertyId);
   const openInventory = (report_location) => {
     // const document_id = data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
     Linking.openURL(report_location);
@@ -544,8 +539,7 @@ const MyFlatList2 = ({ propertyId, value, Reporthandle }) => {
   };
 
   let ModelData = [];
-  const user = auth?.currentSession?.session?.user;
-  const email = user?.email;
+  const { email } = auth.user();
   const {
     loading: invReportLoading,
     data: inventoryReport,
@@ -559,7 +553,7 @@ const MyFlatList2 = ({ propertyId, value, Reporthandle }) => {
     return <Spinner size="sm" />;
   }
   if (invError) {
-    console.log(invError)
+    console.log(invError);
     return <Text>error</Text>;
   }
   if (ModelData?.length === 0) {
@@ -567,16 +561,18 @@ const MyFlatList2 = ({ propertyId, value, Reporthandle }) => {
   }
   return (
     <>
-      <Text fontSize={18} paddingBottom={2}>Inventory Reports</Text>
+      <Text fontSize={18} paddingBottom={2}>
+        Inventory Reports
+      </Text>
       {ModelData?.length === 0 ? (
         <Text>There are no inventory reports for this property</Text>
       ) : (
         <FlatList
           data={ModelData}
           pr={6}
-          style={{height: 400}}
+          style={{ height: 400 }}
           renderItem={({ item }) => (
-            <View style={{marginBottom: 15}}>
+            <View style={{ marginBottom: 15 }}>
               <Text>Property ID: {item?.property?.id}</Text>
               <Text>Report ID: {item?.id}</Text>
               <Text paddingBottom={1}>

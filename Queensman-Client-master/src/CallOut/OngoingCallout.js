@@ -61,7 +61,7 @@ const GET_CALLOUT = gql`
 `;
 
 const OngoingCallout = (props) => {
-  const email = auth?.currentSession?.session?.user.email;
+  const { email } = auth.user();
   const { loading, data, error } = useQuery(GET_CALLOUT, {
     variables: {
       callout_by_email: email,
@@ -73,7 +73,7 @@ const OngoingCallout = (props) => {
       it: item,
     });
   };
-console.log(data?.callout)
+  console.log(data?.callout);
   return (
     <View style={styles.container}>
       {data?.callout?.length === 0 ? (
@@ -128,8 +128,6 @@ const styles = StyleSheet.create({
     paddingTop: "10%",
     paddingLeft: "6%",
     color: "#FFCA5D",
-
-    
   },
   Card: {
     shadowColor: "rgba(0,0,0, .4)", // IOS
@@ -146,9 +144,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     borderRadius: 5,
   },
-  TextFam: {
-    
-  },
+  TextFam: {},
 });
 
 const colors = {
@@ -201,7 +197,7 @@ const Item = ({ item, passItem }) => {
             On Property
           </Text>
           <Text color="cyan.800" fontSize="sm">
-          {item?.property ? `${item?.property?.address}, ${item?.property?.city}` : "No Property Assigned"}
+            {item?.property ? `${item?.property?.address}, ${item?.property?.city}` : "No Property Assigned"}
           </Text>
         </VStack>
 
