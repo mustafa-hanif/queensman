@@ -26,7 +26,7 @@ async function everyFiveMinute() {
 }
 
 async function notifyTeamisComing() {
-  const now = new Date('October 2, 2021 10:24');
+  const now = new Date();
   const timeZone = 'Asia/Dubai'
   const zonedDate = utcToZonedTime(now, timeZone)
   const { errors, data: { scheduler } } = await fetchGraphQL(`

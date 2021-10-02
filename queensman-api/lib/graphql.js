@@ -82,7 +82,7 @@ async function updateScheduleWithEmergencyWoker({
       $time: time!,
       $client_name: String!,
       $date: date!, 
-      $data: json!
+      $data: jsonb!
     ) {
     update_scheduler(where: {
       id: {_eq: $id}
