@@ -18,16 +18,17 @@ const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
 // if contains ?? and 10 mins passed - add notification to client to call someone
 
 async function everyFiveMinute() {
-  const minutes = await respondToEmergencies();
-  await notifyScheduledTasks();
+  // const minutes = await respondToEmergencies();
+  // await notifyScheduledTasks();
 
   await notifyTeamisComing();
-  return minutes;
+  return 0;
 }
 
 async function notifyTeamisComing() {
+  const now = new Date('October 02, 2021 21:25:00');
   const timeZone = 'Asia/Dubai'
-  const zonedDate = utcToZonedTime(new Date(), timeZone)
+  const zonedDate = utcToZonedTime(now, timeZone)
   const { errors, data: { scheduler } } = await fetchGraphQL(`
   query GetJobDue($today: date!) {
     scheduler(where: {
@@ -58,29 +59,31 @@ async function notifyTeamisComing() {
     const jobTime = new Date(`${item.date_on_calendar}T${item.time_on_calendar}Z`);
 
     const diffWithNow = differenceInMinutes(jobTime, zonedDate);
-    console.log('time  ', new Date());
+    console.log('time  ', now);
     console.log('zonedDate ', zonedDate);
     console.log('jobTime ', jobTime);
     console.log('diffWithNow ', diffWithNow);
 
-    if (diffWithNow >= 55 && diffWithNow <= 60) {
-      await addNotification(clientEmail, `The team is on the way for scheduled service with id# ${item.callout.id} on ${moment(item.date_on_calendar).format("MMMM Do YYYY")} at ${item.time_on_calendar} `, 'client', {});
-      console.log(`scheduled service with id# ${item.id}`);
-    }
+    // if (diffWithNow >= 35 && diffWithNow <= 40) {
+    //   await addNotification(clientEmail, `The team is on the way for scheduled service with id# ${item.callout.id} on ${moment(item.date_on_calendar).format("MMMM Do YYYY")} at ${item.time_on_calendar} `, 'client', {});
+    //   console.log(`scheduled service with id# ${item.id}`);
+    // }
     // If team is running late
-    const { errors, data } = await fetchGraphQL(`query GetJobDue($updater_id: Int!) {
+    const { errors, data } = await fetchGraphQL(`query GetJobDueHistory($updater_id: Int!) {
       job_history(where: {updater_id: {_eq: $updater_id}}, order_by: {time: desc}, limit: 1) {
         status_update
         time
       }
-    }`, 'GetJobDue', {
+    }`, 'GetJobDueHistory', {
       updater_id: item.worker_id
     });
     if (data?.job_history[0]?.status_update === 'In Progress') {
       const lastJobWorkerTime = parseJSON(`${data?.job_history[0]?.time}`);
-
-      const diff = differenceInMinutes(jobTime, lastJobWorkerTime);
-      console.log("running late ", diff)
+      const lastJobWorkerTimezonedDate = utcToZonedTime(lastJobWorkerTime, timeZone)
+      const diff = differenceInMinutes(jobTime, lastJobWorkerTimezonedDate);
+      console.log('jobTime', jobTime);
+      console.log('lastJobWorkerTime', lastJobWorkerTimezonedDate);
+      console.log('running late ', diff)
       if (diff >= 40 && diff <= 45) {
         await addNotification(clientEmail, 'Sorry the team is running late on the previous job. The coordinator will be in contact shortly', 'client', {});
       }
@@ -118,8 +121,8 @@ async function notifyScheduledTasks() {
       }
     }`,
     'GetPendingSchedule', {
-    _eq: addWeeks(new Date(), 2),
-  }
+      _eq: addWeeks(new Date(), 2),
+    }
   );
   for (let i = 0; i < data.scheduler.length; i++) {
     const item = data.scheduler[i];
@@ -190,7 +193,7 @@ async function respondToEmergencies() {
         return;
       }
       // Add notification for call to client
-      await addNotification(clientEmail, `Our team have not been able to respond to you for callout #${job_history.callout_id}, please call our team directly`, 'client', { phone: "00971528167137", type: 'call' });
+      await addNotification(clientEmail, `Our team have not been able to respond to you for callout #${job_history.callout_id}, please call our team directly`, 'client', { phone: '00971528167137', type: 'call' });
       await fetchGraphQL(`mutation WaitForClient($callout_id: Int!) {
         insert_job_history_one(object: {callout_id: $callout_id, status_update: "Waiting for Client"}) {
           status_update
