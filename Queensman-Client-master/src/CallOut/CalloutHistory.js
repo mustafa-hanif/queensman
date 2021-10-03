@@ -89,28 +89,24 @@ const CalloutHistoryClass = (props) => {
   const [CalloutData, setCalloutData] = useState([]);
   const [isOpen, setIsOpen] = useState(true);
 
-  const [loadProperty, { loading: loadingSingleProperty, data: selectedProperty, error: propertyError }] = useLazyQuery(
-    GET_PROPERTY_BY_ID,
-    {
-      onCompleted: (data) => {
-        loadCallouts({
-          variables: {
-            today: moment().format("YYYY-MM-DD"),
-            callout_by_email: email,
-            property_id: data?.property_owned[0]?.property_id,
-          },
-        });
-      },
-    }
-  );
+  const [loadProperty] = useLazyQuery(GET_PROPERTY_BY_ID, {
+    onCompleted: (data) => {
+      loadCallouts({
+        variables: {
+          today: moment().format("YYYY-MM-DD"),
+          callout_by_email: email,
+          property_id: data?.property_owned[0]?.property_id,
+        },
+      });
+    },
+  });
 
-  const [loadCallouts, { loading, data, error }] = useLazyQuery(GET_CALLOUTS, {
+  const [loadCallouts, { loading, error }] = useLazyQuery(GET_CALLOUTS, {
     onCompleted: (data2) => {
       setCalloutData(data2?.callout);
     },
   });
-  const user = auth?.currentSession?.session?.user;
-  const email = user?.email;
+  const { email } = auth.user();
   useEffect(() => {
     const load = async () => {
       const propertyDetails = await AsyncStorage.getItem("QueensPropertyDetails");
@@ -170,20 +166,22 @@ const CalloutHistoryClass = (props) => {
         Viewing services for currently selected property
       </Text>
 
-      <View  style={{flex: 1}}>
-        {CalloutData.length === 0 ?  <Text
-        style={[
-          styles.TextFam,
-          {
-            fontSize: 14,
-            color: "#000E1E",
-            paddingVertical: "5%",
-            alignSelf: "center",
-          },
-        ]}
-      >
-        No history
-      </Text> : 
+      <View style={{ flex: 1 }}>
+        {CalloutData.length === 0 ? (
+          <Text
+            style={[
+              styles.TextFam,
+              {
+                fontSize: 14,
+                color: "#000E1E",
+                paddingVertical: "5%",
+                alignSelf: "center",
+              },
+            ]}
+          >
+            No history
+          </Text>
+        ) : (
           <View>
             <FlatList
               data={CalloutData}
@@ -191,7 +189,7 @@ const CalloutHistoryClass = (props) => {
               keyExtractor={(item, index) => index.toString()}
             />
           </View>
-        }
+        )}
       </View>
     </View>
   );
@@ -214,8 +212,6 @@ const styles = StyleSheet.create({
     paddingTop: "10%",
     paddingLeft: "6%",
     color: "#FFCA5D",
-
-    
   },
   Card: {
     shadowColor: "rgba(0,0,0, .4)", // IOS
@@ -232,9 +228,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     borderRadius: 5,
   },
-  TextFam: {
-    
-  },
+  TextFam: {},
 });
 
 export default CalloutHistoryClass;
@@ -244,7 +238,7 @@ const colors = {
   "In Progress": "amber.600",
 };
 
-const CalloutItem = ({ item, toggleGalleryEventModal }) => {
+const CalloutItem = ({ item }) => {
   const color = item?.urgency_level === "High" ? "rose.600" : "amber.600";
   const statusColor = colors[item?.status] ? colors[item?.status] : "lightBlue.600";
   return (

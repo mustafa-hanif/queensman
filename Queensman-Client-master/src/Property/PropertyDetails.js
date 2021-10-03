@@ -4,12 +4,20 @@ import React, { useState, useEffect } from "react";
 import { gql, useQuery } from "@apollo/client";
 
 // import Toast from "react-native-whc-toast";
-import axios from "axios";
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Linking } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+  RefreshControl,
+  Linking,
+} from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { ListItem, Icon, Select, ScrollView, CheckIcon } from "native-base";
+import { Icon, Select, ScrollView, CheckIcon } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 
 import { auth } from "../utils/nhost";
@@ -30,7 +38,7 @@ const styles = StyleSheet.create({
     paddingTop: "3%",
     textAlign: "center",
     color: "#FFCA5D",
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
   Card: {
     shadowColor: "rgba(0,0,0, .4)", // IOS
@@ -65,17 +73,17 @@ const GET_PROPERTIES = gql`
 `;
 
 const GET_LEASED_PROPERTIES = gql`
-query MyQuery($email: String) {
-  lease(where: {client: {email: {_eq: $email}}}) {
-    property {
-      address
-      community
-      city
-      country
-      id
+  query MyQuery($email: String) {
+    lease(where: { client: { email: { _eq: $email } } }) {
+      property {
+        address
+        community
+        city
+        country
+        id
+      }
     }
   }
-}
 `;
 
 const PropertyDetails = (props) => {
@@ -93,25 +101,29 @@ const PropertyDetails = (props) => {
     cusID: "",
   });
 
-  const email = auth?.currentSession?.session?.user?.email;
+  const { email } = auth.user();
   console.log("id", state.taped);
-  const { loading, data, error, refetch: refetchProperties } = useQuery(GET_PROPERTIES, {
+  const {
+    loading,
+    data,
+    refetch: refetchProperties,
+  } = useQuery(GET_PROPERTIES, {
     variables: { email },
     onCompleted: () => {
-      setRefreshing(false)
+      setRefreshing(false);
     },
     onError: (err) => {
       console.log("error", err);
-    }
+    },
   });
-  const { loading: leasedLoading, data: leasedData, error: leasedError, refetch: refetchLeased } = useQuery(GET_LEASED_PROPERTIES, {
+  const { data: leasedData, refetch: refetchLeased } = useQuery(GET_LEASED_PROPERTIES, {
     variables: { email },
     onCompleted: () => {
-      setRefreshing(false)
+      setRefreshing(false);
     },
     onError: (err) => {
       console.log("error", err);
-    }
+    },
   });
   // const customToast = useRef();
   const onRefresh = React.useCallback(() => {
@@ -124,16 +136,16 @@ const PropertyDetails = (props) => {
     const load = async () => {
       const propertyDetails = await AsyncStorage.getItem("QueensPropertyDetails");
       if (propertyDetails) {
-        setState({...state, taped: JSON.parse(propertyDetails).id})
+        setState({ ...state, taped: JSON.parse(propertyDetails).id });
       }
-    }
-    load()
-  }, [])
+    };
+    load();
+  }, []);
 
   const _storeData = async (item) => {
     try {
       await AsyncStorage.setItem("QueensPropertyDetails", JSON.stringify(item));
-      setState({...state, taped: item.id})
+      setState({ ...state, taped: item.id });
       // setTimeout(() => {
       //   props.navigation.navigate("HomeNaviagtor");
       // }, 800);
@@ -156,39 +168,42 @@ const PropertyDetails = (props) => {
 
   const ContactUsFuntion = () => {
     // navigation.navigate("SignUpContectUs");
-      const url = "tel://+" + state.phoneno;
-      Linking.openURL(url);
+    const url = `tel://+${state.phoneno}`;
+    Linking.openURL(url);
   };
   return (
     <ScrollView
-    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-    style={styles.container}
-  >
-     
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      style={styles.container}
+    >
       <Text style={{ paddingTop: "5%" }}> </Text>
-      <TouchableOpacity onPress={() => props.navigation.toggleDrawer()} style={{zIndex: 10}}>
-          <Icon as={Ionicons} name="arrow-back" style={{ fontSize: 24, color: "black", marginLeft: "5%", marginTop: "3%" }} />
-        </TouchableOpacity>
-        <View style={{marginTop: "-13%"}}>
-      <Text style={styles.HeadingStyle}>Property Details</Text>
-      <Text
-        style={[
-          {
-            fontSize: 14,
-            color: "black",
-            textAlign: "center",
-            paddingBottom: "2%"
-          },
-        ]}
-      >
-        Tap to select the property
-      </Text>
+      <TouchableOpacity onPress={() => props.navigation.toggleDrawer()} style={{ zIndex: 10 }}>
+        <Icon
+          as={Ionicons}
+          name="arrow-back"
+          style={{ fontSize: 24, color: "black", marginLeft: "5%", marginTop: "3%" }}
+        />
+      </TouchableOpacity>
+      <View style={{ marginTop: "-13%" }}>
+        <Text style={styles.HeadingStyle}>Property Details</Text>
+        <Text
+          style={[
+            {
+              fontSize: 14,
+              color: "black",
+              textAlign: "center",
+              paddingBottom: "2%",
+            },
+          ]}
+        >
+          Tap to select the property
+        </Text>
       </View>
       <View style={{ paddingHorizontal: "5%", flexDirection: "column", marginBottom: "5%", marginTop: "5%" }}>
         {/* <Text style={{ marginBottom: 5, marginTop: 10, color: "black" }}>Select Property Type:</Text> */}
         <Select
           mode="dialog"
-          style={{ paddingTop: "2%", color: "black"}}
+          style={{ paddingTop: "2%", color: "black" }}
           bg="#FFCA5D"
           selectedValue={state.selected}
           onValueChange={onValueChange}
@@ -263,15 +278,13 @@ const PropertyDetails = (props) => {
                                   justifyContent: "space-between",
                                   flex: 1,
                                   paddingLeft: "5%",
-                                  paddingBottom: "3%"
+                                  paddingBottom: "3%",
                                 }}
                               >
                                 <Text>{property.country}</Text>
                                 <Text>Property ID: {property.id}</Text>
 
-                                <Text>
-                                  Property Category: {property.category ? property.category : "Not Listed"}
-                                </Text>
+                                <Text>Property Category: {property.category ? property.category : "Not Listed"}</Text>
                               </View>
                             </View>
                           </View>
@@ -286,7 +299,7 @@ const PropertyDetails = (props) => {
                             }}
                           >
                             <Icon
-                            as={Ionicons}
+                              as={Ionicons}
                               name="checkmark-circle"
                               style={{
                                 height: 50,
@@ -307,7 +320,7 @@ const PropertyDetails = (props) => {
             </View>
           ) : (
             <View>
-              {leasedData?.lease?.length === 0  ? (
+              {leasedData?.lease?.length === 0 ? (
                 <Text
                   style={[
                     styles.TextFam,
@@ -325,11 +338,11 @@ const PropertyDetails = (props) => {
                 <FlatList
                   data={leasedData?.lease}
                   renderItem={({ item: { property } }) => {
-                    console.log(property)
+                    console.log(property);
                     return (
-                    <View>
-                      <TouchableOpacity onPress={() => Ontaps(property)}>
-                      <View style={styles.Card}>
+                      <View>
+                        <TouchableOpacity onPress={() => Ontaps(property)}>
+                          <View style={styles.Card}>
                             <Text
                               style={[
                                 styles.TextFam,
@@ -364,64 +377,63 @@ const PropertyDetails = (props) => {
                                   justifyContent: "space-between",
                                   flex: 1,
                                   paddingLeft: "5%",
-                                  paddingBottom: "3%"
+                                  paddingBottom: "3%",
                                 }}
                               >
                                 <Text>{property.country}</Text>
                                 <Text>Property ID: {property.id}</Text>
 
-                                <Text>
-                                  Property Category: {property.category ? property.category : "Not Listed"}
-                                </Text>
+                                <Text>Property Category: {property.category ? property.category : "Not Listed"}</Text>
                               </View>
                             </View>
                           </View>
-                      </TouchableOpacity>
-                      <Text> </Text>
-                      {state.taped === property?.id ? (
-                        <View
-                          style={{
-                            position: "absolute",
-                            paddingLeft: "8%",
-                            paddingTop: "10%",
-                          }}
-                        >
-                          <Icon
-                          as={Ionicons}
-                            name="checkmark-circle"
+                        </TouchableOpacity>
+                        <Text> </Text>
+                        {state.taped === property?.id ? (
+                          <View
                             style={{
-                              height: 50,
-                              width: 50,
-                              color: "#FFCA5D",
+                              position: "absolute",
+                              paddingLeft: "8%",
+                              paddingTop: "10%",
                             }}
-                          />
-                        </View>
-                      ) : (
-                        <View />
-                      )}
-                    </View>
-                    )}}
+                          >
+                            <Icon
+                              as={Ionicons}
+                              name="checkmark-circle"
+                              style={{
+                                height: 50,
+                                width: 50,
+                                color: "#FFCA5D",
+                              }}
+                            />
+                          </View>
+                        ) : (
+                          <View />
+                        )}
+                      </View>
+                    );
+                  }}
                   keyExtractor={(item, index) => index.toString()}
                 />
               )}
             </View>
           )}
           <TouchableOpacity onPress={ContactUsFuntion}>
-          <View style={{ flexDirection: "column", paddingTop: "5%", alignSelf: "center" }}>
-            <Text style={{ fontSize: 11, color: "black", textAlign: "center" }}>Cannot find your property?</Text>
+            <View style={{ flexDirection: "column", paddingTop: "5%", alignSelf: "center" }}>
+              <Text style={{ fontSize: 11, color: "black", textAlign: "center" }}>Cannot find your property?</Text>
 
-            <Text
-              style={{
-                fontSize: 20,
-                color: "#FFCA5D",
-                textDecorationLine: "underline",
-                textAlign: "center"
-              }}
-            >
-              CONTACT US
-            </Text>
-          </View>
-        </TouchableOpacity>
+              <Text
+                style={{
+                  fontSize: 20,
+                  color: "#FFCA5D",
+                  textDecorationLine: "underline",
+                  textAlign: "center",
+                }}
+              >
+                CONTACT US
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
       )}
     </ScrollView>
