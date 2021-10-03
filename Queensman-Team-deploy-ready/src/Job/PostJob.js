@@ -76,7 +76,7 @@ const PostJob = (props) => {
     selectedPic:
       "https://en.wikipedia.org/wiki/Art#/media/File:Art-portrait-collage_2.jpg",
     isPicvisible: false, //veiw image app kay lia
-    IsImageuploaded: true,
+    IsImageuploaded: false,
     selectedNo: 0,
     ViewOpacity: 1,
   });
