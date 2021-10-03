@@ -64,7 +64,6 @@ export default function CreateTicket(props) {
 
   const [createNewTicket, { loading, error }] = useMutation(CREATE_TICKET);
   const callout_id = props.navigation.getParam("callout_id", null);
-  const user = auth?.currentSession?.session?.user;
   useEffect(() => {
     const selectedPhotos = props.navigation.getParam("selectedPhotos", null);
     setphotos(selectedPhotos);
@@ -169,7 +168,7 @@ export default function CreateTicket(props) {
         name: ticketName,
         pictures: pictures,
         type: selectedType,
-        worker_email: user?.email,
+        worker_email: auth.user().email,
       });
 
       createNewTicket({
@@ -179,7 +178,7 @@ export default function CreateTicket(props) {
           name: ticketName,
           pictures: pictures,
           type: selectedType,
-          worker_email: user?.email,
+          worker_email: auth.user().email,
           worker_id: workerId,
           scheduler_id: schedulers[0].id,
           client_email: client.email

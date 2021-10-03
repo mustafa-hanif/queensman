@@ -135,7 +135,7 @@ const GET_JOBS_LIST_ALL = gql`
 
 const JobsList = (props) => {
   const workerId = props.navigation.getParam("workerId", {});
-  const workerEmail = auth?.currentSession?.session?.user.email;
+  const workerEmail = auth.user().email;
   const [state, setState] = useState({
     assignedCallouts: [], //Ismain hayn saaray client ke ongoing callouts.
     dataAvaible: true,
@@ -169,7 +169,7 @@ const JobsList = (props) => {
   };
 
   useEffect(() => {
-    const workerEmail = auth?.currentSession?.session?.user.email;
+    const workerEmail = auth.user().email;
     setState({ workerEmail });
     let variables = undefined;
     if (
@@ -189,11 +189,11 @@ const JobsList = (props) => {
       }
     } else {
       variables = {
-        email: auth?.currentSession?.session?.user.email,
+        email: auth.user().email,
       };
       if (state?.selected !== "All" && state?.selected !== null) {
         variables = {
-          email: auth?.currentSession?.session?.user.email,
+          email: auth.user().email,
           urgency: [state.selected],
         };
       }
@@ -217,8 +217,9 @@ const JobsList = (props) => {
   }, [
     finalData?.callout,
     state.selected,
-    auth?.currentSession?.session?.user.email,
+    auth.user().email,
   ]);
+  console.log(auth.user(), "AAAAAAAAAAAAAAA")
   if (error) {
     console.log(error)
     return (
@@ -231,7 +232,7 @@ const JobsList = (props) => {
             marginRight: "4%",
           }}
         >
-          {error}
+          Error
         </Text>
       </View>
     );

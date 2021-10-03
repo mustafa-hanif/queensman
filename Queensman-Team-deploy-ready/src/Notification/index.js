@@ -32,7 +32,7 @@ const GET_NOTIFICATIONS = gql`
 `;
 
 export default function index({ navigation }) {
-  const email = auth?.currentSession?.session?.user.email.toLowerCase();
+  const email = auth.user().email.toLowerCase();
   const workerId = navigation.getParam("workerId", {})
   const [refreshing, setRefreshing] = useState(false);
   const [notifications, setNotifications] = useState([]);
