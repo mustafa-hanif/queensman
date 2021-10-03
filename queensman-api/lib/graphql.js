@@ -12,9 +12,10 @@ Add these to your `package.json`:
 // Node doesn't implement fetch so we have to import it
 const fetch = require('node-fetch');
 const moment = require('moment')
+const format = require('date-fns/format');
 const dateFns = require('date-fns');
 const { ENDPOINT, SECRET } = require('../_config');
-
+const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
 async function fetchGraphQL(operationsDoc, operationName, variables) {
   console.log(
     JSON.stringify({
@@ -269,6 +270,10 @@ async function getCallout({ callout_id }) {
 }
 
 async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, endTime }) {
+  const now = new Date();
+  const timeZone = 'Asia/Dubai'
+  const zonedDate = utcToZonedTime(now, timeZone)
+
   // get callout type - Emergency or schedule
   const { urgency_level, job_type } = callout;
   // if emergency - get the emergency team worker
@@ -295,7 +300,7 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
       'LastTimeofWorker',
       {
         workerId: id,
-        today: new Date().toISOString().substring(0, 10),
+        today: format(zonedDate, 'yyyy-MM-dd'),
       }
     );
     const lastWorker = lastWorkers.scheduler?.[0];
@@ -305,7 +310,7 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
         'HH:mm:ss',
         new Date()
       )
-      : new Date();
+      : zonedDate;
     //  - return last slot + 1 hour
     // return { lastWorker.time_on_calendar + 1, id }
     return {
