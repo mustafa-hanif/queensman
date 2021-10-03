@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "QS Team Dev",
+    "name": "QS Team",
     "slug": "QueensmanWorker",
     "privacy": "public",
     "owner": "mustafahanif627",
@@ -9,7 +9,7 @@
       "android",
       "web"
     ],
-    "version": "0.5",
+    "version": "0.5.1",
     "orientation": "portrait",
     "icon": "./assets/icon4.png",
     "splash": {
