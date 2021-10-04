@@ -11,7 +11,7 @@ import Avatar from '@components/avatar'
 import classnames from 'classnames'
 import { toast } from 'react-toastify'
 import Flatpickr from 'react-flatpickr'
-import { X, Check, Trash, Info } from 'react-feather'
+import { X, Check, Trash, Info, Upload } from 'react-feather'
 import Select, { components } from 'react-select'
 import { useForm, Controller } from 'react-hook-form'
 import { Media, Button, Modal, ModalHeader, ModalBody, Card, ListGroup, ListGroupItem, FormGroup, Label, CustomInput, Input, Form, Spinner, Badge, CardBody, CardHeader, CardTitle, Row, Col  } from 'reactstrap'
@@ -25,6 +25,8 @@ import { selectThemeColors, isObjEmpty } from '@utils'
 import '@styles/react/libs/react-select/_react-select.scss'
 import '@styles/react/libs/flatpickr/flatpickr.scss'
 import { useNiceLazyQuery, useNiceMutation, useNiceQuery } from '../../utility/Utils'
+import { HASURA } from '../../_config'
+import { storage } from '../../utility/nhost'
 
 // ** Toast Component
 const ToastComponent = ({ title, icon, color }) => (
@@ -117,6 +119,16 @@ query GetProperty($ownerId: Int) {
 }
 `
 
+const ADD_PICTURE = gql`
+mutation AddPicutre($id: Int!, $picture1: String = null, $picture2: String = null, $picture3: String = null, $picture4: String = null) {
+  update_callout_by_pk(pk_columns: {id: $id}, _set: {picture1: $picture1, picture2: $picture2, picture3: $picture3, picture4: $picture4}) {
+    picture1
+    picture2
+    picture3
+    picture4
+  }
+}`
+
 const AddEventSidebar = props => {
   // ** Props
   const {
@@ -132,12 +144,6 @@ const AddEventSidebar = props => {
     removeEvent
   } = props
 
-  // ** Component
-  const CalloutPicture = ({picture}) => {
-    return <div style={{width: "100px"}}>
-     {picture ? <a href={picture} target="_blank"><img src={picture} style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/></a> : <div style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}><p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p></div>}
-     </div>
-  }
   // const selectedEvent = store.selectedEvent
   const { register, errors, handleSubmit } = useForm()
 
@@ -146,7 +152,6 @@ const AddEventSidebar = props => {
 
   const [url, setUrl] = useState(selectedEvent.url || '')
   const [desc, setDesc] = useState(selectedEvent.extendedProps?.description || '')
-  const [title, setTitle] = useState((selectedEvent?.title ?? '').replace(/\n/g, ' '))
   const [guests, setGuests] = useState(selectedEvent.extendedProps?.guests || '')
   const [allDay, setAllDay] = useState(selectedEvent.allDay || false)
   const [location, setLocation] = useState(selectedEvent.extendedProps?.location || '')
@@ -167,11 +172,20 @@ const AddEventSidebar = props => {
   const [picture3, setPicture3] = useState(selectedEvent.extendedProps?.picture3)
   const [picture4, setPicture4] = useState(selectedEvent.extendedProps?.picture4)
 
+  const [uploadPicture1, setUploadPicture1] = useState(null)
+  const [uploadPicture2, setUploadPicture2] = useState(null)
+  const [uploadPicture3, setUploadPicture3] = useState(null)
+  const [uploadPicture4, setUploadPicture4] = useState(null)
+  
+  const [image, setImage] = useState(null)
+  const [uploadButton, setUploadButton] = useState(false)
+
   const [calloutJobType, setcalloutJobType] = useState({value: selectedEvent.extendedProps?.job_type || "Select...", label: selectedEvent.extendedProps?.job_type || "Select..."})
   const { clientLoading, data: allClients, clientError } = useNiceQuery(GET_CLIENT, {
     skip: !open
   })
   const [getProperty, { propertyLoading, data: allProperty, propertyError }] = useNiceLazyQuery(GET_PROPERTY, {
+    skip: !open,
     variables: { ownerId:clientId }
   })
   const { workerLoading, data: allWorkers, workerError } = useNiceQuery(GET_WORKER, {
@@ -183,13 +197,48 @@ const AddEventSidebar = props => {
 
   const [updateJobTicket] = useNiceMutation(UPDATE_JOB_TICKET)
 
-  const { jobTypeLoading, data: calloutJobTypeOptions, error: jobTypeError } = useNiceQuery(gql`query JobTypes {
-    team_expertise {
+  const [addCalloutPicture] = useNiceMutation(ADD_PICTURE)
+  const [calloutJobCategory, setcalloutJobCategory] = useState({})
+  
+  //Get id for job_type
+  const { data: allJobTypes } = useNiceQuery(gql`query JobAll($skill_name: String!) {
+    team_expertise(where: {skill_name: {_eq: $skill_name}}) {
+      label: skill_name
+      id: skill_parent
+    }
+  }
+  `, {
+    skip: !open,
+    variables: {skill_name: selectedEvent?.extendedProps?.job_type ?? "Doors/Windows"}
+  })
+
+  const [getJobTypes, { jobTypeLoading, data: calloutJobTypeOptions, error: jobTypeError }] = useNiceLazyQuery(gql`query JobTypes($id: Int!) {
+    team_expertise(where: {skill_parent: {_eq: $id}}) {
       label: skill_name
       value: skill_name
+      id
+    }
+  }  
+  `, {
+    skip: !open,
+    variables: {id: calloutJobCategory?.id}
+  })
+
+  //Get parent job category for the selected job_type 
+  const { jobCategoryLoading, data: calloutJobCategoryOptions, error: jobCategoryError } = useNiceQuery(gql`query JobCategory {
+    team_expertise(where: {skill_parent: {_is_null: true}}) {
+      label: skill_name
+      value: skill_name
+      id
     }
   }`, {
-    skip: !open
+    skip: !open,
+    onCompleted: (data) => {
+      console.log(data)
+      const jobParent = (data?.team_expertise.filter(value => value.id === allJobTypes?.team_expertise[0]?.id)[0])
+      setcalloutJobCategory({value: jobParent?.value, label: jobParent?.label, id: jobParent?.id })
+      getJobTypes()
+    }
   })
   
   const jobTypeOptions = [
@@ -202,6 +251,70 @@ const AddEventSidebar = props => {
   const addHours = (date, hours) => {
     return new Date(new Date(date).setHours(new Date(date).getHours() + hours))
  }
+
+ const uploadImage = async (index) => {
+   try {
+  //    console.log(uploadPicture1, index)
+  // console.log(uploadPicture2, index)
+  // console.log(uploadPicture3, index)
+  // console.log(uploadPicture4, index)
+  if (uploadPicture1?.name) await storage.put(`/callout_pics/${uploadPicture1.name}`, uploadPicture1)
+  if (uploadPicture2?.name) await storage.put(`/callout_pics/${uploadPicture2.name}`, uploadPicture2)
+  if (uploadPicture3?.name) await storage.put(`/callout_pics/${uploadPicture3.name}`, uploadPicture3)
+  if (uploadPicture4?.name) await storage.put(`/callout_pics/${uploadPicture4.name}`, uploadPicture4)
+  const res = await addCalloutPicture({variables: {
+    id: selectedEvent?.extendedProps?.callout_id,
+    picture1: uploadPicture1 ? `${HASURA}/storage/o/callout_pics/${uploadPicture1.name}` : picture1,
+    picture2: uploadPicture2 ? `${HASURA}/storage/o/callout_pics/${uploadPicture2.name}` : picture2,
+    picture3: uploadPicture3 ? `${HASURA}/storage/o/callout_pics/${uploadPicture3.name}` : picture3,
+    picture4: uploadPicture4 ? `${HASURA}/storage/o/callout_pics/${uploadPicture4.name}` : picture4
+  }})
+  console.log(res)
+  setPicture1(res.data.update_callout_by_pk.picture1)
+  setPicture2(res.data.update_callout_by_pk.picture2)
+  setPicture3(res.data.update_callout_by_pk.picture3)
+  setPicture4(res.data.update_callout_by_pk.picture4)
+} catch (e) {
+  console.log(e)
+}
+  
+  return toast.success(
+    <ToastComponent title="Picture Added" color="success" icon={<Check />} />,
+    {
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeButton: false
+    }
+  )
+ }
+
+   // ** Component
+   const CalloutPicture = ({picture, index}) => {
+     const setPicture = (e, index) => {
+      if (index === 0) {
+        setUploadPicture1(e.target.files[0])
+      } else if (index === 1) {
+        setUploadPicture2(e.target.files[0])
+      } else if (index === 2) {
+        setUploadPicture3(e.target.files[0])
+      } else {
+        setUploadPicture4(e.target.files[0])
+      }
+     }
+    return <div style={{width: "100px"}}>
+     {picture ? <a href={picture} target="_blank">
+       <img src={picture} 
+       style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/>
+       </a> : <div><div 
+       style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}>
+         <p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE </p>
+         </div>{selectedEvent.extendedProps.status !== "Closed" && <div><Input type="file" name="file" id="exampleFile" className="mb-1 mt-1" onChange={(e) => { setPicture(e, index); setUploadButton(true) }}/>
+         <Button className="mb-1"color='warning' size="sm" onClick={() => uploadImage(index)}>
+                  <Upload size={15} />
+                    Upload
+                </Button></div>}</div>}
+     </div>
+  }
 
   // ** Custom select components
   const OptionComponent = ({ data, ...props }) => {
@@ -220,7 +333,7 @@ const AddEventSidebar = props => {
       variables: {
         property_id: propertyId,
         email: clientEmail,
-        notes: title,
+        notes: desc,
         time_on_calendar : startPicker.toTimeString().substr(0, 8), 
         date_on_calendar : startPicker.toLocaleDateString(),
         end_date_on_calendar: endPicker.toLocaleDateString(),
@@ -256,13 +369,13 @@ const AddEventSidebar = props => {
   const handleResetInputValues = () => {
     selectEvent({})
     setContentLoading(true)  
-    setTitle('')
     setAllDay(false)
     setUrl('')
     setLocation('')
     setDesc('')
     setGuests({})
     setcalloutJobType({})
+    setcalloutJobCategory({})
     setClientName('')
     setPropertyName('')
     setWorkerName('')
@@ -284,9 +397,7 @@ const AddEventSidebar = props => {
       setTimeout(() => {
         setContentLoading(false)  
       }, 100)
-      const calendar = selectedEvent?.extendedProps?.calendar
-
-      setTitle(selectedEvent.title.split('by')[0])
+      const calendar = selectedEvent?.extendedProps?.calendar      
       setWorkerName(selectedEvent.extendedProps.workerName)
       setWorkerId(selectedEvent.extendedProps.workerId)
       setWorkerEmail(selectedEvent.extendedProps.workerEmail)
@@ -354,7 +465,7 @@ const AddEventSidebar = props => {
       const eventToUpdate = {
         id: selectedEvent.id,
         callout_id: selectedEvent?.extendedProps?.callout_id,
-        title: title.split('by')[0],
+        title: desc,
         startPicker,
         endPicker,
         extendedProps: {
@@ -496,13 +607,14 @@ const AddEventSidebar = props => {
     } else {
       return (
         <Fragment>
+          {selectedEvent?.extendedProps?.status !== "Closed" && 
           <Button.Ripple
             className='mr-1'
             color='primary'
             onClick={handleUpdateEvent}
           >
             Update Callout
-          </Button.Ripple>
+          </Button.Ripple>}
           <Button.Ripple color='danger' onClick={handleDeleteEvent} outline>
             Delete Callout
           </Button.Ripple>
@@ -525,6 +637,7 @@ const AddEventSidebar = props => {
       onOpened={handleSelectedEvent}
       onClosed={handleResetInputValues}
       toggle={handleAddEventSidebar}
+      // className='modal-dialog-centered modal-xl'
     >
       <ModalHeader className='mb-1' toggle={handleAddEventSidebar} >
          <h5 className='modal-title'>
@@ -545,19 +658,34 @@ const AddEventSidebar = props => {
           })}
         >
            <FormGroup>
-             <Label for='title'>
-               Title <span className='text-danger'>*</span>
+             <Label for='desc'>
+               Description <span className='text-danger'>*</span>
              </Label>
             <Input
-               id='title'
-               name='title'
-               placeholder='Title'
-               value={title}
-               onChange={e => setTitle(e.target.value)}
-               innerRef={register({ register: true, validate: value => value !== '' })}
-               className={classnames({
-                 'is-invalid': errors.title
-               })}
+               id='desc'
+               name='desc'
+               placeholder='Description'
+               value={desc}
+               onChange={(e) => setDesc(e.target.value)}
+               disabled={selectedEvent?.extendedProps?.status === "Closed" && true}
+             />
+           </FormGroup>
+
+           <FormGroup>
+             <Label for='label'>Job Category</Label>
+             <Select
+               id='label'
+               defaultValue={{value:calloutJobCategory.value, label:calloutJobCategory.label}}
+               options={calloutJobCategoryOptions?.team_expertise ?? []}
+               theme={selectThemeColors}
+               isDisabled={selectedEvent?.extendedProps?.status === "Closed" && true}
+               className='react-select'
+               classNamePrefix='select'
+               isClearable={false}
+               onChange={(e) => { setcalloutJobCategory({value: e.value, label: e.value, id: e.id}); getJobTypes(); setcalloutJobType({}) }}
+               components={{
+                 Option: OptionComponent
+               }}
              />
            </FormGroup>
 
@@ -568,6 +696,7 @@ const AddEventSidebar = props => {
                defaultValue={{value:calloutJobType.value, label:calloutJobType.label}}
                options={calloutJobTypeOptions?.team_expertise ?? []}
                theme={selectThemeColors}
+               isDisabled={selectedEvent?.extendedProps?.status === "Closed" && true}
                className='react-select'
                classNamePrefix='select'
                isClearable={false}
@@ -581,13 +710,20 @@ const AddEventSidebar = props => {
 
            <FormGroup>
            <Label for='label'>Client Name</Label>
-           {allClients?.client && !clientLoading ? (
+           {selectedEvent?.extendedProps?.status === "Closed" ?    <Input
+               id='clientName'
+               name='clientName'
+               placeholder='clientName'
+               value={clientName}
+               disabled
+             /> : allClients?.client && !clientLoading ? (
            <AutoComplete
            suggestions={allClients.client}
            className='form-control'
            filterKey='full_name'
            placeholder="Search client name"
            value={clientName}
+           disabled={selectedEvent?.extendedProps?.status === "Closed" && true}
            customRender={(
             suggestion,
             i,
@@ -626,7 +762,13 @@ const AddEventSidebar = props => {
 
         <FormGroup>
            <Label for='label'>Property Name</Label>
-           {allProperty?.property_owned && !propertyLoading ? (
+           {selectedEvent?.extendedProps?.status === "Closed" ?    <Input
+               id='propertyName'
+               name='propertyName'
+               placeholder='Property Name'
+               value={propertyName}
+               disabled
+             /> :  allProperty?.property_owned && !propertyLoading ? (
            <AutoComplete
            suggestions={allProperty.property_owned.map(a => a.property)}
            className='form-control'
@@ -664,7 +806,13 @@ const AddEventSidebar = props => {
 
         <FormGroup>
            <Label for='label'>Worker Name</Label>
-           {allWorkers?.worker && !workerLoading ? (
+           {selectedEvent?.extendedProps?.status === "Closed" ?    <Input
+               id='propertyName'
+               name='propertyName'
+               placeholder='Property Name'
+               value={workerName}
+               disabled
+             /> : allWorkers?.worker && !workerLoading ? (
            <AutoComplete
            suggestions={allWorkers.worker}
            className='form-control'
@@ -708,10 +856,12 @@ const AddEventSidebar = props => {
              <Fragment>
              <Label for='startDate'>Start Date</Label>
              <Flatpickr
-               required
+               required={selectedEvent?.extendedProps?.status === "Closed" && true}
                id='startDate'
                //tag={Flatpickr}
                name='startDate'
+               disabled={selectedEvent?.extendedProps?.status === "Closed" && true}
+               style={{backgroundColor: selectedEvent?.extendedProps?.status === "Closed" && '#efefef'}}
                //  data-enable-time
                className='form-control'
                onChange={date => { setStartPicker(date[0]); setEndPicker(addHours(date[0], 2)); console.log(date[0]) }}
@@ -727,29 +877,30 @@ const AddEventSidebar = props => {
            <FormGroup>
              <Label for='endDate'>End Date</Label>
              <Flatpickr
-             style={{backgroundColor: '#efefef'}}
+             style={{backgroundColor: selectedEvent?.extendedProps?.status === "Closed" && '#efefef'}}
               //  required
                id='endDate'
                 //tag={Flatpickr}
                name='endDate'
                className='form-control'
               //  onChange={date => setEndPicker(date[0])}
+              disabled={selectedEvent?.extendedProps?.status === "Closed" && true}
                value={endPicker}
-               disabled
                options={{
                  enableTime: true,
                  dateFormat: 'Y-m-d H:i'
                }}
              />
            </FormGroup>
-           <FormGroup>
+           {selectedEvent?.extendedProps?.status !== "Closed" &&  <FormGroup>
            <CustomInput inline className='custom-control-Primary' type='checkbox' id='blocked'  onChange={() => setBlocked(!blocked)} label='Should we block this slot from any booking?' checked={blocked} />
              {/* <Input type='checkbox' id='blocked' onChange={() => setBlocked(!blocked)} checked={blocked} /> */}
              {/* <Label for='blocked'>Should we block this slot from any booking?</Label> */}
-           </FormGroup>
+           </FormGroup>}
+          
            <FormGroup style={{display: "flex", justifyContent: "space-between"}}>
              {[picture1, picture2, picture3, picture4].map((picture, i) => (
-              <CalloutPicture key={i} picture={picture} />
+              <CalloutPicture key={i} picture={picture} index={i} />
              ))}
            </FormGroup>
            
@@ -811,6 +962,7 @@ const AddEventSidebar = props => {
       </CardBody>
     </Card>
                ))}
+               {selectedEvent?.extendedProps?.status !== "Closed" && 
            <FormGroup>
            <Button.Ripple
                className='mr-1'
@@ -819,7 +971,7 @@ const AddEventSidebar = props => {
              >
                Add New Job Ticket
              </Button.Ripple>
-           </FormGroup>
+           </FormGroup>}
            {/* <FormGroup>
              <Label for='endDate'>End Date</Label>
              <Flatpickr
