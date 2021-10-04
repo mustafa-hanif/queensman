@@ -223,6 +223,7 @@ const JobsList = (props) => {
     finalData?.callout,
     state.selected
   ]);
+  console.log(auth.user(), "AAAAAAAAAAAAAAA")
   if (error) {
     console.log(error)
     return (
