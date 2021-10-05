@@ -243,7 +243,7 @@ const GET_CALLOUTS = gql`
 `;
 
 const MonthlyReportPDF = ({ propertyID, state, setState, reportLoading }) => {
-  const displayName = auth.user().display_name(/ /g, "-");
+  const displayName = auth.user().display_name.replace(/ /g, "-");
   const { email } = auth.user();
   const [loadCallouts] = useLazyQuery(GET_CALLOUTS, {
     onCompleted: (data2) => {
