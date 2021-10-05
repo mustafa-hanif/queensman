@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "Queensman Client dev",
+    "name": "Queensman Client",
     "slug": "QueensmenClient",
     "privacy": "public",
     "platforms": [
       "ios",
       "android"
     ],
-    "version": "1.2",
+    "version": "1.3",
     "orientation": "portrait",
     "icon": "./assets/iconclienttest.png",
     "splash": {

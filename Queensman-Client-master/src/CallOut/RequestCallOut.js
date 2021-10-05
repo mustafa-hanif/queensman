@@ -159,22 +159,24 @@ const styles = StyleSheet.create({
 });
 
 const GET_JOB_CATEGORY = gql`
-  query GetJobCategory {
-    team_expertise(where: { skill_level: { _eq: 0 } }) {
-      skill_name
-      id
-    }
+query GetJobCategory {
+  team_expertise(where: {skill_level: {_eq: 0}}, order_by: {skill_name: asc}) {
+    skill_name
+    id
+    isHigh
   }
+}
+
 `;
 
 const GET_JOB_TYPE = gql`
-  query GetJobType($skill_parent: Int!, $isHigh: Boolean!) {
-    team_expertise(where: { skill_level: { _eq: 1 }, skill_parent: { _eq: $skill_parent }, isHigh: { _eq: $isHigh } }) {
-      id
-      skill_name
-      isHigh
-    }
+query GetJobType($skill_parent: Int!, $isHigh: Boolean!) {
+  team_expertise(where: {skill_level: {_eq: 1}, skill_parent: {_eq: $skill_parent}, isHigh: {_eq: $isHigh}}, order_by: {skill_name: asc}) {
+    id
+    skill_name
+    isHigh
   }
+}
 `;
 
 const GET_PROPERTIES = gql`
@@ -932,8 +934,20 @@ const RequestCallOut = (props) => {
                   endIcon: <CheckIcon size={4} />,
                 }}
               >
-                {jobCategory ? (
-                  jobCategory?.team_expertise.map(
+                {jobCategory ? 
+                  state.Urgency.toLowerCase() === "high" ? jobCategory?.team_expertise.filter(value => value.isHigh === true).map(
+                    (
+                      element,
+                      i // Map job category from db
+                    ) => (
+                      <Select.Item
+                        label={element.skill_name}
+                        value={element.id}
+                        key={i}
+                        // onTouchEnd={() => selectJobCategoryPressed(element.id)}
+                      />
+                    )
+                  ) :  jobCategory?.team_expertise.map(
                     (
                       element,
                       i // Map job category from db
@@ -946,9 +960,9 @@ const RequestCallOut = (props) => {
                       />
                     )
                   )
-                ) : (
+                : 
                   <Select.Item label="Unable to load job types" value="Unable to load job types" />
-                )}
+                }
               </Select>
             ) : (
               <Select // else request for additional services

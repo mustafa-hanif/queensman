@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-const version = "v0.5.1";
+const version = "v0.5.2";
 import React, { PureComponent } from "react";
 // import * as SplashScreen from "expo-splash-screen";
 import {
