@@ -159,24 +159,26 @@ const styles = StyleSheet.create({
 });
 
 const GET_JOB_CATEGORY = gql`
-query GetJobCategory {
-  team_expertise(where: {skill_level: {_eq: 0}}, order_by: {skill_name: asc}) {
-    skill_name
-    id
-    isHigh
+  query GetJobCategory {
+    team_expertise(where: { skill_level: { _eq: 0 } }, order_by: { skill_name: asc }) {
+      skill_name
+      id
+      isHigh
+    }
   }
-}
-
 `;
 
 const GET_JOB_TYPE = gql`
-query GetJobType($skill_parent: Int!, $isHigh: Boolean!) {
-  team_expertise(where: {skill_level: {_eq: 1}, skill_parent: {_eq: $skill_parent}, isHigh: {_eq: $isHigh}}, order_by: {skill_name: asc}) {
-    id
-    skill_name
-    isHigh
+  query GetJobType($skill_parent: Int!, $isHigh: Boolean!) {
+    team_expertise(
+      where: { skill_level: { _eq: 1 }, skill_parent: { _eq: $skill_parent }, isHigh: { _eq: $isHigh } }
+      order_by: { skill_name: asc }
+    ) {
+      id
+      skill_name
+      isHigh
+    }
   }
-}
 `;
 
 const GET_PROPERTIES = gql`
@@ -330,6 +332,16 @@ const ADD_JOB_TICKET = gql`
   }
 `;
 
+const GET_WORKER = gql`
+  query GetWorker($_eq: String!) {
+    worker(where: { email: { _eq: $_eq } }) {
+      full_name
+      id
+      email
+    }
+  }
+`;
+
 const RequestCallOut = (props) => {
   const additionalServices = JSON.parse(props?.route?.params?.additionalServices);
   const [state, _setState] = useState({
@@ -372,6 +384,9 @@ const RequestCallOut = (props) => {
     _setState(props);
   };
   const { data: jobCategory } = useQuery(GET_JOB_CATEGORY);
+  const { data: allWorkers } = useQuery(GET_WORKER, {
+    variables: { _eq: "opscord@queensman.com" },
+  });
   const [getJobType, { loading: loadingJobType, data: jobType }] = useLazyQuery(GET_JOB_TYPE);
   const [addCalloutApiCall] = useMutation(ADD_CALLOUT);
   const [addJobTicket] = useMutation(ADD_JOB_TICKET);
@@ -536,10 +551,10 @@ const RequestCallOut = (props) => {
   };
 
   const askSubmitCallout = () => {
-    if (!jobCategorySelect.value) {
+    if (!jobCategorySelect?.value) {
       return alert("Please Select Job Category!");
     }
-    if (!additionalServices && !jobTypeSelect?.value) {
+    if (!additionalServices && jobTypeSelect?.value) {
       return alert("Please Select Job Type!");
     }
     if (state.Urgency === "") {
@@ -772,7 +787,7 @@ const RequestCallOut = (props) => {
         property_id: state.PropertyID,
         worker_email: "opscord@queensman.com",
         client_email: auth.user().email,
-        worker_id: 21,
+        worker_id: allWorkers.worker[0].id,
         description: state.Description,
         category,
         job_type: jobCategorySelect.value,
@@ -934,42 +949,48 @@ const RequestCallOut = (props) => {
                   endIcon: <CheckIcon size={4} />,
                 }}
               >
-                {jobCategory ? 
-                  state.Urgency.toLowerCase() === "high" ? jobCategory?.team_expertise.filter(value => value.isHigh === true).map(
-                    (
-                      element,
-                      i // Map job category from db
-                    ) => (
-                      <Select.Item
-                        label={element.skill_name}
-                        value={element.id}
-                        key={i}
-                        // onTouchEnd={() => selectJobCategoryPressed(element.id)}
-                      />
-                    )
-                  ) :  jobCategory?.team_expertise.map(
-                    (
-                      element,
-                      i // Map job category from db
-                    ) => (
-                      <Select.Item
-                        label={element.skill_name}
-                        value={element.id}
-                        key={i}
-                        // onTouchEnd={() => selectJobCategoryPressed(element.id)}
-                      />
+                {jobCategory ? (
+                  state.Urgency.toLowerCase() === "high" ? (
+                    jobCategory?.team_expertise
+                      .filter((value) => value.isHigh === true)
+                      .map(
+                        (
+                          element,
+                          i // Map job category from db
+                        ) => (
+                          <Select.Item
+                            label={element.skill_name}
+                            value={element.id}
+                            key={i}
+                            // onTouchEnd={() => selectJobCategoryPressed(element.id)}
+                          />
+                        )
+                      )
+                  ) : (
+                    jobCategory?.team_expertise.map(
+                      (
+                        element,
+                        i // Map job category from db
+                      ) => (
+                        <Select.Item
+                          label={element.skill_name}
+                          value={element.id}
+                          key={i}
+                          // onTouchEnd={() => selectJobCategoryPressed(element.id)}
+                        />
+                      )
                     )
                   )
-                : 
+                ) : (
                   <Select.Item label="Unable to load job types" value="Unable to load job types" />
-                }
+                )}
               </Select>
             ) : (
               <Select // else request for additional services
                 note
                 mode="dialog"
                 isDisabled={state.Urgency === ""}
-                onValueChange={onJobCategoryValueChange}
+                onValueChange={(value) => setJobCategorySelect({ value, label: value })}
                 selectedValue={jobCategorySelect?.value}
                 // bg="#FFCA5D"
                 color="black"
