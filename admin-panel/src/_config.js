@@ -28,8 +28,7 @@ const SERVERLESS_PROD = 'meqmfvxx0d'
 module.exports = {
     DOMAIN,
     HASURA,
-    ENDPOINT,
-    SECRET
+    ENDPOINT
     //  DOMAIN: "https://meqmfvxx0d.execute-api.us-east-1.amazonaws.com/production"
     // Change domain to above url for produciton dev
 }
