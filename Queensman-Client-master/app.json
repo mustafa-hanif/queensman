@@ -7,9 +7,9 @@
       "ios",
       "android"
     ],
-    "version": "1.2",
+    "version": "1.3",
     "orientation": "portrait",
-    "icon": "./assets/icon5.png",
+    "icon": "./assets/iconclienttest.png",
     "splash": {
       "image": "./assets/splash5.png",
       "resizeMode": "contain",

@@ -45,8 +45,8 @@ const TabsVerticalLeft = ({item}) => {
   const { job } = callout
   const job_history = callout?.job_history
   const schedule = item?.callout?.schedulers[0]
-  const {id, notes, name, callout_id, description, type, worker_email, status, created_at } = item
-  const job_ticket = {id, notes, name, callout_id, description, type, worker_email, status, created_at }
+  const {id, notes, name, callout_id, description, type, worker_email, status, created_at, start_time, end_time } = item
+  const job_ticket = {id, notes, name, callout_id, description, type, worker_email, status, created_at, start_time, end_time }
 
   const job_history_count = job_history.length
   const job_history_modified =
@@ -143,7 +143,9 @@ const TabsVerticalLeft = ({item}) => {
                   
               }
               })}
-
+              <ListGroupItem>
+                <span style={{fontWeight: "bold"}}>Time taken to complete the job: </span>{job_ticket['status'] === "Closed" && moment(job_ticket["end_time"]).diff(moment(job_ticket["start_time"]), "minutes")} Minutes
+              </ListGroupItem>
             </ListGroup>
         </TabPane>
         <TabPane tabId='2'>

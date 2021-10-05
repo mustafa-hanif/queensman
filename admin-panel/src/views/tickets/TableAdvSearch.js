@@ -11,6 +11,7 @@ import DataTable from 'react-data-table-component'
 import { toast } from 'react-toastify'
 import Exportqs from '../extensions/import-export/Exportqs'
 import moment from "moment"
+import { useNiceQuery, useNiceMutation } from '../../utility/Utils'
 import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check, XCircle } from 'react-feather'
 import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import Select from 'react-select'
@@ -72,6 +73,8 @@ query getJobTickets {
     worker_id
     status
     created_at
+    start_time
+    end_time
     worker_email_rel {
       full_name
     }
@@ -155,10 +158,10 @@ mutation deleteJobTicket($id: Int!) {
 const DataTableAdvSearch = () => {
 
   // ** States
-  const { loading, data, error } = useQuery(GET_JOB_TICKETS)
-  const [updateJobTicket, { loading: updateJobTicketLoading }] = useMutation(UPDATE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
-  const [addJobTicket, { loading: addJobTicketLoading }] = useMutation(ADD_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
-  const [deleteJobTicket, { loading: deleteJobLoading }] = useMutation(DELETE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
+  const { loading, data, error } = useNiceQuery(GET_JOB_TICKETS)
+  const [updateJobTicket, { loading: updateJobTicketLoading }] = useNiceMutation(UPDATE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
+  const [addJobTicket, { loading: addJobTicketLoading }] = useNiceMutation(ADD_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
+  const [deleteJobTicket, { loading: deleteJobLoading }] = useNiceMutation(DELETE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
   const [modal, setModal] = useState(false)
   const [detailsModal, setDetailsModal] = useState(false)
   const [modalDetails, setModalDetails] = useState(null)
@@ -637,10 +640,13 @@ const DataTableAdvSearch = () => {
     const objectsToExport = []
 
     for (const keys in DataTojson) {
-    
+    let Time = 0
+    if (DataTojson[keys].status === "Closed") {
+      Time = moment(DataTojson[keys].end_time).diff(DataTojson[keys].start_time, "minutes")
+    }
       objectsToExport.push({
-        id: DataTojson[keys].id.toString(),
-        calloutby: DataTojson[keys]?.worker_email,
+        id: DataTojson[keys]?.callout_id,
+        calloutby: DataTojson[keys]?.callout?.client?.email,
         propertyType: DataTojson[keys]?.callout?.property?.address,
         type: DataTojson[keys]?.callout?.job_type,
         status: DataTojson[keys].status,
@@ -651,8 +657,8 @@ const DataTableAdvSearch = () => {
         resolvedTime: DataTojson[keys]?.callout?.job?.[0]?.resolved_time,
         Solution: DataTojson[keys]?.callout?.job?.[0]?.solution,
         Rating: DataTojson[keys]?.callout?.job?.[0]?.rating,
-        Feedback: DataTojson[keys]?.callout?.job?.[0]?.feedback
-
+        Feedback: DataTojson[keys]?.callout?.job?.[0]?.feedback,
+        Time_in_minutes: Time
       })
 
     }

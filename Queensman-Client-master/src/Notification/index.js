@@ -37,7 +37,7 @@ const GET_NOTIFICATIONS = gql`
 `;
 
 export default function Index(props) {
-  const email = auth?.currentSession?.session?.user.email;
+  const email = auth.user().email;
 
   const [refreshing, setRefreshing] = useState(false);
   const [notifications, setNotifications] = useState([]);

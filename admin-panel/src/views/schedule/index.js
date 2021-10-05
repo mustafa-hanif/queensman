@@ -1,6 +1,7 @@
 // ** React Imports
 import { Fragment, useState, useEffect, useRef } from "react"
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client"
+import { useNiceLazyQuery, useNiceMutation } from "../../utility/Utils"
 
 // ** Third Party Components
 import classnames from "classnames"
@@ -40,7 +41,7 @@ const calendarsColor = {
 
 const GET_SCHEDULE = gql`
   query GetSchedule($_gte: date!, $_lte: date!) {
-    scheduler(where: {date_on_calendar: {_gte: $_gte, _lte: $_lte}, callout: {status: {_neq: "Closed"}}}) {
+    scheduler(where: {date_on_calendar: {_gte: $_gte, _lte: $_lte}}) {
       id
       start: date_on_calendar
       startTime: time_on_calendar
@@ -63,6 +64,8 @@ const GET_SCHEDULE = gql`
       }
       callout_id
       callout {
+        status
+        description
         property {
           address
           id
@@ -110,11 +113,11 @@ const UPDATE_CALLOUT = gql`
     $end_date_on_calendar: date
     $end_time_on_calendar: time
     $updated_by: String
+    $description: String
   ) {
     update_scheduler(
       where: { id: { _eq: $scheduler_id } }
       _set: { 
-        notes: $notes, 
         worker_id: $worker_id, 
         blocked: $blocked, 
         date_on_calendar: $date_on_calendar
@@ -129,6 +132,7 @@ const UPDATE_CALLOUT = gql`
       where: { id: { _eq: $callout_id } }
       _set: {
         callout_by_email: $callout_by_email
+        description: $description
         category: $category
         job_type: $job_type
         updated_by: $updated_by
@@ -158,11 +162,11 @@ const UPDATE_CALLOUT_AND_JOB_TICKET = gql`
     $end_date_on_calendar: date
     $end_time_on_calendar: time
     $updated_by: String
+    $description: String
   ) {
     update_scheduler(
       where: { id: { _eq: $scheduler_id } }
       _set: { 
-        notes: $notes, 
         worker_id: $worker_id, 
         blocked: $blocked, 
         date_on_calendar: $date_on_calendar
@@ -178,6 +182,7 @@ const UPDATE_CALLOUT_AND_JOB_TICKET = gql`
       _set: {
         callout_by_email: $callout_by_email
         category: $category
+        description: $description
         job_type: $job_type
         updated_by: $updated_by
       }
@@ -305,10 +310,16 @@ const CalendarComponent = ({location}) => {
   //   return state.calendar
   // })
 
+  // ** states
+  const [addSidebarOpen, setAddSidebarOpen] = useState(false),
+  [leftSidebarOpen, setLeftSidebarOpen] = useState(false),
+  [calendarApi, setCalendarApi] = useState(null)
+
   const [changeToDayView, setChangeToDayView] = useState(location?.state?.changeToDayView || false)
   const [date, setDate] = useState(location?.state?.date || false)
 
-  const [updateCallOut] = useMutation(UPDATE_CALLOUT, {
+  const [updateCallOut] = useNiceMutation(UPDATE_CALLOUT, {
+    skip: !addSidebarOpen,
     refetchQueries: [
       {
         query: GET_SCHEDULE,
@@ -319,7 +330,8 @@ const CalendarComponent = ({location}) => {
       }
     ]
   })
-  const [updateCalloutAndJobTicket] = useMutation(UPDATE_CALLOUT_AND_JOB_TICKET, {
+  const [updateCalloutAndJobTicket] = useNiceMutation(UPDATE_CALLOUT_AND_JOB_TICKET, {
+    skip: !addSidebarOpen,
     refetchQueries: [
       {
         query: GET_SCHEDULE,
@@ -330,8 +342,8 @@ const CalendarComponent = ({location}) => {
       }
     ]
   })
-  const [updateCallOutDrag] = useMutation(UPDATE_CALLOUT_DRAG)
-  const [deleteCallout] = useMutation(DELETE_CALLOUT)
+  const [updateCallOutDrag] = useNiceMutation(UPDATE_CALLOUT_DRAG)
+  const [deleteCallout] = useNiceMutation(DELETE_CALLOUT)
 
   const selectedDates = useRef({
     _gte: new Date().toISOString().split("T")[0],
@@ -345,7 +357,7 @@ const CalendarComponent = ({location}) => {
     if (eventToUpdate.extendedProps?.jobTickets.length === 0) {
       updateCallOut({
         variables: {
-          notes: eventToUpdate.title,
+          description: eventToUpdate.title,
           callout_id: eventToUpdate.callout_id,
           callout_by_email: eventToUpdate.extendedProps.clientEmail,
           category: eventToUpdate.extendedProps.category,
@@ -364,7 +376,7 @@ const CalendarComponent = ({location}) => {
     } else {
       updateCalloutAndJobTicket({
         variables: {
-          notes: eventToUpdate.title,
+          description: eventToUpdate.title,
           callout_id: eventToUpdate.callout_id,
           callout_by_email: eventToUpdate.extendedProps.clientEmail,
           category: eventToUpdate.extendedProps.category,
@@ -407,10 +419,6 @@ const CalendarComponent = ({location}) => {
     })
   }
 
-  // ** states
-  const [addSidebarOpen, setAddSidebarOpen] = useState(false),
-    [leftSidebarOpen, setLeftSidebarOpen] = useState(false),
-    [calendarApi, setCalendarApi] = useState(null)
 
   // ** Hooks
   const [isRtl, setIsRtl] = useRTL()
@@ -439,7 +447,8 @@ const CalendarComponent = ({location}) => {
   const _gte = selectedDates.current._gte
   const _lte = selectedDates.current._lte
 
-  const [getSchedule, { loading, data }] = useLazyQuery(GET_SCHEDULE, {
+  const [getSchedule, { loading, data }] = useNiceLazyQuery(GET_SCHEDULE, {
+    skip: !addSidebarOpen,
     variables: {
       _gte,
       _lte
@@ -449,7 +458,8 @@ const CalendarComponent = ({location}) => {
   const [
     requestCalloutApiCall,
     { loading: requestCalloutLoading, error: mutationError }
-  ] = useMutation(REQUEST_CALLOUT, {
+  ] = useNiceMutation(REQUEST_CALLOUT, {
+    skip: !addSidebarOpen,
     refetchQueries: [
       {
         query: GET_SCHEDULE,

@@ -51,12 +51,12 @@ const deviceHeight = Dimensions.get("window").height;
 const GET_CALLOUT = gql`
   query GetCallout($callout_by_email: String!, $today: date = "") {
     callout(
-      where: { 
-        callout_by_email: { _eq: $callout_by_email }, 
-        schedule: { date_on_calendar: { _gte: $today } } 
+      where: {
+        callout_by_email: { _eq: $callout_by_email }
+        schedule: { date_on_calendar: { _gte: $today } }
         status: { _neq: "Closed" }
       }
-        order_by: { schedule: { date_on_calendar: asc } }
+      order_by: { schedule: { date_on_calendar: asc } }
       limit: 1
     ) {
       job_type
@@ -234,10 +234,10 @@ const AlertLogout = (navigation) => {
 
 const logout = async () => {
   try {
-    console.log(await AsyncStorage.clear())
+    console.log(await AsyncStorage.clear());
     auth.logout();
     navigation.navigate("Login");
-    setIsOpen(false)
+    setIsOpen(false);
   } catch (error) {
     // Error saving data
   }
@@ -265,7 +265,7 @@ const NOTIFICATION_LIST = gql`
 
 const HomeScreen = ({ navigation }) => {
   const [isOpen, setIsOpen] = useState(true);
-  const email2 = auth?.currentSession?.session?.user.email;
+  const email2 = auth.user().email;
   // console.log(auth?.currentSession);
   const {
     loading,
@@ -517,28 +517,33 @@ const HomeScreen = ({ navigation }) => {
 };
 
 const Item = ({ text, image, onPress, clientLoading }) => {
-  const [bgStyle, setbgStyle] = useState("white")
+  const [bgStyle, setbgStyle] = useState("white");
   return (
-<Pressable disabled={clientLoading} onPress={onPress} onPressIn={() => setbgStyle("gray.400")} onPressOut={() => setbgStyle("white")}>
-    <HStack
-      space={2}
-      alignContent="center"
-      borderWidth={1}
-      borderColor="amber.300"
-      mx={8}
-      py={2}
-      px={4}
-      borderRadius={48}
-      bg={bgStyle}
+    <Pressable
+      disabled={clientLoading}
+      onPress={onPress}
+      onPressIn={() => setbgStyle("gray.400")}
+      onPressOut={() => setbgStyle("white")}
     >
-      <Image alt="pic" source={image} style={{ height: 32, width: 32, alignSelf: "center" }} />
-      <Text color="amber.900" alignSelf="center">
-        {text}
-      </Text>
-    </HStack>
-  </Pressable>    
-  )
-}
+      <HStack
+        space={2}
+        alignContent="center"
+        borderWidth={1}
+        borderColor="amber.300"
+        mx={8}
+        py={2}
+        px={4}
+        borderRadius={48}
+        bg={bgStyle}
+      >
+        <Image alt="pic" source={image} style={{ height: 32, width: 32, alignSelf: "center" }} />
+        <Text color="amber.900" alignSelf="center">
+          {text}
+        </Text>
+      </HStack>
+    </Pressable>
+  );
+};
 export default HomeScreen;
 
 const colors = {

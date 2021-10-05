@@ -40,6 +40,7 @@ import '@styles/react/libs/flatpickr/flatpickr.scss'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import AddNewModal from './AddNewModal'
 import Badge from 'reactstrap/lib/Badge'
+import { useNiceMutation, useNiceQuery } from '../../utility/Utils'
 
 const GET_CLIENT_PROPS = gql`
 query GetClientLeased {
@@ -121,13 +122,13 @@ const DELETE_PROPS = gql`mutation DeleteProperty($id: Int = 10) {
 const LeasedProperty = () => {
 
         // ** States
-  const { loading, data, error, refetch: refetchProps } = useQuery(GET_CLIENT_PROPS)
-  const [updateProp, {loading: propertyLoading}] = useMutation(UPDATE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [addProp, {loading: addPropertyLoading}] = useMutation(ADD_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [unassignProp, {loading: unAssignpropertyLoading}] = useMutation(UNASSIGN, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [addPropOwned, {loading: addPropertyOwnedLoading}] = useMutation(ADD_PROP_OWNED, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [addLease, {loading: addLeaseLoading}] = useMutation(ADD_LEASE, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [deleteProp, {loading: deletePropertyLoading}] = useMutation(DELETE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const { loading, data, error, refetch: refetchProps } = useNiceQuery(GET_CLIENT_PROPS)
+  const [updateProp, {loading: propertyLoading}] = useNiceMutation(UPDATE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [addProp, {loading: addPropertyLoading}] = useNiceMutation(ADD_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [unassignProp, {loading: unAssignpropertyLoading}] = useNiceMutation(UNASSIGN, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [addPropOwned, {loading: addPropertyOwnedLoading}] = useNiceMutation(ADD_PROP_OWNED, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [addLease, {loading: addLeaseLoading}] = useNiceMutation(ADD_LEASE, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [deleteProp, {loading: deletePropertyLoading}] = useNiceMutation(DELETE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState('')
   const [searchEmail, setSearchEmail] = useState('')
