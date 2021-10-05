@@ -144,6 +144,9 @@ const AddEventSidebar = props => {
     removeEvent
   } = props
 
+  useEffect(() => {
+   
+  }, [])
   // const selectedEvent = store.selectedEvent
   const { register, errors, handleSubmit } = useForm()
 
@@ -167,20 +170,12 @@ const AddEventSidebar = props => {
   const [blocked, setBlocked] = useState(selectedEvent.extendedProps?.blocked)
   const [workerEmail, setWorkerEmail] = useState(selectedEvent.extendedProps?.workerEmail)
   const [jobTickets, setJobTickets] = useState([])
-  const [picture1, setPicture1] = useState(selectedEvent.extendedProps?.picture1)
-  const [picture2, setPicture2] = useState(selectedEvent.extendedProps?.picture2)
-  const [picture3, setPicture3] = useState(selectedEvent.extendedProps?.picture3)
-  const [picture4, setPicture4] = useState(selectedEvent.extendedProps?.picture4)
-
-  const [uploadPicture1, setUploadPicture1] = useState(null)
-  const [uploadPicture2, setUploadPicture2] = useState(null)
-  const [uploadPicture3, setUploadPicture3] = useState(null)
-  const [uploadPicture4, setUploadPicture4] = useState(null)
-  
-  const [image, setImage] = useState(null)
+  const [picture1, setPicture1] = useState({picture: selectedEvent.extendedProps?.picture1, uploadPicture: null})
+  const [picture2, setPicture2] = useState({picture: selectedEvent.extendedProps?.picture2, uploadPicture: null})
+  const [picture3, setPicture3] = useState({picture: selectedEvent.extendedProps?.picture3, uploadPicture: null})
+  const [picture4, setPicture4] = useState({picture: selectedEvent.extendedProps?.picture4, uploadPicture: null})
   const [uploadButton, setUploadButton] = useState(false)
 
-  const [calloutJobType, setcalloutJobType] = useState({value: selectedEvent.extendedProps?.job_type || "Select...", label: selectedEvent.extendedProps?.job_type || "Select..."})
   const { clientLoading, data: allClients, clientError } = useNiceQuery(GET_CLIENT, {
     skip: !open
   })
@@ -198,48 +193,32 @@ const AddEventSidebar = props => {
   const [updateJobTicket] = useNiceMutation(UPDATE_JOB_TICKET)
 
   const [addCalloutPicture] = useNiceMutation(ADD_PICTURE)
-  const [calloutJobCategory, setcalloutJobCategory] = useState({})
+  const [calloutJobType, setcalloutJobType] = useState({value: selectedEvent.extendedProps?.job_type || "Select...", label: selectedEvent.extendedProps?.job_type || "Select..."})
+  const [calloutJobCategory, setcalloutJobCategory] = useState({value: "Select...", label: "Select..."})
+  const [calloutJobTypeOptions, setcalloutJobTypeOptions] = useState(null)
   
-  //Get id for job_type
-  const { data: allJobTypes } = useNiceQuery(gql`query JobAll($skill_name: String!) {
-    team_expertise(where: {skill_name: {_eq: $skill_name}}) {
-      label: skill_name
-      id: skill_parent
-    }
-  }
-  `, {
-    skip: !open,
-    variables: {skill_name: selectedEvent?.extendedProps?.job_type ?? "Doors/Windows"}
-  })
-
-  const [getJobTypes, { jobTypeLoading, data: calloutJobTypeOptions, error: jobTypeError }] = useNiceLazyQuery(gql`query JobTypes($id: Int!) {
-    team_expertise(where: {skill_parent: {_eq: $id}}) {
-      label: skill_name
-      value: skill_name
+  //Get All Jobs
+  const { loading: jobDataLoading, data: allJobTypes } = useNiceQuery(gql`query JobAll {
+    team_expertise {
       id
-    }
-  }  
-  `, {
-    skip: !open,
-    variables: {id: calloutJobCategory?.id}
-  })
-
-  //Get parent job category for the selected job_type 
-  const { jobCategoryLoading, data: calloutJobCategoryOptions, error: jobCategoryError } = useNiceQuery(gql`query JobCategory {
-    team_expertise(where: {skill_parent: {_is_null: true}}) {
-      label: skill_name
       value: skill_name
-      id
+      label: skill_name
+      skill_parent_rel {
+        value: skill_name
+        label: skill_name
+        id
+      }
     }
   }`, {
-    skip: !open,
-    onCompleted: (data) => {
-      console.log(data)
-      const jobParent = (data?.team_expertise.filter(value => value.id === allJobTypes?.team_expertise[0]?.id)[0])
-      setcalloutJobCategory({value: jobParent?.value, label: jobParent?.label, id: jobParent?.id })
-      getJobTypes()
-    }
+    skip: !open
   })
+  const jobParent = (allJobTypes?.team_expertise.filter(element => element.value === selectedEvent.extendedProps?.job_type)[0]) //Get parent value of current job_type  
+
+  const setJobTypes = (id) => {
+    console.log(id)
+    setcalloutJobTypeOptions(allJobTypes?.team_expertise.filter(element => element?.skill_parent_rel?.id === id))
+    setcalloutJobType({value: "Select...", label: "Select..."})
+  }
   
   const jobTypeOptions = [
     {value: 'Deferred', label: 'Deferred'},
@@ -254,26 +233,22 @@ const AddEventSidebar = props => {
 
  const uploadImage = async (index) => {
    try {
-  //    console.log(uploadPicture1, index)
-  // console.log(uploadPicture2, index)
-  // console.log(uploadPicture3, index)
-  // console.log(uploadPicture4, index)
-  if (uploadPicture1?.name) await storage.put(`/callout_pics/${uploadPicture1.name}`, uploadPicture1)
-  if (uploadPicture2?.name) await storage.put(`/callout_pics/${uploadPicture2.name}`, uploadPicture2)
-  if (uploadPicture3?.name) await storage.put(`/callout_pics/${uploadPicture3.name}`, uploadPicture3)
-  if (uploadPicture4?.name) await storage.put(`/callout_pics/${uploadPicture4.name}`, uploadPicture4)
+  if (picture1.uploadPicture?.name) await storage.put(`/callout_pics/${picture1.uploadPicture.name}`, picture1.uploadPicture)
+  if (picture2.uploadPicture?.name) await storage.put(`/callout_pics/${picture2.uploadPicture.name}`, picture2.uploadPicture)
+  if (picture3.uploadPicture?.name) await storage.put(`/callout_pics/${picture3.uploadPicture.name}`, picture3.uploadPicture)
+  if (picture4.uploadPicture?.name) await storage.put(`/callout_pics/${picture4.uploadPicture.name}`, picture4.uploadPicture)
   const res = await addCalloutPicture({variables: {
     id: selectedEvent?.extendedProps?.callout_id,
-    picture1: uploadPicture1 ? `${HASURA}/storage/o/callout_pics/${uploadPicture1.name}` : picture1,
-    picture2: uploadPicture2 ? `${HASURA}/storage/o/callout_pics/${uploadPicture2.name}` : picture2,
-    picture3: uploadPicture3 ? `${HASURA}/storage/o/callout_pics/${uploadPicture3.name}` : picture3,
-    picture4: uploadPicture4 ? `${HASURA}/storage/o/callout_pics/${uploadPicture4.name}` : picture4
+    picture1: picture1.uploadPicture ? `${HASURA}/storage/o/callout_pics/${picture1.uploadPicture.name}` : picture1.picture,
+    picture2: picture2.uploadPicture ? `${HASURA}/storage/o/callout_pics/${picture2.uploadPicture.name}` : picture2.picture,
+    picture3: picture3.uploadPicture ? `${HASURA}/storage/o/callout_pics/${picture3.uploadPicture.name}` : picture3.picture,
+    picture4: picture4.uploadPicture ? `${HASURA}/storage/o/callout_pics/${picture4.uploadPicture.name}` : picture4.picture
   }})
   console.log(res)
-  setPicture1(res.data.update_callout_by_pk.picture1)
-  setPicture2(res.data.update_callout_by_pk.picture2)
-  setPicture3(res.data.update_callout_by_pk.picture3)
-  setPicture4(res.data.update_callout_by_pk.picture4)
+  setPicture1({picture:res.data.update_callout_by_pk.picture1, uploadPicture:null })
+  setPicture2({picture:res.data.update_callout_by_pk.picture2, uploadPicture:null })
+  setPicture3({picture:res.data.update_callout_by_pk.picture3, uploadPicture:null })
+  setPicture4({picture:res.data.update_callout_by_pk.picture4, uploadPicture:null })
 } catch (e) {
   console.log(e)
 }
@@ -290,29 +265,33 @@ const AddEventSidebar = props => {
 
    // ** Component
    const CalloutPicture = ({picture, index}) => {
+     console.log(picture)
      const setPicture = (e, index) => {
       if (index === 0) {
-        setUploadPicture1(e.target.files[0])
+        setPicture1({picture: selectedEvent.extendedProps?.picture1, uploadPicture: e.target.files[0]})
       } else if (index === 1) {
-        setUploadPicture2(e.target.files[0])
+        setPicture2({picture: selectedEvent.extendedProps?.picture2, uploadPicture: e.target.files[0]})
       } else if (index === 2) {
-        setUploadPicture3(e.target.files[0])
+        setPicture3({picture: selectedEvent.extendedProps?.picture3, uploadPicture: e.target.files[0]})
       } else {
-        setUploadPicture4(e.target.files[0])
+        setPicture4({picture: selectedEvent.extendedProps?.picture4, uploadPicture: e.target.files[0]})
       }
      }
     return <div style={{width: "100px"}}>
-     {picture ? <a href={picture} target="_blank">
-       <img src={picture} 
+     {picture?.picture && picture?.uploadPicture === null ? <a href={picture?.picture } target="_blank">
+       <img src={picture?.picture } 
        style={{width: "100%", height: "100px", objectFit: "cover",  borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10}}/>
        </a> : <div><div 
        style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}>
-         <p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE </p>
-         </div>{selectedEvent.extendedProps.status !== "Closed" && <div><Input type="file" name="file" id="exampleFile" className="mb-1 mt-1" onChange={(e) => { setPicture(e, index); setUploadButton(true) }}/>
+         <p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p>
+         </div>{selectedEvent.extendedProps.status !== "Closed" && <div>
+         <p style={{fontSize: "10px", fontWeight: "bold", marginTop: 5}}>{picture?.uploadPicture?.name}</p>
+           <Input type="file" name="file" id="exampleFile" className="mb-1 mt-0" onChange={(e) => { setPicture(e, index); setUploadButton(true) }}/>
          <Button className="mb-1"color='warning' size="sm" onClick={() => uploadImage(index)}>
                   <Upload size={15} />
                     Upload
-                </Button></div>}</div>}
+                </Button></div>}
+                </div>}
      </div>
   }
 
@@ -404,6 +383,7 @@ const AddEventSidebar = props => {
       setClientName(selectedEvent.extendedProps.clientName)
       setClientEmail(selectedEvent.extendedProps.clientEmail)
       setPropertyName(selectedEvent.extendedProps.propertyName || propertyName)
+      setcalloutJobCategory(null)
       setcalloutJobType({value: selectedEvent.extendedProps?.job_type || "Select...", label: selectedEvent.extendedProps?.job_type || "Select..."})
       setAllDay(selectedEvent.allDay || allDay)
       setUrl(selectedEvent.url || url)
@@ -413,10 +393,10 @@ const AddEventSidebar = props => {
       setStartPicker(new Date(selectedEvent.start))
       setEndPicker(new Date(selectedEvent.end))
       setJobTickets(selectedEvent.extendedProps?.job_tickets || jobTickets)
-      setPicture1(selectedEvent.extendedProps?.picture1 || picture1)
-      setPicture2(selectedEvent.extendedProps?.picture2 || picture2)
-      setPicture3(selectedEvent.extendedProps?.picture3 || picture3)
-      setPicture4(selectedEvent.extendedProps?.picture4 || picture4)
+      setPicture1({picture: selectedEvent.extendedProps?.picture1 || picture1, uploadPicture: null})
+      setPicture2({picture: selectedEvent.extendedProps?.picture2 || picture2, uploadPicture: null})
+      setPicture3({picture: selectedEvent.extendedProps?.picture3 || picture3, uploadPicture: null})
+      setPicture4({picture: selectedEvent.extendedProps?.picture4 || picture4, uploadPicture: null})
       setBlocked(selectedEvent.extendedProps?.blocked)
     }
   }
@@ -668,21 +648,26 @@ const AddEventSidebar = props => {
                value={desc}
                onChange={(e) => setDesc(e.target.value)}
                disabled={selectedEvent?.extendedProps?.status === "Closed" && true}
+               innerRef={register({ register: true, validate: value => value !== '' })}
+               className={classnames({
+                 'is-invalid': errors.desc
+               })}
              />
            </FormGroup>
 
            <FormGroup>
-             <Label for='label'>Job Category</Label>
+             <Label for='label'>Job Category <span className='text-danger'>*</span></Label>
              <Select
                id='label'
-               defaultValue={{value:calloutJobCategory.value, label:calloutJobCategory.label}}
-               options={calloutJobCategoryOptions?.team_expertise ?? []}
+               defaultValue={ jobParent ? {value: jobParent?.skill_parent_rel?.value, label: jobParent?.skill_parent_rel?.value, id: jobParent?.id} : calloutJobCategory}
+               // eslint-disable-next-line eqeqeq
+               options={allJobTypes?.team_expertise.filter(element => element?.skill_parent_rel?.value == null)}
                theme={selectThemeColors}
                isDisabled={selectedEvent?.extendedProps?.status === "Closed" && true}
                className='react-select'
                classNamePrefix='select'
                isClearable={false}
-               onChange={(e) => { setcalloutJobCategory({value: e.value, label: e.value, id: e.id}); getJobTypes(); setcalloutJobType({}) }}
+               onChange={(e) => { console.log(e); setcalloutJobCategory({value: e.value, label: e.value, id: e.id}); setJobTypes(e.id) }}
                components={{
                  Option: OptionComponent
                }}
@@ -690,11 +675,12 @@ const AddEventSidebar = props => {
            </FormGroup>
 
            <FormGroup>
-             <Label for='label'>Job Type</Label>
+             <Label for='label'>Job Type <span className='text-danger'>*</span></Label>
              <Select
                id='label'
-               defaultValue={{value:calloutJobType.value, label:calloutJobType.label}}
-               options={calloutJobTypeOptions?.team_expertise ?? []}
+               defaultValue={calloutJobType}
+               // eslint-disable-next-line eqeqeq
+               options={calloutJobTypeOptions ?? allJobTypes?.team_expertise.filter(element => element?.skill_parent_rel?.value == jobParent?.skill_parent_rel?.value)}
                theme={selectThemeColors}
                isDisabled={selectedEvent?.extendedProps?.status === "Closed" && true}
                className='react-select'
@@ -709,7 +695,7 @@ const AddEventSidebar = props => {
 
 
            <FormGroup>
-           <Label for='label'>Client Name</Label>
+           <Label for='label'>Client Name <span className='text-danger'>*</span></Label>
            {selectedEvent?.extendedProps?.status === "Closed" ?    <Input
                id='clientName'
                name='clientName'
@@ -761,7 +747,7 @@ const AddEventSidebar = props => {
 
 
         <FormGroup>
-           <Label for='label'>Property Name</Label>
+           <Label for='label'>Property Name <span className='text-danger'>*</span></Label>
            {selectedEvent?.extendedProps?.status === "Closed" ?    <Input
                id='propertyName'
                name='propertyName'
@@ -805,7 +791,7 @@ const AddEventSidebar = props => {
         </FormGroup>
 
         <FormGroup>
-           <Label for='label'>Worker Name</Label>
+           <Label for='label'>Worker Name <span className='text-danger'>*</span></Label>
            {selectedEvent?.extendedProps?.status === "Closed" ?    <Input
                id='propertyName'
                name='propertyName'
@@ -854,7 +840,7 @@ const AddEventSidebar = props => {
 
            <FormGroup>
              <Fragment>
-             <Label for='startDate'>Start Date</Label>
+             <Label for='startDate'>Start Date <span className='text-danger'>*</span></Label>
              <Flatpickr
                required={selectedEvent?.extendedProps?.status === "Closed" && true}
                id='startDate'
@@ -898,11 +884,11 @@ const AddEventSidebar = props => {
              {/* <Label for='blocked'>Should we block this slot from any booking?</Label> */}
            </FormGroup>}
           
-           <FormGroup style={{display: "flex", justifyContent: "space-between"}}>
+           {!!selectedEvent?.title?.length && <FormGroup style={{display: "flex", justifyContent: "space-between"}}>
              {[picture1, picture2, picture3, picture4].map((picture, i) => (
               <CalloutPicture key={i} picture={picture} index={i} />
              ))}
-           </FormGroup>
+           </FormGroup>}
            
                {jobTickets && jobTickets.map((job, index) => (
                 <Card className='card-payment' key={index} >
