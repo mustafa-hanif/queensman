@@ -297,7 +297,7 @@ const DataTableAdvSearch = () => {
   const [queryLoading, setQueryLoading] = useState(false)
   const [loaderButton, setLoaderButton] = useState(false)
   const { loading, data, error, refetch: refetchClient } = useNiceQuery(GET_CLIENT)
-  const [mupdateClient, { loading: clientLoading }] = useNiceMutation(
+  const [updateClient, { loading: clientLoading }] = useNiceMutation(
     UPDATE_CLIENT,
     { refetchQueries: [{ query: GET_CLIENT }] }
   )
