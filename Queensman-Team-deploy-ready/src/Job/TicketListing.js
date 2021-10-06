@@ -187,8 +187,8 @@ export default function TicketListing(props) {
             <Text style={{ fontSize: 13, marginBottom: 4, fontWeight: "bold" }}>Description: <Text style={{ fontSize: 12, fontWeight: "normal"}}>{props?.description}</Text></Text>
             <Text style={{ fontSize: 13, marginBottom: 4, fontWeight: "bold" }}>Ticket Type: <Text style={{ fontSize: 12, fontWeight: "normal"}}>{props?.type}</Text></Text>
             <Text style={{ fontSize: 13, marginBottom: 4, fontWeight: "bold" }}>Status: <Text style={ props?.status == "Closed" && {color: 'red'}}>{props?.status}</Text></Text>
-              {props?.status == "Closed" ? <Text style={{ fontSize: 13 }}><Text style={{fontWeight: "bold"}}>Completion Time: </Text>{moment(props?.end_time).diff(moment(props?.start_time), "minutes")} Minute(s)</Text>
-              : props?.status !== "Open" && <Text style={{ fontSize: 13 }}><Text style={{fontWeight: "bold"}}>Time since you started ticket: </Text>{props?.end_time ? moment(props?.end_time).diff(moment(props?.start_time), "minutes") : moment.utc().diff(moment(props?.start_time), 'minutes')} Minute(s)</Text>}
+              {props?.start_time != null && props?.end_time != null ? props?.status == "Closed" ? <Text style={{ fontSize: 13 }}><Text style={{fontWeight: "bold"}}>Completion Time: </Text>{moment(props?.end_time).diff(moment(props?.start_time), "minutes")} Minute(s)</Text>
+              : props?.status !== "Open" && <Text style={{ fontSize: 13 }}><Text style={{fontWeight: "bold"}}>Time since you started ticket: </Text>{props?.end_time ? moment(props?.end_time).diff(moment(props?.start_time), "minutes") : moment.utc().diff(moment(props?.start_time), 'minutes')} Minute(s)</Text> : <Text>Job duration time is unavailable at the moment</Text>}
           </View>
           <View>
             {props.Checked ? (
