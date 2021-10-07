@@ -12,6 +12,7 @@ const sendAdditionalRequestEmail = async (event) => {
   let message = "Email not sent"
   if(job_type === "Request for quotation" || job_type === "Other") {
     const {callout} = await getCallout({ callout_id });
+    console.log(callout)
     const worker_id = callout?.job_worker[0]?.worker_id
     const worker = await getWorker({ worker_id });
     await additionalRequestEmail({callout, worker});
