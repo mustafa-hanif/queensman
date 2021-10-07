@@ -32,6 +32,7 @@ const addJobTicketZoho = async (event) => {
       }
     );
     const resultJson = await result.json()
+    console.log(resultJson)
     if (resultJson.code === 'success') {
       return {
         statusCode: 200,
@@ -49,25 +50,29 @@ const addJobTicketZoho = async (event) => {
     console.log(e)
   }
   // console.log(query);
-  // try {
-  //   return {
-  //     statusCode: 200,
-  //     message: 'Go Serverless v1.0! Your function executed successfully!',
-  //     result
-  //   };
-  // } catch (e) {
-  //   return {
-  //     statusCode: 500,
-  //     body: JSON.stringify(
-  //       {
-  //         error: e,
-  //         // input: event,
-  //       },
-  //       null,
-  //       2
-  //     ),
-  //   };
-  // }
+  try {
+    return {
+      statusCode: 200,
+      body: JSON.stringify(
+        {
+          message: 'Go Serverless v1.0! Your function executed successfully!',
+        },
+        null,
+        2
+      ),
+    };
+  } catch (e) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify(
+        {
+          error: e,
+        },
+        null,
+        2
+      ),
+    };
+  }
 };
 
 module.exports = { addJobTicketZoho }
