@@ -352,9 +352,20 @@ const CalendarComponent = ({location}) => {
 
   const [selectedEvent, selectEvent] = useState({})
 
+  const _gte = selectedDates.current._gte
+  const _lte = selectedDates.current._lte
+
+  const [getSchedule, { loading, data, refetch}] = useNiceLazyQuery(GET_SCHEDULE, {
+    skip: !addSidebarOpen,
+    variables: {
+      _gte,
+      _lte
+    }
+  })
+
   const updateEvent = (eventToUpdate) => {
     console.log(eventToUpdate)
-    if (eventToUpdate.extendedProps?.jobTickets.length === 0) {
+    if (eventToUpdate?.extendedProps?.jobTickets?.length === 0) {
       updateCallOut({
         variables: {
           description: eventToUpdate.title,
@@ -373,6 +384,9 @@ const CalendarComponent = ({location}) => {
           updated_by: JSON.parse(localStorage.getItem('userData')).user.display_name
         }
       })
+    } else if (eventToUpdate?.extendedProps?.status) {
+      console.log(eventToUpdate?.extendedProps?.status)
+      refetch()
     } else {
       updateCalloutAndJobTicket({
         variables: {
@@ -443,17 +457,6 @@ const CalendarComponent = ({location}) => {
       description: ""
     }
   }
-
-  const _gte = selectedDates.current._gte
-  const _lte = selectedDates.current._lte
-
-  const [getSchedule, { loading, data }] = useNiceLazyQuery(GET_SCHEDULE, {
-    skip: !addSidebarOpen,
-    variables: {
-      _gte,
-      _lte
-    }
-  })
 
   const [
     requestCalloutApiCall,

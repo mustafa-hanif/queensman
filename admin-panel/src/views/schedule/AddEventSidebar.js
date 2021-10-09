@@ -1,8 +1,8 @@
 // ** React Imports
 import { Fragment, useEffect, useState } from 'react'
-import { Swiper, SwiperSlide } from 'swiper/react'
-import Cleave from 'cleave.js/react'
-import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client"
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+import { gql } from "@apollo/client"
 
 // ** Custom Components
 import Avatar from '@components/avatar'
@@ -14,7 +14,7 @@ import Flatpickr from 'react-flatpickr'
 import { X, Check, Trash, Info, Upload } from 'react-feather'
 import Select, { components } from 'react-select'
 import { useForm, Controller } from 'react-hook-form'
-import { Media, Button, Modal, ModalHeader, ModalBody, Card, ListGroup, ListGroupItem, FormGroup, Label, CustomInput, Input, Form, Spinner, Badge, CardBody, CardHeader, CardTitle, Row, Col  } from 'reactstrap'
+import { Media, Button, Modal, ModalHeader, ModalBody, Card, ListGroup, ListGroupItem, FormGroup, Label, CustomInput, Input, Form, ModalFooter, Badge, CardBody, CardHeader, CardTitle, Row, Col } from 'reactstrap'
 import AutoComplete from '@components/autocomplete'
 
 // ** Utils
@@ -40,6 +40,7 @@ const ToastComponent = ({ title, icon, color }) => (
   </Fragment>
 )
 
+const MySwal = withReactContent(Swal)
 
 const GET_CALLOUT = gql`
   query GetCallout($id: Int!) {
@@ -129,6 +130,12 @@ mutation AddPicutre($id: Int!, $picture1: String = null, $picture2: String = nul
   }
 }`
 
+const CHANGE_STATUS = gql`
+mutation ChangeStatus($id: Int!, $status: String!) {
+  update_callout_by_pk(pk_columns: {id: $id}, _set: {status: $status}) {
+    id
+  }
+}`
 const AddEventSidebar = props => {
   // ** Props
   const {
@@ -148,32 +155,60 @@ const AddEventSidebar = props => {
    
   }, [])
   // const selectedEvent = store.selectedEvent
+
+  const handleWarning = (error) => {
+    return MySwal.fire({
+      title: 'Error!',
+      text: `Could not change status. Error: ${error?.message}`,
+      icon: 'warning',
+      customClass: {
+        confirmButton: 'btn btn-primary'
+      },
+      buttonsStyling: false
+    })
+  }
+
+  const handleSuccess = () => {
+    return MySwal.fire({
+      title: 'Success',
+      text: 'Status changed successfully!',
+      icon: 'success',
+      customClass: {
+        confirmButton: 'btn btn-primary'
+      },
+      buttonsStyling: false
+    })
+  }
+
   const { register, errors, handleSubmit } = useForm()
 
   // ** States
   const [contentLoading, setContentLoading] = useState(true)
 
-  const [url, setUrl] = useState(selectedEvent.url || '')
-  const [desc, setDesc] = useState(selectedEvent.extendedProps?.description || '')
-  const [guests, setGuests] = useState(selectedEvent.extendedProps?.guests || '')
-  const [allDay, setAllDay] = useState(selectedEvent.allDay || false)
-  const [location, setLocation] = useState(selectedEvent.extendedProps?.location || '')
-  const [startPicker, setStartPicker] = useState(new Date(selectedEvent.start) || '')
-  const [endPicker, setEndPicker] = useState(new Date(selectedEvent.end) || '')
-  const [clientName, setClientName] = useState(selectedEvent.extendedProps?.clientName || '')
-  const [clientEmail, setClientEmail] = useState(selectedEvent.extendedProps?.clientEmail || 'No client')
-  const [clientId, setClientId] = useState(selectedEvent.extendedProps?.clientId)
-  const [propertyName, setPropertyName] = useState(selectedEvent.extendedProps?.propertyName  || '')
-  const [propertyId, setPropertyId] = useState(selectedEvent.extendedProps?.propertyId  || 9999)
-  const [workerName, setWorkerName] = useState(selectedEvent.extendedProps?.workerName || '')
-  const [workerId, setWorkerId] = useState(selectedEvent.extendedProps?.workerId)
-  const [blocked, setBlocked] = useState(selectedEvent.extendedProps?.blocked)
-  const [workerEmail, setWorkerEmail] = useState(selectedEvent.extendedProps?.workerEmail)
+  const [url, setUrl] = useState(selectedEvent?.url || '')
+  const [desc, setDesc] = useState(selectedEvent?.extendedProps?.description || '')
+  const [guests, setGuests] = useState(selectedEvent?.extendedProps?.guests || '')
+  const [allDay, setAllDay] = useState(selectedEvent?.allDay || false)
+  const [location, setLocation] = useState(selectedEvent?.extendedProps?.location || '')
+  const [startPicker, setStartPicker] = useState(new Date(selectedEvent?.start) || '')
+  const [endPicker, setEndPicker] = useState(new Date(selectedEvent?.end) || '')
+  const [clientName, setClientName] = useState(selectedEvent?.extendedProps?.clientName || '')
+  const [clientEmail, setClientEmail] = useState(selectedEvent?.extendedProps?.clientEmail || 'No client')
+  const [clientId, setClientId] = useState(selectedEvent?.extendedProps?.clientId)
+  const [propertyName, setPropertyName] = useState(selectedEvent?.extendedProps?.propertyName  || '')
+  const [propertyId, setPropertyId] = useState(selectedEvent?.extendedProps?.propertyId  || 9999)
+  const [workerName, setWorkerName] = useState(selectedEvent?.extendedProps?.workerName || '')
+  const [workerId, setWorkerId] = useState(selectedEvent?.extendedProps?.workerId)
+  const [blocked, setBlocked] = useState(selectedEvent?.extendedProps?.blocked)
+  const [workerEmail, setWorkerEmail] = useState(selectedEvent?.extendedProps?.workerEmail)
   const [jobTickets, setJobTickets] = useState([])
-  const [picture1, setPicture1] = useState({picture: selectedEvent.extendedProps?.picture1, uploadPicture: null})
-  const [picture2, setPicture2] = useState({picture: selectedEvent.extendedProps?.picture2, uploadPicture: null})
-  const [picture3, setPicture3] = useState({picture: selectedEvent.extendedProps?.picture3, uploadPicture: null})
-  const [picture4, setPicture4] = useState({picture: selectedEvent.extendedProps?.picture4, uploadPicture: null})
+  const [status, setStatus] = useState(selectedEvent?.extendedProps?.status)
+  const [picture1, setPicture1] = useState({picture: selectedEvent?.extendedProps?.picture1, uploadPicture: null})
+  const [picture2, setPicture2] = useState({picture: selectedEvent?.extendedProps?.picture2, uploadPicture: null})
+  const [picture3, setPicture3] = useState({picture: selectedEvent?.extendedProps?.picture3, uploadPicture: null})
+  const [picture4, setPicture4] = useState({picture: selectedEvent?.extendedProps?.picture4, uploadPicture: null})
+  const [statusChanged, setStatusChanged] = useState(false)
+  const [changeStatusIsOpen, setChangeStatusIsOpen] = useState(false)
   const [uploadButton, setUploadButton] = useState(false)
 
   const { clientLoading, data: allClients, clientError } = useNiceQuery(GET_CLIENT, {
@@ -187,16 +222,24 @@ const AddEventSidebar = props => {
     skip: !open
   })
 
+  const [changeStatus, {loading: statusLoading, data: statusData, error: statusError}] = useNiceMutation(CHANGE_STATUS, { onCompleted: () => {
+    handleSuccess()
+    setStatusChanged(true)
+  },
+onError: (e) => {
+  handleWarning(e)
+  setStatusChanged(true)
+  }})
   const [addJobTicket] = useNiceMutation(ADD_JOB_TICKET)
   const [deleteJobTicket] = useNiceMutation(DELETE_JOB_TICKET)
 
   const [updateJobTicket] = useNiceMutation(UPDATE_JOB_TICKET)
 
   const [addCalloutPicture] = useNiceMutation(ADD_PICTURE)
-  const [calloutJobType, setcalloutJobType] = useState({value: selectedEvent.extendedProps?.job_type || "Select...", label: selectedEvent.extendedProps?.job_type || "Select..."})
+  const [calloutJobType, setcalloutJobType] = useState({value: selectedEvent?.extendedProps?.job_type || "Select...", label: selectedEvent?.extendedProps?.job_type || "Select..."})
   const [calloutJobCategory, setcalloutJobCategory] = useState({value: "Select...", label: "Select..."})
   const [calloutJobTypeOptions, setcalloutJobTypeOptions] = useState(null)
-  
+  const [statusOption, setStatusOption] = useState(null)
   //Get All Jobs
   const { loading: jobDataLoading, data: allJobTypes } = useNiceQuery(gql`query JobAll {
     team_expertise {
@@ -212,7 +255,7 @@ const AddEventSidebar = props => {
   }`, {
     skip: !open
   })
-  const jobParent = (allJobTypes?.team_expertise.filter(element => element.value === selectedEvent.extendedProps?.job_type)[0]) //Get parent value of current job_type  
+  const jobParent = (allJobTypes?.team_expertise.filter(element => element.value === selectedEvent?.extendedProps?.job_type)[0]) //Get parent value of current job_type  
 
   const setJobTypes = (id) => {
     console.log(id)
@@ -231,6 +274,13 @@ const AddEventSidebar = props => {
     return new Date(new Date(date).setHours(new Date(date).getHours() + hours))
  }
 
+ const statusOptions = [
+  {value: 'Open', label: 'Open'},
+  {value: 'Closed', label: 'Closed'},
+  {value: 'In Progress', label: 'In Progress'},
+  {value: 'Requested', label: 'Requested'},
+  {value: 'Planned', label: 'Planned'}
+ ]
  const uploadImage = async (index) => {
    try {
   if (picture1.uploadPicture?.name) await storage.put(`/callout_pics/${picture1.uploadPicture.name}`, picture1.uploadPicture)
@@ -265,16 +315,15 @@ const AddEventSidebar = props => {
 
    // ** Component
    const CalloutPicture = ({picture, index}) => {
-     console.log(picture)
      const setPicture = (e, index) => {
       if (index === 0) {
-        setPicture1({picture: selectedEvent.extendedProps?.picture1, uploadPicture: e.target.files[0]})
+        setPicture1({picture: selectedEvent?.extendedProps?.picture1, uploadPicture: e.target.files[0]})
       } else if (index === 1) {
-        setPicture2({picture: selectedEvent.extendedProps?.picture2, uploadPicture: e.target.files[0]})
+        setPicture2({picture: selectedEvent?.extendedProps?.picture2, uploadPicture: e.target.files[0]})
       } else if (index === 2) {
-        setPicture3({picture: selectedEvent.extendedProps?.picture3, uploadPicture: e.target.files[0]})
+        setPicture3({picture: selectedEvent?.extendedProps?.picture3, uploadPicture: e.target.files[0]})
       } else {
-        setPicture4({picture: selectedEvent.extendedProps?.picture4, uploadPicture: e.target.files[0]})
+        setPicture4({picture: selectedEvent?.extendedProps?.picture4, uploadPicture: e.target.files[0]})
       }
      }
     return <div style={{width: "100px"}}>
@@ -284,7 +333,7 @@ const AddEventSidebar = props => {
        </a> : <div><div 
        style={{width: "100px", height: "100px", borderWidth: 2, borderColor: "#ccc", borderStyle: "solid", borderRadius: 10, display: "flex", justifyContent: "center", alignItems: "center"}}>
          <p style={{fontSize: "12px", fontWeight: "bold", margin: 0}}>NO PICTURE</p>
-         </div>{selectedEvent.extendedProps.status !== "Closed" && <div>
+         </div>{status !== "Closed" && <div>
          <p style={{fontSize: "10px", fontWeight: "bold", marginTop: 5}}>{picture?.uploadPicture?.name}</p>
            <Input type="file" name="file" id="exampleFile" className="mb-1 mt-0" onChange={(e) => { setPicture(e, index); setUploadButton(true) }}/>
          <Button className="mb-1"color='warning' size="sm" onClick={() => uploadImage(index)}>
@@ -367,6 +416,8 @@ const AddEventSidebar = props => {
     setPicture2(null)
     setPicture3(null)
     setPicture4(null)
+    setStatus(null)
+    setStatusChanged(false)
   }
 
   // ** Set sidebar fields
@@ -377,27 +428,29 @@ const AddEventSidebar = props => {
         setContentLoading(false)  
       }, 100)
       const calendar = selectedEvent?.extendedProps?.calendar      
-      setWorkerName(selectedEvent.extendedProps.workerName)
-      setWorkerId(selectedEvent.extendedProps.workerId)
-      setWorkerEmail(selectedEvent.extendedProps.workerEmail)
-      setClientName(selectedEvent.extendedProps.clientName)
-      setClientEmail(selectedEvent.extendedProps.clientEmail)
-      setPropertyName(selectedEvent.extendedProps.propertyName || propertyName)
+      setWorkerName(selectedEvent?.extendedProps?.workerName)
+      setWorkerId(selectedEvent?.extendedProps?.workerId)
+      setWorkerEmail(selectedEvent?.extendedProps?.workerEmail)
+      setClientName(selectedEvent?.extendedProps?.clientName)
+      setClientEmail(selectedEvent?.extendedProps?.clientEmail)
+      setPropertyName(selectedEvent?.extendedProps?.propertyName || propertyName)
       setcalloutJobCategory(null)
-      setcalloutJobType({value: selectedEvent.extendedProps?.job_type || "Select...", label: selectedEvent.extendedProps?.job_type || "Select..."})
-      setAllDay(selectedEvent.allDay || allDay)
-      setUrl(selectedEvent.url || url)
-      setLocation(selectedEvent.extendedProps.location || location)
-      setDesc(selectedEvent.extendedProps.description || desc)
-      setGuests(selectedEvent.extendedProps.guests || guests)
-      setStartPicker(new Date(selectedEvent.start))
-      setEndPicker(new Date(selectedEvent.end))
-      setJobTickets(selectedEvent.extendedProps?.job_tickets || jobTickets)
-      setPicture1({picture: selectedEvent.extendedProps?.picture1 || picture1, uploadPicture: null})
-      setPicture2({picture: selectedEvent.extendedProps?.picture2 || picture2, uploadPicture: null})
-      setPicture3({picture: selectedEvent.extendedProps?.picture3 || picture3, uploadPicture: null})
-      setPicture4({picture: selectedEvent.extendedProps?.picture4 || picture4, uploadPicture: null})
-      setBlocked(selectedEvent.extendedProps?.blocked)
+      setcalloutJobType({value: selectedEvent?.extendedProps?.job_type || "Select...", label: selectedEvent?.extendedProps?.job_type || "Select..."})
+      setAllDay(selectedEvent?.allDay || allDay)
+      setUrl(selectedEvent?.url || url)
+      setLocation(selectedEvent?.extendedProps?.location || location)
+      setDesc(selectedEvent?.extendedProps?.description || desc)
+      setGuests(selectedEvent?.extendedProps?.guests || guests)
+      setStartPicker(new Date(selectedEvent?.start))
+      setEndPicker(new Date(selectedEvent?.end))
+      setJobTickets(selectedEvent?.extendedProps?.job_tickets || jobTickets)
+      setPicture1({picture: selectedEvent?.extendedProps?.picture1 || picture1, uploadPicture: null})
+      setPicture2({picture: selectedEvent?.extendedProps?.picture2 || picture2, uploadPicture: null})
+      setPicture3({picture: selectedEvent?.extendedProps?.picture3 || picture3, uploadPicture: null})
+      setPicture4({picture: selectedEvent?.extendedProps?.picture4 || picture4, uploadPicture: null})
+      setStatus(selectedEvent?.extendedProps?.status || status)
+      setBlocked(selectedEvent?.extendedProps?.blocked)
+      setStatusChanged(false)
     }
   }
 
@@ -440,10 +493,12 @@ const AddEventSidebar = props => {
         })
       }
     })
-    
+    if (statusChanged) {
+      saved = false
+    }
     if (saved) {
       const eventToUpdate = {
-        id: selectedEvent.id,
+        id: selectedEvent?.id,
         callout_id: selectedEvent?.extendedProps?.callout_id,
         title: desc,
         startPicker,
@@ -473,7 +528,19 @@ const AddEventSidebar = props => {
         hideProgressBar: true,
         closeButton: false
       })
-    }  
+    } else if (statusChanged) {
+      console.log("bhai")
+      const eventToUpdate = {
+        id: selectedEvent?.id,
+        callout_id: selectedEvent?.extendedProps?.callout_id,
+        status: statusOption.value,
+        extendedProps: {
+          status: statusChanged
+        }
+      }
+      updateEvent(eventToUpdate)
+      handleAddEventSidebar()
+    }
   }
   
   const handleJobUpdateEvent = (index) => {
@@ -486,7 +553,7 @@ const AddEventSidebar = props => {
             description: jobTicket.description,
             type: jobTicket.type,
             callout_id: selectedEvent?.extendedProps?.callout_id,
-            scheduler_id: parseInt(selectedEvent.id),
+            scheduler_id: parseInt(selectedEvent?.id),
             worker_id: workerId,
             worker_email: workerEmail,
             client_email: clientEmail
@@ -539,13 +606,19 @@ const AddEventSidebar = props => {
     setJobTickets(jobTicket)
   }
   
+  const handleChangeStatus = (id, status) => {
+    changeStatus({variables: {
+        id,
+        status
+    }})
+  }
   // ** (UI) removeEventInCalendar
   const removeEventInCalendar = eventId => {
     calendarApi.getEventById(eventId).remove()
   }
   const handleDeleteEvent = () => {
-    removeEvent(selectedEvent.id, selectedEvent?.extendedProps?.callout_id)
-    removeEventInCalendar(selectedEvent.id)
+    removeEvent(selectedEvent?.id, selectedEvent?.extendedProps?.callout_id)
+    removeEventInCalendar(selectedEvent?.id)
     handleAddEventSidebar()
     toast.error(<ToastComponent title='Event Removed' color='danger' icon={<Trash />} />, {
       autoClose: 2000,
@@ -570,7 +643,6 @@ const AddEventSidebar = props => {
     })
   }
 
-
   // ** Event Action buttons
   const EventActions = () => {
     if (!selectedEvent?.title?.length) {
@@ -587,7 +659,7 @@ const AddEventSidebar = props => {
     } else {
       return (
         <Fragment>
-          {selectedEvent?.extendedProps?.status !== "Closed" && 
+          {status !== "Closed" && 
           <Button.Ripple
             className='mr-1'
             color='primary'
@@ -628,7 +700,7 @@ const AddEventSidebar = props => {
        <Form
           onSubmit={handleSubmit(data => {
             if (isObjEmpty(errors)) {
-              if (isObjEmpty(selectedEvent) || (!isObjEmpty(selectedEvent) && !selectedEvent.title.length)) {
+              if (isObjEmpty(selectedEvent) || (!isObjEmpty(selectedEvent) && !selectedEvent?.title.length)) {
                 handleAddEvent()
               } else {
                 handleUpdateEvent()
@@ -637,6 +709,42 @@ const AddEventSidebar = props => {
             }
           })}
         >
+          <div>
+             <h4 className="mb-0">Status:</h4>
+              {status === "Open" && <Badge color='success' className="mb-1 badge-glow">
+                Open
+              </Badge>}
+              {status === "In Progress" && <Badge color='warning' className="mb-1 badge-glow">
+                In Progress
+              </Badge>}
+               {status === "Requested" && <Badge color='primary' className="mb-1 badge-glow">
+                Requested
+              </Badge>}
+               {status === "Planned" && <Badge color='info' className="mb-1 badge-glow">
+                Planned
+              </Badge>}
+               {status === "Closed" && <Badge color='danger' className="mb-1 badge-glow">
+                Closed
+              </Badge>}
+              <div>
+              <Button className="mb-1"color='info' size="sm" onClick={() => setChangeStatusIsOpen(true)}>Change Status</Button>  
+              </div>
+              
+             {/* <Select
+               id='label'
+               defaultValue={ status ? {value: status, label: status} : {value: "Open", label: "Open"}}
+               // eslint-disable-next-line eqeqeq
+               options={statusOptions}
+               theme={selectThemeColors}
+               className='react-select'
+               classNamePrefix='select'
+               isClearable={false}
+               onChange={(e) => setStatusOption({value: e.value, label: e.value}) }
+               components={{
+                 Option: OptionComponent
+               }}
+             /> */}
+           </div>
            <FormGroup>
              <Label for='desc'>
                Description <span className='text-danger'>*</span>
@@ -647,7 +755,7 @@ const AddEventSidebar = props => {
                placeholder='Description'
                value={desc}
                onChange={(e) => setDesc(e.target.value)}
-               disabled={selectedEvent?.extendedProps?.status === "Closed" && true}
+               disabled={status === "Closed" && true}
                innerRef={register({ register: true, validate: value => value !== '' })}
                className={classnames({
                  'is-invalid': errors.desc
@@ -663,7 +771,7 @@ const AddEventSidebar = props => {
                // eslint-disable-next-line eqeqeq
                options={allJobTypes?.team_expertise.filter(element => element?.skill_parent_rel?.value == null)}
                theme={selectThemeColors}
-               isDisabled={selectedEvent?.extendedProps?.status === "Closed" && true}
+               isDisabled={status === "Closed" && true}
                className='react-select'
                classNamePrefix='select'
                isClearable={false}
@@ -682,7 +790,7 @@ const AddEventSidebar = props => {
                // eslint-disable-next-line eqeqeq
                options={calloutJobTypeOptions ?? allJobTypes?.team_expertise.filter(element => element?.skill_parent_rel?.value == jobParent?.skill_parent_rel?.value)}
                theme={selectThemeColors}
-               isDisabled={selectedEvent?.extendedProps?.status === "Closed" && true}
+               isDisabled={status === "Closed" && true}
                className='react-select'
                classNamePrefix='select'
                isClearable={false}
@@ -696,7 +804,7 @@ const AddEventSidebar = props => {
 
            <FormGroup>
            <Label for='label'>Client Name <span className='text-danger'>*</span></Label>
-           {selectedEvent?.extendedProps?.status === "Closed" ?    <Input
+           {status === "Closed" ?    <Input
                id='clientName'
                name='clientName'
                placeholder='clientName'
@@ -709,7 +817,7 @@ const AddEventSidebar = props => {
            filterKey='full_name'
            placeholder="Search client name"
            value={clientName}
-           disabled={selectedEvent?.extendedProps?.status === "Closed" && true}
+           disabled={status === "Closed" && true}
            customRender={(
             suggestion,
             i,
@@ -748,7 +856,7 @@ const AddEventSidebar = props => {
 
         <FormGroup>
            <Label for='label'>Property Name <span className='text-danger'>*</span></Label>
-           {selectedEvent?.extendedProps?.status === "Closed" ?    <Input
+           {status === "Closed" ?    <Input
                id='propertyName'
                name='propertyName'
                placeholder='Property Name'
@@ -792,7 +900,7 @@ const AddEventSidebar = props => {
 
         <FormGroup>
            <Label for='label'>Worker Name <span className='text-danger'>*</span></Label>
-           {selectedEvent?.extendedProps?.status === "Closed" ?    <Input
+           {status === "Closed" ?    <Input
                id='propertyName'
                name='propertyName'
                placeholder='Property Name'
@@ -842,12 +950,12 @@ const AddEventSidebar = props => {
              <Fragment>
              <Label for='startDate'>Start Date <span className='text-danger'>*</span></Label>
              <Flatpickr
-               required={selectedEvent?.extendedProps?.status === "Closed" && true}
+               required={status === "Closed" && true}
                id='startDate'
                //tag={Flatpickr}
                name='startDate'
-               disabled={selectedEvent?.extendedProps?.status === "Closed" && true}
-               style={{backgroundColor: selectedEvent?.extendedProps?.status === "Closed" && '#efefef'}}
+               disabled={status === "Closed" && true}
+               style={{backgroundColor: status === "Closed" && '#efefef'}}
                //  data-enable-time
                className='form-control'
                onChange={date => { setStartPicker(date[0]); setEndPicker(addHours(date[0], 2)); console.log(date[0]) }}
@@ -863,14 +971,14 @@ const AddEventSidebar = props => {
            <FormGroup>
              <Label for='endDate'>End Date</Label>
              <Flatpickr
-             style={{backgroundColor: selectedEvent?.extendedProps?.status === "Closed" && '#efefef'}}
+             style={{backgroundColor: status === "Closed" && '#efefef'}}
               //  required
                id='endDate'
                 //tag={Flatpickr}
                name='endDate'
                className='form-control'
               //  onChange={date => setEndPicker(date[0])}
-              disabled={selectedEvent?.extendedProps?.status === "Closed" && true}
+              disabled={status === "Closed" && true}
                value={endPicker}
                options={{
                  enableTime: true,
@@ -878,7 +986,7 @@ const AddEventSidebar = props => {
                }}
              />
            </FormGroup>
-           {selectedEvent?.extendedProps?.status !== "Closed" &&  <FormGroup>
+           {status !== "Closed" &&  <FormGroup>
            <CustomInput inline className='custom-control-Primary' type='checkbox' id='blocked'  onChange={() => setBlocked(!blocked)} label='Should we block this slot from any booking?' checked={blocked} />
              {/* <Input type='checkbox' id='blocked' onChange={() => setBlocked(!blocked)} checked={blocked} /> */}
              {/* <Label for='blocked'>Should we block this slot from any booking?</Label> */}
@@ -948,7 +1056,7 @@ const AddEventSidebar = props => {
       </CardBody>
     </Card>
                ))}
-               {selectedEvent?.extendedProps?.status !== "Closed" && 
+               {status !== "Closed" && 
            <FormGroup>
            <Button.Ripple
                className='mr-1'
@@ -980,6 +1088,51 @@ const AddEventSidebar = props => {
           </FormGroup>
            </Form>
        </ModalBody> : <div style={{height: 300}}></div> }
+       <Modal  
+       isOpen={changeStatusIsOpen}
+       onClosed={handleResetInputValues}
+      className='modal-dialog-centered modal-sm'>
+         <ModalHeader className='mb-0' toggle={handleAddEventSidebar} >
+         <h5 className='modal-title'>
+           Change Status
+         </h5>
+       </ModalHeader>
+       <ModalBody className='flex-grow-1 pb-sm-0 pb-3'>
+         <FormGroup>
+           <Label for="label">Status: </Label>
+           <Select
+               id='label'
+               defaultValue={ status ? {value: status, label: status} : {value: "Open", label: "Open"}}
+               // eslint-disable-next-line eqeqeq
+               options={statusOptions}
+               theme={selectThemeColors}
+               className='react-select'
+               classNamePrefix='select'
+               isClearable={false}
+               onChange={(e) => setStatusOption({value: e.value, label: e.value}) }
+               components={{
+                 Option: OptionComponent
+               }}
+             />
+         </FormGroup>
+       </ModalBody>
+       <ModalFooter>
+       <FormGroup className='d-flex justify-content-center'>
+            <Fragment>
+          <Button.Ripple
+            className='mr-1'
+            color='primary'
+            onClick={() => { handleChangeStatus(selectedEvent?.extendedProps?.callout_id, statusOption.value) }}
+          >
+            Save
+          </Button.Ripple>
+          <Button.Ripple color='danger' onClick={() => { setChangeStatusIsOpen(false); handleUpdateEvent() }} outline>
+          {statusChanged ? "Close" : "Cancel"}
+          </Button.Ripple>
+        </Fragment>
+            </FormGroup>
+       </ModalFooter>
+      </Modal>
     </Modal>
   )
 }

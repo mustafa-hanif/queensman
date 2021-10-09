@@ -53,7 +53,6 @@ const Calendar = props => {
     updateEvent,
     updateEventDrag
   } = props
-console.log(changeToDayView)
   // ** UseEffect checks for CalendarAPI Update
   useEffect(() => {
     if (calendarApi === null) {
@@ -82,7 +81,7 @@ console.log(changeToDayView)
       const wokerName = worker?.full_name
       const description = callout?.description
       const assignedTo = wokerName ? `Assigned to: \n${wokerName}` : 'Unassigned'
-      const title = `${callout_id} ${clientName} \n${jobType} \n${assignedTo} \n${status === "Closed" ? "Closed" : ""}`
+      const title = `${status === "Closed" ? "(Closed) " : status === "In Progress" ? "(In Progress) " : status === "Open" ? "(Open) " : status === "Requested" ? "(Requested) " : status === "Planned" ? "(Planned) " : ""}${callout_id} ${clientName} \n${jobType} \n${assignedTo}`
       const color = worker?.teams?.[0]?.team_color ?? worker?.teams_member?.team_color
       return {
         allDay: false,
