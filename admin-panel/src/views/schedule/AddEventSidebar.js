@@ -727,7 +727,7 @@ onError: (e) => {
                 Closed
               </Badge>}
               <div>
-              <Button className="mb-1"color='info' size="sm" onClick={() => setChangeStatusIsOpen(true)}>Change Status</Button>  
+              <Button className="mb-1"color='info' size="sm" onClick={() => setChangeStatusIsOpen(true)}>Force Change Status</Button>  
               </div>
               
              {/* <Select

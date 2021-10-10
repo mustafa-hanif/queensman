@@ -151,6 +151,29 @@ export default function TicketListing(props) {
     );
   };
 
+  const TimeDuration = ({status, start_time, end_time}) => {
+    console.log(status, start_time, end_time)
+    if (status === "In Progress") {
+      return (
+        <Text style={{ fontSize: 13 }}><Text style={{fontWeight: "bold"}}>Time since you started ticket: </Text>{moment.utc().diff(moment(start_time), 'minutes')} Minute(s)</Text>
+      )
+    } else if (status == "Closed") {
+      if (end_time !=null) {
+        return (
+          <Text style={{ fontSize: 13 }}><Text style={{fontWeight: "bold"}}>Completion Time: </Text>{moment(end_time).diff(moment(start_time), "minutes")} Minute(s)</Text>
+        )
+      } else {
+        return (
+          <Text>Job duration time is unavailable at the moment</Text>
+        )
+      }
+    } else {
+      return (
+        <></>
+      )
+    }
+  }
+
   const TicketCard = (props) => {
     return (
       <TouchableOpacity
@@ -187,8 +210,7 @@ export default function TicketListing(props) {
             <Text style={{ fontSize: 13, marginBottom: 4, fontWeight: "bold" }}>Description: <Text style={{ fontSize: 12, fontWeight: "normal"}}>{props?.description}</Text></Text>
             <Text style={{ fontSize: 13, marginBottom: 4, fontWeight: "bold" }}>Ticket Type: <Text style={{ fontSize: 12, fontWeight: "normal"}}>{props?.type}</Text></Text>
             <Text style={{ fontSize: 13, marginBottom: 4, fontWeight: "bold" }}>Status: <Text style={ props?.status == "Closed" && {color: 'red'}}>{props?.status}</Text></Text>
-              {props?.start_time != null && props?.end_time != null ? props?.status == "Closed" ? <Text style={{ fontSize: 13 }}><Text style={{fontWeight: "bold"}}>Completion Time: </Text>{moment(props?.end_time).diff(moment(props?.start_time), "minutes")} Minute(s)</Text>
-              : props?.status !== "Open" && <Text style={{ fontSize: 13 }}><Text style={{fontWeight: "bold"}}>Time since you started ticket: </Text>{props?.end_time ? moment(props?.end_time).diff(moment(props?.start_time), "minutes") : moment.utc().diff(moment(props?.start_time), 'minutes')} Minute(s)</Text> : <Text>Job duration time is unavailable at the moment</Text>}
+            <TimeDuration status={props?.status} end_time={props?.end_time} start_time={props?.start_time} />
           </View>
           <View>
             {props.Checked ? (

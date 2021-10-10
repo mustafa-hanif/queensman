@@ -48,6 +48,8 @@ query GetCallout {
       request_time
       status
       description
+      inserted_by
+      updated_by
       picture1
       picture2
       picture3
