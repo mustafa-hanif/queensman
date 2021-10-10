@@ -65,7 +65,7 @@ const TabsVerticalLeft = ({item}) => {
     <ListGroupItem>
     <span style={{fontWeight: "bold"}}>
       {itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}: </span> 
-      { (itemKey === "request_time" || itemKey === "created_at") ? moment(item[itemKey]).format('MMMM Do YYYY, h:mm:ss a') : item[itemKey] ? item[itemKey] : "N/A"}
+      { (itemKey === "request_time" || itemKey === "created_at" || itemKey === "start_time" || itemKey === "end_time") ? moment(item[itemKey]).format('MMMM Do YYYY, h:mm:ss a') : item[itemKey] ? item[itemKey] : "N/A"}
     </ListGroupItem>
   )
   return (
