@@ -274,6 +274,7 @@ const advSearchColumns = [
   
   const handleUpdate = async (updatedRow) => {
     console.log(updatedRow)
+    console.log(changeColor)
     try {
     if (changeColor[0]) { //If color is provided
       if ((!updatedRow.team_id) || (updatedRow.team_id && updatedRow.teams.length === 0)) { //If worker has no team id assigned OR worker has team assigned and is not a team leader
@@ -322,7 +323,7 @@ const advSearchColumns = [
           isEmergency: updatedRow.isEmergency,
           phone: updatedRow.phone
         }})
-    } else if (row.active || row.description || row.full_name || row.phone) {
+    } else if (!changeColor[0] && (row.active || row.description || row.full_name || row.phone)) {
       console.log("ast")
       await updateWorker({variables: {
         active: updatedRow.active,
@@ -365,6 +366,12 @@ console.log(e)
 
   const handleAddRecord = async (newRow) => {
     try {
+      await auth.register({
+        email: newRow.email.toLowerCase(),
+        password: "0000", // newRow.password,
+        options: { userData: { display_name: newRow.full_name } }
+      })
+      console.log("Worker registerd")
       await addWorker({variables: {
         active: newRow?.active,
         description: newRow?.description,
@@ -374,15 +381,9 @@ console.log(e)
         team_id: changeColor[1],
         role: newRow?.role,
         phone: newRow?.phone,
-        password: newRow.password
+        password: newRow?.password
       }})
       console.log("Worker added")
-      await auth.register({
-        email: newRow.email.toLowerCase(),
-        password: "0000", // newRow.password,
-        options: { userData: { display_name: newRow.full_name } }
-      })
-      console.log("Worker registerd")
       toast.success(
         <ToastComponent title="Worker Registered" color="success" icon={<Check />} />,
         {
