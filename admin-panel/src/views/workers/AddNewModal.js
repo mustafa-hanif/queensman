@@ -160,7 +160,7 @@ onError: (e) => {
               <User size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input id='full-name' placeholder='Worker Email' name="full_name" value={row?.full_name} onChange={handleChange} />
+          <Input id='full-name' placeholder='Worker Name' name="full_name" value={row?.full_name} onChange={handleChange} />
         </InputGroup>
       </FormGroup>
       <FormGroup>
@@ -171,7 +171,7 @@ onError: (e) => {
               <Mail size={15} />
             </InputGroupText>
           </InputGroupAddon>
-          <Input type='email' name="email" id='email' placeholder='brucewayne@email.com' value={row?.email} onChange={handleChange}  disabled={!toAddNewRecord}/>
+          <Input type='email' name="email" id='email' placeholder='worker@queensman.com' value={row?.email} onChange={handleChange}  disabled={!toAddNewRecord}/>
         </InputGroup>
       </FormGroup>
       <FormGroup>

@@ -551,9 +551,9 @@ const advSearchColumns = [
     setSearchCity(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.city?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item?.city?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.city?.toLowerCase().includes(value.toLowerCase())
+        const includes = item?.city?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -581,9 +581,9 @@ const advSearchColumns = [
     setSearchAddress(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.address?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item?.address?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.address?.toLowerCase().includes(value.toLowerCase())
+        const includes = item?.address?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -611,9 +611,9 @@ const advSearchColumns = [
       setSearchCountry(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item.country?.toLowerCase().startsWith(value.toLowerCase())
+          const startsWith = item?.country?.toLowerCase().startsWith(value.toLowerCase())
   
-          const includes = item.country?.toLowerCase().includes(value.toLowerCase())
+          const includes = item?.country?.toLowerCase().includes(value.toLowerCase())
   
           if (startsWith) {
             return startsWith
@@ -641,9 +641,9 @@ const advSearchColumns = [
       setSearchCommunity(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item.community?.toLowerCase().startsWith(value.toLowerCase())
+          const startsWith = item?.community?.toLowerCase().startsWith(value.toLowerCase())
   
-          const includes = item.community?.toLowerCase().includes(value.toLowerCase())
+          const includes = item?.community?.toLowerCase().includes(value.toLowerCase())
   
           if (startsWith) {
             return startsWith

@@ -236,7 +236,7 @@ const advSearchColumns = [
     const count = 1
     let updatedData = []
       updatedData = data?.client.filter(item => {
-        const startsWith = item.property_owneds_aggregate.aggregate.count >= count
+        const startsWith = item?.property_owneds_aggregate.aggregate.count >= count
         if (startsWith) {
           return startsWith
         } else {
@@ -397,9 +397,9 @@ const advSearchColumns = [
     setSearchName(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.full_name?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item?.full_name?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.full_name?.toLowerCase().includes(value.toLowerCase())
+        const includes = item?.full_name?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -427,9 +427,9 @@ const advSearchColumns = [
     setSearchEmail(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.email?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item?.email?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.email?.toLowerCase().includes(value.toLowerCase())
+        const includes = item?.email?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -457,8 +457,8 @@ const advSearchColumns = [
       setSearchCountry(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item?.property_owneds.some(item2 => item2.property.country.toLowerCase().startsWith(value.toLowerCase()) === true)
-          const includes = item?.property_owneds.some(item2 => item2.property.country.toLowerCase().includes(value.toLowerCase()) === true)
+          const startsWith = item?.property_owneds?.some(item2 => item2?.property?.country.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds?.some(item2 => item2?.property?.country.toLowerCase().includes(value.toLowerCase()) === true)
           console.log(startsWith)
           if (startsWith) {
               return startsWith
@@ -486,8 +486,8 @@ const advSearchColumns = [
       setSearchCity(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().startsWith(value.toLowerCase()) === true)
-          const includes = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().includes(value.toLowerCase()) === true)
+          const startsWith = item?.property_owneds?.some(item2 => item2?.property?.city.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds?.some(item2 => item2?.property?.city.toLowerCase().includes(value.toLowerCase()) === true)
           if (startsWith) {
               return startsWith
             } else if (!startsWith && includes) {
@@ -514,8 +514,8 @@ const advSearchColumns = [
       setSearchCommunity(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item?.property_owneds.some(item2 => item2.property.community.toLowerCase().startsWith(value.toLowerCase()) === true)
-          const includes = item?.property_owneds.some(item2 => item2.property.community.toLowerCase().includes(value.toLowerCase()) === true)
+          const startsWith = item?.property_owneds?.some(item2 => item2?.property?.community.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds?.some(item2 => item2?.property?.community.toLowerCase().includes(value.toLowerCase()) === true)
           if (startsWith) {
               return startsWith
             } else if (!startsWith && includes) {
@@ -542,8 +542,8 @@ const advSearchColumns = [
       setSearchAddress(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item?.property_owneds.some(item2 => item2.property.address.toLowerCase().startsWith(value.toLowerCase()) === true)
-          const includes = item?.property_owneds.some(item2 => item2.property.address.toLowerCase().includes(value.toLowerCase()) === true)
+          const startsWith = item?.property_owneds?.some(item2 => item2?.property?.address.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds?.some(item2 => item2?.property?.address.toLowerCase().includes(value.toLowerCase()) === true)
           if (startsWith) {
               return startsWith
             } else if (!startsWith && includes) {
@@ -570,8 +570,8 @@ const advSearchColumns = [
       setSearchPropertyId(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item?.property_owneds.some(item2 => item2.property.id.toString().startsWith(value.toLowerCase()) === true)
-          const includes = item?.property_owneds.some(item2 => item2.property.id.toString().includes(value.toLowerCase()) === true)
+          const startsWith = item?.property_owneds?.some(item2 => item2?.property?.id.toString().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds?.some(item2 => item2?.property?.id.toString().includes(value.toLowerCase()) === true)
           console.log(startsWith)
           if (startsWith) {
               return startsWith

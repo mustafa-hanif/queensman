@@ -67,10 +67,11 @@ const GET_CALLOUT = gql`
 
 const GET_CLIENT = gql`
 query GetClient {
-  client {
+  client(where: {active: {_eq: "1"}}) {
     full_name
     email
     id
+    active
   }
 }
 `
