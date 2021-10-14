@@ -77,6 +77,7 @@ const GET_SCHEDULE = gql`
         category
         video
         job_type
+        job_type_id
         picture1
         picture2
         picture3
@@ -105,6 +106,7 @@ const UPDATE_CALLOUT = gql`
     $callout_by_email: String
     $category: String
     $job_type: String
+    $job_type_id: Int
     $scheduler_id: Int
     $worker_id: Int
     $blocked: Boolean
@@ -135,6 +137,7 @@ const UPDATE_CALLOUT = gql`
         description: $description
         category: $category
         job_type: $job_type
+        job_type_id: $job_type_id
         updated_by: $updated_by
       }
     ) {
@@ -153,6 +156,7 @@ const UPDATE_CALLOUT_AND_JOB_TICKET = gql`
     $callout_by_email: String
     $category: String
     $job_type: String
+    $job_type_id: Int
     $scheduler_id: Int
     $worker_id: Int
     $worker_email: String
@@ -184,6 +188,7 @@ const UPDATE_CALLOUT_AND_JOB_TICKET = gql`
         category: $category
         description: $description
         job_type: $job_type
+        job_type_id: $job_type_id
         updated_by: $updated_by
       }
     ) {
@@ -255,6 +260,7 @@ const REQUEST_CALLOUT = gql`
     $email: String
     $category: String
     $job_type: String
+    $job_type_id: Int
     $status: String
     $picture1: String
     $picture2: String
@@ -273,6 +279,7 @@ const REQUEST_CALLOUT = gql`
             property_id: $property_id
             category: $category
             job_type: $job_type
+            job_type_id: $job_type_id
             status: $status
             urgency_level: $urgency_level
             picture1: $picture1
@@ -373,6 +380,7 @@ const CalendarComponent = ({location}) => {
           callout_by_email: eventToUpdate.extendedProps.clientEmail,
           category: eventToUpdate.extendedProps.category,
           job_type: eventToUpdate.extendedProps.job_type,
+          job_type_id: eventToUpdate.extendedProps.job_type_id,
           scheduler_id: eventToUpdate.id,
           worker_id: eventToUpdate.extendedProps.workerId,
           // worker_email: eventToUpdate.extendedProps.workerEmail,
@@ -395,6 +403,7 @@ const CalendarComponent = ({location}) => {
           callout_by_email: eventToUpdate.extendedProps.clientEmail,
           category: eventToUpdate.extendedProps.category,
           job_type: eventToUpdate.extendedProps.job_type,
+          job_type_id: eventToUpdate.extendedProps.job_type_id,
           scheduler_id: eventToUpdate.id,
           worker_id: eventToUpdate.extendedProps.workerId,
           worker_email: eventToUpdate.extendedProps.workerEmail,

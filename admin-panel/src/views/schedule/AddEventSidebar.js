@@ -237,7 +237,7 @@ onError: (e) => {
   const [updateJobTicket] = useNiceMutation(UPDATE_JOB_TICKET)
 
   const [addCalloutPicture] = useNiceMutation(ADD_PICTURE)
-  const [calloutJobType, setcalloutJobType] = useState({value: selectedEvent?.extendedProps?.job_type || "Select...", label: selectedEvent?.extendedProps?.job_type || "Select..."})
+  const [calloutJobType, setcalloutJobType] = useState({value: selectedEvent?.extendedProps?.job_type || "Select...", label: selectedEvent?.extendedProps?.job_type || "Select...", id: selectedEvent?.extendedProps?.job_type_id})
   const [calloutJobCategory, setcalloutJobCategory] = useState({value: "Select...", label: "Select..."})
   const [calloutJobTypeOptions, setcalloutJobTypeOptions] = useState(null)
   const [statusOption, setStatusOption] = useState(null)
@@ -261,7 +261,7 @@ onError: (e) => {
   const setJobTypes = (id) => {
     console.log(id)
     setcalloutJobTypeOptions(allJobTypes?.team_expertise.filter(element => element?.skill_parent_rel?.id === id))
-    setcalloutJobType({value: "Select...", label: "Select..."})
+    setcalloutJobType({value: "Select...", label: "Select...", id: null})
   }
   
   const jobTypeOptions = [
@@ -370,6 +370,7 @@ onError: (e) => {
         // category: value[0].value, 
         category: "Uncategorized", 
         job_type: calloutJobType.value, 
+        job_type_id: calloutJobType.id, 
         status: "Open",
         blocked,
         urgency_level: "Medium",
@@ -436,7 +437,7 @@ onError: (e) => {
       setClientEmail(selectedEvent?.extendedProps?.clientEmail)
       setPropertyName(selectedEvent?.extendedProps?.propertyName || propertyName)
       setcalloutJobCategory(null)
-      setcalloutJobType({value: selectedEvent?.extendedProps?.job_type || "Select...", label: selectedEvent?.extendedProps?.job_type || "Select..."})
+      setcalloutJobType({value: selectedEvent?.extendedProps?.job_type || "Select...", label: selectedEvent?.extendedProps?.job_type || "Select...", id: selectedEvent?.extendedProps?.job_type_id})
       setAllDay(selectedEvent?.allDay || allDay)
       setUrl(selectedEvent?.url || url)
       setLocation(selectedEvent?.extendedProps?.location || location)
@@ -509,6 +510,7 @@ onError: (e) => {
           clientEmail,
           category: 'Uncategorized',
           job_type: calloutJobType.value,
+          job_type_id: calloutJobType.id,
           propertyName,
           workerName,
           workerId,
@@ -519,7 +521,7 @@ onError: (e) => {
         }
       }
       const propsToUpdate = ['startPicker', 'endPicker', 'title', 'callout_id']
-      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'workerId', 'workerEmail', 'propertyId', 'clientEmail', 'job_type', 'jobTickets', 'blocked']
+      const extendedPropsToUpdate = ['clientName', 'category', 'propertyName', 'workerName', 'workerId', 'workerEmail', 'propertyId', 'clientEmail', 'job_type', 'job_type_id', 'jobTickets', 'blocked']
   
       updateEvent(eventToUpdate)
       updateEventInCalendar(eventToUpdate, propsToUpdate, extendedPropsToUpdate)
@@ -710,7 +712,7 @@ onError: (e) => {
             }
           })}
         >
-          <div>
+          {!!selectedEvent?.title?.length && <div>
              <h4 className="mb-0">Status:</h4>
               {status === "Open" && <Badge color='success' className="mb-1 badge-glow">
                 Open
@@ -730,6 +732,7 @@ onError: (e) => {
               <div>
               <Button className="mb-1"color='info' size="sm" onClick={() => setChangeStatusIsOpen(true)}>Force Change Status</Button>  
               </div>
+              </div>}
               
              {/* <Select
                id='label'
@@ -745,7 +748,6 @@ onError: (e) => {
                  Option: OptionComponent
                }}
              /> */}
-           </div>
            <FormGroup>
              <Label for='desc'>
                Description <span className='text-danger'>*</span>
@@ -795,7 +797,7 @@ onError: (e) => {
                className='react-select'
                classNamePrefix='select'
                isClearable={false}
-               onChange={(e) => setcalloutJobType({value: e.value, label: e.value})}
+               onChange={(e) => setcalloutJobType({value: e.value, label: e.value, id: e.id})}
                components={{
                  Option: OptionComponent
                }}

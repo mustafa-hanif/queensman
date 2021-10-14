@@ -127,6 +127,11 @@ query getJobTickets {
         status_update
         time
       }
+      job_type_rel {
+        skill_parent_rel {
+          skill_name
+        }
+      }
     }
   }
 }
@@ -640,27 +645,42 @@ const DataTableAdvSearch = () => {
     const objectsToExport = []
 
     for (const keys in DataTojson) {
-    let Time = 0
+    let Time = null
     if (DataTojson[keys].status === "Closed") {
-      Time = moment(DataTojson[keys].end_time).diff(DataTojson[keys].start_time, "minutes")
+      if (DataTojson[keys]?.end_time && DataTojson[keys]?.start_time) {
+        Time = moment(DataTojson[keys].end_time).diff(DataTojson[keys].start_time, "minutes")
+      }
+    } else if (DataTojson[keys].status === "In Progress") {
+      if (DataTojson[keys]?.start_time) {
+        Time = moment(new Date()).diff(DataTojson[keys].start_time, "minutes")
+      }
+    } else {
+      Time = null
     }
       objectsToExport.push({
         id: DataTojson[keys]?.callout_id,
-        calloutby: DataTojson[keys]?.callout?.client?.email,
-        propertyType: DataTojson[keys]?.callout?.property?.address,
-        type: DataTojson[keys]?.callout?.job_type,
-        status: DataTojson[keys].status,
-        description: DataTojson[keys].description,
-        urgency_level: DataTojson[keys]?.callout?.urgency_level,
-        worker_assigned: DataTojson[keys]?.worker_email_rel?.full_name,
-        CreationDate: DataTojson[keys].created_at,
-        resolvedTime: DataTojson[keys]?.callout?.job?.[0]?.resolved_time,
-        Solution: DataTojson[keys]?.callout?.job?.[0]?.solution,
-        Rating: DataTojson[keys]?.callout?.job?.[0]?.rating,
-        Feedback: DataTojson[keys]?.callout?.job?.[0]?.feedback,
-        Time_in_minutes: Time
+        callout_by: DataTojson[keys]?.callout?.client?.email,
+        property_type: DataTojson[keys]?.callout?.property?.address,
+        job_category: DataTojson[keys]?.callout?.job_type_rel?.skill_parent_rel?.skill_name || DataTojson[keys]?.callout?.job_type,
+        type: DataTojson[keys]?.callout?.job_type || null,
+        status: DataTojson[keys]?.status || null,
+        description: DataTojson[keys]?.description || null,
+        urgency_level: DataTojson[keys]?.callout?.urgency_level || null,
+        worker_assigned: DataTojson[keys]?.worker_email_rel?.full_name || null,
+        creation_time: DataTojson[keys]?.created_at ? moment(DataTojson[keys].created_at).format('h:mm a') : null,
+        creation_date: DataTojson[keys]?.created_at ? moment(DataTojson[keys].created_at).format('MMMM Do YYYY') : null,
+        resolved_time: DataTojson[keys]?.callout?.job?.[0]?.resolved_time ? moment(DataTojson[keys]?.callout?.job?.[0]?.resolved_time).format('h:mm a') : null,
+        resolved_date: DataTojson[keys]?.callout?.job?.[0]?.resolved_time ? moment(DataTojson[keys]?.callout?.job?.[0]?.resolved_time).format('MMMM Do YYYY') : null,
+        start_time: DataTojson[keys]?.start_time ? moment(DataTojson[keys]?.start_time).format('h:mm a') : null,
+        start_date: DataTojson[keys]?.start_time ? moment(DataTojson[keys]?.start_time).format('MMMM Do YYYY') : null,
+        end_time: DataTojson[keys]?.end_time ? moment(DataTojson[keys]?.end_time).format('h:mm a') : null,
+        end_date: DataTojson[keys]?.end_time ? moment(DataTojson[keys]?.end_time).format('MMMM Do YYYY') : null,
+        solution: DataTojson[keys]?.callout?.job?.[0]?.solution || null,
+        rating: DataTojson[keys]?.callout?.job?.[0]?.rating || null,
+        feedback: DataTojson[keys]?.callout?.job?.[0]?.feedback || null,
+        time_in_minutes: Time
       })
-
+      console.log(objectsToExport)
     }
     //   console.log((objectsToExport))
     return (objectsToExport)
