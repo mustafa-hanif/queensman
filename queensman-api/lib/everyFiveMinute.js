@@ -324,12 +324,12 @@ async function deactivateClient(active, authActive, emailArray, authEmail) {
 async function getExpiredClient() {
   const { errors, data: queryData } = await fetchGraphQL(
     `query getExpiredClient($date: date = "") {
-      client(where: {contract_end_date: {_lt: $date}}) {
+      client(where: {contract_end_date: {_lt: $date}, active: {_eq: 1}}) {
         id
         email
         contract_end_date
       }
-    }
+    }    
     `,
     'getExpiredClient',
     {
