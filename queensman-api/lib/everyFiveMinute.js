@@ -21,6 +21,8 @@ async function everyFiveMinute() {
   const minutes = await respondToEmergencies();
   await notifyScheduledTasks();
   const queryData = await getExpiredClient()
+  const emailArray = queryData.client.map(value => value.email)
+  await deactivateClient(0, false, emailArray, emailArray)
   await notifyTeamisComing();
   return minutes;
 }
@@ -290,23 +292,30 @@ async function addNotification(email, text, type, data) {
   console.log(errors, queryData);
 }
 
-async function deactivateClient(id, active, authActive, email) {
+async function deactivateClient(active, authActive, emailArray, authEmail) {
   const { errors, data: queryData } = await fetchGraphQL(
-    `mutation deactivateClient($id: Int!, $active: smallint!, $authActive: Boolean!, $email: citext!) {
-      update_client_by_pk(pk_columns: {id: $id}, _set: {active: $active}) {
-        id
-      }
-      update_auth_accounts(where: {email: {_eq: $email}}, _set: {active: $authActive}) {
+    `mutation deactivateClient($active: smallint!, $authActive: Boolean!, $emailArray: [String!] = "", $authEmail: [citext!] = "") {
+      update_client(_set: {active: $active}, where: {email: {_in: $emailArray}}) {
         affected_rows
+        returning {
+          email
+          id
+        }
+      }
+      update_auth_accounts(where: {email: {_in: $authEmail}}, _set: {active: $authActive}) {
+        affected_rows
+        returning {
+          email
+        }
       }
     }
     `,
     'deactivateClient',
     {
-      id,
       active,
       authActive,
-      email
+      emailArray,
+      authEmail
     }
   );
   console.log(errors, queryData);
