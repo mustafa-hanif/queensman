@@ -20,7 +20,7 @@ const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
 async function everyFiveMinute() {
   const minutes = await respondToEmergencies();
   await notifyScheduledTasks();
-
+  const queryData = await getExpiredClient()
   await notifyTeamisComing();
   return minutes;
 }
@@ -289,6 +289,48 @@ async function addNotification(email, text, type, data) {
   );
   console.log(errors, queryData);
 }
+
+async function deactivateClient(id, active, authActive, email) {
+  const { errors, data: queryData } = await fetchGraphQL(
+    `mutation deactivateClient($id: Int!, $active: smallint!, $authActive: Boolean!, $email: citext!) {
+      update_client_by_pk(pk_columns: {id: $id}, _set: {active: $active}) {
+        id
+      }
+      update_auth_accounts(where: {email: {_eq: $email}}, _set: {active: $authActive}) {
+        affected_rows
+      }
+    }
+    `,
+    'deactivateClient',
+    {
+      id,
+      active,
+      authActive,
+      email
+    }
+  );
+  console.log(errors, queryData);
+}
+
+async function getExpiredClient() {
+  const { errors, data: queryData } = await fetchGraphQL(
+    `query getExpiredClient($date: date = "") {
+      client(where: {contract_end_date: {_lt: $date}}) {
+        id
+        email
+        contract_end_date
+      }
+    }
+    `,
+    'getExpiredClient',
+    {
+      date: format(new Date(), 'yyyy-MM-dd'),
+    }
+  );
+  console.log(errors, queryData);
+  return queryData;
+}
+
 module.exports = { everyFiveMinute };
 
 function getFormattedTime(date) {
