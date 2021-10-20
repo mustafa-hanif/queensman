@@ -669,20 +669,20 @@ const DataTableAdvSearch = () => {
         worker_assigned: DataTojson[keys]?.worker_email_rel?.full_name || null,
         creation_time: DataTojson[keys]?.created_at ? moment(DataTojson[keys].created_at).format('h:mm a') : null,
         creation_date: DataTojson[keys]?.created_at ? moment(DataTojson[keys].created_at).format('MMMM Do YYYY') : null,
-        resolved_time: DataTojson[keys]?.callout?.job?.[0]?.resolved_time ? moment(DataTojson[keys]?.callout?.job?.[0]?.resolved_time).format('h:mm a') : null,
-        resolved_date: DataTojson[keys]?.callout?.job?.[0]?.resolved_time ? moment(DataTojson[keys]?.callout?.job?.[0]?.resolved_time).format('MMMM Do YYYY') : null,
+        // resolved_time: DataTojson[keys]?.callout?.job?.[0]?.resolved_time ? moment(DataTojson[keys]?.callout?.job?.[0]?.resolved_time).format('h:mm a') : null,
+        // resolved_date: DataTojson[keys]?.callout?.job?.[0]?.resolved_time ? moment(DataTojson[keys]?.callout?.job?.[0]?.resolved_time).format('MMMM Do YYYY') : null,
         start_time: DataTojson[keys]?.start_time ? moment(DataTojson[keys]?.start_time).format('h:mm a') : null,
         start_date: DataTojson[keys]?.start_time ? moment(DataTojson[keys]?.start_time).format('MMMM Do YYYY') : null,
         end_time: DataTojson[keys]?.end_time ? moment(DataTojson[keys]?.end_time).format('h:mm a') : null,
         end_date: DataTojson[keys]?.end_time ? moment(DataTojson[keys]?.end_time).format('MMMM Do YYYY') : null,
+        notes: DataTojson[keys]?.notes?.map(value => value?.message?.trim()).join(", ") || null,
         solution: DataTojson[keys]?.callout?.job?.[0]?.solution || null,
         rating: DataTojson[keys]?.callout?.job?.[0]?.rating || null,
         feedback: DataTojson[keys]?.callout?.job?.[0]?.feedback || null,
-        time_in_minutes: Time
+        time_in_minutes: Time        
       })
-      console.log(objectsToExport)
     }
-    //   console.log((objectsToExport))
+      // console.log((objectsToExport))
     return (objectsToExport)
 
   }
