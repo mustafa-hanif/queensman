@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
 
 const GET_JOB_CATEGORY = gql`
   query GetJobCategory {
-    team_expertise(where: { skill_level: { _eq: 0 } }, order_by: { skill_name: asc }) {
+    team_expertise(where: { skill_level: { _eq: 0 }, isAdmin: { _eq: false } }, order_by: { skill_name: asc }) {
       skill_name
       id
       isHigh
@@ -171,7 +171,12 @@ const GET_JOB_CATEGORY = gql`
 const GET_JOB_TYPE = gql`
   query GetJobType($skill_parent: Int!, $isHigh: Boolean!) {
     team_expertise(
-      where: { skill_level: { _eq: 1 }, skill_parent: { _eq: $skill_parent }, isHigh: { _eq: $isHigh } }
+      where: {
+        skill_level: { _eq: 1 }
+        skill_parent: { _eq: $skill_parent }
+        isHigh: { _eq: $isHigh }
+        isAdmin: { _eq: false }
+      }
       order_by: { skill_name: asc }
     ) {
       id
@@ -384,6 +389,7 @@ const RequestCallOut = (props) => {
     _setState(props);
   };
   const { data: jobCategory } = useQuery(GET_JOB_CATEGORY);
+  console.log(jobCategory);
   const { data: allWorkers } = useQuery(GET_WORKER, {
     variables: { _eq: "opscord@queensman.com" },
   });
@@ -554,7 +560,7 @@ const RequestCallOut = (props) => {
     if (!jobCategorySelect?.value) {
       return alert("Please Select Job Category!");
     }
-    if (!additionalServices && jobTypeSelect?.value) {
+    if (!additionalServices && !jobTypeSelect?.value) {
       return alert("Please Select Job Type!");
     }
     if (state.Urgency === "") {
@@ -567,6 +573,7 @@ const RequestCallOut = (props) => {
       return alert("Please upload atleast one image!");
     }
     if (!additionalServices) {
+      // If not on additional requst page
       if (state.Urgency === "medium") {
         return props.navigation.navigate("SelectSchedule", { state: { ...state, JobType: jobTypeSelect?.value } });
       }

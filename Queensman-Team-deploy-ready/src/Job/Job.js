@@ -3,6 +3,7 @@
 import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
+import moment from "moment"
 import {
   StyleSheet,
   Text,
@@ -23,7 +24,7 @@ import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions'
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { auth } from "../utils/nhost";
-import { createNativeWrapper } from "react-native-gesture-handler";
+import { Video, AVPlaybackStatus } from 'expo-av';
 import { SECRECT } from "../_config";
 
 const GET_JOB_WORKERS = gql`
@@ -106,6 +107,8 @@ const STOP_JOB = gql`
     $notes: jsonb!
     $type: String!
     $status: String!
+    $worker_id: Int!
+    $scheduler_id: Int!
     $client_email: String!
   ) {
     update_job_tickets_by_pk(
@@ -122,6 +125,8 @@ const STOP_JOB = gql`
         callout_id: $callout_id
         type: $type
         worker_email: $worker_email
+        worker_id: $worker_id
+        scheduler_id: $scheduler_id
         notes: [$notes]
         status: $status
         client_email: $client_email
@@ -151,6 +156,8 @@ const CHANGE_JOB_TYPE = gql`
 
 const Job = (props) => {
   const worker_email = auth.user().email;
+  const video = React.useRef(null);
+  const [status, setStatus] = useState({});
   const [state, setState] = useState({
     Pic1: "photos/0690da3e-9c38-4a3f-ba45-8971697bd925.jpg",
     Pic2: "link",
@@ -163,21 +170,13 @@ const Job = (props) => {
     workerList: [],
     workerID: props.navigation.getParam("workerId", {}),
     imageLoading: false,
-    W1ID: "none",
-    W1Name: "none",
-    W1Phone: "none",
-    W1Email: "none",
-    W2ID: "none",
-    W2Name: "none",
-    W2Phone: "none",
-    W2Email: "none",
-    W3ID: "none",
-    W3Name: "none",
-    W3Phone: "none",
-    W3Email: "none",
+    workerId: "none",
+    wokerName: "none",
+    workerPhone: "none",
+    workerEmail: "none",
     type: ticket?.type,
   });
-
+console.log(state?.JobData?.video)
   const [notes, setnotes] = useState("");
   const [closeJobNote, setcloseJobNote] = useState("");
 
@@ -259,19 +258,10 @@ const Job = (props) => {
     const jobWorkers = data?.callout_by_pk?.job_worker;
     setState({
       ...state,
-      workerList: jobWorkers,
-      W1ID: jobWorkers?.[0]?.worker?.id,
-      W1Name: jobWorkers?.[0]?.worker?.full_name,
-      W1Phone: jobWorkers?.[0]?.worker?.phone,
-      W1Email: jobWorkers?.[0]?.worker?.email,
-      W2ID: jobWorkers?.[1]?.worker?.id,
-      W2Name: jobWorkers?.[1]?.worker?.full_name,
-      W2Phone: jobWorkers?.[1]?.worker?.phone,
-      W2Email: jobWorkers?.[1]?.worker?.email,
-      W3ID: jobWorkers?.[2]?.worker?.id,
-      W3Name: jobWorkers?.[2]?.worker?.full_name,
-      W3Phone: jobWorkers?.[2]?.worker?.phone,
-      W3Email: jobWorkers?.[2]?.worker?.email,
+      workerId: jobWorkers?.[0]?.worker?.id,
+      wokerName: jobWorkers?.[0]?.worker?.full_name,
+      workerPhone: jobWorkers?.[0]?.worker?.phone,
+      workerEmail: jobWorkers?.[0]?.worker?.email,
     });
   }, [data?.callout_by_pk?.job_worker]);
 
@@ -547,27 +537,26 @@ const Job = (props) => {
       })
     );
 
-    try {
-      const result = await fetch(
-        "https://www.zohoapis.com/crm/v2/functions/createzohodeskticket/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf",
-        {
-          method: "POST",
-          headers: {
-            "x-hasura-admin-secret": SECRECT,
-          },
-          body: form,
-        }
-      );
-      let resultJson = await result.json();
-      let output = resultJson.details.output;
-      if (output.substring(0, 14) == "No email found") {
-        alert(output);
-      }
-    } catch (e) {
-      console.log("ERROR");
-      console.log(e);
-    }
-    if (state.type != "Deferred") {
+    // try {
+    //   const result = await fetch(
+    //     "https://www.zohoapis.com/crm/v2/functions/createzohodeskticket/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf",
+    //     {
+    //       method: "POST",
+    //       headers: {
+    //         "x-hasura-admin-secret": SECRECT,
+    //       },
+    //       body: form,
+    //     }
+    //   );
+    //   let resultJson = await result.json();
+    //   let output = resultJson.details.output;
+    //   if (output.substring(0, 14) == "No email found") {
+    //     alert(output);
+    //   }
+    // } catch (e) {
+    //   console.log("ERROR");
+    //   console.log(e);
+    // }
       try {
         await stopJob({
           variables: {
@@ -575,13 +564,15 @@ const Job = (props) => {
             desc: closeJobNote,
             id: ticket.id,
             worker_email: state.JobData.job_worker[0].worker.email,
+            worker_id: state.JobData.job_worker[0].worker.id,
             callout_id: state.JobData.id,
+            scheduler_id: state.JobData.schedulers[0].id,
             notes: {
               from: state.JobData.job_worker[0].worker.full_name,
               message: closeJobNote,
             },
             status: "Open",
-            type: state.type,
+            type: state.type != "Deferred" ? state.type : "Deferred",
             client_email: client?.email,
           },
         });
@@ -591,31 +582,6 @@ const Job = (props) => {
       } catch (e) {
         console.log(e);
       }
-    } else {
-      try {
-        await stopJob({
-          variables: {
-            name: `Defer Ticket of ${ticket.id}`,
-            desc: closeJobNote,
-            id: ticket.id,
-            worker_email: state.JobData.job_worker[0].worker.email,
-            callout_id: state.JobData.id,
-            notes: {
-              from: state.JobData.job_worker[0].worker.full_name,
-              message: closeJobNote,
-            },
-            status: "Open",
-            type: "Deferred",
-            client_email: client?.email,
-          },
-        });
-        setstopJobModalVisible(false);
-        props.navigation.navigate("TicketListing");
-        setLoadingModalVisible(false);
-      } catch (e) {
-        console.log(e);
-      }
-    }
   };
   return (
     <ScrollView style={styles.container}>
@@ -640,6 +606,29 @@ const Job = (props) => {
         <View style={{ marginVertical: 10 }}>
           {ticket?.pictures?.length > 0 && RenderPictures(ticket.pictures)}
         </View>
+        <Heading>Video</Heading>
+        {state?.JobData?.video ? 
+        <View style={styles.container}>
+          <Video
+            ref={video}
+            style={styles.video}
+            source={{
+              uri: `${state?.JobData?.video}`,
+            }}
+            useNativeControls
+            resizeMode="contain"
+            isLooping
+            onPlaybackStatusUpdate={status => setStatus(() => status)}
+          />
+          {/* <View style={styles.buttons}>
+            <Button
+              title={status.isPlaying ? 'Pause' : 'Play'}
+              onPress={() =>
+                status.isPlaying ? video.current.pauseAsync() : video.current.playAsync()
+              }
+            />
+          </View> */}
+        </View> : <Text>No Video</Text>}
         <Heading>Notes</Heading>
         {ticketNotesArray?.map((val, index) => {
           const { from, message } = val;
@@ -719,7 +708,7 @@ const Job = (props) => {
           alignSelf: "center",
         }}
       >
-        {dayjs(state.JobData.request_time).format("DD MMM YYYY")}
+        {moment(state.JobData.request_time).format("Do MMMM, YYYY, hh:mm A")}
       </Text>
 
       <Text
@@ -775,7 +764,7 @@ const Job = (props) => {
         </Text>
         <Text style={{ fontSize: 13, marginBottom: "3%" }}>
           Request Time:{" "}
-          {dayjs(state.JobData.request_time).format("DD MMM YYYY")}
+          {moment(state.JobData.request_time).format("Do MMMM, YYYY, hh:mm A")}
         </Text>
       </View>
       <Text
@@ -856,65 +845,24 @@ const Job = (props) => {
       <Text
         style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
       >
-        ID: {state.W1ID}
+        ID: {state.workerId}
       </Text>
       <Text
         style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
       >
-        Full Name: {state.W1Name}
+        Full Name: {state.wokerName}
       </Text>
       <Text
         style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
       >
-        Phone: {state.W1Phone}
+        Phone: {state.workerPhone}
       </Text>
       <Text
         style={{ fontSize: 13, marginBottom: "3%", paddingHorizontal: "5%" }}
       >
-        Email: {state.W1Email}
+        Email: {state.workerEmail}
       </Text>
 
-      <Text
-        style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
-      >
-        ID: {state.W2ID}
-      </Text>
-      <Text
-        style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
-      >
-        Full Name: {state.W2Name}
-      </Text>
-      <Text
-        style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
-      >
-        Phone: {state.W2Phone}
-      </Text>
-      <Text
-        style={{ fontSize: 13, marginBottom: "3%", paddingHorizontal: "5%" }}
-      >
-        Email: {state.W2Email}
-      </Text>
-
-      <Text
-        style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
-      >
-        ID: {state.W3ID}
-      </Text>
-      <Text
-        style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
-      >
-        Full Name: {state.W3Name}
-      </Text>
-      <Text
-        style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
-      >
-        Phone: {state.W3Phone}
-      </Text>
-      <Text
-        style={{ fontSize: 13, marginBottom: "7%", paddingHorizontal: "5%" }}
-      >
-        Email: {state.W3Email}
-      </Text>
       {ticket.status != "Closed" && (
         <View style={{ marginBottom: 60 }}>
           <Button
@@ -1155,6 +1103,16 @@ const styles = StyleSheet.create({
     borderColor: "#ACACAC",
     alignItems: "center",
     justifyContent: "center",
+  },
+  video: {
+    alignSelf: 'center',
+    width: 320,
+    height: 200,
+  },
+  buttons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
