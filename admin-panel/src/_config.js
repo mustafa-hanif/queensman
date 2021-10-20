@@ -16,14 +16,14 @@ const NHOST_PROD = '8106d23e'
 const SERVERLESS_STAGING = 'y8sr1kom3g'
 const SERVERLESS_PROD = 'meqmfvxx0d'
 
-// let DOMAIN = `https://${SERVERLESS_STAGING}.execute-api.us-east-1.amazonaws.com/dev`
-// let HASURA = `https://backend-${NHOST_STAGING}.nhost.app`
-// let ENDPOINT = `https://hasura-${NHOST_STAGING}.nhost.app/v1/graphql`
-// if (process.env.VERCEL_ENV === 'production') {
+let DOMAIN = `https://${SERVERLESS_STAGING}.execute-api.us-east-1.amazonaws.com/dev`
+let HASURA = `https://backend-${NHOST_STAGING}.nhost.app`
+let ENDPOINT = `https://hasura-${NHOST_STAGING}.nhost.app/v1/graphql`
+if (process.env.VERCEL_ENV === 'production') {
     DOMAIN = `https://${SERVERLESS_STAGING}.execute-api.us-east-1.amazonaws.com/dev`
     HASURA = `https://backend-${NHOST_STAGING}.nhost.app`
     ENDPOINT = `https://hasura-${NHOST_STAGING}.nhost.app/v1/graphql`
-// }
+}
 module.exports = {
     DOMAIN,
     HASURA,
