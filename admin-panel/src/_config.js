@@ -19,7 +19,8 @@ const SERVERLESS_PROD = 'meqmfvxx0d'
 let DOMAIN = `https://${SERVERLESS_STAGING}.execute-api.us-east-1.amazonaws.com/dev`
 let HASURA = `https://backend-${NHOST_STAGING}.nhost.app`
 let ENDPOINT = `https://hasura-${NHOST_STAGING}.nhost.app/v1/graphql`
-if (process.env.VERCEL_ENV === 'production') {
+
+if (process.env.REACT_APP_VERCEL_ENV === 'production') {
     DOMAIN = `https://${SERVERLESS_PROD}.execute-api.us-east-1.amazonaws.com/production`
     HASURA = `https://backend-${NHOST_PROD}.nhost.app`
     ENDPOINT = `https://hasura-${NHOST_PROD}.nhost.app/v1/graphql`
