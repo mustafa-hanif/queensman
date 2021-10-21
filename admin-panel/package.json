@@ -107,8 +107,9 @@
     "yup": "0.32.8"
   },
   "scripts": {
-    "start": "react-app-rewired start",
-    "prod-start": "VERCEL_ENV=production & react-app-rewired start",
+    "start": "REACT_APP_VERCEL_ENV=development react-app-rewired start",
+    "prod-start": "REACT_APP_VERCEL_ENV=production react-app-rewired start",
+    "prod-build": "REACT_APP_VERCEL_ENV=production react-app-rewired build",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject",
