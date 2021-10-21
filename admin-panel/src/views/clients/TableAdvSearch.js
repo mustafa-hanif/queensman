@@ -110,6 +110,11 @@ const GET_CLIENT = gql`
       contract_start_date
       contract_end_date
       sign_up_time
+      contract_report {
+        id
+        report_location
+        report_upload_date
+      }
       documents {
         document_name
       }
@@ -1449,7 +1454,7 @@ const DataTableAdvSearch = () => {
             Client Details
           </ModalHeader>
           <ModalBody>
-            <TabsVerticalLeft item={modalDetails} />
+            <TabsVerticalLeft item={modalDetails} refetchClient={refetchClient}/>
           </ModalBody>
         </Modal>
       </div>

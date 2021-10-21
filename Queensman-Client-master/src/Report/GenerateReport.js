@@ -367,16 +367,34 @@ const GET_CONTRACT_COPY = gql`
   }
 `;
 
+const GET_CONTRACT_REPORT = gql`
+  query GetContract_reprot($email: String!) {
+    contract_report(where: { client: { email: { _eq: $email } } }) {
+      report_upload_date
+      report_location
+      id
+      client_id
+    }
+  }
+`;
+
 const GetContractCopy = () => {
   const [isOpen, setisOpen] = useState(false);
   const { email } = auth.user();
   const { loading, data } = useQuery(GET_CONTRACT_COPY, {
     variables: { email },
   });
+  const { data: data2 } = useQuery(GET_CONTRACT_REPORT, {
+    variables: { email },
+  });
   const openContractCopy = () => {
-    if (data?.client?.[0]?.documents.length === 0) {
+    if (data?.client?.[0]?.documents.length === 0 && data2?.contract_report.length === 0) {
       setisOpen(true);
+    } else if (data2?.contract_report.length > 0) {
+      Linking.openURL(`${data2.contract_report[0].report_location}`);
     } else {
+      console.log(data?.client?.[0]?.documents.length);
+      console.log(data2?.contract_report.length);
       const document_id =
         data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
       Linking.openURL(`https://api-8106d23e.nhost.app/?document_id=${document_id}`);

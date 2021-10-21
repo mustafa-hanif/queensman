@@ -537,26 +537,26 @@ console.log(state?.JobData?.video)
       })
     );
 
-    // try {
-    //   const result = await fetch(
-    //     "https://www.zohoapis.com/crm/v2/functions/createzohodeskticket/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf",
-    //     {
-    //       method: "POST",
-    //       headers: {
-    //         "x-hasura-admin-secret": SECRECT,
-    //       },
-    //       body: form,
-    //     }
-    //   );
-    //   let resultJson = await result.json();
-    //   let output = resultJson.details.output;
-    //   if (output.substring(0, 14) == "No email found") {
-    //     alert(output);
-    //   }
-    // } catch (e) {
-    //   console.log("ERROR");
-    //   console.log(e);
-    // }
+    try {
+      const result = await fetch(
+        "https://www.zohoapis.com/crm/v2/functions/createzohodeskticket/actions/execute?auth_type=apikey&zapikey=1003.db2c6e3274aace3b787c802bb296d0e8.3bef5ae5ee6b1553f7d3ed7f0116d8cf",
+        {
+          method: "POST",
+          headers: {
+            "x-hasura-admin-secret": SECRECT,
+          },
+          body: form,
+        }
+      );
+      let resultJson = await result.json();
+      let output = resultJson.details.output;
+      if (output.substring(0, 14) == "No email found") {
+        alert(output);
+      }
+    } catch (e) {
+      console.log("ERROR");
+      console.log(e);
+    }
       try {
         await stopJob({
           variables: {
@@ -629,7 +629,7 @@ console.log(state?.JobData?.video)
             />
           </View> */}
         </View> : <Text>No Video</Text>}
-        <Heading>Notes</Heading>
+        <Heading>Ticket Notes</Heading>
         {ticketNotesArray?.map((val, index) => {
           const { from, message } = val;
           return (
