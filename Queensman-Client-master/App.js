@@ -4,7 +4,7 @@
 /* eslint-disable no-console */
 /* eslint-disable import/order */
 /* eslint-disable no-use-before-define */
-const version = "v1.3.1 staging";
+const version = "v1.3.2 staging";
 import React, { PureComponent } from "react";
 import { Text, View, SafeAreaView, Image, TouchableOpacity, Linking } from "react-native";
 import { Icon, Box, NativeBaseProvider, extendTheme } from "native-base";

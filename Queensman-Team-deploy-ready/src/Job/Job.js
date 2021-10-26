@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React from "react";
-import { useState } from "react";
-import { useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import * as ScreenOrientation from 'expo-screen-orientation'
+import { setStatusBarHidden } from 'expo-status-bar'
 import moment from "moment"
 import {
   StyleSheet,
@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   Alert,
   TextInput,
+  Dimensions
 } from "react-native";
 import { Icon } from "native-base";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
@@ -157,7 +158,8 @@ const CHANGE_JOB_TYPE = gql`
 
 const Job = (props) => {
   const worker_email = auth.user().email;
-  const video = React.useRef(null);
+  const [inFullscreen, setInFullscreen] = useState(false)
+  const refVideo = useRef(null)
   const [status, setStatus] = useState({});
   const [state, setState] = useState({
     Pic1: "photos/0690da3e-9c38-4a3f-ba45-8971697bd925.jpg",
@@ -177,7 +179,6 @@ const Job = (props) => {
     workerEmail: "none",
     type: ticket?.type,
   });
-console.log(state?.JobData?.video)
   const [notes, setnotes] = useState("");
   const [closeJobNote, setcloseJobNote] = useState("");
 
@@ -197,7 +198,6 @@ console.log(state?.JobData?.video)
   const [addNote, { Notesdata, loading: addNoteLoading, error: addNoteError }] =
     useMutation(ADD_TICKET_NOTE);
 
-  // console.log({ Notesdata, addNoteLoading, addNoteError });
   const [isVerified, setIsVerified] = useState(ticket.isVerified);
   const [updateVerification, { data: verificationData }] = useMutation(
     UPDATE_TICKET_VERIFICATION
@@ -287,7 +287,6 @@ console.log(state?.JobData?.video)
       [
         {
           text: "No",
-          onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
         { text: "Yes", onPress: () => StartJobHandler() },
@@ -308,7 +307,6 @@ console.log(state?.JobData?.video)
 
   const StartJobHandler = async () => {
     const location = await getLocation();
-    console.log(location)
     try {
     await startJob({
       variables: {
@@ -318,7 +316,6 @@ console.log(state?.JobData?.video)
         location,
       },
     });
-    console.log("navigating");
     props.navigation.navigate("PreJob", {
       QJobID: state.JobData.id,
       it: props.navigation.getParam("it", {}),
@@ -326,7 +323,6 @@ console.log(state?.JobData?.video)
       ticketCount: props.navigation.getParam("ticketCount", {}),
       workerId,
     });
-    console.log("navigated");
   } catch (e) {
     console.log(e)
   }
@@ -441,7 +437,6 @@ console.log(state?.JobData?.video)
     if (notes === "") {
       return alert("Cannot add empty Note");
     }
-    console.log(auth.user());
     const { display_name } = auth.user();
 
     const param = {
@@ -449,12 +444,10 @@ console.log(state?.JobData?.video)
       id: ticket.id,
     };
 
-    console.log("calling api", param);
     addNote({
       variables: param,
     })
       .then((res) => {
-        console.log({ res });
         setnotes("");
         setticketNotesArray(res.data.update_job_tickets_by_pk.notes);
       })
@@ -555,7 +548,6 @@ console.log(state?.JobData?.video)
         alert(output);
       }
     } catch (e) {
-      console.log("ERROR");
       console.log(e);
     }
       try {
@@ -603,23 +595,54 @@ console.log(state?.JobData?.video)
         <Heading>Description</Heading>
         <RenderValue>{ticket.description}</RenderValue>
 
-        <Heading>Pictures</Heading>
+        <Heading>Job Ticket Pictures</Heading>
         <View style={{ marginVertical: 10 }}>
-          {ticket?.pictures?.length > 0 && RenderPictures(ticket.pictures)}
+          {ticket?.pictures?.length > 0 ? RenderPictures(ticket.pictures) : <RenderValue>No Picture Available</RenderValue>}
         </View>
         <Heading>Video</Heading>
         {state?.JobData?.video ? 
-        <View style={styles.container}>
+        <View>
           <VideoPlayer
+        videoProps={{
+          shouldPlay: false,
+          resizeMode: Video.RESIZE_MODE_CONTAIN,
+          source: {
+            uri: `${state?.JobData?.video}`,
+          },
+          ref: refVideo,
+        }}
+        fullscreen={{
+          inFullscreen: inFullscreen,
+          enterFullscreen: async () => {
+            setStatusBarHidden(true, 'fade')
+            setInFullscreen(!inFullscreen)
+            await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT)
+            refVideo.current.setStatusAsync({
+              shouldPlay: true,
+            })
+          },
+          exitFullscreen: async () => {
+            setStatusBarHidden(false, 'fade')
+            setInFullscreen(!inFullscreen)
+            await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT)
+          },
+        }}
+        style={{
+          videoBackgroundColor: 'white',
+          height: inFullscreen ? Dimensions.get('window').width : 320,
+          width: inFullscreen ? Dimensions.get('window').height : 160,
+        }}
+      />
+          {/* <VideoPlayer
             videoProps={{
               shouldPlay: true,
-              resizeMode: Video.RESIZE_MODE_CONTAIN,
+              resizeMode: Video.RESIZE_MODE_STRETCH,
               // ❗ source is required https://docs.expo.io/versions/latest/sdk/video/#props
               source: {
                 uri: `${state?.JobData?.video}`,
               },
             }}
-/>
+/> */}
           {/* <Video
             ref={video}
             style={styles.video}
