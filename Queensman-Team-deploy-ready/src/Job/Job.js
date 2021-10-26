@@ -24,7 +24,8 @@ import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions'
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { auth } from "../utils/nhost";
-import { Video, AVPlaybackStatus } from 'expo-av';
+import { Video } from 'expo-av'
+import VideoPlayer from 'expo-video-player'
 import { SECRECT } from "../_config";
 
 const GET_JOB_WORKERS = gql`
@@ -609,7 +610,17 @@ console.log(state?.JobData?.video)
         <Heading>Video</Heading>
         {state?.JobData?.video ? 
         <View style={styles.container}>
-          <Video
+          <VideoPlayer
+            videoProps={{
+              shouldPlay: true,
+              resizeMode: Video.RESIZE_MODE_CONTAIN,
+              // ❗ source is required https://docs.expo.io/versions/latest/sdk/video/#props
+              source: {
+                uri: `${state?.JobData?.video}`,
+              },
+            }}
+/>
+          {/* <Video
             ref={video}
             style={styles.video}
             source={{
@@ -619,7 +630,7 @@ console.log(state?.JobData?.video)
             resizeMode="contain"
             isLooping
             onPlaybackStatusUpdate={status => setStatus(() => status)}
-          />
+          /> */}
           {/* <View style={styles.buttons}>
             <Button
               title={status.isPlaying ? 'Pause' : 'Play'}

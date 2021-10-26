@@ -41,7 +41,8 @@ const Exportqs = (InData) => {
 
     /* add to workbook */
     const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, "People")
+    ws['!autofilter'] = { ref:"A1:U1" }
+    XLSX.utils.book_append_sheet(wb, ws, "Job Tickets")
 
     /* write workbook */
     const wbout = XLSX.write(wb, { bookType, bookSST: true, type: 'binary' })

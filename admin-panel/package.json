@@ -103,11 +103,12 @@
     "webpack": "4.43.0",
     "wnumb": "1.2.0",
     "xlsx": "^0.16.9",
+    "xlsx-style": "^0.8.13",
     "yarn": "1.21.1",
     "yup": "0.32.8"
   },
   "scripts": {
-    "start": "REACT_APP_VERCEL_ENV=development react-app-rewired start",
+    "start": "SET REACT_APP_VERCEL_ENV=development & react-app-rewired start",
     "prod-start": "REACT_APP_VERCEL_ENV=production react-app-rewired start",
     "prod-build": "REACT_APP_VERCEL_ENV=production react-app-rewired build",
     "build": "react-app-rewired build",
