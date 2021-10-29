@@ -49,7 +49,6 @@ const createAndSavePDF = async (html, data2, propertyID, clientName, state, setS
     const file = expoFileToFormFile(uri);
     let fileName = file.name;
     fileName = `${clientName}-${propertyID}-Monthly-Report.pdf`;
-    console.log(fileName);
     await storage.put(`/monthly_report/${fileName}`, file);
     Linking.openURL(`${HASURA}/storage/o/monthly_report/${fileName}`);
     setState({ ...state, reportLoading: false });
@@ -331,13 +330,11 @@ const LoadProperties = ({ setPropertyId, props }) => {
   const [getProperty, { data: allProperties }] = useLazyQuery(GET_PROPERTIES, {
     variables: { email },
     onCompleted: ({ client }) => {
-      console.log(client);
       setPropertyId(client?.[0]?.property_owneds?.[0]?.property?.id);
     },
   });
 
   if (allProperties?.client?.[0].property_owneds.length === 0) {
-    console.log("mewo");
     return (
       <Center>
         <AlertDialog isOpen motionPreset="fade">
@@ -358,25 +355,31 @@ const LoadProperties = ({ setPropertyId, props }) => {
 };
 
 const GET_CONTRACT_COPY = gql`
-  query MyQuery($email: String) {
+  query MyQuery($email: String!) {
     client(where: { email: { _eq: $email } }) {
       documents {
         document_name
+      }
+      contract_report {
+        report_upload_date
+        report_location
+        id
+        client_id
       }
     }
   }
 `;
 
-const GET_CONTRACT_REPORT = gql`
-  query GetContract_reprot($email: String!) {
-    contract_report(where: { client: { email: { _eq: $email } } }) {
-      report_upload_date
-      report_location
-      id
-      client_id
-    }
-  }
-`;
+// const GET_CONTRACT_REPORT = gql`
+//   query GetContract_reprot($email: String!) {
+//     contract_report(where: { client: { email: { _eq: $email } } }) {
+//       report_upload_date
+//       report_location
+//       id
+//       client_id
+//     }
+//   }
+// `;
 
 const GetContractCopy = () => {
   const [isOpen, setisOpen] = useState(false);
@@ -384,17 +387,12 @@ const GetContractCopy = () => {
   const { loading, data } = useQuery(GET_CONTRACT_COPY, {
     variables: { email },
   });
-  const { data: data2 } = useQuery(GET_CONTRACT_REPORT, {
-    variables: { email },
-  });
   const openContractCopy = () => {
-    if (data?.client?.[0]?.documents.length === 0 && data2?.contract_report.length === 0) {
+    if (data?.client?.[0]?.documents.length === 0 && data?.client?.[0]?.contract_report === null) {
       setisOpen(true);
-    } else if (data2?.contract_report.length > 0) {
-      Linking.openURL(`${data2.contract_report[0].report_location}`);
+    } else if (data?.client?.[0]?.contract_report) {
+      Linking.openURL(`${data?.client?.[0]?.contract_report?.report_location}`);
     } else {
-      console.log(data?.client?.[0]?.documents.length);
-      console.log(data2?.contract_report.length);
       const document_id =
         data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
       Linking.openURL(`https://api-8106d23e.nhost.app/?document_id=${document_id}`);
@@ -485,7 +483,6 @@ const MARKET_REPORT = gql`
 `;
 
 const MyFlatList2 = ({ propertyId }) => {
-  console.log(propertyId);
   const openInventory = (report_location) => {
     // const document_id = data?.client?.[0]?.documents?.[data?.client?.[0]?.documents?.length - 1].document_name.split(", ")[1];
     Linking.openURL(report_location);
