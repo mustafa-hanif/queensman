@@ -62,6 +62,7 @@ const GET_CALLOUT = gql`
       job_type
       id
       urgency_level
+      request_time
       picture1
       picture2
       picture3
@@ -236,8 +237,8 @@ const logout = async () => {
   try {
     console.log(await AsyncStorage.clear());
     auth.logout();
-    navigation.navigate("Login");
-    setIsOpen(false);
+    // navigation.navigate("Login");
+    // setIsOpen(false);
   } catch (error) {
     // Error saving data
   }
@@ -624,6 +625,20 @@ const CalloutItem = ({ item, toggleGalleryEventModal }) => {
               <AntDesign name="clockcircle" size={18} />
               <Text color="black" fontSize="sm">
                 {moment(`2013-02-08T${item?.schedule?.time_on_calendar}`).format("hh:mm A")}
+              </Text>
+            </HStack>
+          )}
+        </VStack>
+        <Divider bg="gray.200" />
+        <VStack space={2}>
+          <Text color="black" fontSize="sm">
+            Service created at
+          </Text>
+          {item?.request_time && (
+            <HStack space={2} alignItems="center">
+              <AntDesign name="clockcircle" size={18} />
+              <Text color="black" fontSize="sm">
+                {moment(item?.request_time).format("Do MMMM, YYYY, hh:mm A")}
               </Text>
             </HStack>
           )}
