@@ -164,7 +164,7 @@ const TabsVerticalLeft = ({item}) => {
         <h1>Job Details</h1>
             <ListGroup flush>
             {callout && Object.keys(callout).map(itemKey => {
-              if (!(["client", "property", "job", "schedulers", "job_history", "__typename"].includes(itemKey))) {
+              if (!(["client", "property", "job", "schedulers", "job_history", "job_type_rel", "__typename"].includes(itemKey))) {
                 if ((["picture1", "picture2", "picture3", "picture4"].includes(itemKey))) {
                   return (
                     <CalloutPicture key={itemKey} picture={callout[itemKey]} />

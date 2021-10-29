@@ -97,6 +97,7 @@ const Calendar = props => {
         clientEmail: callout.client_callout_email?.email || 'No Client email',
         category: callout?.category || "Uncategorized",
         job_type: callout?.job_type || "No Type",
+        job_type_id: callout?.job_type_id,
         propertyName: callout.property?.address || 'No Property',
         propertyId: callout.property?.id || 0,
         videoUrl: callout.video,

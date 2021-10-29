@@ -77,6 +77,7 @@ const REQUEST_CALLOUT = gql`
     $email: String
     $category: String
     $job_type: String
+    $job_type_id: Int
     $status: String
     $picture1: String
     $picture2: String
@@ -93,6 +94,7 @@ const REQUEST_CALLOUT = gql`
             property_id: $property_id
             category: $category
             job_type: $job_type
+            job_type_id: $job_type_id
             status: $status
             urgency_level: $urgency_level
             description: $notes
@@ -173,20 +175,6 @@ export default function SelectSchedule(props) {
 
   const [getSchedule, { loading, data, error }] = useLazyQuery(GET_SCHEDULE);
 
-  // console.log({
-  //   loading,
-  //   data: data?.scheduler.map((val) => {
-  //     return { [val.start]: { selected: true, marked: true } };
-  //   }),
-  //   error,
-  // });
-
-  // const setMarkedDATE = (date) => {
-  //   let mark = markedDate;
-  //   mark[date] = { selected: true, marked: true, date };
-  //   // console.log({ mark });
-  //   setmarkedDate(mark);
-  // };
   const LoadingModal = () => (
     <Modal isOpen={loadingRequestModal}>
       <Modal.Content justifyContent="center" py={4} pr={4}>
@@ -251,7 +239,6 @@ export default function SelectSchedule(props) {
           })
           .filter(Boolean)
       );
-      console.log(moment(parse(time, "HH:mm:ss", new Date())).add(2, "hours").format("HH:mm:ss"));
       requestCalloutApiCall({
         variables: {
           property_id: state.PropertyID,
@@ -262,7 +249,8 @@ export default function SelectSchedule(props) {
           end_date_on_calendar: selectedDate,
           date_on_calendar: selectedDate,
           category,
-          job_type: state.JobType,
+          job_type: state.Job.value,
+          job_type_id: state.Job.id,
           status: "Requested",
           urgency_level: "Medium",
           video: state.videoUrl,
@@ -290,14 +278,12 @@ export default function SelectSchedule(props) {
       [
         {
           text: "Ok",
-          onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
       ],
       { cancelable: false }
     );
   };
-  // console.log({ markedDate });
 
   const Confirmmodal = () => {
     if (!time) {
@@ -346,8 +332,6 @@ export default function SelectSchedule(props) {
       }
       return slot;
     });
-
-    // console.log(element.start, element.startTime, element.blocked);
   });
 
   const selectSlot = (time) => {

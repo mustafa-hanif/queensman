@@ -53,6 +53,7 @@ const GET_JOBS_LIST = gql`
       picture2
       picture3
       picture4
+      video
       urgency_level
       client_id: callout_by
       client: client_callout_email {
@@ -105,6 +106,7 @@ const GET_JOBS_LIST_ALL = gql`
       picture2
       picture3
       picture4
+      video
       urgency_level
       client_id: callout_by
       client: client_callout_email {
@@ -223,7 +225,6 @@ const JobsList = (props) => {
     finalData?.callout,
     state.selected
   ]);
-  console.log(auth.user(), "AAAAAAAAAAAAAAA")
   if (error) {
     console.log(error)
     return (

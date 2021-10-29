@@ -1,8 +1,9 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React from "react";
-import { useState } from "react";
-import { useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import * as ScreenOrientation from 'expo-screen-orientation'
+import { setStatusBarHidden } from 'expo-status-bar'
+import moment from "moment"
 import {
   StyleSheet,
   Text,
@@ -14,6 +15,7 @@ import {
   TouchableOpacity,
   Alert,
   TextInput,
+  Dimensions
 } from "react-native";
 import { Icon } from "native-base";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
@@ -23,7 +25,8 @@ import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions'
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { auth } from "../utils/nhost";
-import { createNativeWrapper } from "react-native-gesture-handler";
+import { Video } from 'expo-av'
+import VideoPlayer from 'expo-video-player'
 import { SECRECT } from "../_config";
 
 const GET_JOB_WORKERS = gql`
@@ -106,6 +109,8 @@ const STOP_JOB = gql`
     $notes: jsonb!
     $type: String!
     $status: String!
+    $worker_id: Int!
+    $scheduler_id: Int!
     $client_email: String!
   ) {
     update_job_tickets_by_pk(
@@ -122,6 +127,8 @@ const STOP_JOB = gql`
         callout_id: $callout_id
         type: $type
         worker_email: $worker_email
+        worker_id: $worker_id
+        scheduler_id: $scheduler_id
         notes: [$notes]
         status: $status
         client_email: $client_email
@@ -151,6 +158,9 @@ const CHANGE_JOB_TYPE = gql`
 
 const Job = (props) => {
   const worker_email = auth.user().email;
+  const [inFullscreen, setInFullscreen] = useState(false)
+  const refVideo = useRef(null)
+  const [status, setStatus] = useState({});
   const [state, setState] = useState({
     Pic1: "photos/0690da3e-9c38-4a3f-ba45-8971697bd925.jpg",
     Pic2: "link",
@@ -163,21 +173,12 @@ const Job = (props) => {
     workerList: [],
     workerID: props.navigation.getParam("workerId", {}),
     imageLoading: false,
-    W1ID: "none",
-    W1Name: "none",
-    W1Phone: "none",
-    W1Email: "none",
-    W2ID: "none",
-    W2Name: "none",
-    W2Phone: "none",
-    W2Email: "none",
-    W3ID: "none",
-    W3Name: "none",
-    W3Phone: "none",
-    W3Email: "none",
+    workerId: "none",
+    wokerName: "none",
+    workerPhone: "none",
+    workerEmail: "none",
     type: ticket?.type,
   });
-
   const [notes, setnotes] = useState("");
   const [closeJobNote, setcloseJobNote] = useState("");
 
@@ -197,7 +198,6 @@ const Job = (props) => {
   const [addNote, { Notesdata, loading: addNoteLoading, error: addNoteError }] =
     useMutation(ADD_TICKET_NOTE);
 
-  // console.log({ Notesdata, addNoteLoading, addNoteError });
   const [isVerified, setIsVerified] = useState(ticket.isVerified);
   const [updateVerification, { data: verificationData }] = useMutation(
     UPDATE_TICKET_VERIFICATION
@@ -259,19 +259,10 @@ const Job = (props) => {
     const jobWorkers = data?.callout_by_pk?.job_worker;
     setState({
       ...state,
-      workerList: jobWorkers,
-      W1ID: jobWorkers?.[0]?.worker?.id,
-      W1Name: jobWorkers?.[0]?.worker?.full_name,
-      W1Phone: jobWorkers?.[0]?.worker?.phone,
-      W1Email: jobWorkers?.[0]?.worker?.email,
-      W2ID: jobWorkers?.[1]?.worker?.id,
-      W2Name: jobWorkers?.[1]?.worker?.full_name,
-      W2Phone: jobWorkers?.[1]?.worker?.phone,
-      W2Email: jobWorkers?.[1]?.worker?.email,
-      W3ID: jobWorkers?.[2]?.worker?.id,
-      W3Name: jobWorkers?.[2]?.worker?.full_name,
-      W3Phone: jobWorkers?.[2]?.worker?.phone,
-      W3Email: jobWorkers?.[2]?.worker?.email,
+      workerId: jobWorkers?.[0]?.worker?.id,
+      wokerName: jobWorkers?.[0]?.worker?.full_name,
+      workerPhone: jobWorkers?.[0]?.worker?.phone,
+      workerEmail: jobWorkers?.[0]?.worker?.email,
     });
   }, [data?.callout_by_pk?.job_worker]);
 
@@ -296,7 +287,6 @@ const Job = (props) => {
       [
         {
           text: "No",
-          onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
         { text: "Yes", onPress: () => StartJobHandler() },
@@ -317,7 +307,6 @@ const Job = (props) => {
 
   const StartJobHandler = async () => {
     const location = await getLocation();
-    console.log(location)
     try {
     await startJob({
       variables: {
@@ -327,7 +316,6 @@ const Job = (props) => {
         location,
       },
     });
-    console.log("navigating");
     props.navigation.navigate("PreJob", {
       QJobID: state.JobData.id,
       it: props.navigation.getParam("it", {}),
@@ -335,7 +323,6 @@ const Job = (props) => {
       ticketCount: props.navigation.getParam("ticketCount", {}),
       workerId,
     });
-    console.log("navigated");
   } catch (e) {
     console.log(e)
   }
@@ -450,7 +437,6 @@ const Job = (props) => {
     if (notes === "") {
       return alert("Cannot add empty Note");
     }
-    console.log(auth.user());
     const { display_name } = auth.user();
 
     const param = {
@@ -458,12 +444,10 @@ const Job = (props) => {
       id: ticket.id,
     };
 
-    console.log("calling api", param);
     addNote({
       variables: param,
     })
       .then((res) => {
-        console.log({ res });
         setnotes("");
         setticketNotesArray(res.data.update_job_tickets_by_pk.notes);
       })
@@ -564,10 +548,8 @@ const Job = (props) => {
         alert(output);
       }
     } catch (e) {
-      console.log("ERROR");
       console.log(e);
     }
-    if (state.type != "Deferred") {
       try {
         await stopJob({
           variables: {
@@ -575,13 +557,15 @@ const Job = (props) => {
             desc: closeJobNote,
             id: ticket.id,
             worker_email: state.JobData.job_worker[0].worker.email,
+            worker_id: state.JobData.job_worker[0].worker.id,
             callout_id: state.JobData.id,
+            scheduler_id: state.JobData.schedulers[0].id,
             notes: {
               from: state.JobData.job_worker[0].worker.full_name,
               message: closeJobNote,
             },
             status: "Open",
-            type: state.type,
+            type: state.type != "Deferred" ? state.type : "Deferred",
             client_email: client?.email,
           },
         });
@@ -591,31 +575,6 @@ const Job = (props) => {
       } catch (e) {
         console.log(e);
       }
-    } else {
-      try {
-        await stopJob({
-          variables: {
-            name: `Defer Ticket of ${ticket.id}`,
-            desc: closeJobNote,
-            id: ticket.id,
-            worker_email: state.JobData.job_worker[0].worker.email,
-            callout_id: state.JobData.id,
-            notes: {
-              from: state.JobData.job_worker[0].worker.full_name,
-              message: closeJobNote,
-            },
-            status: "Open",
-            type: "Deferred",
-            client_email: client?.email,
-          },
-        });
-        setstopJobModalVisible(false);
-        props.navigation.navigate("TicketListing");
-        setLoadingModalVisible(false);
-      } catch (e) {
-        console.log(e);
-      }
-    }
   };
   return (
     <ScrollView style={styles.container}>
@@ -636,11 +595,75 @@ const Job = (props) => {
         <Heading>Description</Heading>
         <RenderValue>{ticket.description}</RenderValue>
 
-        <Heading>Pictures</Heading>
+        <Heading>Job Ticket Pictures</Heading>
         <View style={{ marginVertical: 10 }}>
-          {ticket?.pictures?.length > 0 && RenderPictures(ticket.pictures)}
+          {ticket?.pictures?.length > 0 ? RenderPictures(ticket.pictures) : <RenderValue>No Picture Available</RenderValue>}
         </View>
-        <Heading>Notes</Heading>
+        <Heading>Video</Heading>
+        {state?.JobData?.video ? 
+        <View>
+          <VideoPlayer
+        videoProps={{
+          shouldPlay: false,
+          resizeMode: Video.RESIZE_MODE_CONTAIN,
+          source: {
+            uri: `${state?.JobData?.video}`,
+          },
+          ref: refVideo,
+        }}
+        fullscreen={{
+          inFullscreen: inFullscreen,
+          enterFullscreen: async () => {
+            setStatusBarHidden(true, 'fade')
+            setInFullscreen(!inFullscreen)
+            await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT)
+            refVideo.current.setStatusAsync({
+              shouldPlay: true,
+            })
+          },
+          exitFullscreen: async () => {
+            setStatusBarHidden(false, 'fade')
+            setInFullscreen(!inFullscreen)
+            await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT)
+          },
+        }}
+        style={{
+          videoBackgroundColor: 'white',
+          height: inFullscreen ? Dimensions.get('window').width : 320,
+          width: inFullscreen ? Dimensions.get('window').height : 160,
+        }}
+      />
+          {/* <VideoPlayer
+            videoProps={{
+              shouldPlay: true,
+              resizeMode: Video.RESIZE_MODE_STRETCH,
+              // ❗ source is required https://docs.expo.io/versions/latest/sdk/video/#props
+              source: {
+                uri: `${state?.JobData?.video}`,
+              },
+            }}
+/> */}
+          {/* <Video
+            ref={video}
+            style={styles.video}
+            source={{
+              uri: `${state?.JobData?.video}`,
+            }}
+            useNativeControls
+            resizeMode="contain"
+            isLooping
+            onPlaybackStatusUpdate={status => setStatus(() => status)}
+          /> */}
+          {/* <View style={styles.buttons}>
+            <Button
+              title={status.isPlaying ? 'Pause' : 'Play'}
+              onPress={() =>
+                status.isPlaying ? video.current.pauseAsync() : video.current.playAsync()
+              }
+            />
+          </View> */}
+        </View> : <Text>No Video</Text>}
+        <Heading>Ticket Notes</Heading>
         {ticketNotesArray?.map((val, index) => {
           const { from, message } = val;
           return (
@@ -719,7 +742,7 @@ const Job = (props) => {
           alignSelf: "center",
         }}
       >
-        {dayjs(state.JobData.request_time).format("DD MMM YYYY")}
+        {moment(state.JobData.request_time).format("Do MMMM, YYYY, hh:mm A")}
       </Text>
 
       <Text
@@ -775,7 +798,7 @@ const Job = (props) => {
         </Text>
         <Text style={{ fontSize: 13, marginBottom: "3%" }}>
           Request Time:{" "}
-          {dayjs(state.JobData.request_time).format("DD MMM YYYY")}
+          {moment(state.JobData.request_time).format("Do MMMM, YYYY, hh:mm A")}
         </Text>
       </View>
       <Text
@@ -856,65 +879,24 @@ const Job = (props) => {
       <Text
         style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
       >
-        ID: {state.W1ID}
+        ID: {state.workerId}
       </Text>
       <Text
         style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
       >
-        Full Name: {state.W1Name}
+        Full Name: {state.wokerName}
       </Text>
       <Text
         style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
       >
-        Phone: {state.W1Phone}
+        Phone: {state.workerPhone}
       </Text>
       <Text
         style={{ fontSize: 13, marginBottom: "3%", paddingHorizontal: "5%" }}
       >
-        Email: {state.W1Email}
+        Email: {state.workerEmail}
       </Text>
 
-      <Text
-        style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
-      >
-        ID: {state.W2ID}
-      </Text>
-      <Text
-        style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
-      >
-        Full Name: {state.W2Name}
-      </Text>
-      <Text
-        style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
-      >
-        Phone: {state.W2Phone}
-      </Text>
-      <Text
-        style={{ fontSize: 13, marginBottom: "3%", paddingHorizontal: "5%" }}
-      >
-        Email: {state.W2Email}
-      </Text>
-
-      <Text
-        style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
-      >
-        ID: {state.W3ID}
-      </Text>
-      <Text
-        style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
-      >
-        Full Name: {state.W3Name}
-      </Text>
-      <Text
-        style={{ fontSize: 13, marginBottom: "1%", paddingHorizontal: "5%" }}
-      >
-        Phone: {state.W3Phone}
-      </Text>
-      <Text
-        style={{ fontSize: 13, marginBottom: "7%", paddingHorizontal: "5%" }}
-      >
-        Email: {state.W3Email}
-      </Text>
       {ticket.status != "Closed" && (
         <View style={{ marginBottom: 60 }}>
           <Button
@@ -1155,6 +1137,16 @@ const styles = StyleSheet.create({
     borderColor: "#ACACAC",
     alignItems: "center",
     justifyContent: "center",
+  },
+  video: {
+    alignSelf: 'center',
+    width: 320,
+    height: 200,
+  },
+  buttons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

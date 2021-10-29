@@ -4,7 +4,7 @@ var sendEmail = require('./sendEmail').sendEmail;
 const planEmail = async (planArray, email, name, moment) => {
   const params = {
     Destination: { /* required */
-      CcAddresses: ['murtaza.hanif@techinoviq.com', 'operations@queensman.com'],
+      CcAddresses: ['operations@queensman.com'],
       ToAddresses: [
         email
         /* more items */

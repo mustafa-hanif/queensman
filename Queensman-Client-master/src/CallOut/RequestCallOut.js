@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
 
 const GET_JOB_CATEGORY = gql`
   query GetJobCategory {
-    team_expertise(where: { skill_level: { _eq: 0 } }, order_by: { skill_name: asc }) {
+    team_expertise(where: { skill_level: { _eq: 0 }, isAdmin: { _eq: false } }, order_by: { skill_name: asc }) {
       skill_name
       id
       isHigh
@@ -171,7 +171,12 @@ const GET_JOB_CATEGORY = gql`
 const GET_JOB_TYPE = gql`
   query GetJobType($skill_parent: Int!, $isHigh: Boolean!) {
     team_expertise(
-      where: { skill_level: { _eq: 1 }, skill_parent: { _eq: $skill_parent }, isHigh: { _eq: $isHigh } }
+      where: {
+        skill_level: { _eq: 1 }
+        skill_parent: { _eq: $skill_parent }
+        isHigh: { _eq: $isHigh }
+        isAdmin: { _eq: false }
+      }
       order_by: { skill_name: asc }
     ) {
       id
@@ -275,6 +280,7 @@ const REQUEST_CALLOUT = gql`
     $email: String
     $category: String
     $job_type: String
+    $job_type_id: Int
     $status: String
     $picture1: String
     $picture2: String
@@ -291,6 +297,7 @@ const REQUEST_CALLOUT = gql`
             property_id: $property_id
             category: $category
             job_type: $job_type
+            job_type_id: $job_type_id
             status: $status
             urgency_level: $urgency_level
             description: $notes
@@ -412,13 +419,13 @@ const RequestCallOut = (props) => {
     setJobCategorySelect({ value: item.id, label: item.skill_name });
     selectJobCategoryPressed(item.id);
   };
-  // console.log({ jobCategorySelect });
-  const onJobTypeValueChange = (value) => {
-    setJobTypeSelect({ value, label: value });
-  };
 
+  const onJobTypeValueChange = (value) => {
+    const jobValue = value.split("@")[0];
+    const jobId = value.split("@")[1];
+    setJobTypeSelect({ value: jobValue, label: jobValue, id: jobId });
+  };
   const selectJobCategoryPressed = (id) => {
-    // setJobCategorySelect({value, label:value})
     getJobType({
       variables: {
         skill_parent: id,
@@ -512,19 +519,16 @@ const RequestCallOut = (props) => {
   };
 
   const _uploadImage = (uri) => {
-    // console.log(`My:${uri}`);
     if (state.picture1 === "") {
       setState({
         ...state,
         picture1: uri,
       });
-      // console.log(state.picture1);
     } else if (state.picture2 === "") {
       setState({
         ...state,
         picture2: uri,
       });
-      // console.log(state.picture2);
     } else if (state.picture3 === "") {
       setState({
         ...state,
@@ -541,7 +545,6 @@ const RequestCallOut = (props) => {
   };
 
   const toggleGalleryEventModal = (vale, no) => {
-    console.log(vale, no);
     setState({
       ...state,
       isPicvisible: !state.isPicvisible,
@@ -554,7 +557,7 @@ const RequestCallOut = (props) => {
     if (!jobCategorySelect?.value) {
       return alert("Please Select Job Category!");
     }
-    if (!additionalServices && jobTypeSelect?.value) {
+    if (!additionalServices && !jobTypeSelect?.value) {
       return alert("Please Select Job Type!");
     }
     if (state.Urgency === "") {
@@ -567,8 +570,9 @@ const RequestCallOut = (props) => {
       return alert("Please upload atleast one image!");
     }
     if (!additionalServices) {
+      // If not on additional requst page
       if (state.Urgency === "medium") {
-        return props.navigation.navigate("SelectSchedule", { state: { ...state, JobType: jobTypeSelect?.value } });
+        return props.navigation.navigate("SelectSchedule", { state: { ...state, Job: jobTypeSelect } });
       }
 
       Alert.alert(
@@ -577,7 +581,6 @@ const RequestCallOut = (props) => {
         [
           {
             text: "Cancel",
-            onPress: () => console.log("Cancel Pressed"),
             style: "cancel",
           },
           { text: "Yes", onPress: () => submitCallout() },
@@ -591,7 +594,6 @@ const RequestCallOut = (props) => {
         [
           {
             text: "Cancel",
-            onPress: () => console.log("Cancel Pressed"),
             style: "cancel",
           },
           { text: "Yes", onPress: () => addJobTicketFunc() },
@@ -608,7 +610,6 @@ const RequestCallOut = (props) => {
       [
         {
           text: "Ok",
-          onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
       ],
@@ -623,7 +624,6 @@ const RequestCallOut = (props) => {
       [
         {
           text: "Ok",
-          onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
       ],
@@ -655,6 +655,7 @@ const RequestCallOut = (props) => {
         date_on_calendar: null,
         category,
         job_type: jobTypeSelect.value,
+        job_type_id: jobTypeSelect.id,
         status: "Requested",
         urgency_level: state.Urgency,
         video: state.videoUrl,
@@ -746,7 +747,6 @@ const RequestCallOut = (props) => {
 
   const saveVideoCloud = () => {
     const file = expoFileToFormFile(state.video, "video");
-    // console.log(`/callout_videos/${file.name}`);
     setVideoSaving(true);
     storage
       .put(`/callout_videos/${file.name}`, file)
@@ -816,8 +816,6 @@ const RequestCallOut = (props) => {
     return (
       <VideoScreen
         getDuration={(time) => {
-          console.log("time in  seconds", millisToMinutesAndSeconds(time));
-
           setvideoDurationinMillis(millisToMinutesAndSeconds(time));
         }}
         setShowVideoScreen={setShowVideoScreen}
@@ -877,9 +875,8 @@ const RequestCallOut = (props) => {
                 accessibilityLabel="Urgency"
                 value={state.Urgency}
                 onChange={(nextValue) => {
-                  console.log(nextValue);
                   setJobCategorySelect({ value: null, label: null });
-                  setJobTypeSelect({ value: null, label: null });
+                  setJobTypeSelect({ value: null, label: null, id: null });
                   setState({ ...state, Urgency: nextValue });
                 }}
               >
@@ -1015,7 +1012,7 @@ const RequestCallOut = (props) => {
                 isDisabled={!(jobCategorySelect?.value && !loadingJobType)}
                 mode="dialog"
                 onValueChange={onJobTypeValueChange}
-                selectedValue={jobTypeSelect?.value}
+                selectedValue={`${jobTypeSelect?.value}@${jobTypeSelect?.id}`}
                 // bg="#FFCA5D"
                 color="black"
                 placeholder="Select Job Type"
@@ -1026,7 +1023,7 @@ const RequestCallOut = (props) => {
               >
                 {jobType ? (
                   jobType?.team_expertise.map((element, i) => (
-                    <Select.Item label={element.skill_name} value={element.skill_name} key={i} />
+                    <Select.Item label={element.skill_name} value={`${element.skill_name}@${element.id}`} key={i} />
                   ))
                 ) : (
                   <Select.Item label="Unable to load job types" value="Unable to load job types" />
@@ -1034,22 +1031,6 @@ const RequestCallOut = (props) => {
               </Select>
             </View>
           )}
-
-          {state.JobType === "other" ? (
-            <View style={{ paddingTop: "3%" }}>
-              <View style={styles.OthertxtStyle}>
-                <TextInput
-                  style={{ fontSize: 14 }}
-                  placeholder="Type other here...."
-                  underlineColorAndroid="transparent"
-                  numberOfLines={1}
-                  onChangeText={(OtherJobType) => {
-                    setState({ ...state, OtherJobType });
-                  }}
-                />
-              </View>
-            </View>
-          ) : null}
 
           <View style={{ height: "3%" }} />
           <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>

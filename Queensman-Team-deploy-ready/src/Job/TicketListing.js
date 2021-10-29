@@ -152,7 +152,6 @@ export default function TicketListing(props) {
   };
 
   const TimeDuration = ({status, start_time, end_time}) => {
-    console.log(status, start_time, end_time)
     if (status === "In Progress") {
       return (
         <Text style={{ fontSize: 13 }}><Text style={{fontWeight: "bold"}}>Time since you started ticket: </Text>{moment.utc().diff(moment(start_time), 'minutes')} Minute(s)</Text>
@@ -161,6 +160,10 @@ export default function TicketListing(props) {
       if (end_time !=null) {
         return (
           <Text style={{ fontSize: 13 }}><Text style={{fontWeight: "bold"}}>Completion Time: </Text>{moment(end_time).diff(moment(start_time), "minutes")} Minute(s)</Text>
+        )
+      } else if (end_time == null && start_time == null) {
+        return (
+          <Text>A deferred ticket was opened.</Text>
         )
       } else {
         return (

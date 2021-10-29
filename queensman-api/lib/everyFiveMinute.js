@@ -20,7 +20,9 @@ const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
 async function everyFiveMinute() {
   const minutes = await respondToEmergencies();
   await notifyScheduledTasks();
-
+  const queryData = await getExpiredClient()
+  const emailArray = queryData.client.map(value => value.email)
+  await deactivateClient(0, false, emailArray, emailArray)
   await notifyTeamisComing();
   return minutes;
 }
@@ -289,6 +291,55 @@ async function addNotification(email, text, type, data) {
   );
   console.log(errors, queryData);
 }
+
+async function deactivateClient(active, authActive, emailArray, authEmail) {
+  const { errors, data: queryData } = await fetchGraphQL(
+    `mutation deactivateClient($active: smallint!, $authActive: Boolean!, $emailArray: [String!] = "", $authEmail: [citext!] = "") {
+      update_client(_set: {active: $active}, where: {email: {_in: $emailArray}}) {
+        affected_rows
+        returning {
+          email
+          id
+        }
+      }
+      update_auth_accounts(where: {email: {_in: $authEmail}}, _set: {active: $authActive}) {
+        affected_rows
+        returning {
+          email
+        }
+      }
+    }
+    `,
+    'deactivateClient',
+    {
+      active,
+      authActive,
+      emailArray,
+      authEmail
+    }
+  );
+  console.log(errors, queryData);
+}
+
+async function getExpiredClient() {
+  const { errors, data: queryData } = await fetchGraphQL(
+    `query getExpiredClient($date: date = "") {
+      client(where: {contract_end_date: {_lt: $date}, active: {_eq: 1}}) {
+        id
+        email
+        contract_end_date
+      }
+    }    
+    `,
+    'getExpiredClient',
+    {
+      date: format(new Date(), 'yyyy-MM-dd'),
+    }
+  );
+  console.log(errors, queryData);
+  return queryData;
+}
+
 module.exports = { everyFiveMinute };
 
 function getFormattedTime(date) {

@@ -42,6 +42,7 @@ query getCallout($id: Int!) {
     picture2
     picture3
     picture4
+    video
     urgency_level
     client_id: callout_by
     client: client_callout_email {
