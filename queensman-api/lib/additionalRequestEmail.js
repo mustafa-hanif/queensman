@@ -5,7 +5,7 @@ const additionalRequestEmail = async ({ callout, worker }) => {
   const params = {
     Destination: { /* required */
       CcAddresses: [
-        'ffakhri@queensman.com', 'bvictor@queensman.com', 'operations@queensman.com'
+        'ffakhri@queensman.com', 'semecan@queensman.com', 'operations@queensman.com'
         /* more items */
       ],
       ToAddresses: [
