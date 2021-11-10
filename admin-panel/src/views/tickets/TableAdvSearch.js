@@ -62,7 +62,7 @@ import TabsVerticalLeft from './TabsVerticalLeft'
 
 const GET_JOB_TICKETS = gql`
 query getJobTickets {
-  job_tickets(order_by: {id: desc}) {
+  job_tickets(order_by: {end_time: desc_nulls_last}) {
     id
     notes
     name
