@@ -6,7 +6,7 @@ const inventoryTeamEmail = async (inventory_report_pdf, property) => {
     Destination: { /* required */
       CcAddresses: [],
       ToAddresses: [
-        'ffakhri@queensman.com', 'semecan@queensman.com', 'operations@queensman.com'
+        'ffakhri@queensman.com', 'info@queensman.com', 'operations@queensman.com'
         /* more items */
       ]
     },
