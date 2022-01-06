@@ -5,6 +5,7 @@
 /* eslint-disable no-unreachable */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-use-before-define */
+/* eslint-disable */ 
 import React, { useState, useEffect } from "react";
 import { format, parseISO, parse, differenceInHours } from "date-fns";
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
@@ -138,6 +139,14 @@ const ADD_JOB_TICKET = gql`
   }
 `;
 
+const GET_HOLIDAY = gql`
+  query MyQuery {
+    holidays {
+      day
+    }
+  }
+`;
+
 export default function SelectSchedule(props) {
   const [selectedDate, setselectedDate] = useState(null);
   const [markedDate, setmarkedDate] = useState(false);
@@ -145,7 +154,7 @@ export default function SelectSchedule(props) {
   const [contentLoading, setContentLoading] = useState(false);
 
   const [time, settime] = useState(null);
-  const [onlyFriday, setOnlyFriday] = useState(null);
+  const [blockedDay, setBlockedDay] = useState(null);
 
   const [addJobTicket, { loading: addJobTicketLoading, data: addJobTicketData }] = useMutation(ADD_JOB_TICKET);
 
@@ -174,6 +183,10 @@ export default function SelectSchedule(props) {
   };
 
   const [getSchedule, { loading, data, error }] = useLazyQuery(GET_SCHEDULE);
+  const [getHoliday, { loading: holidayLoading, data: holidayData }] = useLazyQuery(GET_HOLIDAY);
+  useEffect(() => {
+    getHoliday();
+  }, []);
 
   const LoadingModal = () => (
     <Modal isOpen={loadingRequestModal}>
@@ -340,9 +353,13 @@ export default function SelectSchedule(props) {
   };
 
   const onDayPress = (day) => {
-    let isFriday = moment(day.dateString).format("dddd");
-    if (isFriday === "Friday") {
-      setOnlyFriday(true);
+    let dayOfWeek = moment(day.dateString).format("dddd");
+    if (holidayData?.holidays.filter((date) => date.day === dayOfWeek).length > 0) {
+      setBlockedDay(true);
+      setselectedDate(day.dateString);
+      setmarkedDate({ date: day.dateString });
+    } else if (day.dateString.substring(5) == "12-25") {
+      setBlockedDay(true);
       setselectedDate(day.dateString);
       setmarkedDate({ date: day.dateString });
     } else {
@@ -424,10 +441,12 @@ export default function SelectSchedule(props) {
           onClose={() => {
             setmarkedDate(false);
             settime(false);
-            setOnlyFriday(false);
+            setTimeout(() => {
+              setBlockedDay(false);
+            }, 5);
           }}
         >
-          {onlyFriday ? (
+          {blockedDay ? (
             <Modal.Content>
               <Box>
                 <Text
@@ -439,7 +458,7 @@ export default function SelectSchedule(props) {
                     marginBottom: 15,
                   }}
                 >
-                  No teams available on friday
+                  No teams available
                 </Text>
                 <Button
                   mx="auto"
@@ -449,7 +468,9 @@ export default function SelectSchedule(props) {
                   onPress={() => {
                     setmarkedDate(false);
                     settime(false);
-                    setOnlyFriday(false);
+                    setTimeout(() => {
+                      setBlockedDay(false);
+                    }, 5);
                   }}
                 >
                   Close
@@ -458,13 +479,34 @@ export default function SelectSchedule(props) {
             </Modal.Content>
           ) : (
             <Modal.Content>
-              <Box pt={4} pr={6} justifyContent="center">
+              <Box>
                 {loading ? (
                   <Spinner mb={8} color="lightText" size="sm" />
+                ) : moment(selectedDate).format("dddd") === "Friday" ? (
+                  slots
+                    .filter((slot, index) => index === 0 || index === 3)
+                    .map((slot, index) => (
+                      <Button
+                        key={index}
+                        mb={8}
+                        mx="auto"
+                        width={240}
+                        isDisabled={slot.disabled}
+                        onPress={() => selectSlot(slot.startTime)}
+                      >
+                        <Text style={{ textAlign: "center", justifyContent: "center", fontSize: 16 }}>{slot.text}</Text>
+
+                        {slot?.blockedBy && (
+                          <Text style={{ textAlign: "center", justifyContent: "center", fontSize: 14, color: "white" }}>
+                            {slot?.blockedBy}
+                          </Text>
+                        )}
+                      </Button>
+                    ))
                 ) : (
-                  slots.map((slot) => (
+                  slots.map((slot, index) => (
                     <Button
-                      key={slot.i}
+                      key={index}
                       mb={8}
                       mx="auto"
                       width={240}
@@ -472,12 +514,14 @@ export default function SelectSchedule(props) {
                       onPress={() => selectSlot(slot.startTime)}
                     >
                       <Text style={{ textAlign: "center", justifyContent: "center", fontSize: 16 }}>{slot.text}</Text>
+
                       {slot?.blockedBy && (
                         <Text style={{ textAlign: "center", justifyContent: "center", fontSize: 14, color: "white" }}>
                           {slot?.blockedBy}
                         </Text>
                       )}
                     </Button>
+                  // eslint-disable-next-line prettier/prettier
                   ))
                 )}
                 <Text style={{ textAlign: "center", color: "white", marginBottom: 16 }}>
