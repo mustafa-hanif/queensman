@@ -358,7 +358,7 @@ export default function SelectSchedule(props) {
       setBlockedDay(true);
       setselectedDate(day.dateString);
       setmarkedDate({ date: day.dateString });
-    } else if (day.dateString.substring(5) == "12-25") {
+    } else if (day.dateString.substring(5) == "12-02") {
       setBlockedDay(true);
       setselectedDate(day.dateString);
       setmarkedDate({ date: day.dateString });
