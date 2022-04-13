@@ -76,6 +76,7 @@ import ButtonGroup from 'reactstrap/lib/ButtonGroup'
 import { months } from 'moment'
 import Badge from 'reactstrap/lib/Badge'
 import Spinner from 'reactstrap/lib/Spinner'
+import { useNiceMutation, useNiceQuery } from '../../utility/Utils'
 
 const GET_PROPS = gql`
 query GetProperties {
@@ -164,15 +165,15 @@ const DELETE_PROPS = gql`mutation DeleteProperty($id: Int = 10) {
 const DataTableAdvSearch = () => {
 
         // ** States
-  const { loading, data, error, refetch: refetchProperties } = useQuery(GET_PROPS)
-  const { loading: clientLoading, data: clientData, error: clientError, refetch: refetchClient } = useQuery(GET_CLIENT_PROPS)
-  const [updateProp, {loading: propertyLoading}] = useMutation(UPDATE_PROPS)
-  const [addProp, {loading: addPropertyLoading}] = useMutation(ADD_PROPS)
-  const [addPropOwned, {loading: addPropertyOwnedLoading}] = useMutation(ADD_PROP_OWNED)
-  const [addLease, {loading: addLeaseLoading}] = useMutation(ADD_LEASE)
-  const [deleteProp, {loading: deletePropertyLoading}] = useMutation(DELETE_PROPS)
-  const [assignOwnedProperty, {loading: assignOwnedPropertyLoading}] = useMutation(ASSIGN_OWNED_PROPERTY)
-  const [assignLeasedProperty, {loading: assignLeasedPropertyLoading}] = useMutation(ASSIGN_LEASED_PROPERTY)
+  const { loading, data, error, refetch: refetchProperties } = useNiceQuery(GET_PROPS)
+  const { loading: clientLoading, data: clientData, error: clientError, refetch: refetchClient } = useNiceQuery(GET_CLIENT_PROPS)
+  const [updateProp, {loading: propertyLoading}] = useNiceMutation(UPDATE_PROPS)
+  const [addProp, {loading: addPropertyLoading}] = useNiceMutation(ADD_PROPS)
+  const [addPropOwned, {loading: addPropertyOwnedLoading}] = useNiceMutation(ADD_PROP_OWNED)
+  const [addLease, {loading: addLeaseLoading}] = useNiceMutation(ADD_LEASE)
+  const [deleteProp, {loading: deletePropertyLoading}] = useNiceMutation(DELETE_PROPS)
+  const [assignOwnedProperty, {loading: assignOwnedPropertyLoading}] = useNiceMutation(ASSIGN_OWNED_PROPERTY)
+  const [assignLeasedProperty, {loading: assignLeasedPropertyLoading}] = useNiceMutation(ASSIGN_LEASED_PROPERTY)
   const [modal, setModal] = useState(false)
   const [searchCity, setSearchCity] = useState('')
   const [searchCommunity, setSearchCommunity] = useState('')
@@ -550,9 +551,9 @@ const advSearchColumns = [
     setSearchCity(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.city?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item?.city?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.city?.toLowerCase().includes(value.toLowerCase())
+        const includes = item?.city?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -580,9 +581,9 @@ const advSearchColumns = [
     setSearchAddress(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.address?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item?.address?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.address?.toLowerCase().includes(value.toLowerCase())
+        const includes = item?.address?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -610,9 +611,9 @@ const advSearchColumns = [
       setSearchCountry(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item.country?.toLowerCase().startsWith(value.toLowerCase())
+          const startsWith = item?.country?.toLowerCase().startsWith(value.toLowerCase())
   
-          const includes = item.country?.toLowerCase().includes(value.toLowerCase())
+          const includes = item?.country?.toLowerCase().includes(value.toLowerCase())
   
           if (startsWith) {
             return startsWith
@@ -640,9 +641,9 @@ const advSearchColumns = [
       setSearchCommunity(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item.community?.toLowerCase().startsWith(value.toLowerCase())
+          const startsWith = item?.community?.toLowerCase().startsWith(value.toLowerCase())
   
-          const includes = item.community?.toLowerCase().includes(value.toLowerCase())
+          const includes = item?.community?.toLowerCase().includes(value.toLowerCase())
   
           if (startsWith) {
             return startsWith

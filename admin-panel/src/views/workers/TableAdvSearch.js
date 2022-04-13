@@ -32,6 +32,7 @@ import AddNewModal from './AddNewModal'
 import ButtonGroup from 'reactstrap/lib/ButtonGroup'
 import { months } from 'moment'
 import Badge from 'reactstrap/lib/Badge'
+import { useNiceMutation, useNiceQuery } from '../../utility/Utils'
 
 const GET_WORKER = gql`
 query GetWorker {
@@ -125,13 +126,13 @@ mutation updateTeamIdinWorker($team_id: Int!, $id: Int!) {
 const DataTableAdvSearch = () => {
 
         // ** States
-  const { loading, data, error, refetch: refectchWorker } = useQuery(GET_WORKER, {fetchPolicy: 'network-only', nextFetchPolicy: 'network-only'})
-  const { teamsLoading, data: teamsData, error: teamsError } = useQuery(GET_TEAMS)
-  const [clearEmergency, {loading: emergencyworkerLoading}] = useMutation(CLEAR_EMERGENCY_WORKER, {refetchQueries:[{query: GET_WORKER}]})
-  const [updateWorker, {loading: workerLoading}] = useMutation(UPDATE_WORKER)
-  const [updateTeamColor, {loading: updateTeamColorLoading}] = useMutation(UPDATE_TEAM_COLOR, {refetchQueries:[{query: GET_WORKER}]})
-  const [addWorker, {loading: addWorkerLoading}] = useMutation(ADD_WORKER, {refetchQueries:[{query: GET_WORKER}]})
-  const [deleteWorker, {loading: deleteWorkerLoading}] = useMutation(DELETE_WORKER, {refetchQueries:[{query: GET_WORKER}]})
+  const { loading, data, error, refetch: refectchWorker } = useNiceQuery(GET_WORKER, {fetchPolicy: 'network-only', nextFetchPolicy: 'network-only'})
+  const { teamsLoading, data: teamsData, error: teamsError } = useNiceQuery(GET_TEAMS)
+  const [clearEmergency, {loading: emergencyworkerLoading}] = useNiceMutation(CLEAR_EMERGENCY_WORKER, {refetchQueries:[{query: GET_WORKER}]})
+  const [updateWorker, {loading: workerLoading}] = useNiceMutation(UPDATE_WORKER)
+  const [updateTeamColor, {loading: updateTeamColorLoading}] = useNiceMutation(UPDATE_TEAM_COLOR, {refetchQueries:[{query: GET_WORKER}]})
+  const [addWorker, {loading: addWorkerLoading}] = useNiceMutation(ADD_WORKER, {refetchQueries:[{query: GET_WORKER}]})
+  const [deleteWorker, {loading: deleteWorkerLoading}] = useNiceMutation(DELETE_WORKER, {refetchQueries:[{query: GET_WORKER}]})
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState('')
   const [searchEmail, setSearchEmail] = useState('')
@@ -273,6 +274,7 @@ const advSearchColumns = [
   
   const handleUpdate = async (updatedRow) => {
     console.log(updatedRow)
+    console.log(changeColor)
     try {
     if (changeColor[0]) { //If color is provided
       if ((!updatedRow.team_id) || (updatedRow.team_id && updatedRow.teams.length === 0)) { //If worker has no team id assigned OR worker has team assigned and is not a team leader
@@ -321,7 +323,7 @@ const advSearchColumns = [
           isEmergency: updatedRow.isEmergency,
           phone: updatedRow.phone
         }})
-    } else if (row.active || row.description || row.full_name || row.phone) {
+    } else if (!changeColor[0] && (row.active || row.description || row.full_name || row.phone)) {
       console.log("ast")
       await updateWorker({variables: {
         active: updatedRow.active,
@@ -364,6 +366,12 @@ console.log(e)
 
   const handleAddRecord = async (newRow) => {
     try {
+      await auth.register({
+        email: newRow.email.toLowerCase(),
+        password: "0000", // newRow.password,
+        options: { userData: { display_name: newRow.full_name } }
+      })
+      console.log("Worker registerd")
       await addWorker({variables: {
         active: newRow?.active,
         description: newRow?.description,
@@ -373,15 +381,9 @@ console.log(e)
         team_id: changeColor[1],
         role: newRow?.role,
         phone: newRow?.phone,
-        password: newRow.password
+        password: newRow?.password
       }})
       console.log("Worker added")
-      await auth.register({
-        email: newRow.email.toLowerCase(),
-        password: "0000", // newRow.password,
-        options: { userData: { display_name: newRow.full_name } }
-      })
-      console.log("Worker registerd")
       toast.success(
         <ToastComponent title="Worker Registered" color="success" icon={<Check />} />,
         {

@@ -6,9 +6,8 @@
       },
       "android": {
         "buildType": "apk",
-        "distribution":"store"
+        "distribution": "store"
       }
-
     },
     "development": {
       "android": {
@@ -16,5 +15,9 @@
         "distribution": "internal"
       }
     }
+  },
+  "cli": {
+    "version": ">= 0.41.0",
+    "requireCommit": true
   }
 }

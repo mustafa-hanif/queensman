@@ -31,6 +31,7 @@ import Select from 'react-select'
 // ** Styles
 import '@styles/react/libs/flatpickr/flatpickr.scss'
 import { gql, useMutation } from '@apollo/client'
+import { useNiceMutation } from '../../utility/Utils'
 
 const updatePasswordGql = gql`mutation UpdatePassword($email: citext = "", $password_hash: String = "") {
   update_auth_accounts(where: {email: {_eq: $email}}, _set: {password_hash: $password_hash}) {
@@ -52,7 +53,7 @@ const ToastComponent = ({ title, icon, color }) => (
 )
 
 const AddNewModal = ({ open, handleModal, row, setRow, closeModal, handleUpdate, toAddNewRecord, handleAddRecord, updateActive }) => {
-  const [updatePassword, { data, loading, error }] = useMutation(updatePasswordGql, { onCompleted: () => {
+  const [updatePassword, { data, loading, error }] = useNiceMutation(updatePasswordGql, { onCompleted: () => {
     toast.success(
       <ToastComponent title="Password Changed" color="success" icon={<Check />} />,
       {

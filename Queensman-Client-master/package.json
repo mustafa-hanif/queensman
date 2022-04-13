@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "@apollo/client": "^3.3.13",
-    "@babel/core": "^7.12.10",
     "@expo/vector-icons": "^12.0.0",
     "@nhost/react-apollo": "^1.0.7",
     "@nhost/react-auth": "^1.0.5",

@@ -53,7 +53,6 @@ const Calendar = props => {
     updateEvent,
     updateEventDrag
   } = props
-console.log(changeToDayView)
   // ** UseEffect checks for CalendarAPI Update
   useEffect(() => {
     if (calendarApi === null) {
@@ -73,14 +72,16 @@ console.log(changeToDayView)
     datesSet,
     // selectedEvent,
     eventDataTransform: (eventData => {
-      // console.log(eventData)
+      console.log(eventData)
       const { id, worker, callout_id, start, startTime, blocked, callout, job_tickets, end, endTime } = eventData
       const length = job_tickets?.length
       const clientName = callout?.client_callout_email?.full_name
+      const status = callout?.status
       const jobType = callout?.job_type
       const wokerName = worker?.full_name
+      const description = callout?.description
       const assignedTo = wokerName ? `Assigned to: \n${wokerName}` : 'Unassigned'
-      const title = `${callout_id} ${clientName} \n${jobType} \n${assignedTo}`
+      const title = `${status === "Closed" ? "(Closed) " : status === "In Progress" ? "(In Progress) " : status === "Open" ? "(Open) " : status === "Requested" ? "(Requested) " : status === "Planned" ? "(Planned) " : ""}${callout_id} ${clientName} \n${jobType} \n${assignedTo}`
       const color = worker?.teams?.[0]?.team_color ?? worker?.teams_member?.team_color
       return {
         allDay: false,
@@ -91,11 +92,12 @@ console.log(changeToDayView)
         workerName: worker?.full_name || 'No Worker name',
         workerId: worker?.id || null,
         workerEmail: worker?.email || null,
-        backgroundColor: `${color ?? `#756300`}`,
+        backgroundColor: `${status === "Closed" ? `gray` : color ?? `#756300`}`,
         clientName: callout.client_callout_email?.full_name || 'No Client name',
         clientEmail: callout.client_callout_email?.email || 'No Client email',
         category: callout?.category || "Uncategorized",
         job_type: callout?.job_type || "No Type",
+        job_type_id: callout?.job_type_id,
         propertyName: callout.property?.address || 'No Property',
         propertyId: callout.property?.id || 0,
         videoUrl: callout.video,
@@ -106,7 +108,9 @@ console.log(changeToDayView)
         picture2: callout?.picture2,
         picture3: callout?.picture3,
         picture4: callout?.picture4,
-        callout_id
+        callout_id,
+        status,
+        description
       }
     }),
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],

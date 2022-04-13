@@ -32,42 +32,46 @@ const addJobTicketZoho = async (event) => {
       }
     );
     const resultJson = await result.json()
-    if (resultJson.code === 'success') {
+    console.log(resultJson)
+    if (resultJson?.details.output === 'No email found') {
       return {
         statusCode: 200,
-        code: resultJson?.code,
-        message: resultJson?.message
+        body: JSON.stringify(
+          {
+            message: resultJson?.details?.output || "No email found",
+            // input: event,
+          },
+          null,
+          2
+        ),
       }
     } else {
       return {
-        statusCode: 500,
-        code: resultJson?.code,
-        message: resultJson?.message
+        statusCode: 200,
+        body: JSON.stringify(
+          {
+            message: 'Email Found! Go Serverless v1.0! Your function executed successfully!',
+            // input: event,
+          },
+          null,
+          2
+        ),
       }
     }
   } catch (e) {
-    console.log(e)
+    console.log(e, "Error")
+    return {
+      statusCode: 500,
+      body: JSON.stringify(
+        {
+          error: e,
+          // input: event,
+        },
+        null,
+        2
+      ),
+    };
   }
-  // console.log(query);
-  // try {
-  //   return {
-  //     statusCode: 200,
-  //     message: 'Go Serverless v1.0! Your function executed successfully!',
-  //     result
-  //   };
-  // } catch (e) {
-  //   return {
-  //     statusCode: 500,
-  //     body: JSON.stringify(
-  //       {
-  //         error: e,
-  //         // input: event,
-  //       },
-  //       null,
-  //       2
-  //     ),
-  //   };
-  // }
 };
 
 module.exports = { addJobTicketZoho }

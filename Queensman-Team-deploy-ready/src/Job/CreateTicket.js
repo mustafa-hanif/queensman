@@ -28,6 +28,9 @@ const CREATE_TICKET = gql`
     $pictures: _text = "[]"
     $type: String!
     $worker_email: String!
+    $worker_id: Int!
+    $scheduler_id: Int!
+    $client_email: String
   ) {
     insert_job_tickets_one(
       object: {
@@ -39,6 +42,9 @@ const CREATE_TICKET = gql`
         type: $type
         status: "Open"
         notes: []
+        worker_id: $worker_id
+        scheduler_id: $scheduler_id
+        client_email: $client_email
       }
     ) {
       callout_id
@@ -58,12 +64,19 @@ export default function CreateTicket(props) {
 
   const [createNewTicket, { loading, error }] = useMutation(CREATE_TICKET);
   const callout_id = props.navigation.getParam("callout_id", null);
-  const user = auth?.currentSession?.session?.user;
   useEffect(() => {
     const selectedPhotos = props.navigation.getParam("selectedPhotos", null);
     setphotos(selectedPhotos);
   }, [props.navigation.getParam("selectedPhotos", null)]);
-
+  const { 
+    id, 
+    client,
+    workerId,
+    schedulers
+  } = props.navigation.getParam(
+    "ticketDetails",
+    {}
+  );
   const RenderLogo = () => {
     return (
       <View style={{ width: "100%", flexDirection: "row", margin: "3%" }}>
@@ -155,7 +168,7 @@ export default function CreateTicket(props) {
         name: ticketName,
         pictures: pictures,
         type: selectedType,
-        worker_email: user?.email,
+        worker_email: auth.user().email,
       });
 
       createNewTicket({
@@ -165,7 +178,10 @@ export default function CreateTicket(props) {
           name: ticketName,
           pictures: pictures,
           type: selectedType,
-          worker_email: user?.email,
+          worker_email: auth.user().email,
+          worker_id: workerId,
+          scheduler_id: schedulers[0].id,
+          client_email: client.email
         },
       })
         .then((response) => {

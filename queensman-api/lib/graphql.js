@@ -12,9 +12,10 @@ Add these to your `package.json`:
 // Node doesn't implement fetch so we have to import it
 const fetch = require('node-fetch');
 const moment = require('moment')
+const format = require('date-fns/format');
 const dateFns = require('date-fns');
 const { ENDPOINT, SECRET } = require('../_config');
-
+const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
 async function fetchGraphQL(operationsDoc, operationName, variables) {
   console.log(
     JSON.stringify({
@@ -82,7 +83,7 @@ async function updateScheduleWithEmergencyWoker({
       $time: time!,
       $client_name: String!,
       $date: date!, 
-      $data: json!
+      $data: jsonb!
     ) {
     update_scheduler(where: {
       id: {_eq: $id}
@@ -269,6 +270,10 @@ async function getCallout({ callout_id }) {
 }
 
 async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, endTime }) {
+  const now = new Date();
+  const timeZone = 'Asia/Dubai'
+  const zonedDate = utcToZonedTime(now, timeZone)
+
   // get callout type - Emergency or schedule
   const { urgency_level, job_type } = callout;
   // if emergency - get the emergency team worker
@@ -295,7 +300,7 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
       'LastTimeofWorker',
       {
         workerId: id,
-        today: new Date().toISOString().substring(0, 10),
+        today: format(zonedDate, 'yyyy-MM-dd'),
       }
     );
     const lastWorker = lastWorkers.scheduler?.[0];
@@ -305,21 +310,13 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
         'HH:mm:ss',
         new Date()
       )
-      : null;
-    //  - find the last slot today filled by him
-    //  - if plus 3 hours from now is inside working hour
-    if (!lastWorker || dateFns.getHours(dateFns.addHours(workerTime, 3)) > 18) {
-      //  - else first slot tomorow morning
-      // return { '09:00', id}
-      return { id, time: '09:00:00' };
-    } else {
-      //  - return last slot + 1 hour
-      // return { lastWorker.time_on_calendar + 1, id }
-      return {
-        id,
-        time: dateFns.format(dateFns.addHours(workerTime, 3), 'HH:mm:ss'),
-      };
-    }
+      : zonedDate;
+    //  - return last slot + 1 hour
+    // return { lastWorker.time_on_calendar + 1, id }
+    return {
+      id,
+      time: dateFns.format(dateFns.addHours(workerTime, 3), 'HH:mm:ss'),
+    };
   } // If schedule
   else {
     // Get category of callout
@@ -334,14 +331,13 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
       }`,
       'GetEmergency'
     );
-    let offset = 0;
+    const offset = 0;
     let workerId = null;
-    let nin = [emergencyWokers?.worker?.[0]?.id] // array for exclude workers
-    let workerIdArray = []
+    const nin = [emergencyWokers?.worker?.[0]?.id] // array for exclude workers
+    const workerIdArray = []
     console.log(emergencyWokers)
-    
-    
-    const { errors: schedulerError, data: schedulerData } = await fetchGraphQL( //get workers
+
+    const { errors: schedulerError, data: schedulerData } = await fetchGraphQL( // get workers
       `query LastTimeofWorker($today: date!) {
         scheduler(where: {
           date_on_calendar: {_eq: $today},
@@ -357,23 +353,23 @@ async function getRelevantWoker({ callout, date, time, schedulerId, teamCount, e
         today: new Date(date).toISOString().substring(0, 10)
       }
     );
-      
-    schedulerData?.scheduler.forEach((element, i) => { //Map over all the workers on that date
+
+    schedulerData?.scheduler.forEach((element, i) => { // Map over all the workers on that date
       const startTimeOnCalender = element.time_on_calendar;
       const endTimeOnCalender = element.end_time_on_calendar;
-      const endTimeOnSlot = moment(dateFns.parse(endTime, "HH:mm:ss", new Date())).subtract(1, "minute").format("HH:mm:ss");
-      const startTimeOnSlot = moment(dateFns.parse(time, "HH:mm:ss", new Date())).format("HH:mm:ss")
-      if ((startTimeOnCalender <= endTimeOnSlot) && (endTimeOnCalender >= endTimeOnSlot || endTimeOnCalender > startTimeOnSlot)) { //Check range
+      const endTimeOnSlot = moment(dateFns.parse(endTime, 'HH:mm:ss', new Date())).subtract(1, 'minute').format('HH:mm:ss');
+      const startTimeOnSlot = moment(dateFns.parse(time, 'HH:mm:ss', new Date())).format('HH:mm:ss')
+      if ((startTimeOnCalender <= endTimeOnSlot) && (endTimeOnCalender >= endTimeOnSlot || endTimeOnCalender > startTimeOnSlot)) { // Check range
         console.log(element.worker_id);
-        nin.push(element.worker_id); //push into exclude array
-        workerIdArray.push(element.worker_id); //push into  worker array
+        nin.push(element.worker_id); // push into exclude array
+        workerIdArray.push(element.worker_id); // push into  worker array
       }
     });
-    console.log(workerIdArray.length, "length");
-    if(workerIdArray.length === 1) { //If there was a worker already in that slot, find another worker and assign and block
-      //change 1 to any number.
+    console.log(workerIdArray.length, 'length');
+    if (workerIdArray.length === 1) { // If there was a worker already in that slot, find another worker and assign and block
+      // change 1 to any number.
       // 1 -> 2 workers can be assigned max
-      console.log("HEEEEEEEEEEEERE")
+      console.log('HEEEEEEEEEEEERE')
       const { errors: errorsTeams, data: teams } = await fetchGraphQL(
         `query GetTeams($_contains: jsonb!, $_nin: [Int!]) {
           teams(where: {team_expertise: {_contains: $_contains}, team_leader: {_nin: $_nin}}) {

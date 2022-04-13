@@ -20,14 +20,17 @@ const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
 async function everyFiveMinute() {
   const minutes = await respondToEmergencies();
   await notifyScheduledTasks();
-
+  const queryData = await getExpiredClient()
+  const emailArray = queryData.client.map(value => value.email)
+  await deactivateClient(0, false, emailArray, emailArray)
   await notifyTeamisComing();
   return minutes;
 }
 
 async function notifyTeamisComing() {
+  const now = new Date();
   const timeZone = 'Asia/Dubai'
-  const zonedDate = utcToZonedTime(new Date(), timeZone)
+  const zonedDate = utcToZonedTime(now, timeZone)
   const { errors, data: { scheduler } } = await fetchGraphQL(`
   query GetJobDue($today: date!) {
     scheduler(where: {
@@ -46,6 +49,7 @@ async function notifyTeamisComing() {
     }`, 'GetJobDue', {
     today: format(zonedDate, 'yyyy-MM-dd'),
   });
+  console.log('zonedDate', zonedDate);
   if (errors) {
     console.log(errors);
     return;
@@ -56,43 +60,93 @@ async function notifyTeamisComing() {
     const clientEmail = item?.callout?.client_callout_email?.email;
     // `${job_history.time}+04:30`
     const jobTime = new Date(`${item.date_on_calendar}T${item.time_on_calendar}Z`);
-
+    const callout_id = item.callout.id;
     const diffWithNow = differenceInMinutes(jobTime, zonedDate);
-    console.log('time  ', new Date());
+    console.log('time  ', now);
     console.log('zonedDate ', zonedDate);
     console.log('jobTime ', jobTime);
     console.log('diffWithNow ', diffWithNow);
 
-    if (diffWithNow >= 55 && diffWithNow <= 60) {
-      await addNotification(clientEmail, `The team is on the way for scheduled service with id# ${item.callout.id} on ${moment(item.date_on_calendar).format("MMMM Do YYYY")} at ${item.time_on_calendar} `, 'client', {});
-      console.log(`scheduled service with id# ${item.id}`);
-    }
+    // if (diffWithNow >= 35 && diffWithNow <= 40) {
+    //   await addNotification(clientEmail, `The team is on the way for scheduled service with id# ${item.callout.id} on ${moment(item.date_on_calendar).format("MMMM Do YYYY")} at ${item.time_on_calendar} `, 'client', {});
+    //   console.log(`scheduled service with id# ${item.id}`);
+    // }
     // If team is running late
-    const { errors, data } = await fetchGraphQL(`query GetJobDue($updater_id: Int!) {
+    const { errors, data } = await fetchGraphQL(`query GetJobDueHistory($updater_id: Int!) {
       job_history(where: {updater_id: {_eq: $updater_id}}, order_by: {time: desc}, limit: 1) {
         status_update
         time
       }
-    }`, 'GetJobDue', {
+    }`, 'GetJobDueHistory', {
       updater_id: item.worker_id
     });
     if (data?.job_history[0]?.status_update === 'In Progress') {
       const lastJobWorkerTime = parseJSON(`${data?.job_history[0]?.time}`);
+      const lastJobWorkerTimezonedDate = utcToZonedTime(lastJobWorkerTime, timeZone)
+      const diff = differenceInMinutes(jobTime, lastJobWorkerTimezonedDate);
+      console.log('jobTime', jobTime);
+      console.log('lastJobWorkerTime', lastJobWorkerTimezonedDate);
+      console.log('running late ', diff)
+      if (diffWithNow >= 20 && diffWithNow <= 25) {
+        await addNotification(clientEmail, 'Sorry the team is running late on the previous job. The coordinator will be in contact shortly', 'client', { callout_id });
 
-      const diff = differenceInMinutes(jobTime, lastJobWorkerTime);
-      console.log("running late ", diff)
-      if (diff >= 40 && diff <= 45) {
-        await addNotification(clientEmail, 'Sorry the team is running late on the previous job. The coordinator will be in contact shortly', 'client', {});
+        // Add notification to Operations Coordinator
+        await addNotification('opsmanager@queensman.com', 'Sorry the team is running late on the previous job. The coordinator will be in contact shortly', 'worker', { callout_id });
+
+        // Add notification to Operations Coordinator
+        await addNotification('opscord@queensman.com', 'Sorry the team is running late on the previous job. The coordinator will be in contact shortly', 'worker', { callout_id });
       }
     }
 
     if (data?.job_history[0]?.status_update === 'Closed') {
       const lastJobWorkerTime = parseJSON(`${data?.job_history[0]?.time}`);
-      const diff = differenceInMinutes(jobTime, lastJobWorkerTime);
-      if (diff >= 65 && diff <= 70) {
-        await addNotification(clientEmail, 'Hi. We’re running to plan – our team will be with you as scheduled', 'client', {});
-      } else if (diff >= 80 && diff <= 70) {
-        await addNotification(clientEmail, 'Our team is a little ahead of time, expect them within an hour.', 'client', {});
+      const lastJobWorkerTimezonedDate = utcToZonedTime(lastJobWorkerTime, timeZone)
+      const diff = differenceInMinutes(jobTime, lastJobWorkerTimezonedDate);
+      console.log(`Next job is near, and I closed ${diff} minutes before the next job`);
+      if (diff >= 30 && diff < 35) {
+        const countData = await fetchGraphQL(`query AlreadyNotify($data1: jsonb!) {
+          notifications_aggregate(where: {data: {_contains: $data1}, text: {_eq: "Hi. We’re running to plan – our team will be with you as scheduled"}}) {
+            aggregate {
+              count
+            }
+          }
+        }
+        `, 'AlreadyNotify', {
+          data1: { callout_id }
+        });
+        console.log('similar notification sent: ', countData?.data?.notifications_aggregate?.aggregate?.count);
+        if (countData?.data?.notifications_aggregate?.aggregate?.count > 0) {
+          return;
+        }
+        await addNotification(clientEmail, 'Hi. We’re running to plan – our team will be with you as scheduled', 'client', { callout_id });
+        // Add notification to Operations Coordinator
+        await addNotification('opsmanager@queensman.com', 'Hi. We’re running to plan – our team will be with you as scheduled', 'worker', { callout_id });
+
+        // Add notification to Operations Coordinator
+        await addNotification('opscord@queensman.com', 'Hi. We’re running to plan – our team will be with you as scheduled', 'worker', { callout_id });
+      }
+      if (diff >= 35 && diff <= 40) {
+        const countData = await fetchGraphQL(`query AlreadyNotify($data1: jsonb!) {
+          notifications_aggregate(where: {data: {_contains: $data1}, text: {_eq: "Our team is a little ahead of time, expect them within an hour."}}) {
+            aggregate {
+              count
+            }
+          }
+        }
+        `, 'AlreadyNotify', {
+          data1: { callout_id }
+        });
+        console.log('similar notification sent: ', countData?.data?.notifications_aggregate?.aggregate?.count);
+        if (countData?.data?.notifications_aggregate?.aggregate?.count > 0) {
+          return;
+        }
+        await addNotification(clientEmail, 'Our team is a little ahead of time, expect them within an hour.', 'client', { callout_id });
+
+        // Add notification to Operations Coordinator
+        await addNotification('opsmanager@queensman.com', 'Our team is a little ahead of time, expect them within an hour.', 'worker', { callout_id });
+
+        // Add notification to Operations Coordinator
+        await addNotification('opscord@queensman.com', 'Our team is a little ahead of time, expect them within an hour.', 'worker', { callout_id });
       }
     }
   }
@@ -118,8 +172,8 @@ async function notifyScheduledTasks() {
       }
     }`,
     'GetPendingSchedule', {
-    _eq: addWeeks(new Date(), 2),
-  }
+      _eq: addWeeks(new Date(), 2),
+    }
   );
   for (let i = 0; i < data.scheduler.length; i++) {
     const item = data.scheduler[i];
@@ -190,7 +244,7 @@ async function respondToEmergencies() {
         return;
       }
       // Add notification for call to client
-      await addNotification(clientEmail, `Our team have not been able to respond to you for callout #${job_history.callout_id}, please call our team directly`, 'client', { phone: "00971528167137", type: 'call' });
+      await addNotification(clientEmail, `Our team have not been able to respond to you for callout #${job_history.callout_id}, please call our team directly`, 'client', { phone: '00971528167137', type: 'call' });
       await fetchGraphQL(`mutation WaitForClient($callout_id: Int!) {
         insert_job_history_one(object: {callout_id: $callout_id, status_update: "Waiting for Client"}) {
           status_update
@@ -216,7 +270,7 @@ async function respondToEmergencies() {
 
 async function addNotification(email, text, type, data) {
   const { errors, data: queryData } = await fetchGraphQL(
-    `mutation SendNotification($email: String!, $text: String!, $type: String!, $data: json = {}) {
+    `mutation SendNotification($email: String!, $text: String!, $type: String!, $data: jsonb = {}) {
       insert_notifications_one(object: {
         worker_email: $email,
         client_email: $email,
@@ -237,6 +291,55 @@ async function addNotification(email, text, type, data) {
   );
   console.log(errors, queryData);
 }
+
+async function deactivateClient(active, authActive, emailArray, authEmail) {
+  const { errors, data: queryData } = await fetchGraphQL(
+    `mutation deactivateClient($active: smallint!, $authActive: Boolean!, $emailArray: [String!] = "", $authEmail: [citext!] = "") {
+      update_client(_set: {active: $active}, where: {email: {_in: $emailArray}}) {
+        affected_rows
+        returning {
+          email
+          id
+        }
+      }
+      update_auth_accounts(where: {email: {_in: $authEmail}}, _set: {active: $authActive}) {
+        affected_rows
+        returning {
+          email
+        }
+      }
+    }
+    `,
+    'deactivateClient',
+    {
+      active,
+      authActive,
+      emailArray,
+      authEmail
+    }
+  );
+  console.log(errors, queryData);
+}
+
+async function getExpiredClient() {
+  const { errors, data: queryData } = await fetchGraphQL(
+    `query getExpiredClient($date: date = "") {
+      client(where: {contract_end_date: {_lt: $date}, active: {_eq: 1}}) {
+        id
+        email
+        contract_end_date
+      }
+    }    
+    `,
+    'getExpiredClient',
+    {
+      date: format(new Date(), 'yyyy-MM-dd'),
+    }
+  );
+  console.log(errors, queryData);
+  return queryData;
+}
+
 module.exports = { everyFiveMinute };
 
 function getFormattedTime(date) {

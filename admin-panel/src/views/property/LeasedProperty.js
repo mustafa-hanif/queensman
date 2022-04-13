@@ -40,6 +40,7 @@ import '@styles/react/libs/flatpickr/flatpickr.scss'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import AddNewModal from './AddNewModal'
 import Badge from 'reactstrap/lib/Badge'
+import { useNiceMutation, useNiceQuery } from '../../utility/Utils'
 
 const GET_CLIENT_PROPS = gql`
 query GetClientLeased {
@@ -121,13 +122,13 @@ const DELETE_PROPS = gql`mutation DeleteProperty($id: Int = 10) {
 const LeasedProperty = () => {
 
         // ** States
-  const { loading, data, error, refetch: refetchProps } = useQuery(GET_CLIENT_PROPS)
-  const [updateProp, {loading: propertyLoading}] = useMutation(UPDATE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [addProp, {loading: addPropertyLoading}] = useMutation(ADD_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [unassignProp, {loading: unAssignpropertyLoading}] = useMutation(UNASSIGN, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [addPropOwned, {loading: addPropertyOwnedLoading}] = useMutation(ADD_PROP_OWNED, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [addLease, {loading: addLeaseLoading}] = useMutation(ADD_LEASE, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
-  const [deleteProp, {loading: deletePropertyLoading}] = useMutation(DELETE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const { loading, data, error, refetch: refetchProps } = useNiceQuery(GET_CLIENT_PROPS)
+  const [updateProp, {loading: propertyLoading}] = useNiceMutation(UPDATE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [addProp, {loading: addPropertyLoading}] = useNiceMutation(ADD_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [unassignProp, {loading: unAssignpropertyLoading}] = useNiceMutation(UNASSIGN, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [addPropOwned, {loading: addPropertyOwnedLoading}] = useNiceMutation(ADD_PROP_OWNED, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [addLease, {loading: addLeaseLoading}] = useNiceMutation(ADD_LEASE, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
+  const [deleteProp, {loading: deletePropertyLoading}] = useNiceMutation(DELETE_PROPS, {refetchQueries:[{query: GET_CLIENT_PROPS}]})
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState('')
   const [searchEmail, setSearchEmail] = useState('')
@@ -235,7 +236,7 @@ const advSearchColumns = [
     const count = 1
     let updatedData = []
       updatedData = data?.client.filter(item => {
-        const startsWith = item.property_owneds_aggregate.aggregate.count >= count
+        const startsWith = item?.property_owneds_aggregate.aggregate.count >= count
         if (startsWith) {
           return startsWith
         } else {
@@ -396,9 +397,9 @@ const advSearchColumns = [
     setSearchName(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.full_name?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item?.full_name?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.full_name?.toLowerCase().includes(value.toLowerCase())
+        const includes = item?.full_name?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -426,9 +427,9 @@ const advSearchColumns = [
     setSearchEmail(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.email?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item?.email?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.email?.toLowerCase().includes(value.toLowerCase())
+        const includes = item?.email?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -456,8 +457,8 @@ const advSearchColumns = [
       setSearchCountry(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item?.property_owneds.some(item2 => item2.property.country.toLowerCase().startsWith(value.toLowerCase()) === true)
-          const includes = item?.property_owneds.some(item2 => item2.property.country.toLowerCase().includes(value.toLowerCase()) === true)
+          const startsWith = item?.property_owneds?.some(item2 => item2?.property?.country.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds?.some(item2 => item2?.property?.country.toLowerCase().includes(value.toLowerCase()) === true)
           console.log(startsWith)
           if (startsWith) {
               return startsWith
@@ -485,8 +486,8 @@ const advSearchColumns = [
       setSearchCity(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().startsWith(value.toLowerCase()) === true)
-          const includes = item?.property_owneds.some(item2 => item2.property.city.toLowerCase().includes(value.toLowerCase()) === true)
+          const startsWith = item?.property_owneds?.some(item2 => item2?.property?.city.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds?.some(item2 => item2?.property?.city.toLowerCase().includes(value.toLowerCase()) === true)
           if (startsWith) {
               return startsWith
             } else if (!startsWith && includes) {
@@ -513,8 +514,8 @@ const advSearchColumns = [
       setSearchCommunity(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item?.property_owneds.some(item2 => item2.property.community.toLowerCase().startsWith(value.toLowerCase()) === true)
-          const includes = item?.property_owneds.some(item2 => item2.property.community.toLowerCase().includes(value.toLowerCase()) === true)
+          const startsWith = item?.property_owneds?.some(item2 => item2?.property?.community.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds?.some(item2 => item2?.property?.community.toLowerCase().includes(value.toLowerCase()) === true)
           if (startsWith) {
               return startsWith
             } else if (!startsWith && includes) {
@@ -541,8 +542,8 @@ const advSearchColumns = [
       setSearchAddress(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item?.property_owneds.some(item2 => item2.property.address.toLowerCase().startsWith(value.toLowerCase()) === true)
-          const includes = item?.property_owneds.some(item2 => item2.property.address.toLowerCase().includes(value.toLowerCase()) === true)
+          const startsWith = item?.property_owneds?.some(item2 => item2?.property?.address.toLowerCase().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds?.some(item2 => item2?.property?.address.toLowerCase().includes(value.toLowerCase()) === true)
           if (startsWith) {
               return startsWith
             } else if (!startsWith && includes) {
@@ -569,8 +570,8 @@ const advSearchColumns = [
       setSearchPropertyId(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item?.property_owneds.some(item2 => item2.property.id.toString().startsWith(value.toLowerCase()) === true)
-          const includes = item?.property_owneds.some(item2 => item2.property.id.toString().includes(value.toLowerCase()) === true)
+          const startsWith = item?.property_owneds?.some(item2 => item2?.property?.id.toString().startsWith(value.toLowerCase()) === true)
+          const includes = item?.property_owneds?.some(item2 => item2?.property?.id.toString().includes(value.toLowerCase()) === true)
           console.log(startsWith)
           if (startsWith) {
               return startsWith

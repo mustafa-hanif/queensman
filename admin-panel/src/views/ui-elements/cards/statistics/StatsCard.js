@@ -3,6 +3,7 @@ import Avatar from '@components/avatar'
 import { TrendingUp, User, Box, DollarSign } from 'react-feather'
 import { Card, CardHeader, CardTitle, CardBody, CardText, Row, Col, Media, Spinner } from 'reactstrap'
 import { gql, useMutation, useQuery } from '@apollo/client'
+import { useNiceQuery } from '../../../../utility/Utils'
 
 const STATS = gql`query MyQuery {
   callout: callout_aggregate {
@@ -29,7 +30,7 @@ const STATS = gql`query MyQuery {
 
 `
 const StatsCard = ({ cols }) => {
-  const { loading, data: apiData, error } = useQuery(STATS)
+  const { loading, data: apiData, error } = useNiceQuery(STATS)
   if (error) {
     console.log(error)
   }

@@ -20,18 +20,18 @@ plugins:
   - serverless-apigw-binary
   - serverless-apigwy-binary
   - serverless-prune-plugin
-frameworkVersion: '2'
+frameworkVersion: "2"
 
 provider:
   name: aws
   runtime: nodejs14.x
-  timeout: 20
+  timeout: 25
   lambdaHashingVersion: 20201221
 
 custom:
   apigwBinary:
-    types:           #list of mime-types
-      - 'application/pdf'
+    types: #list of mime-types
+      - "application/pdf"
 # you can overwrite defaults here
 #  stage: dev
 #  region: us-east-1
@@ -80,7 +80,15 @@ functions:
           path: /scheduleCallout
           method: post
           cors: true
-        
+
+  jobTicketTimeSet:
+    handler: handler.jobTicketTimeSet
+    events:
+      - http:
+          path: /jobTicketTimeSet
+          method: post
+          cors: true
+
   sendInventoryClientEmail:
     handler: handler.sendInventoryClientEmail
     events:
@@ -88,7 +96,7 @@ functions:
           path: /sendInventoryClientEmail
           method: post
           cors: true
-        
+
   sendInventoryTeamEmail:
     handler: handler.sendInventoryTeamEmail
     events:
@@ -138,7 +146,7 @@ functions:
           cors: true
           response:
             contentHandling: CONVERT_TO_BINARY
-  
+
   sendWelcomeEmail:
     handler: handler.sendWelcomeEmail
     events:
@@ -146,7 +154,7 @@ functions:
           path: /sendWelcomeEmail
           method: post
           cors: true
-  
+
   sendPlanEmail:
     handler: handler.sendPlanEmail
     events:
@@ -178,15 +186,13 @@ functions:
           path: /expresstest
           method: get
           cors: true
-
-
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
-  #  events:
-  #    - httpApi:
-  #        path: /sendNotification
-  #        method: post
+#  events:
+#    - httpApi:
+#        path: /sendNotification
+#        method: post
 #      - websocket: $connect
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)

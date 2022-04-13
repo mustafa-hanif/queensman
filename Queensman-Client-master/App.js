@@ -4,7 +4,7 @@
 /* eslint-disable no-console */
 /* eslint-disable import/order */
 /* eslint-disable no-use-before-define */
-const version = "v1.2";
+const version = "v1.3.3";
 import React, { PureComponent } from "react";
 import { Text, View, SafeAreaView, Image, TouchableOpacity, Linking } from "react-native";
 import { Icon, Box, NativeBaseProvider, extendTheme } from "native-base";
@@ -223,7 +223,7 @@ const HomeScreenStackNavigator = () => {
 //         headerTransparent: true,
 //         headerTintColor: "#FFCA5D",
 //         headerTitleStyle: {
-//           
+//
 //         },
 //       }),
 //     },
@@ -384,7 +384,7 @@ const CustomDrawerComponent = (props) => (
 //     contentOptions: {
 //       activeTintColor: "#FFCA5D",
 //       labelStyle: {
-//         
+//
 //         fontWeight: "300",
 //       },
 //     },

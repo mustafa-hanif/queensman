@@ -13,14 +13,14 @@
 /* eslint-disable react/no-access-state-in-setstate */
 /* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
-import { Button, Radio, Box, ScrollView, Select, Icon, AlertDialog, Center, Pressable, HStack, CheckIcon } from "native-base";
+import { Button, Radio, Box, ScrollView, Select, Icon, AlertDialog, Center, HStack, CheckIcon } from "native-base";
 import { Video } from "expo-av";
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 
-import FlashMessage, { showMessage } from "react-native-flash-message";
+import FlashMessage from "react-native-flash-message";
 
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 
@@ -30,7 +30,7 @@ import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import Modal from "react-native-modal";
 import { auth, storage } from "../utils/nhost";
-import { HASURA } from "../_config"
+import { HASURA } from "../_config";
 
 import VideoScreen from "../VideoScreen";
 
@@ -160,28 +160,28 @@ const styles = StyleSheet.create({
 
 const GET_JOB_CATEGORY = gql`
   query GetJobCategory {
-    team_expertise(where: { skill_level: { _eq: 0 } }) {
+    team_expertise(where: { skill_level: { _eq: 0 }, isAdmin: { _eq: false } }, order_by: { skill_name: asc }) {
       skill_name
       id
+      isHigh
     }
   }
 `;
 
-// const GET_JOB_TYPE = gql`
-//   query GetJobType($skill_parent: Int!, $isHigh: Boolean!) {
-//     team_expertise(where: { skill_level: { _eq: 1 }, skill_parent: { _eq: $skill_parent }, isHigh : { _eq: $isHigh} }) {
-//       id
-//       skill_name
-//       isHigh
-//     }
-//   }
-// `;
-
 const GET_JOB_TYPE = gql`
-  query GetJobType($skill_parent: Int!) {
-    team_expertise(where: { skill_level: { _eq: 1 }, skill_parent: { _eq: $skill_parent } }) {
+  query GetJobType($skill_parent: Int!, $isHigh: Boolean!) {
+    team_expertise(
+      where: {
+        skill_level: { _eq: 1 }
+        skill_parent: { _eq: $skill_parent }
+        isHigh: { _eq: $isHigh }
+        isAdmin: { _eq: false }
+      }
+      order_by: { skill_name: asc }
+    ) {
       id
       skill_name
+      isHigh
     }
   }
 `;
@@ -254,11 +254,7 @@ const ADD_CALLOUT = gql`
             status: $status
             active: 1
             urgency_level: $urgency_level
-            job_worker: {
-              data: {
-                worker_id: $worker_id
-              }
-            }
+            job_worker: { data: { worker_id: $worker_id } }
           }
         }
         name: "Additional Request"
@@ -284,6 +280,7 @@ const REQUEST_CALLOUT = gql`
     $email: String
     $category: String
     $job_type: String
+    $job_type_id: Int
     $status: String
     $picture1: String
     $picture2: String
@@ -300,6 +297,7 @@ const REQUEST_CALLOUT = gql`
             property_id: $property_id
             category: $category
             job_type: $job_type
+            job_type_id: $job_type_id
             status: $status
             urgency_level: $urgency_level
             description: $notes
@@ -337,6 +335,16 @@ const ADD_JOB_TICKET = gql`
       }
     ) {
       id
+    }
+  }
+`;
+
+const GET_WORKER = gql`
+  query GetWorker($_eq: String!) {
+    worker(where: { email: { _eq: $_eq } }) {
+      full_name
+      id
+      email
     }
   }
 `;
@@ -382,11 +390,14 @@ const RequestCallOut = (props) => {
   const setState = (props) => {
     _setState(props);
   };
-  const { loading: jobCategoryLoading, data: jobCategory, error: jobCategoryError } = useQuery(GET_JOB_CATEGORY);
-  const [getJobType, { loading: loadingJobType, data: jobType, error: JobTypeError }] = useLazyQuery(GET_JOB_TYPE);
-  const [addCalloutApiCall, { loading: addCalloutApiLoading, error: mutationError }] = useMutation(ADD_CALLOUT);
-  const [addJobTicket, { loading: addJobTicketLoading, data: addJobTicketData }] = useMutation(ADD_JOB_TICKET);
-  const [requestCalloutApiCall, { loading: requestCalloutLoading, data }] = useMutation(REQUEST_CALLOUT, {
+  const { data: jobCategory } = useQuery(GET_JOB_CATEGORY);
+  const { data: allWorkers } = useQuery(GET_WORKER, {
+    variables: { _eq: "opscord@queensman.com" },
+  });
+  const [getJobType, { loading: loadingJobType, data: jobType }] = useLazyQuery(GET_JOB_TYPE);
+  const [addCalloutApiCall] = useMutation(ADD_CALLOUT);
+  const [addJobTicket] = useMutation(ADD_JOB_TICKET);
+  const [requestCalloutApiCall] = useMutation(REQUEST_CALLOUT, {
     onCompleted: (data) => {
       addJobTicket({
         variables: {
@@ -408,28 +419,23 @@ const RequestCallOut = (props) => {
     setJobCategorySelect({ value: item.id, label: item.skill_name });
     selectJobCategoryPressed(item.id);
   };
-  // console.log({ jobCategorySelect });
-  const onJobTypeValueChange = (value) => {
-    setJobTypeSelect({ value, label: value });
-  };
 
+  const onJobTypeValueChange = (value) => {
+    const jobValue = value.split("@")[0];
+    const jobId = value.split("@")[1];
+    setJobTypeSelect({ value: jobValue, label: jobValue, id: jobId });
+  };
   const selectJobCategoryPressed = (id) => {
-    // setJobCategorySelect({value, label:value})
     getJobType({
-      variables: { 
-        skill_parent: id
-        // isHigh: state.Urgency.toLowerCase() === "high" 
-      } 
+      variables: {
+        skill_parent: id,
+        isHigh: state.Urgency.toLowerCase() === "high",
+      },
     });
   };
 
-  const user = auth?.currentSession?.session?.user;
-  const email = user?.email;
-  const {
-    loading,
-    data: allProperties,
-    error,
-  } = useQuery(GET_PROPERTIES, {
+  const { email } = auth.user();
+  const { data: allProperties } = useQuery(GET_PROPERTIES, {
     variables: { email },
   });
 
@@ -443,20 +449,20 @@ const RequestCallOut = (props) => {
   const [videoDurationinMillis, setvideoDurationinMillis] = useState("0:00");
 
   // Did mount - Select the first property of the client, or use the one in async storage
-    useEffect(() => {
-      const propertyFunction = async () => {
-        const propertyDetails = await AsyncStorage.getItem("QueensPropertyDetails");
-        if (!propertyDetails) {
-        const loadSelectedProperty = async (properties) => {
+  useEffect(() => {
+    const propertyFunction = async () => {
+      const propertyDetails = await AsyncStorage.getItem("QueensPropertyDetails");
+      if (!propertyDetails) {
+        const loadSelectedProperty = async () => {
           loadProperty();
         };
         if (allProperties) {
           loadSelectedProperty(allProperties?.client?.[0]?.property_owneds);
         }
       }
-      }
-      propertyFunction()
-    }, [allProperties]); 
+    };
+    propertyFunction();
+  }, [allProperties]);
 
   // Once we have a selected property - Load it in the local state
   // TODO: This is not necessary, we can use the selected property directly
@@ -464,37 +470,36 @@ const RequestCallOut = (props) => {
     const propertyFunction = async () => {
       const propertyDetails = await AsyncStorage.getItem("QueensPropertyDetails");
       if (!propertyDetails) {
-      if (!loadingSingleProperty && selectedProperty && !propertyDetails) {
-        const propertyid = selectedProperty?.property_owned_by_pk?.property?.id;
-        const propertyDetails = selectedProperty?.property_owned_by_pk?.property;
-        const { category, address, community, city, country } = propertyDetails;
-        setState({ ...state, PropertyDetails: propertyDetails });
+        if (!loadingSingleProperty && selectedProperty && !propertyDetails) {
+          const propertyid = selectedProperty?.property_owned_by_pk?.property?.id;
+          const propertyDetails = selectedProperty?.property_owned_by_pk?.property;
+          const { category, address, community, city, country } = propertyDetails;
+          setState({ ...state, PropertyDetails: propertyDetails });
+          setState((state) => ({
+            ...state,
+            property_type: category,
+            address,
+            community,
+            city,
+            country,
+            PropertyID: propertyid,
+          }));
+        }
+      } else {
+        const { id, address, community, city, country } = JSON.parse(propertyDetails);
+        setState({ ...state, PropertyDetails: JSON.parse(propertyDetails) });
         setState((state) => ({
           ...state,
-          property_type: category,
           address,
           community,
           city,
           country,
-          PropertyID: propertyid,
+          PropertyID: id,
         }));
-      } 
-    } else {
-      const { id, address, community, city, country } = JSON.parse(propertyDetails);
-      setState({ ...state, PropertyDetails: JSON.parse(propertyDetails) });
-      setState((state) => ({
-        ...state,
-        address,
-        community,
-        city,
-        country,
-        PropertyID: id,
-      }));
-    }
-    }
-    propertyFunction()
+      }
+    };
+    propertyFunction();
   }, [selectedProperty, loadingSingleProperty]);
-
 
   const selectFromGallery = async () => {
     if (Constants.platform.ios) {
@@ -514,19 +519,16 @@ const RequestCallOut = (props) => {
   };
 
   const _uploadImage = (uri) => {
-    // console.log(`My:${uri}`);
     if (state.picture1 === "") {
       setState({
         ...state,
         picture1: uri,
       });
-      // console.log(state.picture1);
     } else if (state.picture2 === "") {
       setState({
         ...state,
         picture2: uri,
       });
-      // console.log(state.picture2);
     } else if (state.picture3 === "") {
       setState({
         ...state,
@@ -543,7 +545,6 @@ const RequestCallOut = (props) => {
   };
 
   const toggleGalleryEventModal = (vale, no) => {
-    console.log(vale, no);
     setState({
       ...state,
       isPicvisible: !state.isPicvisible,
@@ -553,7 +554,7 @@ const RequestCallOut = (props) => {
   };
 
   const askSubmitCallout = () => {
-    if (!jobCategorySelect.value) {
+    if (!jobCategorySelect?.value) {
       return alert("Please Select Job Category!");
     }
     if (!additionalServices && !jobTypeSelect?.value) {
@@ -569,8 +570,9 @@ const RequestCallOut = (props) => {
       return alert("Please upload atleast one image!");
     }
     if (!additionalServices) {
+      // If not on additional requst page
       if (state.Urgency === "medium") {
-        return props.navigation.navigate("SelectSchedule", { state: { ...state, JobType: jobTypeSelect?.value } });
+        return props.navigation.navigate("SelectSchedule", { state: { ...state, Job: jobTypeSelect } });
       }
 
       Alert.alert(
@@ -579,7 +581,6 @@ const RequestCallOut = (props) => {
         [
           {
             text: "Cancel",
-            onPress: () => console.log("Cancel Pressed"),
             style: "cancel",
           },
           { text: "Yes", onPress: () => submitCallout() },
@@ -593,7 +594,6 @@ const RequestCallOut = (props) => {
         [
           {
             text: "Cancel",
-            onPress: () => console.log("Cancel Pressed"),
             style: "cancel",
           },
           { text: "Yes", onPress: () => addJobTicketFunc() },
@@ -610,7 +610,6 @@ const RequestCallOut = (props) => {
       [
         {
           text: "Ok",
-          onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
       ],
@@ -625,7 +624,6 @@ const RequestCallOut = (props) => {
       [
         {
           text: "Ok",
-          onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
       ],
@@ -657,13 +655,14 @@ const RequestCallOut = (props) => {
         date_on_calendar: null,
         category,
         job_type: jobTypeSelect.value,
+        job_type_id: jobTypeSelect.id,
         status: "Requested",
         urgency_level: state.Urgency,
         video: state.videoUrl,
         ...pictures,
       },
     })
-      .then((res) => {
+      .then(() => {
         SubmittedMakeRequestAlert();
         props.navigation.navigate("HomeNaviagtor");
       })
@@ -748,7 +747,6 @@ const RequestCallOut = (props) => {
 
   const saveVideoCloud = () => {
     const file = expoFileToFormFile(state.video, "video");
-    // console.log(`/callout_videos/${file.name}`);
     setVideoSaving(true);
     storage
       .put(`/callout_videos/${file.name}`, file)
@@ -785,11 +783,11 @@ const RequestCallOut = (props) => {
 
     addCalloutApiCall({
       variables: {
-        callout_by_email: auth?.currentSession?.session?.user.email,
+        callout_by_email: auth.user().email,
         property_id: state.PropertyID,
         worker_email: "opscord@queensman.com",
-        client_email: auth?.currentSession?.session?.user.email,
-        worker_id: 21,
+        client_email: auth.user().email,
+        worker_id: allWorkers.worker[0].id,
         description: state.Description,
         category,
         job_type: jobCategorySelect.value,
@@ -799,7 +797,7 @@ const RequestCallOut = (props) => {
         ...pictures,
       },
     })
-      .then((res) => {
+      .then(() => {
         setState({ ...state, loading: false });
         SubmittedCalloutAlert();
         setTimeout(() => {
@@ -818,8 +816,6 @@ const RequestCallOut = (props) => {
     return (
       <VideoScreen
         getDuration={(time) => {
-          console.log("time in  seconds", millisToMinutesAndSeconds(time));
-
           setvideoDurationinMillis(millisToMinutesAndSeconds(time));
         }}
         setShowVideoScreen={setShowVideoScreen}
@@ -864,7 +860,7 @@ const RequestCallOut = (props) => {
       </View>
       <View style={styles.Card}>
         <View style={styles.container} showsVerticalScrollIndicator={false}>
-        {!additionalServices && <View style={{ height: "3%" }} />}
+          {!additionalServices && <View style={{ height: "3%" }} />}
           {!additionalServices && (
             <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
               Urgency<Text style={{ color: "red" }}>*</Text>
@@ -874,19 +870,18 @@ const RequestCallOut = (props) => {
           {!additionalServices && (
             <Box mb={8}>
               <Radio.Group
-              colorScheme="emerald"
+                colorScheme="emerald"
                 name="Urgency"
                 accessibilityLabel="Urgency"
                 value={state.Urgency}
                 onChange={(nextValue) => {
-                  console.log(nextValue)
-                  // setJobCategorySelect({value: null, label: null})
-                  // setJobTypeSelect({value: null, label: null})
+                  setJobCategorySelect({ value: null, label: null });
+                  setJobTypeSelect({ value: null, label: null, id: null });
                   setState({ ...state, Urgency: nextValue });
                 }}
               >
                 <HStack space={20}>
-                  <Radio value="High" mr={2} >
+                  <Radio value="High" mr={2}>
                     <HStack ml={1} space={0.5} alignItems="center">
                       <Text color="black">High</Text>
                       <Icon size={5} name="flag" as={<Ionicons name="flag-sharp" />} style={{ color: "red" }} />
@@ -952,17 +947,35 @@ const RequestCallOut = (props) => {
                 }}
               >
                 {jobCategory ? (
-                  jobCategory?.team_expertise.map(
-                    (
-                      element,
-                      i // Map job category from db
-                    ) => (
-                      <Select.Item
-                        label={element.skill_name}
-                        value={element.id}
-                        key={i}
-                        // onTouchEnd={() => selectJobCategoryPressed(element.id)}
-                      />
+                  state.Urgency.toLowerCase() === "high" ? (
+                    jobCategory?.team_expertise
+                      .filter((value) => value.isHigh === true)
+                      .map(
+                        (
+                          element,
+                          i // Map job category from db
+                        ) => (
+                          <Select.Item
+                            label={element.skill_name}
+                            value={element.id}
+                            key={i}
+                            // onTouchEnd={() => selectJobCategoryPressed(element.id)}
+                          />
+                        )
+                      )
+                  ) : (
+                    jobCategory?.team_expertise.map(
+                      (
+                        element,
+                        i // Map job category from db
+                      ) => (
+                        <Select.Item
+                          label={element.skill_name}
+                          value={element.id}
+                          key={i}
+                          // onTouchEnd={() => selectJobCategoryPressed(element.id)}
+                        />
+                      )
                     )
                   )
                 ) : (
@@ -974,7 +987,7 @@ const RequestCallOut = (props) => {
                 note
                 mode="dialog"
                 isDisabled={state.Urgency === ""}
-                onValueChange={onJobCategoryValueChange}
+                onValueChange={(value) => setJobCategorySelect({ value, label: value })}
                 selectedValue={jobCategorySelect?.value}
                 // bg="#FFCA5D"
                 color="black"
@@ -999,7 +1012,7 @@ const RequestCallOut = (props) => {
                 isDisabled={!(jobCategorySelect?.value && !loadingJobType)}
                 mode="dialog"
                 onValueChange={onJobTypeValueChange}
-                selectedValue={jobTypeSelect?.value}
+                selectedValue={`${jobTypeSelect?.value}@${jobTypeSelect?.id}`}
                 // bg="#FFCA5D"
                 color="black"
                 placeholder="Select Job Type"
@@ -1010,7 +1023,7 @@ const RequestCallOut = (props) => {
               >
                 {jobType ? (
                   jobType?.team_expertise.map((element, i) => (
-                    <Select.Item label={element.skill_name} value={element.skill_name} key={i} />
+                    <Select.Item label={element.skill_name} value={`${element.skill_name}@${element.id}`} key={i} />
                   ))
                 ) : (
                   <Select.Item label="Unable to load job types" value="Unable to load job types" />
@@ -1019,22 +1032,6 @@ const RequestCallOut = (props) => {
             </View>
           )}
 
-          {state.JobType === "other" ? (
-            <View style={{ paddingTop: "3%" }}>
-              <View style={styles.OthertxtStyle}>
-                <TextInput
-                  style={{ fontSize: 14 }}
-                  placeholder="Type other here...."
-                  underlineColorAndroid="transparent"
-                  numberOfLines={1}
-                  onChangeText={(OtherJobType) => {
-                    setState({ ...state, OtherJobType });
-                  }}
-                />
-              </View>
-            </View>
-          ) : null}
-          
           <View style={{ height: "3%" }} />
           <Text style={[styles.TextFam, { color: "#000E1E", fontSize: 16 }]}>
             Description<Text style={{ color: "red" }}>*</Text>

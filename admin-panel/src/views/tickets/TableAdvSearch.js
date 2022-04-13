@@ -11,6 +11,7 @@ import DataTable from 'react-data-table-component'
 import { toast } from 'react-toastify'
 import Exportqs from '../extensions/import-export/Exportqs'
 import moment from "moment"
+import { useNiceQuery, useNiceMutation } from '../../utility/Utils'
 import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check, XCircle } from 'react-feather'
 import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import Select from 'react-select'
@@ -61,7 +62,7 @@ import TabsVerticalLeft from './TabsVerticalLeft'
 
 const GET_JOB_TICKETS = gql`
 query getJobTickets {
-  job_tickets(order_by: {id: desc}) {
+  job_tickets(order_by: {end_time: desc_nulls_last}) {
     id
     notes
     name
@@ -72,6 +73,8 @@ query getJobTickets {
     worker_id
     status
     created_at
+    start_time
+    end_time
     worker_email_rel {
       full_name
     }
@@ -124,6 +127,11 @@ query getJobTickets {
         status_update
         time
       }
+      job_type_rel {
+        skill_parent_rel {
+          skill_name
+        }
+      }
     }
   }
 }
@@ -155,10 +163,10 @@ mutation deleteJobTicket($id: Int!) {
 const DataTableAdvSearch = () => {
 
   // ** States
-  const { loading, data, error } = useQuery(GET_JOB_TICKETS)
-  const [updateJobTicket, { loading: updateJobTicketLoading }] = useMutation(UPDATE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
-  const [addJobTicket, { loading: addJobTicketLoading }] = useMutation(ADD_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
-  const [deleteJobTicket, { loading: deleteJobLoading }] = useMutation(DELETE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
+  const { loading, data, error } = useNiceQuery(GET_JOB_TICKETS)
+  const [updateJobTicket, { loading: updateJobTicketLoading }] = useNiceMutation(UPDATE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
+  const [addJobTicket, { loading: addJobTicketLoading }] = useNiceMutation(ADD_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
+  const [deleteJobTicket, { loading: deleteJobLoading }] = useNiceMutation(DELETE_JOB_TICKET, { refetchQueries: [{ query: GET_JOB_TICKETS }] })
   const [modal, setModal] = useState(false)
   const [detailsModal, setDetailsModal] = useState(false)
   const [modalDetails, setModalDetails] = useState(null)
@@ -637,26 +645,45 @@ const DataTableAdvSearch = () => {
     const objectsToExport = []
 
     for (const keys in DataTojson) {
-    
-      objectsToExport.push({
-        id: DataTojson[keys].id.toString(),
-        calloutby: DataTojson[keys]?.worker_email,
-        propertyType: DataTojson[keys]?.callout?.property?.address,
-        type: DataTojson[keys]?.callout?.job_type,
-        status: DataTojson[keys].status,
-        description: DataTojson[keys].description,
-        urgency_level: DataTojson[keys]?.callout?.urgency_level,
-        worker_assigned: DataTojson[keys]?.worker_email_rel?.full_name,
-        CreationDate: DataTojson[keys].created_at,
-        resolvedTime: DataTojson[keys]?.callout?.job?.[0]?.resolved_time,
-        Solution: DataTojson[keys]?.callout?.job?.[0]?.solution,
-        Rating: DataTojson[keys]?.callout?.job?.[0]?.rating,
-        Feedback: DataTojson[keys]?.callout?.job?.[0]?.feedback
-
-      })
-
+    let Time = null
+    if (DataTojson[keys].status === "Closed") {
+      if (DataTojson[keys]?.end_time && DataTojson[keys]?.start_time) {
+        Time = moment(DataTojson[keys].end_time).diff(DataTojson[keys].start_time, "minutes")
+      }
+    } else if (DataTojson[keys].status === "In Progress") {
+      if (DataTojson[keys]?.start_time) {
+        Time = moment(new Date()).diff(DataTojson[keys].start_time, "minutes")
+      }
+    } else {
+      Time = null
     }
-    //   console.log((objectsToExport))
+      objectsToExport.push({
+        id: DataTojson[keys]?.callout_id,
+        callout_by: DataTojson[keys]?.callout?.client?.email,
+        property_type: DataTojson[keys]?.callout?.property?.address,
+        job_category: DataTojson[keys]?.callout?.job_type_rel?.skill_parent_rel?.skill_name || DataTojson[keys]?.callout?.job_type,
+        job_type: DataTojson[keys]?.callout?.job_type || null,
+        type: DataTojson[keys]?.type || null,
+        status: DataTojson[keys]?.status || null,
+        description: DataTojson[keys]?.description || null,
+        urgency_level: DataTojson[keys]?.callout?.urgency_level || null,
+        worker_assigned: DataTojson[keys]?.worker_email_rel?.full_name || null,
+        creation_time: DataTojson[keys]?.created_at ? moment(DataTojson[keys].created_at).format('h:mm a') : null,
+        creation_date: DataTojson[keys]?.created_at ? moment(DataTojson[keys].created_at).format('MM/DD/YYYY') : null,
+        // resolved_time: DataTojson[keys]?.callout?.job?.[0]?.resolved_time ? moment(DataTojson[keys]?.callout?.job?.[0]?.resolved_time).format('h:mm a') : null,
+        // resolved_date: DataTojson[keys]?.callout?.job?.[0]?.resolved_time ? moment(DataTojson[keys]?.callout?.job?.[0]?.resolved_time).format('MMMM Do YYYY') : null,
+        start_time: DataTojson[keys]?.start_time ? moment(DataTojson[keys]?.start_time).format('h:mm a') : null,
+        start_date: DataTojson[keys]?.start_time ? moment(DataTojson[keys]?.start_time).format('MM/DD/YYYY') : null,
+        end_time: DataTojson[keys]?.end_time ? moment(DataTojson[keys]?.end_time).format('h:mm a') : null,
+        end_date: DataTojson[keys]?.end_time ? moment(DataTojson[keys]?.end_time).format('MM/DD/YYYY') : null,
+        notes: DataTojson[keys]?.notes?.map(value => value?.message?.trim()).join(", ") || null,
+        solution: DataTojson[keys]?.callout?.job?.[0]?.solution || null,
+        rating: DataTojson[keys]?.callout?.job?.[0]?.rating || null,
+        feedback: DataTojson[keys]?.callout?.job?.[0]?.feedback || null,
+        time_in_minutes: Time        
+      })
+    }
+      // console.log((objectsToExport))
     return (objectsToExport)
 
   }

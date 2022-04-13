@@ -12,7 +12,7 @@ import moment from 'moment'
 
 const GET_SCHEDULE = gql`
 query GetSchedule($id: Int!) {
-  scheduler(where: {time_on_calendar: {_is_null: false}, worker_id: {_eq: $id}, callout: {status: {_neq: "Closed"}}}) {
+  scheduler(where: {time_on_calendar: {_is_null: false}, worker_id: {_eq: $id}, callout: {status: {_neq: "Closed"}}}, order_by: {date_on_calendar: asc, time_on_calendar: asc}) {
     callout_id
     date_on_calendar
     time_on_calendar
@@ -42,6 +42,7 @@ query getCallout($id: Int!) {
     picture2
     picture3
     picture4
+    video
     urgency_level
     client_id: callout_by
     client: client_callout_email {

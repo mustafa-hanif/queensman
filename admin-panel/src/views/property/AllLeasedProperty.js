@@ -42,6 +42,7 @@ import AddNewModal from './AddNewModal'
 import ButtonGroup from 'reactstrap/lib/ButtonGroup'
 import { months } from 'moment'
 import Badge from 'reactstrap/lib/Badge'
+import { useNiceQuery } from '../../utility/Utils'
 
 const GET_PROPERTIES = gql`
 query MyQuery {
@@ -75,7 +76,7 @@ query MyQuery {
 const DataTableAdvSearch = () => {
 
         // ** States
-  const { loading, data, error } = useQuery(GET_PROPERTIES)
+  const { loading, data, error } = useNiceQuery(GET_PROPERTIES)
   const [searchName, setSearchName] = useState('')
   const [searchEmail, setSearchEmail] = useState('')
   const [currentPage, setCurrentPage] = useState(0)

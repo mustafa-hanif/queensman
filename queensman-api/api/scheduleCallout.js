@@ -7,8 +7,14 @@ const getCallout = require('../lib/graphql').getCallout;
 const getRelevantWoker = require('../lib/graphql').getRelevantWoker;
 const calloutEmail = require('../lib/calloutEmail').calloutEmail;
 const updateScheduleWithEmergencyWoker = require('../lib/graphql').updateScheduleWithEmergencyWoker;
+const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz')
+const formatISO = require('date-fns/formatISO')
+const format = require('date-fns/format');
 
 const scheduleCallout = async (event) => {
+  const now = new Date();
+  const timeZone = 'Asia/Dubai'
+  const zonedDate = utcToZonedTime(now, timeZone)
   console.log(event)
   const { event: { data: { new: query } } } = JSON.parse(event.body);
   // console.log(query)
@@ -46,8 +52,8 @@ const scheduleCallout = async (event) => {
       client_name: callout.client_callout_email?.full_name,
       worker_email: worker.email,
       time,
-      timestamp: new Date().toISOString(),
-      date: new Date(),
+      timestamp: formatISO(zonedDate),
+      date: format(zonedDate, 'yyyy-MM-dd'),
     });
   } else {
     const data = await updateScheduleWithWoker({

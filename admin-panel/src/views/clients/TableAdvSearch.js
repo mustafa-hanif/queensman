@@ -81,6 +81,7 @@ import ButtonGroup from "reactstrap/lib/ButtonGroup"
 import { months } from "moment"
 import axios from "axios"
 import TabsVerticalLeft from "./TabsVerticalLeft"
+import { useNiceMutation, useNiceQuery } from "../../utility/Utils"
 
 const GET_CLIENT = gql`
   query GetClient {
@@ -109,6 +110,11 @@ const GET_CLIENT = gql`
       contract_start_date
       contract_end_date
       sign_up_time
+      contract_report {
+        id
+        report_location
+        report_upload_date
+      }
       documents {
         document_name
       }
@@ -224,6 +230,7 @@ const UPLOAD_PLAN = gql`
     $time_on_calendar: time
     $end_time_on_calendar: time
     $end_date_on_calendar: date
+    $job_type_id: Int
     $email: String
     $property_id: Int
     $blocked: Boolean
@@ -238,6 +245,7 @@ const UPLOAD_PLAN = gql`
             property_id: $property_id
             category: "Uncategorized"
             job_type: $notes
+            job_type_id: $job_type_id
             status: "Planned"
             urgency_level: "Scheduled"
             active: 1,
@@ -288,6 +296,15 @@ query GetWorker($_eq: String!) {
 }
 `
 
+const GET_ANNUAL_JOB = gql`
+query GetAnnualJobs($_eq: String) {
+  team_expertise(where: {skill_parent_rel: {skill_name: {_eq: $_eq}}}) {
+    id
+    skill_name
+    skill_parent
+  }
+}
+`
 
 const DataTableAdvSearch = () => {
   // ** States
@@ -295,25 +312,28 @@ const DataTableAdvSearch = () => {
   const [noEmailError, setNoEmailError] = useState(false)
   const [queryLoading, setQueryLoading] = useState(false)
   const [loaderButton, setLoaderButton] = useState(false)
-  const { loading, data, error, refetch: refetchClient } = useQuery(GET_CLIENT, { fetchPolicy: 'network-only', nextFetchPolicy: 'network-only' })
-  const [updateClient, { loading: clientLoading }] = useMutation(
+  const { loading, data, error, refetch: refetchClient } = useNiceQuery(GET_CLIENT)
+  const [updateClient, { loading: clientLoading }] = useNiceMutation(
     UPDATE_CLIENT,
     { refetchQueries: [{ query: GET_CLIENT }] }
   )
-  const { workerLoading, data: allWorkers, workerError } = useQuery(GET_WORKER, {
+  const { workerLoading, data: allWorkers, workerError } = useNiceQuery(GET_WORKER, {
     variables: {_eq: "opscord@queensman.com"}
   })
-  const [addClient, { loading: addClientLoading }] = useMutation(ADD_CLIENT, {
+  const { data: annualJobs} = useNiceQuery(GET_ANNUAL_JOB, {
+    variables: {_eq: "Annual Maintance Servicing"}
+  })
+  const [addClient, { loading: addClientLoading }] = useNiceMutation(ADD_CLIENT, {
     refetchQueries: [{ query: GET_CLIENT }]
   })
-  const [deleteClient, { loading: deleteClientLoading }] = useMutation(
+  const [deleteClient, { loading: deleteClientLoading }] = useNiceMutation(
     DELETE_CLIENT,
     { refetchQueries: [{ query: GET_CLIENT }] }
   )
-  const [addPlan, { loading: addPlanLoading }] = useMutation(UPLOAD_PLAN)
-  const [updateClientActive] = useMutation(UPDATE_ACTIVE)
-  const [deletePlan, { loading: deletePlanLoading }] = useMutation(DELETE_PLAN)
-  const [updateClientPlan] = useMutation(UPDATE_CLIENT_HASPLAN, { refetchQueries: [{ query: GET_CLIENT }] })
+  const [addPlan, { loading: addPlanLoading }] = useNiceMutation(UPLOAD_PLAN)
+  const [updateClientActive] = useNiceMutation(UPDATE_ACTIVE)
+  const [deletePlan, { loading: deletePlanLoading }] = useNiceMutation(DELETE_PLAN)
+  const [updateClientPlan] = useNiceMutation(UPDATE_CLIENT_HASPLAN, { refetchQueries: [{ query: GET_CLIENT }] })
   const [modal, setModal] = useState(false)
   const [searchName, setSearchName] = useState("")
   const [searchOccupation, setSearchOccupation] = useState("")
@@ -425,12 +445,7 @@ const DataTableAdvSearch = () => {
     let month = new Date().getMonth() + 1
     let day = new Date().getDate()
     const propertyid = row.property_owneds[0]?.property?.id ? row.property_owneds[0]?.property?.id : row.leases[0]?.property?.id
-    const notesArray =  [
-      "AC & Plumbing PPM",
-      "Electrical & Carpentry PPM",
-      "2nd AC & Plumbing PPM",
-      "2nd Elec, Carp & Water Tank"
-    ]
+    const notesArray = annualJobs?.team_expertise
     console.log(row)
     console.log(row.property_owneds[0]?.property?.id)
     const planArray = []
@@ -477,7 +492,8 @@ const DataTableAdvSearch = () => {
           end_time_on_calendar,
           end_date_on_calendar,
           blocked: true,
-          notes: notesArray[i],
+          notes: notesArray[i].skill_name,
+          job_type_id: notesArray?.skill_parent,
           worker_id: allWorkers.worker[0].id
         })
         planArray.push(
@@ -502,7 +518,8 @@ const DataTableAdvSearch = () => {
             end_time_on_calendar,
             end_date_on_calendar,
             blocked: true,
-            notes: notesArray[i],
+            notes: notesArray[i].skill_name,
+            job_type_id: notesArray?.skill_parent,
             worker_id: allWorkers.worker[0].id
           }
         })
@@ -1437,7 +1454,7 @@ const DataTableAdvSearch = () => {
             Client Details
           </ModalHeader>
           <ModalBody>
-            <TabsVerticalLeft item={modalDetails} />
+            <TabsVerticalLeft item={modalDetails} refetchClient={refetchClient}/>
           </ModalBody>
         </Modal>
       </div>

@@ -35,7 +35,7 @@ const GET_JOBS_LIST = gql`
     $urgency: [String!] = ["High", "Medium", "Scheduled"]
   ) {
     callout(
-      order_by: { request_time: asc }
+      order_by: { id: desc }
       where: {
         job_worker: { worker: { email: { _eq: $email } } }
         status: { _neq: "Closed" }
@@ -53,6 +53,7 @@ const GET_JOBS_LIST = gql`
       picture2
       picture3
       picture4
+      video
       urgency_level
       client_id: callout_by
       client: client_callout_email {
@@ -61,10 +62,13 @@ const GET_JOBS_LIST = gql`
         phone
       }
       job: callout_job {
+        callout_id
         instructions
       }
       job_worker {
+        id
         worker {
+          id
           full_name
           email
         }
@@ -77,6 +81,7 @@ const GET_JOBS_LIST = gql`
         city
       }
       schedulers {
+        id
         date_on_calendar
         time_on_calendar
       }
@@ -101,6 +106,7 @@ const GET_JOBS_LIST_ALL = gql`
       picture2
       picture3
       picture4
+      video
       urgency_level
       client_id: callout_by
       client: client_callout_email {
@@ -112,7 +118,9 @@ const GET_JOBS_LIST_ALL = gql`
         instructions
       }
       job_worker {
+        id
         worker {
+          id
           full_name
           email
         }
@@ -125,6 +133,7 @@ const GET_JOBS_LIST_ALL = gql`
         city
       }
       schedulers {
+        id
         date_on_calendar
         time_on_calendar
       }
@@ -134,7 +143,7 @@ const GET_JOBS_LIST_ALL = gql`
 
 const JobsList = (props) => {
   const workerId = props.navigation.getParam("workerId", {});
-  const workerEmail = auth?.currentSession?.session?.user.email;
+  const workerEmail = auth.user().email;
   const [state, setState] = useState({
     assignedCallouts: [], //Ismain hayn saaray client ke ongoing callouts.
     dataAvaible: true,
@@ -168,8 +177,7 @@ const JobsList = (props) => {
   };
 
   useEffect(() => {
-    const workerEmail = auth?.currentSession?.session?.user.email;
-    setState({ workerEmail });
+    const workerEmail = auth.user().email;
     let variables = undefined;
     if (
       ["opscord@queensman.com", "opsmanager@queensman.com"].includes(
@@ -188,11 +196,11 @@ const JobsList = (props) => {
       }
     } else {
       variables = {
-        email: auth?.currentSession?.session?.user.email,
+        email: auth.user().email,
       };
       if (state?.selected !== "All" && state?.selected !== null) {
         variables = {
-          email: auth?.currentSession?.session?.user.email,
+          email: auth.user().email,
           urgency: [state.selected],
         };
       }
@@ -215,8 +223,7 @@ const JobsList = (props) => {
     }
   }, [
     finalData?.callout,
-    state.selected,
-    auth?.currentSession?.session?.user.email,
+    state.selected
   ]);
   if (error) {
     console.log(error)
@@ -230,8 +237,7 @@ const JobsList = (props) => {
             marginRight: "4%",
           }}
         >
-          An Error Occured. Please restart the app.
-          Error #182
+          Error
         </Text>
       </View>
     );
@@ -313,21 +319,25 @@ const Item = ({ item, passItem }) => {
       <Stack space={2.5} p={4}>
         <HStack alignItems="center">
           <CircleIcon size={4} mr={0.5} color={color} />
+          {item?.urgency_level && 
           <Text color={color} mr={2} fontSize="xs">
             {item?.urgency_level}
-          </Text>
+          </Text>}
           <CircleIcon size={4} mr={0.5} color={statusColor} />
+          {item?.status && 
           <Text color={statusColor} fontSize="xs">
             {item?.status}
-          </Text>
+          </Text>}
+          {item.id && 
           <Text color="black" ml="auto" fontSize="xs">
             {item?.id}
-          </Text>
+          </Text>}
         </HStack>
 
+        {item?.job_type &&
         <Heading color="black" size="md" noOfLines={2}>
           {item?.job_type}
-        </Heading>
+        </Heading>}
         {item?.client?.full_name && (
           <HStack>
             <Text mr={1} color="black" fontSize="sm">
@@ -342,17 +352,19 @@ const Item = ({ item, passItem }) => {
           <Text mr={1} color="black" fontSize="sm">
             Assigned to
           </Text>
+          {item?.job_worker?.[0]?.worker?.full_name && 
           <Text color="indigo.800" bold fontSize="sm">
             {item?.job_worker?.[0]?.worker?.full_name}
-          </Text>
+          </Text>}
         </HStack>
         <VStack>
           <Text mr={1} color="black" fontSize="sm">
             On Property
           </Text>
+          {item?.property?.address && item?.property?.city && 
           <Text color="cyan.800" fontSize="sm">
             {item?.property?.address}, {item?.property?.city}
-          </Text>
+          </Text>}
         </VStack>
 
         {item?.description && (

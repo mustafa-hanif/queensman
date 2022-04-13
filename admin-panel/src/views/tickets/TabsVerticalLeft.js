@@ -45,8 +45,8 @@ const TabsVerticalLeft = ({item}) => {
   const { job } = callout
   const job_history = callout?.job_history
   const schedule = item?.callout?.schedulers[0]
-  const {id, notes, name, callout_id, description, type, worker_email, status, created_at } = item
-  const job_ticket = {id, notes, name, callout_id, description, type, worker_email, status, created_at }
+  const {id, notes, name, callout_id, description, type, worker_email, status, created_at, start_time, end_time } = item
+  const job_ticket = {id, notes, name, callout_id, description, type, worker_email, status, created_at, start_time, end_time }
 
   const job_history_count = job_history.length
   const job_history_modified =
@@ -65,7 +65,7 @@ const TabsVerticalLeft = ({item}) => {
     <ListGroupItem>
     <span style={{fontWeight: "bold"}}>
       {itemKey.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join(" ")}: </span> 
-      { (itemKey === "request_time" || itemKey === "created_at") ? moment(item[itemKey]).format('MMMM Do YYYY, h:mm:ss a') : item[itemKey] ? item[itemKey] : "N/A"}
+      { (itemKey === "request_time" || itemKey === "created_at" || itemKey === "start_time" || itemKey === "end_time") ? moment(item[itemKey]).format('MMMM Do YYYY, h:mm:ss a') : item[itemKey] ? item[itemKey] : "N/A"}
     </ListGroupItem>
   )
   return (
@@ -143,7 +143,9 @@ const TabsVerticalLeft = ({item}) => {
                   
               }
               })}
-
+              <ListGroupItem>
+                <span style={{fontWeight: "bold"}}>Time taken to complete the job: </span>{job_ticket['status'] === "Closed" && moment(job_ticket["end_time"]).diff(moment(job_ticket["start_time"]), "minutes")} Minutes
+              </ListGroupItem>
             </ListGroup>
         </TabPane>
         <TabPane tabId='2'>
@@ -162,7 +164,7 @@ const TabsVerticalLeft = ({item}) => {
         <h1>Job Details</h1>
             <ListGroup flush>
             {callout && Object.keys(callout).map(itemKey => {
-              if (!(["client", "property", "job", "schedulers", "job_history", "__typename"].includes(itemKey))) {
+              if (!(["client", "property", "job", "schedulers", "job_history", "job_type_rel", "__typename"].includes(itemKey))) {
                 if ((["picture1", "picture2", "picture3", "picture4"].includes(itemKey))) {
                   return (
                     <CalloutPicture key={itemKey} picture={callout[itemKey]} />

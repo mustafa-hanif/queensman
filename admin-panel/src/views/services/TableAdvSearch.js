@@ -33,6 +33,7 @@ import { gql, useMutation, useQuery } from '@apollo/client'
 import ButtonGroup from 'reactstrap/lib/ButtonGroup'
 import Badge from 'reactstrap/lib/Badge'
 import TabsVerticalLeft from './TabsVerticalLeft'
+import { useNiceQuery } from '../../utility/Utils'
 
 const GET_CALLOUT = gql`
 query GetCallout {
@@ -47,6 +48,8 @@ query GetCallout {
       request_time
       status
       description
+      inserted_by
+      updated_by
       picture1
       picture2
       picture3
@@ -110,7 +113,7 @@ query GetCallout {
 const DataTableAdvSearch = () => {
 
   // ** States
-  const { loading, data, error } = useQuery(GET_CALLOUT)
+  const { loading, data, error } = useNiceQuery(GET_CALLOUT)
   const [modal, setModal] = useState(false)
   const [detailsModal, setDetailsModal] = useState(false)
   const [modalDetails, setModalDetails] = useState(null)

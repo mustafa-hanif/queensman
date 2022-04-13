@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // https://hasura-cf57bf4d.nhost.app/v1/graphql
 // https://backend-cf57bf4d.nhost.app
 // secret 9f3c57cbf94b42e7295071d31df3e6e8

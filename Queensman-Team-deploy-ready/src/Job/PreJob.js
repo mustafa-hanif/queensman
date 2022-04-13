@@ -188,8 +188,8 @@ const PreJob = (props) => {
 
   const AlertSubmitJob = () => {
     Alert.alert(
-      "Alert.",
-      "Are you sure you want continue?",
+      "Alert!",
+      "Are you sure you want finish ticket?",
       [
         {
           text: "No",
@@ -234,7 +234,7 @@ const PreJob = (props) => {
             id: ticketId,
           },
         });
-        alert("Service has been successfully completed. Great Job!");
+        alert("Job ticket has been successfully submitted");
         props.navigation.navigate("Home");
       } catch (e) {
         console.log(e);

@@ -79,6 +79,9 @@ const TabsVerticalLeft = ({item}) => {
   const job = item?.callout_job
   const job_worker = item?.job_worker
   const schedule = item?.schedulers[0]
+  console.log(job_history.filter(element => element.location !== null))
+  const location = job_history.filter(element => element.location !== null)[0]?.location
+  
   // const {id, notes, name, callout_id, description, type, worker_email, status, request_time } = item
   // const job_ticket = {id, notes, name, callout_id, description, type, worker_email, status, request_time }
   // console.log(job_ticket)
@@ -196,6 +199,16 @@ const TabsVerticalLeft = ({item}) => {
             Job History
           </NavLink>
         </NavItem>
+        <NavItem>
+          <NavLink
+            active={active === '9'}
+            onClick={() => {
+              toggle('9')
+            }}
+          >
+            Location
+          </NavLink>
+        </NavItem>
       </Nav>
       <TabContent activeTab={active}>
       <TabPane tabId='1'>
@@ -303,6 +316,10 @@ const TabsVerticalLeft = ({item}) => {
         <TabPane tabId='8'>
         <h1>Job History Details</h1>
         <CollapseDefault data={job_history_modified} />
+        </TabPane>
+        <TabPane tabId='9'>
+        <h1>Location</h1>
+        {location ? <h6 className='mb-1'><a target="_blank" href={`https://www.google.com/maps/search/?api=1&query=${JSON.parse(location).coords?.latitude}%2C${JSON.parse(location).coords?.longitude}`}>Click here to view location</a></h6> : <h6>Location unavailable</h6>}
         </TabPane>
       </TabContent>
     </div>

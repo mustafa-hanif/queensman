@@ -42,6 +42,7 @@ import AddNewModal from './AddNewModal'
 import ButtonGroup from 'reactstrap/lib/ButtonGroup'
 import { months } from 'moment'
 import Badge from 'reactstrap/lib/Badge'
+import { useNiceQuery } from '../../utility/Utils'
 
 const GET_PROPERTIES = gql`
 query MyQuery {
@@ -73,7 +74,7 @@ query MyQuery {
 const DataTableAdvSearch = () => {
 
         // ** States
-  const { loading, data, error } = useQuery(GET_PROPERTIES)
+  const { loading, data, error } = useNiceQuery(GET_PROPERTIES)
   const [searchName, setSearchName] = useState('')
   const [searchEmail, setSearchEmail] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
@@ -217,9 +218,9 @@ const advSearchColumns = [
     setSearchName(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.client.full_name?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item?.client.full_name?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.client.full_name?.toLowerCase().includes(value.toLowerCase())
+        const includes = item?.client.full_name?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -247,9 +248,9 @@ const advSearchColumns = [
     setSearchEmail(value)
     if (value.length) {
       updatedData = dataToFilter().filter(item => {
-        const startsWith = item.client.email?.toLowerCase().startsWith(value.toLowerCase())
+        const startsWith = item?.client.email?.toLowerCase().startsWith(value.toLowerCase())
 
-        const includes = item.client.email?.toLowerCase().includes(value.toLowerCase())
+        const includes = item?.client.email?.toLowerCase().includes(value.toLowerCase())
 
         if (startsWith) {
           return startsWith
@@ -277,8 +278,8 @@ const advSearchColumns = [
       setSearchCountry(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item.property.country?.toLowerCase().startsWith(value.toLowerCase())
-          const includes = item.property.country?.toLowerCase().includes(value.toLowerCase())
+          const startsWith = item?.property?.country?.toLowerCase().startsWith(value.toLowerCase())
+          const includes = item?.property?.country?.toLowerCase().includes(value.toLowerCase())
   
           if (startsWith) {
               return startsWith
@@ -306,8 +307,8 @@ const advSearchColumns = [
       setSearchCity(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item.property.city?.toLowerCase().startsWith(value.toLowerCase())
-          const includes = item.property.city?.toLowerCase().includes(value.toLowerCase())
+          const startsWith = item?.property?.city?.toLowerCase().startsWith(value.toLowerCase())
+          const includes = item?.property?.city?.toLowerCase().includes(value.toLowerCase())
           if (startsWith) {
               return startsWith
             } else if (!startsWith && includes) {
@@ -334,8 +335,8 @@ const advSearchColumns = [
       setSearchCommunity(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item.property.community?.toLowerCase().startsWith(value.toLowerCase())
-          const includes = item.property.community?.toLowerCase().includes(value.toLowerCase())
+          const startsWith = item?.property?.community?.toLowerCase().startsWith(value.toLowerCase())
+          const includes = item?.property?.community?.toLowerCase().includes(value.toLowerCase())
           if (startsWith) {
               return startsWith
             } else if (!startsWith && includes) {
@@ -360,10 +361,10 @@ const advSearchColumns = [
       }
   
       setSearchAddress(value)
-      if (value.length) {
+      if (value?.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item.property.address?.toLowerCase().startsWith(value.toLowerCase())
-          const includes = item.property.address?.toLowerCase().includes(value.toLowerCase())
+          const startsWith = item?.property?.address?.toLowerCase().startsWith(value?.toLowerCase())
+          const includes = item?.property?.address?.toLowerCase().includes(value?.toLowerCase())
           if (startsWith) {
               return startsWith
             } else if (!startsWith && includes) {
@@ -390,8 +391,8 @@ const advSearchColumns = [
       setSearchPropertyId(value)
       if (value.length) {
         updatedData = dataToFilter().filter(item => {
-          const startsWith = item.property.id?.toString().startsWith(value)
-          const includes = item.property.id?.toString().includes(value)
+          const startsWith = item?.property?.id?.toString().startsWith(value)
+          const includes = item?.property?.id?.toString().includes(value)
           if (startsWith) {
               return startsWith
             } else if (!startsWith && includes) {

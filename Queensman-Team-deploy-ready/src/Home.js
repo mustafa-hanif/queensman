@@ -404,6 +404,7 @@ const GET_CURRENT_JOB_WORKER = gql`query GetJobWorkerId($email: String) {
 export default function HomeFunction(props) {
   const notificationListener = useRef(null);
   const responseListener = useRef(null);
+  console.log(auth.user().email)
   const {loading: workerLoading, data: workerData, error: workerError} = useQuery(GET_CURRENT_JOB_WORKER, {variables: {
     email: auth.user().email,
   }})
@@ -413,7 +414,6 @@ export default function HomeFunction(props) {
   }] =
     useMutation(UPDATE_TOKEN);
 
-  const user = auth?.currentSession?.session?.user;
   function sendTokenToServer(variables) {
     console.log({ mutationLoading, mutationError });
     updateToken(variables)
@@ -434,7 +434,7 @@ export default function HomeFunction(props) {
     });
       
     registerForPushNotificationsAsync().then(async (token) => {
-      const email = user?.email;
+      const email = auth.user().email;
       sendTokenToServer({ variables: { token, email } });
     }).catch(alert);
       
