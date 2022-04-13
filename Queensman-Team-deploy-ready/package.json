@@ -52,7 +52,6 @@
     "react-native-modal-datetime-picker": "^8.5.4",
     "react-native-phone-call": "^1.0.9",
     "react-native-progress-steps": "^1.2.7",
-    "react-native-reanimated": "^1.13.3",
     "react-native-safe-area-context": "3.2.0",
     "react-native-screens": "~3.0.0",
     "react-native-signature-canvas": "^1.4.2",
