@@ -11,7 +11,7 @@ import DataTable from 'react-data-table-component'
 import { toast } from 'react-toastify'
 import Exportqs from '../extensions/import-export/Exportqs'
 import moment from "moment"
-import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check, XCircle } from 'react-feather'
+import { MoreVertical, Edit, ChevronDown, Plus, Trash, Eye, EyeOff, Edit3, Upload, Loader, Check, XCircle, Search } from 'react-feather'
 import { Card, CardHeader, CardBody, CardTitle, Input, Label, FormGroup, Row, Col, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import Select from 'react-select'
 
@@ -35,95 +35,121 @@ import Badge from 'reactstrap/lib/Badge'
 import TabsVerticalLeft from './TabsVerticalLeft'
 import { useNiceQuery } from '../../utility/Utils'
 
+const PAGINATE  = 10
+
 const GET_CALLOUT = gql`
-query GetCallout {
-    callout(order_by: {id: desc}) {
+query GetCallout($offset: Int!, $limit: Int!, $where: callout_bool_exp = {}) {
+  callout(order_by: {id: desc}, offset: $offset, limit: $limit, where: $where) {
+    id
+    callout_by_email
+    property_id
+    job_type
+    urgency_level
+    category
+    active
+    request_time
+    status
+    description
+    inserted_by
+    updated_by
+    picture1
+    picture2
+    picture3
+    picture4
+    video
+    property {
       id
-      callout_by_email
-      property_id
-      job_type
-      urgency_level
-      category
-      active
-      request_time
-      status
-      description
-      inserted_by
+      city
+      country
+      community
+      address
+      comments
+      type
+    }
+    client_callout_email {
+      id
+      full_name
+      email
+    }
+    pre_pics {
+      picture_location
+      upload_time
+      id
+    }
+    postpics {
+      id
+      picture_location
+      upload_time
+    }
+    job_history {
+      id
       updated_by
-      picture1
-      picture2
-      picture3
-      picture4
-      video
-      property {
-        id
-        city
-        country
-        community
-        address
-        comments
-        type
-      }
-      client_callout_email {
+      status_update
+      time
+      location
+    }
+    job_worker {
+      worker {
         id
         full_name
         email
-      }
-      pre_pics {
-        picture_location
-        upload_time
-        id
-      }
-      postpics {
-        id
-        picture_location
-        upload_time
-      }
-      job_history {
-        id
-        updated_by
-        status_update
-        time
-        location
-      }
-      job_worker {
-        worker {
-          id
-          full_name
-          email
-          team_id
-        }
-      }
-      callout_job {
-        feedback
-        instructions
-        rating
-        signature
-        solution
-      }
-      schedulers {
-        id
-        date_on_calendar
-        time_on_calendar
+        team_id
       }
     }
+    callout_job {
+      feedback
+      instructions
+      rating
+      signature
+      solution
+    }
+    schedulers {
+      id
+      date_on_calendar
+      time_on_calendar
+    }
   }
+  callout_aggregate(where: $where) {
+    aggregate {
+      count
+    }
+  }
+}
 `
 
 const DataTableAdvSearch = () => {
 
   // ** States
-  const { loading, data, error } = useNiceQuery(GET_CALLOUT)
+  const [currentPage, setCurrentPage] = useState(0)
+  const [searchEmail, setSearchEmail] = useState('')
+  const [searchCalloutId, setSearchCalloutId] = useState('')
+  const [searchStatus, setSearchStatus] = useState('')
+  
+  const variables = {}
+
+  if (searchCalloutId) {
+    variables.offset = 0
+    if (searchEmail || searchStatus) {
+      variables.where = { id: { _eq: searchCalloutId }, callout_by_email: {_ilike:  `%${searchEmail}%`}, status: {_ilike: `%${searchStatus}%`} }  
+    } else {
+      variables.where = { id: { _eq: searchCalloutId }}
+    }
+  } else if (searchEmail || searchStatus) {
+    variables.where = {  id: { _gt: 0 }, callout_by_email: {_ilike:  `%${searchEmail}%`}, status: {_ilike: `%${searchStatus}%`} }  
+  } else {
+    variables.limit = PAGINATE
+    variables.offset = ((currentPage + 1) * PAGINATE) - PAGINATE
+  }
+
+  const { loading, data, error } = useNiceQuery(GET_CALLOUT, {
+    variables
+  })
   const [modal, setModal] = useState(false)
   const [detailsModal, setDetailsModal] = useState(false)
   const [modalDetails, setModalDetails] = useState(null)
   const [searchName, setSearchName] = useState('')
-  const [searchEmail, setSearchEmail] = useState('')
   const [searchType, setSearchType] = useState('')
-  const [searchStatus, setSearchStatus] = useState('')
-  const [searchCalloutId, setSearchCalloutId] = useState('')
   const [description, setDescription] = useState('')
-  const [currentPage, setCurrentPage] = useState(0)
   const [filteredData, setFilteredData] = useState([])
 
   const typeOptions = [
@@ -154,7 +180,6 @@ const DataTableAdvSearch = () => {
 
   // ** Function to handle Pagination
   const handlePagination = page => setCurrentPage(page.selected)
-
   // ** Table Columns
   const advSearchColumns = [
     {
@@ -234,13 +259,9 @@ const DataTableAdvSearch = () => {
 
   // ** Table data to render
   const dataToRender = () => {
-    if (
-      searchStatus?.length || searchCalloutId.length || searchEmail.length
-    ) {
-      return filteredData
-    } else {
-      return data?.callout
-    }
+
+      return data
+    
   }
 
   // ** Custom Pagination
@@ -250,7 +271,7 @@ const DataTableAdvSearch = () => {
       nextLabel={''}
       forcePage={currentPage}
       onPageChange={page => handlePagination(page)}
-      pageCount={dataToRender().length / 7 || 1}
+      pageCount={dataToRender()?.callout_aggregate.aggregate.count / PAGINATE}
       breakLabel={'...'}
       pageRangeDisplayed={2}
       marginPagesDisplayed={2}
@@ -272,7 +293,7 @@ const DataTableAdvSearch = () => {
     const value = e.target.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchStatus?.length || searchCalloutId.length) {
+      if (searchStatus?.length) {
         return filteredData
       } else {
         return data?.callout
@@ -333,7 +354,7 @@ const DataTableAdvSearch = () => {
     const value = e?.value
     let updatedData = []
     const dataToFilter = () => {
-      if (searchCalloutId.length || searchEmail.length) {
+      if (searchEmail.length) {
        return filteredData
      } else {
     return data?.callout
@@ -398,7 +419,11 @@ const DataTableAdvSearch = () => {
   const clearRecord = () => {
     setSearchEmail("") 
     setSearchCalloutId("")
-    setSearchStatus(null)
+    setSearchStatus("")
+  }
+  
+  const beginSearch = () => {
+
   }
   
   return (
@@ -406,10 +431,14 @@ const DataTableAdvSearch = () => {
       <Card>        <CardHeader className='border-bottom'>
           <CardTitle tag='h4'>Callout Search</CardTitle>
           <div className='d-flex mt-md-0 mt-1'>
-          { (searchEmail || searchStatus || searchCalloutId) && <Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
+          { (searchEmail || searchStatus || searchCalloutId) && <><Button className='ml-2' color='danger' outline onClick={() => clearRecord()}>
               <XCircle size={15} />
               <span className='align-middle ml-50'>Clear filter</span>
-            </Button>}
+            </Button>
+              <Button className='ml-2' color='primary' onClick={() => beginSearch()}>
+              <Search size={15} />
+              <span className='align-middle ml-50'>Search</span>
+            </Button></>}
             {/* <Button className='ml-2' color='primary' onClick={addJobTicketRecord}>
               <Plus size={15} />
               <span className='align-middle ml-50'>Add Record</span>
@@ -423,7 +452,7 @@ const DataTableAdvSearch = () => {
               <FormGroup>
                 <Label for='type'>Status Type:</Label>
                 <Select
-                  onChange={handleStatusFilter}
+                  onChange={(e) => setSearchStatus(e?.value ?? "")}
                   className='react-select'
                   classNamePrefix='select'
                   defaultValue={searchStatus}
@@ -436,12 +465,12 @@ const DataTableAdvSearch = () => {
             <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='calloutId'>Callout ID:</Label>
-                <Input id='calloutId' placeholder='Search callout id' value={searchCalloutId} onChange={handleCalloutIdFilter} />
+                <Input id='calloutId' type="number" placeholder='Search callout id' value={searchCalloutId} onChange={(e) => setSearchCalloutId(e.target.value)} />
               </FormGroup>
             </Col>          <Col lg='4' md='6'>
               <FormGroup>
                 <Label for='email'>Client Email:</Label>
-                <Input id='email' placeholder='AC not working' value={searchEmail} onChange={handleEmailFilter} />
+                <Input id='email' placeholder='AC not working' value={searchEmail} onChange={(e) => setSearchEmail(e.target.value)} />
               </FormGroup>
             </Col>
           </Row>
@@ -451,12 +480,12 @@ const DataTableAdvSearch = () => {
           noHeader
           pagination
           columns={advSearchColumns}
-          paginationPerPage={7}
+          paginationPerPage={(currentPage + 1) * PAGINATE}
           className='react-dataTable'
-          sortIcon={<ChevronDown size={10} />}
+          sortIcon={<ChevronDown size={(currentPage + 1) * PAGINATE} />}
           paginationDefaultPage={currentPage + 1}
-          //   paginationComponent={CustomPagination}
-          data={dataToRender()}
+            paginationComponent={CustomPagination}
+          data={dataToRender()?.callout}
           onRowClicked={(row) => openDetailsModal(row)}
           highlightOnHover={true}
           pointerOnHover={true}

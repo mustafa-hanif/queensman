@@ -1,4 +1,4 @@
-import { Mail, Home, Clock } from 'react-feather'
+import { Table, Home, Clock, Users, Book, Briefcase, Layers, ArrowRight, Codesandbox, Tablet } from 'react-feather'
 
 export default [
   {
@@ -10,13 +10,13 @@ export default [
   {
     id: 'client',
     title: 'Clients',
-    icon: <Mail size={20} />,
+    icon: <Users size={20} />,
     navLink: '/clients'
   },
   {
     id: 'tickets',
     title: 'Tickets',
-    icon: <Mail size={20} />,
+    icon: <Book size={20} />,
     navLink: '/tickets'
   },
   {
@@ -28,31 +28,31 @@ export default [
   {
     id: 'inventory',
     title: 'Inventory',
-    icon: <Clock size={20} />,
+    icon: <Briefcase size={20} />,
     navLink: '/inventory'
   },
   {
     id: 'Properties',
     title: 'Properties',
-    icon: <Clock size={20} />,
+    icon: <Layers size={20} />,
     navLink: '/property'
   },
   {
     id: 'workers',
     title: 'Workers',
-    icon: <Clock size={20} />,
+    icon: <Tablet size={20} />,
     navLink: '/workers'
   },
   {
     id: 'teams',
     title: 'Teams',
-    icon: <Clock size={20} />,
+    icon: <ArrowRight size={20} />,
     navLink: '/teams'
   },
   {
     id: 'services',
     title: 'Services',
-    icon: <Clock size={20} />,
+    icon: <Codesandbox size={20} />,
     navLink: '/services'
   }
 ]

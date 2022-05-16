@@ -1,6 +1,6 @@
 import classnames from 'classnames'
 import Avatar from '@components/avatar'
-import { TrendingUp, User, Box, DollarSign } from 'react-feather'
+import { TrendingUp, User, Box, DollarSign, Book, Users, Layers } from 'react-feather'
 import { Card, CardHeader, CardTitle, CardBody, CardText, Row, Col, Media, Spinner } from 'reactstrap'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { useNiceQuery } from '../../../../utility/Utils'
@@ -46,19 +46,19 @@ const StatsCard = ({ cols }) => {
       title: apiData?.closed?.aggregate?.count,
       subtitle: 'Tickets Closed',
       color: 'light-info',
-      icon: <User size={24} />
+      icon: <Book size={24} />
     },
     {
       title: apiData?.client?.aggregate?.count,
       subtitle: 'Clients',
       color: 'light-danger',
-      icon: <Box size={24} />
+      icon: <Users size={24} />
     },
     {
       title: apiData?.property?.aggregate?.count,
       subtitle: 'Properties Registered',
       color: 'light-success',
-      icon: <DollarSign size={24} />
+      icon: <Layers size={24} />
     }
   ]
 

@@ -40,6 +40,7 @@
     "expo-pixi": "^1.1.0",
     "expo-screen-orientation": "~3.1.0",
     "expo-status-bar": "~1.0.4",
+    "expo-updates": "~0.5.4",
     "expo-video-player": "^2.0.1",
     "hoist-non-react-statics": "*",
     "install": "^0.13.0",
