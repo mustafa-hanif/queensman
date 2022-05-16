@@ -1,13 +1,18 @@
 {
-  "builds": {
-    "android": {
-      "release": {
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "release": {
+      "distribution": "internal",
+      "android": {
         "buildType": "apk"
-      },
-      "development": {
-        "buildType": "development-client",
-        "distribution": "internal"
       }
-    }
+    },
+    "production": {}
+  },
+  "cli": {
+    "version": ">= 0.50.0"
   }
 }
