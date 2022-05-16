@@ -38,7 +38,7 @@ import { useNiceQuery } from '../../utility/Utils'
 const PAGINATE  = 10
 
 const GET_CALLOUT = gql`
-query GetCallout($offset: Int!, $limit: Int!, $where: callout_bool_exp = {}) {
+query GetCallout($offset: Int, $limit: Int, $where: callout_bool_exp = {}) {
   callout(order_by: {id: desc}, offset: $offset, limit: $limit, where: $where) {
     id
     callout_by_email

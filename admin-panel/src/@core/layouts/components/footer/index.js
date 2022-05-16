@@ -10,7 +10,7 @@ const Footer = () => {
           Queensman
         </a>
         <span className='d-none d-sm-inline-block mr-xl-3'>, All rights Reserved</span>
-        <span className='d-none d-sm-inline-block font-weight-bold'>Version: <span>2.0.0</span></span>
+        <span className='d-none d-sm-inline-block font-weight-bold'>Version: <span>2.0.1</span></span>
       </span>
       <span className='float-md-right d-none d-md-block'>
         Hand-crafted & Made with
