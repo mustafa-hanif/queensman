@@ -43,18 +43,6 @@ const StatsCard = ({ cols }) => {
     if (!("Notification" in window)) {
       alert("This browser does not support desktop notification")
     }
-  
-    // Let's check whether notification permissions have already been granted
-    else if (Notification.permission === "granted") {
-      // If it's okay let's create a notification
-      navigator.serviceWorker.ready.then(function(registration) {
-        registration.showNotification('Notification with ServiceWorker')
-      })
-      // const notification = new Notification("Hi there!")
-      // alert(notification.title)
-      // console.log(notification)
-    }
-  
     // Otherwise, we need to ask the user for permission
     else if (Notification.permission !== "denied") {
       Notification.requestPermission().then(function (permission) {
@@ -63,7 +51,18 @@ const StatsCard = ({ cols }) => {
           // const notification = new Notification("Hi there!")
       // alert(notification.title)
           navigator.serviceWorker.ready.then(function(registration) {
-            registration.showNotification('Notification with ServiceWorker')
+            const title = "Job Closed"
+            const options = {
+              actions: [{action: 'archive', title: "Archive"}, {action: "open", title: "View Job"}],
+              body: "Hellow from queens man",
+              data: "why queens man and not queenswoman",
+              renotify: true,
+              requireInteraction: true,
+              silent: false,
+              tag: "queensman"
+            }
+
+            registration.showNotification(title, options)
           })
         }
       })
