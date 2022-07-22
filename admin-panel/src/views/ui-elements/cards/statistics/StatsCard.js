@@ -1,3 +1,4 @@
+/* eslint-disable brace-style */
 import classnames from 'classnames'
 import Avatar from '@components/avatar'
 import { TrendingUp, User, Box, DollarSign } from 'react-feather'
@@ -35,6 +36,34 @@ const StatsCard = ({ cols }) => {
     console.log(error)
   }
   
+  const notifyMe = () => {
+    // Let's check if the browser supports notifications
+    if (!("Notification" in window)) {
+      alert("This browser does not support desktop notification")
+    }
+  
+    // Let's check whether notification permissions have already been granted
+    else if (Notification.permission === "granted") {
+      // If it's okay let's create a notification
+      const notification = new Notification("Hi there!")
+      console.log(notification)
+    }
+  
+    // Otherwise, we need to ask the user for permission
+    else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(function (permission) {
+        // If the user accepts, let's create a notification
+        if (permission === "granted") {
+          const notification = new Notification("Hi there!")
+          console.log(notification)
+        }
+      })
+    }
+  
+    // At last, if the user has denied notifications, and you
+    // want to be respectful there is no need to bother them any more.
+  }
+
   const data = [
     {
       title: apiData?.callout?.aggregate?.count,
@@ -138,6 +167,7 @@ const StatsCard = ({ cols }) => {
   return (
     <Card className='card-statistics'>
       <CardHeader>
+      <button onClick={() => notifyMe()}>Notify me!</button>
         <CardTitle tag='h4'>Statistics</CardTitle>
       </CardHeader>
       <CardBody className='statistics-body'>
