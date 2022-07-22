@@ -48,13 +48,21 @@ const StatsCard = ({ cols }) => {
       Notification.requestPermission().then(function (permission) {
         // If the user accepts, let's create a notification
         if (permission === "granted") {
+          
           // const notification = new Notification("Hi there!")
       // alert(notification.title)
+      navigator.addEventListener('notificationclick', function(event) {
+        event.notification.close()
+        if (event.action === 'open') {
+          clients.openWindow("/tickets")
+        } 
+      }, false)
+
           navigator.serviceWorker.ready.then(function(registration) {
             const title = "Job Closed"
             const options = {
               actions: [{action: 'archive', title: "Archive"}, {action: "open", title: "View Job"}],
-              body: "Hellow from queens man",
+              // body: "Hellow from queens man",
               data: "why queens man and not queenswoman",
               renotify: true,
               requireInteraction: true,
