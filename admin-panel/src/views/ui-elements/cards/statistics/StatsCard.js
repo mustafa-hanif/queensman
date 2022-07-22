@@ -37,6 +37,9 @@ const StatsCard = ({ cols }) => {
   }
   
   const notifyMe = () => {
+
+    navigator.serviceWorker.register('../serviceWorker.js')
+
     // Let's check if the browser supports notifications
     if (!("Notification" in window)) {
       alert("This browser does not support desktop notification")
@@ -55,7 +58,9 @@ const StatsCard = ({ cols }) => {
         // If the user accepts, let's create a notification
         if (permission === "granted") {
           const notification = new Notification("Hi there!")
-          console.log(notification)
+          navigator.serviceWorker.ready.then(function(registration) {
+            registration.showNotification('Notification with ServiceWorker')
+          })
         }
       })
     }
